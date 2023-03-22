@@ -14,6 +14,9 @@
 		C57EE33E29CA8E34002A4875 /* Cryozest_2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE33D29CA8E34002A4875 /* Cryozest_2Tests.swift */; };
 		C57EE34829CA8E34002A4875 /* Cryozest_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE34729CA8E34002A4875 /* Cryozest_2UITests.swift */; };
 		C57EE34A29CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE34929CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift */; };
+		C57EE35729CA8E57002A4875 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35629CA8E57002A4875 /* MainView.swift */; };
+		C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35829CA8E73002A4875 /* LogbookView.swift */; };
+		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		C57EE34329CA8E34002A4875 /* Cryozest-2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cryozest-2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C57EE34729CA8E34002A4875 /* Cryozest_2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2UITests.swift; sourceTree = "<group>"; };
 		C57EE34929CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2UITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C57EE35629CA8E57002A4875 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		C57EE35829CA8E73002A4875 /* LogbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogbookView.swift; sourceTree = "<group>"; };
+		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +102,9 @@
 			children = (
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
+				C57EE35629CA8E57002A4875 /* MainView.swift */,
+				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
+				C57EE35A29CA8FBF002A4875 /* SessionRow.swift */,
 				C57EE33029CA8E34002A4875 /* Assets.xcassets */,
 				C57EE33229CA8E34002A4875 /* Preview Content */,
 			);
@@ -257,7 +266,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
+				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
+				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
