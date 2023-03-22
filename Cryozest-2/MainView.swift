@@ -2,6 +2,9 @@
 import SwiftUI
 
 struct MainView: View {
+    
+    @Binding var sessions: [LogbookView.Session]
+    
     @State private var temperature: String = ""
     @State private var humidity: String = ""
     @State private var bodyWeight: String = ""
@@ -10,7 +13,7 @@ struct MainView: View {
     @State private var timer: Timer?
     @State private var timerDuration: TimeInterval = 0
     @State private var timerStartDate: Date?
-    @State private var sessions: [LogbookView.Session] = []
+    // @State private var sessions: [LogbookView.Session] = []
     @State private var showAlert: Bool = false
     @State private var alertTitle: String = ""
     @State private var alertMessage: String = ""
@@ -53,55 +56,55 @@ struct MainView: View {
                     .keyboardType(.decimalPad)
                     .padding()
                 // MainView.swift - Segment 2
-                                Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
-                                    ForEach(TherapyType.allCases) { therapyType in
-                                        Text(therapyType.rawValue).tag(therapyType)
-                                    }
-                                }
-                                .pickerStyle(DefaultPickerStyle())
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
-                                
-                                HStack {
-                                    Button(action: logSessionButtonPressed) {
-                                        Text("Log Session")
-                                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
-                                            .background(Color.green)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(8)
-                                            .font(.headline)
-                                    }.padding([.leading, .bottom, .trailing])
-                                    
-                                    Button(action: { showLogbook = true }) {
-                                        Text("View Logbook")
-                                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
-                                            .background(darkGray)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(8)
-                                            .font(.headline)
-                                    }.padding([.leading, .bottom, .trailing])
-                                }
-                                
-                                NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
-                                    .hidden()
-                                NavigationLink("", destination: SessionSummary(duration: timerDuration, waterIntake: (Double(bodyWeight) ?? 0.0) / 30 * (timerDuration / 900)), isActive: $showSessionSummary)
-                                    .hidden()
-                // MainView.swift - Segment 3
-                            }
-                            .padding()
-                            .background(Color.darkBackground)
-                            .edgesIgnoringSafeArea(.bottom)
-                            .navigationBarTitle("Cryozest", displayMode: .inline)
-                            .alert(isPresented: $showAlert) {
-                                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-                            }
-                        }
+                Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
+                    ForEach(TherapyType.allCases) { therapyType in
+                        Text(therapyType.rawValue).tag(therapyType)
                     }
+                }
+                .pickerStyle(DefaultPickerStyle())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                
+                HStack {
+                    Button(action: logSessionButtonPressed) {
+                        Text("Log Session")
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .font(.headline)
+                    }.padding([.leading, .bottom, .trailing])
+                    
+                    Button(action: { showLogbook = true }) {
+                        Text("View Logbook")
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
+                            .background(darkGray)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .font(.headline)
+                    }.padding([.leading, .bottom, .trailing])
+                }
+                
+                NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
+                    .hidden()
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, waterIntake: (Double(bodyWeight) ?? 0.0) / 30 * (timerDuration / 900)), isActive: $showSessionSummary)
+                    .hidden()
+                // MainView.swift - Segment 3
+            }
+            .padding()
+            .background(Color.darkBackground)
+            .edgesIgnoringSafeArea(.bottom)
+            .navigationBarTitle("Cryozest", displayMode: .inline)
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
+        }
+    }
     
     // MainView.swift - Segment 4
-        // The rest of the methods go here.
+    // The rest of the methods go here.
     
     func startStopButtonPressed() {
         if timer == nil {
@@ -117,10 +120,10 @@ struct MainView: View {
             timer = nil
         }
     }
-
     
     
-
+    
+    
     func logSessionButtonPressed() {
         guard let temperatureValue = Double(temperature),
               let humidityValue = Double(humidity),
@@ -129,45 +132,45 @@ struct MainView: View {
             showAlert(title: "Invalid Input", message: "Please enter valid numerical values for temperature, humidity, and body weight.")
             return
         }
-
+        
         if temperatureValue < -89.2 || temperatureValue > 58 {
             showAlert(title: "Invalid Input", message: "Please enter a temperature value within Earth's limits.")
             return
         }
-
+        
         if humidityValue < 0 || humidityValue > 100 {
             showAlert(title: "Invalid Input", message: "Please enter a humidity value within Earth's limits.")
             return
         }
-
+        
         if bodyWeightValue < 0 {
             showAlert(title: "Invalid Input", message: "Please enter a valid body weight.")
             return
         }
-
+        
         // Create a session object with the input data
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         let session = LogbookView.Session(date: dateFormatter.string(from: Date()), duration: timerDuration, temperature: Int(temperatureValue), humidity: Int(humidityValue), therapyType: selectedTherapy)
-
+        
         // Add the session to the sessions array
         sessions.append(session)
-
+        
         // Calculate water intake
         let waterIntake = (bodyWeightValue / 30) * (timerDuration / 900)
-
+        
         // Reset the timer
         timer?.invalidate()
         timer = nil
         timerDuration = 0
         timerLabel = "00:00"
-
+        
         // Show the session summary view
         withAnimation {
             showSessionSummary = true
         }
     }
-
+    
     
     func showAlert(title: String, message: String) {
         alertTitle = title
@@ -206,10 +209,10 @@ struct MainView: View {
 }
 
 
-        // Add this extension to define the custom colors
-        extension Color {
-            static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
-            static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
-        }
+// Add this extension to define the custom colors
+extension Color {
+    static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
+    static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
+}
 
 

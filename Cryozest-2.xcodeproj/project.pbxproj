@@ -19,6 +19,7 @@
 		C57EE35729CA8E57002A4875 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35629CA8E57002A4875 /* MainView.swift */; };
 		C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35829CA8E73002A4875 /* LogbookView.swift */; };
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
+		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		C57EE35629CA8E57002A4875 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		C57EE35829CA8E73002A4875 /* LogbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogbookView.swift; sourceTree = "<group>"; };
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
+		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
+				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
 				0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */,
 				C57EE35A29CA8FBF002A4875 /* SessionRow.swift */,
 				C57EE33029CA8E34002A4875 /* Assets.xcassets */,
@@ -278,6 +281,7 @@
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
+				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
