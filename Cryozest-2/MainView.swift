@@ -13,7 +13,6 @@ struct MainView: View {
     @State private var timer: Timer?
     @State private var timerDuration: TimeInterval = 0
     @State private var timerStartDate: Date?
-    // @State private var sessions: [LogbookView.Session] = []
     @State private var showAlert: Bool = false
     @State private var alertTitle: String = ""
     @State private var alertMessage: String = ""
@@ -67,30 +66,12 @@ struct MainView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(8)
                 
-                HStack {
-                    Button(action: logSessionButtonPressed) {
-                        Text("Log Session")
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.headline)
-                    }.padding([.leading, .bottom, .trailing])
-                    
-                    Button(action: { showLogbook = true }) {
-                        Text("View Logbook")
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 44)
-                            .background(darkGray)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.headline)
-                    }.padding([.leading, .bottom, .trailing])
-                }
-                
                 NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, waterIntake: (Double(bodyWeight) ?? 0.0) / 30 * (timerDuration / 900)), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, humidity: Int(humidity) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
                     .hidden()
+                
+                
                 // MainView.swift - Segment 3
             }
             .padding()
@@ -107,6 +88,9 @@ struct MainView: View {
     // The rest of the methods go here.
     
     func startStopButtonPressed() {
+        
+        
+        // Timer has not started (shows 'start').
         if timer == nil {
             timerStartDate = Date()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -115,56 +99,17 @@ struct MainView: View {
                 let seconds = Int(timerDuration) % 60
                 timerLabel = String(format: "%02d:%02d", minutes, seconds)
             }
-        } else {
+        } else { // Timer is running (shows 'stop').
             timer?.invalidate()
             timer = nil
+            showSummary()
         }
     }
     
     
     
     
-    func logSessionButtonPressed() {
-        guard let temperatureValue = Double(temperature),
-              let humidityValue = Double(humidity),
-              let bodyWeightValue = Double(bodyWeight)
-        else {
-            showAlert(title: "Invalid Input", message: "Please enter valid numerical values for temperature, humidity, and body weight.")
-            return
-        }
-        
-        if temperatureValue < -89.2 || temperatureValue > 58 {
-            showAlert(title: "Invalid Input", message: "Please enter a temperature value within Earth's limits.")
-            return
-        }
-        
-        if humidityValue < 0 || humidityValue > 100 {
-            showAlert(title: "Invalid Input", message: "Please enter a humidity value within Earth's limits.")
-            return
-        }
-        
-        if bodyWeightValue < 0 {
-            showAlert(title: "Invalid Input", message: "Please enter a valid body weight.")
-            return
-        }
-        
-        // Create a session object with the input data
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        let session = LogbookView.Session(date: dateFormatter.string(from: Date()), duration: timerDuration, temperature: Int(temperatureValue), humidity: Int(humidityValue), therapyType: selectedTherapy)
-        
-        // Add the session to the sessions array
-        sessions.append(session)
-        
-        // Calculate water intake
-        let waterIntake = (bodyWeightValue / 30) * (timerDuration / 900)
-        
-        // Reset the timer
-        timer?.invalidate()
-        timer = nil
-        timerDuration = 0
-        timerLabel = "00:00"
-        
+    func showSummary() {
         // Show the session summary view
         withAnimation {
             showSessionSummary = true
@@ -177,35 +122,6 @@ struct MainView: View {
         alertMessage = message
         showAlert = true
     }
-    
-    struct SessionSummary: View {
-        let duration: TimeInterval
-        let waterIntake: Double
-        
-        var body: some View {
-            VStack {
-                Text("Session Summary")
-                    .font(.title)
-                    .padding()
-                
-                Text("Duration: \(durationFormatter(duration: duration))")
-                    .padding()
-                
-                Text("Water Intake: \(String(format: "%.2f", waterIntake)) fl.oz.")
-                    .padding()
-                
-                Spacer()
-            }
-            .padding()
-            .navigationBarTitle("Session Summary", displayMode: .inline)
-        }
-        
-        func durationFormatter(duration: TimeInterval) -> String {
-            let minutes = Int(duration) / 60
-            let seconds = Int(duration) % 60
-            return String(format: "%02d:%02d", minutes, seconds)
-        }
-    }
 }
 
 
@@ -214,5 +130,3 @@ extension Color {
     static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
     static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
 }
-
-
