@@ -2,28 +2,42 @@ import SwiftUI
 
 struct LogbookView: View {
     @Binding var sessions: [Session]
-    
+
     var body: some View {
-        List {
-            ForEach(sessions, id: \.date) { session in
-                SessionRow(session: session)
+        NavigationView {
+            List {
+                ForEach(sessions) { session in
+                    SessionRow(session: session)
+                }
             }
+            .navigationBarTitle("Logbook", displayMode: .inline)
         }
-        .navigationBarTitle("Logbook", displayMode: .inline)
-        .navigationBarItems(leading: Button(action: {
-            // Dismiss the LogbookView
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        }) {
-            Image(systemName: "chevron.backward")
-                .font(.system(size: 24))
-        })
-    }
-    
-    struct Session: Identifiable {
-        let id = UUID()
-        var date: String
-        var duration: TimeInterval
-        var temperature: Int
-        var humidity: Int
     }
 }
+
+extension LogbookView {
+    struct Session: Codable, Identifiable {
+        let id: UUID
+        let date: String
+        let duration: TimeInterval
+        let temperature: Int
+        let humidity: Int
+        let therapyType: TherapyType
+        
+        init(date: String, duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType) {
+            self.id = UUID()
+            self.date = date
+            self.duration = duration
+            self.temperature = temperature
+            self.humidity = humidity
+            self.therapyType = therapyType
+        }
+        
+        var formattedDuration: String {
+            let minutes = Int(duration) / 60
+            let seconds = Int(duration) % 60
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
+}
+
