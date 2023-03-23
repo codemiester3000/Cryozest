@@ -5,21 +5,32 @@ struct SessionRow: View {
 
     var body: some View {
         HStack {
-            Text(session.date)
-                .font(.system(size: 14))
-                .frame(width: 100, alignment: .leading)
-            Text(session.formattedDuration)
-                .font(.system(size: 14))
-                .frame(width: 70, alignment: .leading)
-            Text("\(session.temperature)°")
-                .font(.system(size: 14))
-                .frame(width: 60, alignment: .leading)
-            Text("\(session.humidity)%")
-                .font(.system(size: 14))
-                .frame(width: 60, alignment: .leading)
-            Text(session.therapyType.rawValue)
-                .font(.system(size: 14))
-                .frame(width: 120, alignment: .leading)
+            VStack(alignment: .leading) {
+                Text(session.date)
+                    .font(.system(size: 18, design: .rounded))
+                    .foregroundColor(.white) // Change date text color to blue
+                Text(session.therapyType.rawValue)
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundColor(.white)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing) {
+                Text("Duration: \(session.formattedDuration)")
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundColor(.white)
+                Text("Temp: \(session.temperature)°F")
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundColor(.white)
+                Text("Humidity: \(session.humidity)%")
+                    .font(.system(size: 14, design: .rounded))
+                    .foregroundColor(.white)
+            }
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal)
+        .background(.blue)
+        .cornerRadius(8)
     }
 }

@@ -5,11 +5,16 @@ struct LogbookView: View {
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(sessions) { session in
-                    SessionRow(session: session)
+            ScrollView {
+                LazyVStack {
+                    ForEach(sessions) { session in
+                        SessionRow(session: session)
+                            .foregroundColor(.white)
+                    }
                 }
+                .padding()
             }
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
             .navigationBarTitle("Logbook", displayMode: .inline)
         }
     }
