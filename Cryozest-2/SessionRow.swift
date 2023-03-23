@@ -5,21 +5,30 @@ struct SessionRow: View {
 
     var body: some View {
         HStack {
-            Text(session.date)
-                .font(.system(size: 14))
-                .frame(width: 100, alignment: .leading)
-            Text(session.formattedDuration)
-                .font(.system(size: 14))
-                .frame(width: 70, alignment: .leading)
-            Text("\(session.temperature)°")
-                .font(.system(size: 14))
-                .frame(width: 60, alignment: .leading)
-            Text("\(session.humidity)%")
-                .font(.system(size: 14))
-                .frame(width: 60, alignment: .leading)
-            Text(session.therapyType.rawValue)
-                .font(.system(size: 14))
-                .frame(width: 120, alignment: .leading)
+            VStack(alignment: .leading) {
+                Text(session.date)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                Text(session.therapyType.rawValue)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            VStack(alignment: .trailing) {
+                Text("Duration: \(session.formattedDuration)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Text("Temp: \(session.temperature)°F")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Text("Humidity: \(session.humidity)%")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
         }
+        .padding(.vertical, 8)
     }
 }
+

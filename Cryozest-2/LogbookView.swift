@@ -10,6 +10,7 @@ struct LogbookView: View {
                     SessionRow(session: session)
                 }
             }
+            .listStyle(InsetGroupedListStyle())
             .navigationBarTitle("Logbook", displayMode: .inline)
         }
     }

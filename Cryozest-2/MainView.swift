@@ -26,57 +26,46 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
+                Spacer()
+                
                 Text(timerLabel)
                     .font(.system(size: 48, design: .monospaced))
                     .foregroundColor(.white)
-                    .padding(.top)
                 
-                Button(action: startStopButtonPressed) {
-                    Text(timer == nil ? "Start" : "Stop")
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(darkBlue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .font(.headline)
-                }.padding()
+                Spacer()
                 
-                TextField("Temperature (F)", text: $temperature)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.decimalPad)
-                    .padding()
-                
-                TextField("Humidity (%)", text: $humidity)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.decimalPad)
-                    .padding()
-                
-                TextField("Body Weight (lbs)", text: $bodyWeight)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.decimalPad)
-                    .padding()
-                // MainView.swift - Segment 2
-                Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
-                    ForEach(TherapyType.allCases) { therapyType in
-                        Text(therapyType.rawValue).tag(therapyType)
+                VStack(spacing: 20) {
+                    PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
+                    
+                    CustomTextField(placeholder: "Temperature (F)", text: $temperature, keyboardType: .decimalPad)
+
+                    CustomTextField(placeholder: "Humidity (%)", text: $humidity, keyboardType: .decimalPad)
+
+                    CustomTextField(placeholder: "Body Weight (lbs)", text: $bodyWeight, keyboardType: .decimalPad)
+                    
+                    Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
+                        ForEach(TherapyType.allCases) { therapyType in
+                            Text(therapyType.rawValue)
+                                .tag(therapyType)
+                        }
                     }
+                    .pickerStyle(MenuPickerStyle())
+                    .padding()
+                    .background(.blue)
+                    .cornerRadius(8)
+
                 }
-                .pickerStyle(DefaultPickerStyle())
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
+                .padding(.horizontal)
                 
+                Spacer()
+                
+                // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
                     .hidden()
                 NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, humidity: Int(humidity) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
                     .hidden()
-                
-                
-                // MainView.swift - Segment 3
             }
-            .padding()
-            .background(Color.darkBackground)
-            .edgesIgnoringSafeArea(.bottom)
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
             .navigationBarTitle("Cryozest", displayMode: .inline)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -88,8 +77,6 @@ struct MainView: View {
     // The rest of the methods go here.
     
     func startStopButtonPressed() {
-        
-        
         // Timer has not started (shows 'start').
         if timer == nil {
             timerStartDate = Date()
@@ -106,9 +93,6 @@ struct MainView: View {
         }
     }
     
-    
-    
-    
     func showSummary() {
         // Show the session summary view
         withAnimation {
@@ -124,6 +108,41 @@ struct MainView: View {
     }
 }
 
+struct PrimaryButton: View {
+    var title: String
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .font(.headline)
+        }
+        .padding(.bottom, 8)
+    }
+}
+
+
+struct CustomTextField: View {
+    var placeholder: String
+    @Binding var text: String
+    var keyboardType: UIKeyboardType
+
+    var body: some View {
+        TextField(placeholder, text: $text)
+            .padding(12)
+            .keyboardType(keyboardType)
+            .background(Color(.secondarySystemBackground))
+            .foregroundColor(Color(.label))
+            .cornerRadius(10)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
+            .padding(.bottom, 8)
+    }
+}
 
 // Add this extension to define the custom colors
 extension Color {

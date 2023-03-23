@@ -43,46 +43,49 @@ struct SessionSummary: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text(motivationalMessage)
-                .font(.title)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            Text(waterMessage)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            HStack {
-                Button(action: logSession) {
-                    Text("Log Session")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .font(.headline)
-                }
-                .padding([.leading, .bottom, .trailing])
+            VStack(spacing: 20) {
+                Text(motivationalMessage)
+                    .font(.system(size: 24, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .foregroundColor(.white)
                 
-                Button(action: discardSession) {
-                    Text("Discard Session")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .font(.headline)
+                Text(waterMessage)
+                    .font(.system(size: 18, design: .rounded))
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .foregroundColor(.white)
+                
+                HStack {
+                    Button(action: discardSession) {
+                        Text("Discard")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .font(.headline)
+                    }
+                    .padding([.leading, .bottom, .trailing])
+                    
+                    Button(action: logSession) {
+                        Text("Log Session")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .font(.headline)
+                    }
+                    .padding([.leading, .bottom, .trailing])
                 }
-                .padding([.leading, .bottom, .trailing])
+                
+                Spacer()
             }
-            
-            
-            Spacer()
+            .padding(.horizontal)
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+            .navigationBarTitle("\(therapyType.rawValue) Session Summary", displayMode: .inline)
         }
-        .navigationBarTitle("\(therapyType.rawValue) Session Summary", displayMode: .inline)
-    }
     
     private func logSession() {
         let dateFormatter = DateFormatter()
