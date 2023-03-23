@@ -2,14 +2,21 @@ import SwiftUI
 
 struct LogbookView: View {
     @Binding var sessions: [Session]
-
+    
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack {
-                    ForEach(sessions) { session in
-                        SessionRow(session: session)
+                    if sessions.isEmpty {
+                        Text("Begin recording sessions to see data here")
                             .foregroundColor(.white)
+                            .font(.system(size: 18, design: .rounded))
+                            .padding()
+                    } else {
+                        ForEach(sessions) { session in
+                            SessionRow(session: session)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 .padding()
