@@ -18,6 +18,20 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
+    @State private var showPicker: Bool = false
+    
+    struct PickerButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .font(.headline)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+        }
+    }
     
     // Custom dark color palette
     let darkBlue = Color(red: 10 / 255, green: 23 / 255, blue: 63 / 255)
@@ -27,6 +41,12 @@ struct MainView: View {
         NavigationView {
             VStack {
                 Spacer()
+                
+                Spacer()
+                Image("Cryozest-1")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 50*2)
                 
                 Text(timerLabel)
                     .font(.system(size: 48, design: .monospaced))
@@ -43,21 +63,36 @@ struct MainView: View {
 
                     CustomTextField(placeholder: "Body Weight (lbs)", text: $bodyWeight, keyboardType: .decimalPad)
                     
-                    Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
-                        ForEach(TherapyType.allCases) { therapyType in
-                            Text(therapyType.rawValue)
-                                .tag(therapyType)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding()
-                    .background(.blue)
-                    .cornerRadius(8)
-
-                }
-                .padding(.horizontal)
-                
-                Spacer()
+           
+                    Button(action: {
+                                            showPicker.toggle()
+                                        }) {
+                                            HStack {
+                                                Text("Therapy Type")
+                                                    .foregroundColor(.white)
+                                                    .font(.headline)
+                                                Spacer()
+                                                Text(selectedTherapy.rawValue)
+                                                    .foregroundColor(.white)
+                                                    .font(.headline)
+                                            }
+                                            .padding()
+                                            .frame(maxWidth: .infinity)
+                                            .background(Color.blue)
+                                            .cornerRadius(10)
+                                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.blue, lineWidth: 2))
+                                        }
+                                        .actionSheet(isPresented: $showPicker) {
+                                            ActionSheet(title: Text("Select Therapy Type"), buttons: TherapyType.allCases.map { therapyType in
+                                                .default(Text(therapyType.rawValue)) {
+                                                    selectedTherapy = therapyType
+                                                }
+                                            } + [.cancel()])
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                     
+            
                 
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
@@ -66,7 +101,7 @@ struct MainView: View {
                     .hidden()
             }
             .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("Cryozest", displayMode: .inline)
+            //.navigationBarTitle("Cryozest", displayMode: .inline)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
