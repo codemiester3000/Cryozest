@@ -121,4 +121,3 @@ struct SessionSummary_Previews: PreviewProvider {
         SessionSummary(duration: 1500, temperature: 20, humidity: 50, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
     }
 }
-
