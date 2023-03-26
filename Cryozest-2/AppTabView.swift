@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AppTabView: View {
-    @State private var sessions: [LogbookView.Session] = []
+    @State private var sessions: [TherapySession] = []
     
     var body: some View {
         TabView {
@@ -11,7 +11,7 @@ struct AppTabView: View {
                     Text("Home")
                 }
             
-            LogbookView(sessions: $sessions)
+            LogbookView()
                 .tabItem {
                     Image(systemName: "book.fill")
                     Text("Logbook")
