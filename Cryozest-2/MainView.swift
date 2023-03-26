@@ -3,7 +3,7 @@ import SwiftUI
 
 struct MainView: View {
     
-    @Binding var sessions: [LogbookView.Session]
+    @Binding var sessions: [TherapySession]
     
     @State private var temperature: String = ""
     @State private var humidity: String = ""
@@ -38,9 +38,9 @@ struct MainView: View {
                     PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
                     
                     CustomTextField(placeholder: "Temperature (F)", text: $temperature, keyboardType: .decimalPad)
-
+                    
                     CustomTextField(placeholder: "Humidity (%)", text: $humidity, keyboardType: .decimalPad)
-
+                    
                     CustomTextField(placeholder: "Body Weight (lbs)", text: $bodyWeight, keyboardType: .decimalPad)
                     
                     Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
@@ -53,14 +53,14 @@ struct MainView: View {
                     .padding()
                     .background(.blue)
                     .cornerRadius(8)
-
+                    
                 }
                 .padding(.horizontal)
                 
                 Spacer()
                 
                 // MainView.swift - Navigation Links
-                NavigationLink("", destination: LogbookView(sessions: $sessions), isActive: $showLogbook)
+                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
                 NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, humidity: Int(humidity) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
                     .hidden()
@@ -111,7 +111,7 @@ struct MainView: View {
 struct PrimaryButton: View {
     var title: String
     var action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             Text(title)
@@ -131,7 +131,7 @@ struct CustomTextField: View {
     var placeholder: String
     @Binding var text: String
     var keyboardType: UIKeyboardType
-
+    
     var body: some View {
         TextField(placeholder, text: $text)
             .padding(12)

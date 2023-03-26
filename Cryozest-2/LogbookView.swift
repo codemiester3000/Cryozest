@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct LogbookView: View {
-    @Binding var sessions: [Session]
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(entity: TherapySessionEntity.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: true)]) private var sessions: FetchedResults<TherapySessionEntity>
+    // @Binding var sessions: [TherapySession]
     
     var body: some View {
         NavigationView {
@@ -26,30 +28,3 @@ struct LogbookView: View {
         }
     }
 }
-
-extension LogbookView {
-    struct Session: Codable, Identifiable {
-        let id: UUID
-        let date: String
-        let duration: TimeInterval
-        let temperature: Int
-        let humidity: Int
-        let therapyType: TherapyType
-        
-        init(date: String, duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType) {
-            self.id = UUID()
-            self.date = date
-            self.duration = duration
-            self.temperature = temperature
-            self.humidity = humidity
-            self.therapyType = therapyType
-        }
-        
-        var formattedDuration: String {
-            let minutes = Int(duration) / 60
-            let seconds = Int(duration) % 60
-            return String(format: "%02d:%02d", minutes, seconds)
-        }
-    }
-}
-

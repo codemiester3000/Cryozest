@@ -1,6 +1,7 @@
 import SwiftUI
 
 import SwiftUI
+import CoreData
 
 struct SessionSummary: View {
     @State private var duration: TimeInterval
@@ -8,10 +9,12 @@ struct SessionSummary: View {
     @State private var humidity: Int
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
-    @Binding var sessions: [LogbookView.Session]
+    @Binding var sessions: [TherapySession]
     @Environment(\.presentationMode) var presentationMode
     
-    init(duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[LogbookView.Session]>) {
+    @Environment(\.managedObjectContext) private var viewContext
+    
+    init(duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
         _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
         _humidity = State(initialValue: humidity)
@@ -43,56 +46,67 @@ struct SessionSummary: View {
     }
     
     var body: some View {
-            VStack(spacing: 20) {
-                Text(motivationalMessage)
-                    .font(.system(size: 24, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .foregroundColor(.white)
-                
-                Text(waterMessage)
-                    .font(.system(size: 18, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .padding()
-                    .foregroundColor(.white)
-                
-                HStack {
-                    Button(action: discardSession) {
-                        Text("Discard")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.headline)
-                    }
-                    .padding([.leading, .bottom, .trailing])
-                    
-                    Button(action: logSession) {
-                        Text("Log Session")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.headline)
-                    }
-                    .padding([.leading, .bottom, .trailing])
+        VStack(spacing: 20) {
+            Text(motivationalMessage)
+                .font(.system(size: 24, design: .rounded))
+                .multilineTextAlignment(.center)
+                .padding()
+                .foregroundColor(.white)
+            
+            Text(waterMessage)
+                .font(.system(size: 18, design: .rounded))
+                .multilineTextAlignment(.center)
+                .padding()
+                .foregroundColor(.white)
+            
+            HStack {
+                Button(action: discardSession) {
+                    Text("Discard")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .font(.headline)
                 }
+                .padding([.leading, .bottom, .trailing])
                 
-                Spacer()
+                Button(action: logSession) {
+                    Text("Log Session")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .font(.headline)
+                }
+                .padding([.leading, .bottom, .trailing])
             }
-            .padding(.horizontal)
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("\(therapyType.rawValue) Session Summary", displayMode: .inline)
+            
+            Spacer()
         }
+        .padding(.horizontal)
+        .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+        .navigationBarTitle("\(therapyType.rawValue) Session Summary", displayMode: .inline)
+    }
     
     private func logSession() {
+        let newSession = TherapySessionEntity(context: viewContext)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
-        let session = LogbookView.Session(date: dateFormatter.string(from: Date()), duration: duration, temperature: temperature, humidity: humidity, therapyType: therapyType)
+        newSession.date = dateFormatter.string(from: Date())
+        newSession.duration = duration
+        newSession.temperature = Int32(temperature)
+        newSession.humidity = Int32(humidity)
+        newSession.therapyType = therapyType.rawValue
+        newSession.id = UUID()
         
-        sessions.append(session)
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
         
         presentationMode.wrappedValue.dismiss()
     }

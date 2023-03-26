@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct SessionRow: View {
-    var session: LogbookView.Session
+    var session: TherapySessionEntity
 
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(session.date)
+                Text(session.date ?? "")
                     .font(.system(size: 18, design: .rounded))
-                    .foregroundColor(.white) // Change date text color to blue
-                Text(session.therapyType.rawValue)
+                    .foregroundColor(.white)
+                Text(session.therapyType ?? "")
                     .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
             }
@@ -17,7 +17,7 @@ struct SessionRow: View {
             Spacer()
 
             VStack(alignment: .trailing) {
-                Text("Duration: \(session.formattedDuration)")
+                Text("Duration: \(Int(session.duration) / 60):\(Int(session.duration) % 60)")
                     .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
                 Text("Temp: \(session.temperature)°F")

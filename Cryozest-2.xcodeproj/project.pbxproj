@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
+		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
+		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */; };
 		C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32E29CA8E31002A4875 /* ContentView.swift */; };
 		C57EE33129CA8E34002A4875 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C57EE33029CA8E34002A4875 /* Assets.xcassets */; };
@@ -20,6 +22,7 @@
 		C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35829CA8E73002A4875 /* LogbookView.swift */; };
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
+		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,6 +45,8 @@
 /* Begin PBXFileReference section */
 		0531AA8A29CAB86200B5F1AF /* TherapyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyType.swift; sourceTree = "<group>"; };
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
+		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
+		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C57EE32929CA8E31002A4875 /* Cryozest-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cryozest-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2App.swift; sourceTree = "<group>"; };
 		C57EE32E29CA8E31002A4875 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -56,6 +61,7 @@
 		C57EE35829CA8E73002A4875 /* LogbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogbookView.swift; sourceTree = "<group>"; };
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
+		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +115,9 @@
 				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
+				C538085429CFD5DC002E90FF /* TherapySession.swift */,
+				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
+				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
 				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
@@ -275,8 +284,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
+				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
+				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
@@ -607,6 +619,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */,
+			);
+			currentVersion = C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */;
+			path = CryozestModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = C57EE32129CA8E31002A4875 /* Project object */;
 }
