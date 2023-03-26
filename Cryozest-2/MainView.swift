@@ -45,12 +45,6 @@ struct MainView: View {
                 VStack(spacing: 20) {
                     PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
                     
-                    CustomTextField(placeholder: "Temperature (F)", text: $temperature, keyboardType: .decimalPad)
-                    
-                    CustomTextField(placeholder: "Humidity (%)", text: $humidity, keyboardType: .decimalPad)
-                    
-                    CustomTextField(placeholder: "Body Weight (lbs)", text: $bodyWeight, keyboardType: .decimalPad)
-                    
                     Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
                         ForEach(TherapyType.allCases) { therapyType in
                             Text(therapyType.rawValue)
@@ -70,7 +64,7 @@ struct MainView: View {
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, humidity: Int(humidity) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, humidity: Int(humidity) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
                     .hidden()
             }
             .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
@@ -232,7 +226,6 @@ struct PrimaryButton: View {
         .padding(.bottom, 8)
     }
 }
-
 
 struct CustomTextField: View {
     var placeholder: String
