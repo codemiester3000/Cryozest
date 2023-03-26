@@ -2,6 +2,30 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
+    static let preview: PersistenceController = {
+        let result = PersistenceController(inMemory: true)
+        let viewContext = result.container.viewContext
+
+        // Add preview data here if necessary
+        let previewSession = TherapySessionEntity(context: viewContext)
+        previewSession.date = "03/26/2023"
+        previewSession.duration = 1800
+        previewSession.temperature = 180
+        previewSession.humidity = 40
+        previewSession.therapyType = "Dry Sauna"
+        previewSession.startHeartRate = 60
+        previewSession.endHeartRate = 85
+        previewSession.id = UUID()
+
+        do {
+            try viewContext.save()
+        } catch {
+            let nsError = error as NSError
+            fatalError("Error: \(nsError), \(nsError.userInfo)")
+        }
+
+        return result
+    }()
 
     let container: NSPersistentContainer
 
@@ -17,3 +41,4 @@ struct PersistenceController {
         }
     }
 }
+
