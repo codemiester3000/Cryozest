@@ -1,7 +1,10 @@
 // MainView.swift - Segment 1
 import SwiftUI
+import HealthKit
 
 struct MainView: View {
+    
+    let healthStore = HKHealthStore()
     
     @Binding var sessions: [TherapySession]
     
@@ -18,6 +21,9 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
+    @State private var startHeartRate: Double = 0.0
+    @State private var endHeartRate: Double = 0.0
+    
     
     // Custom dark color palette
     let darkBlue = Color(red: 10 / 255, green: 23 / 255, blue: 63 / 255)
@@ -76,9 +82,46 @@ struct MainView: View {
     // MainView.swift - Segment 4
     // The rest of the methods go here.
     
+    // MainView.swift - Segment 4
+    // The rest of the methods go here.
+    
+    func fetchBodyWeightfromHealthKit() {
+        let type = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
+        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
+            guard let results = results as? [HKQuantitySample], let weight = results.first?.quantity.doubleValue(for: .pound()) else {
+                // Handle error here
+                return
+            }
+            DispatchQueue.main.async {
+                bodyWeight = String(format: "%.1f", weight)
+            }
+        }
+        healthStore.execute(query)
+    }
+
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
         if timer == nil {
+            let typesToShare: Set<HKSampleType> = []
+            let typesToRead: Set<HKObjectType> = [
+                HKObjectType.quantityType(forIdentifier: .heartRate)!,
+                HKObjectType.quantityType(forIdentifier: .bodyMass)!,
+                HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+                HKObjectType.quantityType(forIdentifier: .respiratoryRate)!,
+                HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+            ]
+            healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { success, error in
+                if success {
+                    fetchHeartRate()
+                    fetchBodyWeight()
+                    fetchSleepData()
+                    fetchRespirationData()
+                    fetchHRVData()
+                } else {
+                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                }
+            }
+            
             timerStartDate = Date()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
@@ -92,60 +135,165 @@ struct MainView: View {
             showSummary()
         }
     }
-    
-    func showSummary() {
-        // Show the session summary view
-        withAnimation {
-            showSessionSummary = true
+        
+        func fetchHeartRate() {
+            let heartRateType = HKSampleType.quantityType(forIdentifier: .heartRate)!
+            let query = HKSampleQuery(sampleType: heartRateType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKQuantitySample], let quantity = samples.last?.quantity else {
+                        return
+                    }
+                    let heartRate = quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+                    print("Heart rate: \(heartRate)")
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        func fetchBodyWeight() {
+            let weightType = HKSampleType.quantityType(forIdentifier: .bodyMass)!
+            let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKQuantitySample], let quantity = samples.last?.quantity else {
+                        return
+                    }
+                    let weight = quantity.doubleValue(for: HKUnit.pound())
+                    print("Body weight: \(weight) lbs")
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        func fetchSleepData() {
+            let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+            let query = HKSampleQuery(sampleType: sleepType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKCategorySample] else {
+                        return
+                    }
+                    let sleepAnalysis = samples.map { sample in
+                        let startDate = sample.startDate
+                        let endDate = sample.endDate
+                        let value = sample.value == HKCategoryValueSleepAnalysis.inBed.rawValue ? "In Bed" : "Asleep"
+                        return (startDate, endDate, value)
+                    }
+                    print("Sleep Analysis: \(sleepAnalysis)")
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        func fetchRespirationData() {
+            let respirationType = HKSampleType.quantityType(forIdentifier: .respiratoryRate)!
+            let query = HKSampleQuery(sampleType: respirationType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKQuantitySample], let quantity = samples.last?.quantity else {
+                        return
+                    }
+                    let respiratoryRate = quantity.doubleValue(for: HKUnit.init(from: "count/min"))
+                    print("Respiratory rate: \(respiratoryRate)")
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        func fetchHRVData() {
+            let hrvType = HKSampleType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+            let query = HKSampleQuery(sampleType: hrvType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKQuantitySample], let quantity = samples.last?.quantity else {
+                        return
+                    }
+                    let hrv = quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                    print("HRV: \(hrv) ms")
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        func fetchBodyWeight1() {
+            let weightType = HKSampleType.quantityType(forIdentifier: .bodyMass)!
+            let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let samples = samples as? [HKQuantitySample], let quantity = samples.first?.quantity else {
+                        return
+                    }
+                    let weight = quantity.doubleValue(for: HKUnit.pound())
+                    bodyWeight = String(weight)
+                }
+            }
+            healthStore.execute(query)
+        }
+        func fetchBodyWeightfromHealthKit1() {
+            let type = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
+            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
+                guard let results = results as? [HKQuantitySample], let weight = results.first?.quantity.doubleValue(for: .pound()) else {
+                    // Handle error here
+                    return
+                }
+                DispatchQueue.main.async {
+                    bodyWeight = String(format: "%.1f", weight)
+                }
+            }
+            healthStore.execute(query)
+        }
+        
+        
+        
+        func showSummary() {
+            // Show the session summary view
+            withAnimation {
+                showSessionSummary = true
+            }
+        }
+        
+        
+        func showAlert(title: String, message: String) {
+            alertTitle = title
+            alertMessage = message
+            showAlert = true
         }
     }
     
-    
-    func showAlert(title: String, message: String) {
-        alertTitle = title
-        alertMessage = message
-        showAlert = true
-    }
-}
-
-struct PrimaryButton: View {
-    var title: String
-    var action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .font(.headline)
-        }
-        .padding(.bottom, 8)
-    }
-}
-
-
-struct CustomTextField: View {
-    var placeholder: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType
-    
-    var body: some View {
-        TextField(placeholder, text: $text)
-            .padding(12)
-            .keyboardType(keyboardType)
-            .background(Color(.secondarySystemBackground))
-            .foregroundColor(Color(.label))
-            .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
+    struct PrimaryButton: View {
+        var title: String
+        var action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                Text(title)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .font(.headline)
+            }
             .padding(.bottom, 8)
+        }
     }
-}
+    
+    
+    struct CustomTextField: View {
+        var placeholder: String
+        @Binding var text: String
+        var keyboardType: UIKeyboardType
+        
+        var body: some View {
+            TextField(placeholder, text: $text)
+                .padding(12)
+                .keyboardType(keyboardType)
+                .background(Color(.secondarySystemBackground))
+                .foregroundColor(Color(.label))
+                .cornerRadius(10)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
+                .padding(.bottom, 8)
+        }
+    }
+    
+    // Add this extension to define the custom colors
+    extension Color {
+        static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
+        static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
+    }
 
-// Add this extension to define the custom colors
-extension Color {
-    static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
-    static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
-}
