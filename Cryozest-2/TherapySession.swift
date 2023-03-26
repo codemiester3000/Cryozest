@@ -6,11 +6,11 @@ struct TherapySession: Codable, Identifiable {
     let id: UUID
     let date: String
     let duration: TimeInterval
-    let temperature: Int
+    let temperature: Double
     let humidity: Int
     let therapyType: TherapyType
     
-    init(date: String, duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType) {
+    init(date: String, duration: TimeInterval, temperature: Double, humidity: Int, therapyType: TherapyType) {
         self.id = UUID()
         self.date = date
         self.duration = duration

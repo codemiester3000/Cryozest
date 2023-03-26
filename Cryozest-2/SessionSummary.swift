@@ -5,7 +5,7 @@ import CoreData
 
 struct SessionSummary: View {
     @State private var duration: TimeInterval
-    @State private var temperature: Int
+    @State private var temperature: Double
     @State private var humidity: Int
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
@@ -14,7 +14,7 @@ struct SessionSummary: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, temperature: Int, humidity: Int, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
+    init(duration: TimeInterval, temperature: Double, humidity: Int, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
         _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
         _humidity = State(initialValue: humidity)
@@ -59,6 +59,26 @@ struct SessionSummary: View {
                 .padding()
                 .foregroundColor(.white)
             
+            // Temperature Slider
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Temperature (F): \(Int(temperature))")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                Slider(value: $temperature, in: 60...250, step: 1)
+                    .accentColor(.blue)
+            }
+            .padding()
+            
+            // Body Weight Slider
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Body Weight (lbs): \(Int(bodyWeight))")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                Slider(value: $bodyWeight, in: 80...400, step: 1)
+                    .accentColor(.blue)
+            }
+            .padding()
+            
             HStack {
                 Button(action: discardSession) {
                     Text("Discard")
@@ -96,7 +116,7 @@ struct SessionSummary: View {
         dateFormatter.dateFormat = "MM/dd/yyyy"
         newSession.date = dateFormatter.string(from: Date())
         newSession.duration = duration
-        newSession.temperature = Int32(temperature)
+        newSession.temperature = Double(temperature)
         newSession.humidity = Int32(humidity)
         newSession.therapyType = therapyType.rawValue
         newSession.id = UUID()
