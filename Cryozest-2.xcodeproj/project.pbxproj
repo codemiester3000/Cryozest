@@ -11,6 +11,7 @@
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
+		C538085929D0E160002E90FF /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085829D0E160002E90FF /* AnalysisView.swift */; };
 		C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */; };
 		C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32E29CA8E31002A4875 /* ContentView.swift */; };
 		C57EE33129CA8E34002A4875 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C57EE33029CA8E34002A4875 /* Assets.xcassets */; };
@@ -49,6 +50,7 @@
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		C538085829D0E160002E90FF /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C57EE32929CA8E31002A4875 /* Cryozest-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cryozest-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2App.swift; sourceTree = "<group>"; };
 		C57EE32E29CA8E31002A4875 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
+				C538085829D0E160002E90FF /* AnalysisView.swift */,
 				C538085429CFD5DC002E90FF /* TherapySession.swift */,
 				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
 				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
@@ -292,6 +295,7 @@
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
+				C538085929D0E160002E90FF /* AnalysisView.swift in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,

@@ -16,6 +16,12 @@ struct AppTabView: View {
                     Image(systemName: "book.fill")
                     Text("Logbook")
                 }
+            
+            AnalysisView()
+                .tabItem {
+                    Image(systemName: "chart.bar.fill")
+                    Text("Analysis")
+                }
         }
         .accentColor(.white)
     }

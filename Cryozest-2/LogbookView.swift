@@ -6,22 +6,24 @@ struct LogbookView: View {
     // @Binding var sessions: [TherapySession]
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack {
-                    if sessions.isEmpty {
-                        Text("Begin recording sessions to see data here")
-                            .foregroundColor(.white)
-                            .font(.system(size: 18, design: .rounded))
-                            .padding()
-                    } else {
-                        ForEach(sessions) { session in
-                            SessionRow(session: session)
+        VStack {
+            NavigationView {
+                ScrollView {
+                    LazyVStack {
+                        if sessions.isEmpty {
+                            Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white)
+                                .font(.system(size: 18, design: .rounded))
+                                .padding()
+                        } else {
+                            ForEach(sessions) { session in
+                                SessionRow(session: session)
+                                    .foregroundColor(.white)
+                            }
                         }
                     }
+                    .padding()
                 }
-                .padding()
             }
             .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
             .navigationBarTitle("Logbook", displayMode: .inline)
