@@ -8,12 +8,12 @@ struct LogbookView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack {
+                LazyVStack(spacing: 16) { // Add more spacing between SessionRow items
                     if sessions.isEmpty {
                         Text("Begin recording sessions to see data here")
                             .foregroundColor(.white)
                             .font(.system(size: 18, design: .rounded))
-                            .padding()
+                            .padding() // Add padding to give the text some space from the edges
                     } else {
                         ForEach(sessions) { session in
                             SessionRow(session: session)
@@ -23,8 +23,9 @@ struct LogbookView: View {
                 }
                 .padding()
             }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all)) // Apply the background color to the entire view
             .navigationBarTitle("Logbook", displayMode: .inline)
+            
         }
     }
 }
