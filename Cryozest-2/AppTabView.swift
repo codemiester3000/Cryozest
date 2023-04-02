@@ -8,8 +8,8 @@ struct AppTabView: View {
         TabView {
             MainView(sessions: $sessions)
                 .tabItem {
-                    Image(systemName: "house.fill")
-                    Text("Home")
+                    Image(systemName: "stopwatch")
+                    Text("Stopwatch")
                 }
             
             TimerSelectionView(timerDuration: $timerDuration)
