@@ -6,7 +6,6 @@ import CoreData
 struct SessionSummary: View {
     @State private var duration: TimeInterval
     @State private var temperature: Double
-    @State private var humidity: Int
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
     @Binding var sessions: [TherapySession]
@@ -14,10 +13,9 @@ struct SessionSummary: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, temperature: Double, humidity: Int, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
+    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
         _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
-        _humidity = State(initialValue: humidity)
         _therapyType = State(initialValue: therapyType)
         _bodyWeight = State(initialValue: bodyWeight)
         _sessions = sessions
@@ -117,7 +115,6 @@ struct SessionSummary: View {
         newSession.date = dateFormatter.string(from: Date())
         newSession.duration = duration
         newSession.temperature = Double(temperature)
-        newSession.humidity = Int32(humidity)
         newSession.therapyType = therapyType.rawValue
         newSession.id = UUID()
         
@@ -138,6 +135,6 @@ struct SessionSummary: View {
 
 struct SessionSummary_Previews: PreviewProvider {
     static var previews: some View {
-        SessionSummary(duration: 1500, temperature: 20, humidity: 50, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
+        SessionSummary(duration: 1500, temperature: 20, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
     }
 }

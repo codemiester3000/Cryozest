@@ -9,6 +9,7 @@ struct SessionRow: View {
                 Text(session.date ?? "")
                     .font(.system(size: 18, design: .rounded))
                     .foregroundColor(.white)
+                
                 Text(session.therapyType ?? "")
                     .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
@@ -17,13 +18,11 @@ struct SessionRow: View {
             Spacer()
 
             VStack(alignment: .trailing) {
-                Text("Duration: \(Int(session.duration) / 60):\(Int(session.duration) % 60)")
+                Text("Duration: \(String(format: "%02d", Int(session.duration) / 60)):\(String(format: "%02d", Int(session.duration) % 60))")
                     .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
-                Text("Temp: \(session.temperature)°F")
-                    .font(.system(size: 14, design: .rounded))
-                    .foregroundColor(.white)
-                Text("Humidity: \(session.humidity)%")
+                
+                Text("Temp: \(Int(session.temperature))°F")
                     .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
             }
