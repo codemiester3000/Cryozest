@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CustomDurationPickerView: View {
     @Binding var customDuration: TimeInterval
+    @Binding var showTimerCountdownView: Bool
     @Environment(\.presentationMode) var presentationMode
 
     @State private var minutes: Int = 0
@@ -39,6 +40,7 @@ struct CustomDurationPickerView: View {
                 Button(action: {
                     customDuration = TimeInterval(minutes * 60 + seconds)
                     presentationMode.wrappedValue.dismiss()
+                    showTimerCountdownView = true
                 }) {
                     Text("Set Timer")
                         .font(.title2)
@@ -55,8 +57,3 @@ struct CustomDurationPickerView: View {
     }
 }
 
-struct CustomDurationPickerView_Previews: PreviewProvider {
-    static var previews: some View {
-        CustomDurationPickerView(customDuration: .constant(0))
-    }
-}

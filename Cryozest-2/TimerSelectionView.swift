@@ -61,7 +61,7 @@ struct TimerSelectionView: View {
         }
         .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
         .sheet(isPresented: $showCustomDurationPicker) {
-            CustomDurationPickerView(customDuration: $timerDuration)
+            CustomDurationPickerView(customDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
         }
         .sheet(isPresented: $showTimerCountdownView) {
             TimerCountdownView(timerDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
