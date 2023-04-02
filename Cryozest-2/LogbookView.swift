@@ -23,7 +23,7 @@ struct LogbookView: View {
                 }
                 .padding()
             }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all)) // Apply the background color to the entire view
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all)) 
             .navigationBarTitle("Logbook", displayMode: .inline)
             
         }
