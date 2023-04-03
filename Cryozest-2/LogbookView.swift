@@ -3,7 +3,6 @@ import SwiftUI
 struct LogbookView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(entity: TherapySessionEntity.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: true)]) private var sessions: FetchedResults<TherapySessionEntity>
-    // @Binding var sessions: [TherapySession]
     
     var body: some View {
         NavigationView {
@@ -23,9 +22,8 @@ struct LogbookView: View {
                 }
                 .padding()
             }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all)) 
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
             .navigationBarTitle("Logbook", displayMode: .inline)
-            
         }
     }
 }

@@ -64,7 +64,7 @@ struct MainView: View {
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
                     .hidden()
             }
             .background(Color.darkBackground.edgesIgnoringSafeArea(.all))

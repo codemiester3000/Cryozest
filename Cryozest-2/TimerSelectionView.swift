@@ -1,11 +1,16 @@
 import SwiftUI
 
 struct TimerSelectionView: View {
-    @Binding var timerDuration: TimeInterval
+    @State private var timerDuration: TimeInterval
     @State private var showTimerCountdownView: Bool = false
     @State private var showCustomDurationPicker: Bool = false
+    @State private var showSessionSummary: Bool = false
     
-    let defaultDurations: [TimeInterval] = [60, 300, 600, 900, 1800, 2700, 3600]
+    init(timerDuration: TimeInterval = 0) {
+        _timerDuration = State(initialValue: timerDuration)
+    }
+
+    let defaultDurations: [TimeInterval] = [1, 60, 300, 600, 900, 1800, 2700]
     
     var body: some View {
         VStack {
@@ -64,7 +69,10 @@ struct TimerSelectionView: View {
             CustomDurationPickerView(customDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
         }
         .sheet(isPresented: $showTimerCountdownView) {
-            TimerCountdownView(timerDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
+            TimerCountdownView(timerDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView, showSessionSummary: $showSessionSummary)
+        }
+        .sheet(isPresented: $showSessionSummary) {
+            SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
         }
     }
     

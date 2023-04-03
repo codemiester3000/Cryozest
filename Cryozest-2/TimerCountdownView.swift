@@ -3,60 +3,64 @@ import SwiftUI
 struct TimerCountdownView: View {
     @Binding var timerDuration: TimeInterval
     @Binding var showTimerCountdownView: Bool
+    @Binding var showSessionSummary: Bool
     
     @State private var remainingTime: TimeInterval
     @State private var timer: Timer?
     
-    init(timerDuration: Binding<TimeInterval>, showTimerCountdownView: Binding<Bool>) {
+    init(timerDuration: Binding<TimeInterval>, showTimerCountdownView: Binding<Bool>, showSessionSummary: Binding<Bool>) {
         _timerDuration = timerDuration
         _showTimerCountdownView = showTimerCountdownView
         _remainingTime = State(initialValue: timerDuration.wrappedValue)
+        _showSessionSummary = showSessionSummary
     }
     
     var body: some View {
-        VStack {
-            Text("Time Remaining")
-                .font(.largeTitle)
-                .bold()
-                .padding()
-            
-            Text(formatDuration(remainingTime))
-                .font(.system(size: 48, design: .monospaced))
-                .padding()
-            
-            HStack {
-                Button(action: {
-                    pauseOrResumeTimer()
-                }) {
-                    Text(timer == nil ? "Resume" : "Pause")
-                        .font(.title2)
-                        .bold()
-                        .frame(width: 100, height: 50)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
+     
+            VStack {
+                Text("Time Remaining")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding()
                 
-                Button(action: {
-                    cancelTimer()
-                }) {
-                    Text("Cancel")
-                        .font(.title2)
-                        .bold()
-                        .frame(width: 100, height: 50)
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                Text(formatDuration(remainingTime))
+                    .font(.system(size: 48, design: .monospaced))
+                    .padding()
+                
+                HStack {
+                    Button(action: {
+                        pauseOrResumeTimer()
+                    }) {
+                        Text(timer == nil ? "Resume" : "Pause")
+                            .font(.title2)
+                            .bold()
+                            .frame(width: 100, height: 50)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    
+                    Button(action: {
+                        cancelTimer()
+                    }) {
+                        Text("Cancel")
+                            .font(.title2)
+                            .bold()
+                            .frame(width: 100, height: 50)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
                 }
+                .padding()
             }
-            .padding()
-        }
-        .onAppear {
-            startTimer()
-        }
-        .onDisappear {
-            timer?.invalidate()
-        }
+            .onAppear {
+                remainingTime = timerDuration
+                startTimer()
+            }
+            .onDisappear {
+                timer?.invalidate()
+            }
     }
     
     func formatDuration(_ duration: TimeInterval) -> String {
@@ -71,6 +75,7 @@ struct TimerCountdownView: View {
                 remainingTime -= 1
             } else {
                 timer?.invalidate()
+                showSessionSummary = true
                 showTimerCountdownView = false
             }
         }
@@ -88,6 +93,7 @@ struct TimerCountdownView: View {
     func cancelTimer() {
         timer?.invalidate()
         timer = nil
+        showSessionSummary = false
         showTimerCountdownView = false
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
-    @State private var timerDuration: TimeInterval = 0
+    // @State private var timerDuration: TimeInterval = 0
     
     var body: some View {
         TabView {
@@ -12,7 +12,7 @@ struct AppTabView: View {
                     Text("Stopwatch")
                 }
             
-            TimerSelectionView(timerDuration: $timerDuration)
+            TimerSelectionView()
                 .tabItem {
                     Image(systemName: "timer")
                     Text("Timer")

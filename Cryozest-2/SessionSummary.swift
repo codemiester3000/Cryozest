@@ -4,21 +4,19 @@ import SwiftUI
 import CoreData
 
 struct SessionSummary: View {
-    @State private var duration: TimeInterval
+    private var duration: TimeInterval
     @State private var temperature: Double
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
-    @Binding var sessions: [TherapySession]
     @Environment(\.presentationMode) var presentationMode
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double, sessions: Binding<[TherapySession]>) {
-        _duration = State(initialValue: duration)
+    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double) {
+        self.duration = duration // State(initialValue: duration)
         _temperature = State(initialValue: temperature)
         _therapyType = State(initialValue: therapyType)
         _bodyWeight = State(initialValue: bodyWeight)
-        _sessions = sessions
     }
     
     private var waterConsumption: Int {
@@ -133,8 +131,8 @@ struct SessionSummary: View {
     }
 }
 
-struct SessionSummary_Previews: PreviewProvider {
-    static var previews: some View {
-        SessionSummary(duration: 1500, temperature: 20, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
-    }
-}
+//struct SessionSummary_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SessionSummary(duration: 1500, temperature: 20, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
+//    }
+//}
