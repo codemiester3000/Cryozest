@@ -2,7 +2,6 @@ import SwiftUI
 
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
-    // @State private var timerDuration: TimeInterval = 0
     
     var body: some View {
         TabView {

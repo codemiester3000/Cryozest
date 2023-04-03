@@ -18,11 +18,14 @@ struct TimerSelectionView: View {
                 .font(.largeTitle)
                 .bold()
                 .padding()
+                .foregroundColor(.white)
             
             ScrollView {
+                let circleSize = UIScreen.main.bounds.width * 0.4
+                
                 LazyVGrid(columns: [
-                    GridItem(.fixed(100), spacing: 40),
-                    GridItem(.fixed(100), spacing: 40)
+                    GridItem(.flexible(), spacing: 40),
+                    GridItem(.flexible(), spacing: 40)
                 ], spacing: 40) {
                     ForEach(defaultDurations, id: \.self) { duration in
                         Button(action: {
@@ -32,14 +35,13 @@ struct TimerSelectionView: View {
                             Text(formatDuration(duration))
                                 .font(.title2)
                                 .bold()
-                                .frame(width: 100, height: 100)
+                                .foregroundColor(.white)
+                                .frame(width: circleSize, height: circleSize)
+                                .background(
+                                    Circle()
+                                        .stroke(Color.blue, lineWidth: 4)
+                                )
                         }
-                        .background(
-                            Circle()
-                                .stroke(Color.blue, lineWidth: 2)
-                                .frame(width: 125, height: 125)
-                        )
-                        .foregroundColor(.blue)
                     }
                     
                     Button(action: {
@@ -48,17 +50,17 @@ struct TimerSelectionView: View {
                         VStack {
                             Image(systemName: "plus")
                                 .font(.title2)
+                                .foregroundColor(.white)
                             Text("Custom")
                                 .font(.title2)
                                 .bold()
+                                .foregroundColor(.white)
                         }
-                        .frame(width: 100, height: 100)
+                        .frame(width: circleSize, height: circleSize)
                         .background(
                             Circle()
-                                .stroke(Color.blue, lineWidth: 2)
-                                .frame(width: 125, height: 125)
+                                .stroke(Color.blue, lineWidth: 4)
                         )
-                        .foregroundColor(.blue)
                     }
                 }
                 .padding()
@@ -82,3 +84,4 @@ struct TimerSelectionView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 }
+
