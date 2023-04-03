@@ -9,7 +9,7 @@ struct MainView: View {
     let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
     let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-
+    
     
     @Binding var sessions: [TherapySession]
     
@@ -43,24 +43,24 @@ struct MainView: View {
                 Spacer()
                 
                 VStack(spacing: 20) {
-                                   PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
-                                   
-                               }
-                               .padding(.horizontal)
+                    PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
+                    
+                }
+                .padding(.horizontal)
                 
                 // MainView.swift - Navigation Links
-                                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
-                                    .hidden()
-                                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
-                                    .hidden()
-                            }
-                            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
-                            .navigationBarTitle("Cryozest", displayMode: .inline)
-                            .alert(isPresented: $showAlert) {
-                                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-                            }
-                        }
-                    }
+                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
+                    .hidden()
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
+                    .hidden()
+            }
+            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+            .navigationBarTitle("Cryozest", displayMode: .inline)
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
+        }
+    }
     
     // MainView.swift - Segment 4
     // The rest of the methods go here.
@@ -68,17 +68,17 @@ struct MainView: View {
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
         if timer == nil {
-               healthStore.requestAuthorization(toShare: [], read: [HKObjectType.quantityType(forIdentifier: .bodyMass)!, sleepAnalysisType, heartRateType, hrvType, respirationRateType]) { success, error in
-                   if success {
-                       fetchBodyWeight()
-                       fetchSleepAnalysis()
-                       fetchHeartRate()
-                       fetchHRV()
-                       fetchRespirationRate()
-                   } else {
-                       showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-                   }
-               }
+            healthStore.requestAuthorization(toShare: [], read: [HKObjectType.quantityType(forIdentifier: .bodyMass)!, sleepAnalysisType, heartRateType, hrvType, respirationRateType]) { success, error in
+                if success {
+                    fetchBodyWeight()
+                    fetchSleepAnalysis()
+                    fetchHeartRate()
+                    fetchHRV()
+                    fetchRespirationRate()
+                } else {
+                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                }
+            }
             
             timerStartDate = Date()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -119,7 +119,7 @@ struct MainView: View {
         }
         healthStore.execute(query)
     }
-
+    
     func fetchHeartRate() {
         let query = HKSampleQuery(sampleType: heartRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
             guard let results = results as? [HKQuantitySample], let heartRateSample = results.first else {
@@ -133,7 +133,7 @@ struct MainView: View {
         }
         healthStore.execute(query)
     }
-
+    
     func fetchHRV() {
         let query = HKSampleQuery(sampleType: hrvType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
             guard let results = results as? [HKQuantitySample], let hrvSample = results.first else {
@@ -147,7 +147,7 @@ struct MainView: View {
         }
         healthStore.execute(query)
     }
-
+    
     func fetchRespirationRate() {
         let query = HKSampleQuery(sampleType: respirationRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
             guard let results = results as? [HKQuantitySample], let respirationRateSample = results.first else {
@@ -161,7 +161,7 @@ struct MainView: View {
         }
         healthStore.execute(query)
     }
-
+    
     func fetchBodyWeightfromHealthKit() {
         let type = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
         let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
@@ -175,7 +175,7 @@ struct MainView: View {
         }
         healthStore.execute(query)
     }
-
+    
     
     
     func showSummary() {
