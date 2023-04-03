@@ -43,40 +43,24 @@ struct MainView: View {
                 Spacer()
                 
                 VStack(spacing: 20) {
-                    PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
-                    
-                    Picker(selection: $selectedTherapy, label: Text("Therapy Type")) {
-                        ForEach(TherapyType.allCases) { therapyType in
-                            Text(therapyType.rawValue)
-                                .tag(therapyType)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding()
-                    .background(.blue)
-                    .cornerRadius(8)
-                    
-                }
-                .padding(.horizontal)
-                
-                Spacer()
+                                   PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
+                                   
+                               }
+                               .padding(.horizontal)
                 
                 // MainView.swift - Navigation Links
-                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
-                    .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: selectedTherapy, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
-                    .hidden()
-            }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("Cryozest", displayMode: .inline)
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
-        }
-    }
-    
-    // MainView.swift - Segment 4
-    // The rest of the methods go here.
+                                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
+                                    .hidden()
+                                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0, sessions: $sessions), isActive: $showSessionSummary)
+                                    .hidden()
+                            }
+                            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+                            .navigationBarTitle("Cryozest", displayMode: .inline)
+                            .alert(isPresented: $showAlert) {
+                                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            }
+                        }
+                    }
     
     // MainView.swift - Segment 4
     // The rest of the methods go here.

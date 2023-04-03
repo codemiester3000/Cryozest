@@ -1,6 +1,4 @@
 import SwiftUI
-
-import SwiftUI
 import CoreData
 
 struct SessionSummary: View {
@@ -20,8 +18,8 @@ struct SessionSummary: View {
     }
     
     private var waterConsumption: Int {
-        let waterOunces = bodyWeight / 30
-        return Int(waterOunces * (duration / 900)) // 900 seconds = 15 minutes
+        let waterOunces = (bodyWeight / 30)
+        return Int(5 + waterOunces * (duration / 900)) // 900 seconds = 15 minutes
     }
     
     private var motivationalMessage: String {
@@ -38,7 +36,7 @@ struct SessionSummary: View {
     }
     
     private var waterMessage: String {
-        return "Drink \(waterConsumption) ounces of water every 15 minutes to stay hydrated during a demanding activity."
+        return "Drink \(waterConsumption) ounces of fluids to rehydrate your body from that session!"
     }
     
     var body: some View {
@@ -55,6 +53,22 @@ struct SessionSummary: View {
                 .padding()
                 .foregroundColor(.white)
             
+            // Therapy Type Picker
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Therapy Type: ")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                Picker(selection: $therapyType, label: Text("Therapy Type")) {
+                    ForEach(TherapyType.allCases) { therapyType in
+                        Text(therapyType.rawValue)
+                            .tag(therapyType)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .accentColor(.blue)
+            }
+            .padding()
+            
             // Temperature Slider
             VStack(alignment: .leading, spacing: 10) {
                 Text("Temperature (F): \(Int(temperature))")
@@ -64,6 +78,7 @@ struct SessionSummary: View {
                     .accentColor(.blue)
             }
             .padding()
+    
             
             // Body Weight Slider
             VStack(alignment: .leading, spacing: 10) {
