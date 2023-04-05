@@ -44,7 +44,6 @@ struct MainView: View {
                 
                 VStack(spacing: 20) {
                     PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
-                    
                 }
                 .padding(.horizontal)
                 
@@ -91,6 +90,7 @@ struct MainView: View {
             timer?.invalidate()
             timer = nil
             showSummary()
+            timerLabel = "00:00"
         }
     }
     
