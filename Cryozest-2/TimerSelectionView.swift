@@ -10,7 +10,7 @@ struct TimerSelectionView: View {
         _timerDuration = State(initialValue: timerDuration)
     }
 
-    let defaultDurations: [TimeInterval] = [1, 60, 300, 600, 900, 1800, 2700]
+    let defaultDurations: [TimeInterval] = [300, 600, 900, 1800, 2700]
     
     var body: some View {
         VStack {

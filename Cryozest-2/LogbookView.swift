@@ -2,7 +2,10 @@ import SwiftUI
 
 struct LogbookView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(entity: TherapySessionEntity.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: true)]) private var sessions: FetchedResults<TherapySessionEntity>
+    @FetchRequest(
+        entity: TherapySessionEntity.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: false)]) // Change ascending to false
+    private var sessions: FetchedResults<TherapySessionEntity>
     
     var body: some View {
         NavigationView {
