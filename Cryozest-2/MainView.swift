@@ -34,18 +34,19 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
+                LinearGradient(gradient: Gradient(colors: [Color.customBlue, Color.blue]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .mask(
+                        Text(timerLabel)
+                            .font(.system(size: 72, weight: .bold, design: .rounded))
+                    )
+                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
+
                 Spacer()
                 
-                Text(timerLabel)
-                    .font(.system(size: 48, design: .monospaced))
-                    .foregroundColor(.white)
-                
+                PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
+            
                 Spacer()
-                
-                VStack(spacing: 20) {
-                    PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
-                }
-                .padding(.horizontal)
+
                 
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
@@ -196,20 +197,38 @@ struct MainView: View {
 struct PrimaryButton: View {
     var title: String
     var action: () -> Void
+    var timerIcon: Bool = false
     
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .font(.headline)
+            HStack {
+                if timerIcon {
+                    Image(systemName: "timer")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+                
+                Text(title)
+                    .foregroundColor(.white)
+                    .font(.headline)
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(LinearGradient(gradient: Gradient(colors: [Color.customBlue, Color.blue]), startPoint: .leading, endPoint: .trailing))
+            .cornerRadius(40)
+            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 40)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 4)
+            )
         }
         .padding(.bottom, 8)
     }
 }
+
+
+
+
 
 struct CustomTextField: View {
     var placeholder: String

@@ -37,9 +37,19 @@ struct TimerSelectionView: View {
                                 .bold()
                                 .foregroundColor(.white)
                                 .frame(width: circleSize, height: circleSize)
-                                .background(
+                                .background(Color.clear)
+                                .overlay(
                                     Circle()
                                         .stroke(Color.blue, lineWidth: 4)
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.customBlue, lineWidth: 8)
+                                )
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 12)
+                                        .blur(radius: 4)
                                 )
                         }
                     }
@@ -47,20 +57,25 @@ struct TimerSelectionView: View {
                     Button(action: {
                         showCustomDurationPicker = true
                     }) {
-                        VStack {
-                            Image(systemName: "plus")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                            Text("Custom")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.white)
-                        }
-                        .frame(width: circleSize, height: circleSize)
-                        .background(
-                            Circle()
-                                .stroke(Color.blue, lineWidth: 4)
-                        )
+                        Text("Custom")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.white)
+                            .frame(width: circleSize, height: circleSize)
+                            .background(Color.clear)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.blue, lineWidth: 4)
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.customBlue, lineWidth: 8)
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.1), lineWidth: 12)
+                                    .blur(radius: 4)
+                            )
                     }
                 }
                 .padding()
