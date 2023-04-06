@@ -2,6 +2,17 @@
 import SwiftUI
 import HealthKit
 
+//Modifier to create the gradient background
+struct GradientBackgroundModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom) // Change the gradient colors
+                .edgesIgnoringSafeArea(.all)
+            content
+        }
+    }
+}
+
 struct MainView: View {
     
     let healthStore = HKHealthStore()
@@ -26,36 +37,51 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
-    
-    // Custom dark color palette
-    let darkBlue = Color(red: 10 / 255, green: 23 / 255, blue: 63 / 255)
-    let darkGray = Color(red: 50 / 255, green: 56 / 255, blue: 62 / 255)
+    @State private var progressValue: CGFloat = 0
     
     var body: some View {
         NavigationView {
-            VStack {
-                LinearGradient(gradient: Gradient(colors: [Color.customBlue, Color.blue]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            VStack(spacing: 50) {
+                
+                // CryoZest Title
+                
+                Spacer()
+                           Text("CryoZest")
+                               .font(.system(size: 36, weight: .bold, design: .rounded))
+                               .foregroundColor(Color.white)
+
+                           // Hot & Cold Therapy Subtitle
+                           Text("Hot & Cold Therapy")
+                               .font(.system(size: 18, weight: .regular, design: .rounded))
+                               .foregroundColor(Color.white)
+                
+                LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
                     .mask(
                         Text(timerLabel)
-                            .font(.system(size: 72, weight: .bold, design: .rounded))
+                            .font(.system(size: 72, weight: .thin, design: .rounded)) // Change the font weight to .thin
                     )
                     .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
-
-                Spacer()
                 
-                PrimaryButton(title: timer == nil ? "Start" : "Stop", action: startStopButtonPressed)
+                Button(action: startStopButtonPressed) {
+                    Text(timer == nil ? "Start" : "Stop")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 80)
+                        .padding(.vertical, 16)
+                        .background(Color.orange) // Change the button color
+                        .cornerRadius(40)
+                }
             
                 Spacer()
-
-                
+            
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
                 NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
                     .hidden()
             }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("Cryozest", displayMode: .inline)
+            .padding()
+            .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)) // Change the background gradient
             .alert(isPresented: $showAlert) {
                 Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
