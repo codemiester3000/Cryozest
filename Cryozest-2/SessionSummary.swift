@@ -2,7 +2,7 @@ import SwiftUI
 import CoreData
 
 struct SessionSummary: View {
-    private var duration: TimeInterval
+    @State private var duration: TimeInterval
     @State private var temperature: Double
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
@@ -11,7 +11,7 @@ struct SessionSummary: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double) {
-        self.duration = duration // State(initialValue: duration)
+        _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
         _therapyType = State(initialValue: therapyType)
         _bodyWeight = State(initialValue: bodyWeight)
@@ -47,25 +47,43 @@ struct SessionSummary: View {
                 .padding()
                 .foregroundColor(.white)
             
-            Text(waterMessage)
-                .font(.system(size: 18, design: .rounded))
-                .multilineTextAlignment(.center)
-                .padding()
-                .foregroundColor(.white)
+            // TODO: Add back once we dynamically caluclate water consumption
             
-            // Therapy Type Picker
-            VStack(alignment: .leading, spacing: 10) {
+            HStack {
                 Text("Therapy Type: ")
                     .foregroundColor(.white)
                     .font(.headline)
-                Picker(selection: $therapyType, label: Text("Therapy Type")) {
+
+                Spacer()
+
+                Picker(selection: $therapyType, label: HStack {
+                    Text("Therapy Type")
+                        .foregroundColor(.orange)
+                        .font(.headline)
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.orange)
+                }) {
                     ForEach(TherapyType.allCases) { therapyType in
                         Text(therapyType.rawValue)
                             .tag(therapyType)
                     }
                 }
                 .pickerStyle(MenuPickerStyle())
-                .accentColor(.blue)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal)
+                .background(RoundedRectangle(cornerRadius: 8).fill(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)))
+                .padding(.trailing)
+                .accentColor(.orange)
+            }
+            .padding()
+            
+            // Duration Slider
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Duration (sec): \(Int(duration))")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                Slider(value: $duration, in: 0...3600, step: 1)
+                    .accentColor(.orange)
             }
             .padding()
             
@@ -75,7 +93,7 @@ struct SessionSummary: View {
                     .foregroundColor(.white)
                     .font(.headline)
                 Slider(value: $temperature, in: 60...250, step: 1)
-                    .accentColor(.blue)
+                    .accentColor(.orange)
             }
             .padding()
     
@@ -86,7 +104,7 @@ struct SessionSummary: View {
                     .foregroundColor(.white)
                     .font(.headline)
                 Slider(value: $bodyWeight, in: 80...400, step: 1)
-                    .accentColor(.blue)
+                    .accentColor(.orange)
             }
             .padding()
             
@@ -106,7 +124,7 @@ struct SessionSummary: View {
                     Text("Log Session")
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.blue)
+                        .background(Color.orange)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                         .font(.headline)
@@ -117,7 +135,7 @@ struct SessionSummary: View {
             Spacer()
         }
         .padding(.horizontal)
-        .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+        .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all))
         .navigationBarTitle("\(therapyType.rawValue) Session Summary", displayMode: .inline)
     }
     
@@ -146,8 +164,6 @@ struct SessionSummary: View {
     }
 }
 
-//struct SessionSummary_Previews: PreviewProvider {
-//    static var previews: some View {
-//        SessionSummary(duration: 1500, temperature: 20, therapyType: .drySauna, bodyWeight: 150, sessions: .constant([]))
-//    }
-//}
+extension Color {
+    static let darkGray = Color(red: 30/255, green: 30/255, blue: 30/255)
+}

@@ -40,17 +40,9 @@ struct TimerSelectionView: View {
                                 .background(Color.clear)
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.blue, lineWidth: 4)
+                                        .stroke(Color.orange, lineWidth: 4)
                                 )
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.customBlue, lineWidth: 8)
-                                )
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.1), lineWidth: 12)
-                                        .blur(radius: 4)
-                                )
+
                         }
                     }
                     
@@ -65,23 +57,20 @@ struct TimerSelectionView: View {
                             .background(Color.clear)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.blue, lineWidth: 4)
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.customBlue, lineWidth: 8)
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 12)
-                                    .blur(radius: 4)
+                                    .stroke(Color.orange, lineWidth: 4)
                             )
                     }
                 }
                 .padding()
             }
         }
-        .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .sheet(isPresented: $showCustomDurationPicker) {
             CustomDurationPickerView(customDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
         }
@@ -92,6 +81,7 @@ struct TimerSelectionView: View {
             SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
         }
     }
+        
     
     func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60

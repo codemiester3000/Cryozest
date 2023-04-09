@@ -23,6 +23,6 @@ struct AppTabView: View {
                     Text("Logbook")
                 }
         }
-        .accentColor(.blue)
+        .accentColor(Color(red: 168/255, green: 191/255, blue: 135/255))
     }
 }
