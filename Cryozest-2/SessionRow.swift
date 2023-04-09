@@ -12,7 +12,8 @@ struct SessionRow: View {
                 
                 Text(session.therapyType ?? "")
                     .font(.system(size: 18))
-                    .foregroundColor(.white)
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
             }
 
             Spacer()
@@ -32,7 +33,7 @@ struct SessionRow: View {
         .background(Color.gray)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.orange, lineWidth: 4)
+                .stroke(Color.orange, lineWidth: 6)
         )
         .cornerRadius(16)
     }
