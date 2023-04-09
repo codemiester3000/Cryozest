@@ -32,41 +32,14 @@ struct TimerSelectionView: View {
                             timerDuration = duration
                             showTimerCountdownView = true
                         }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.15))
-                                
-                                VStack {
-                                    Text(String(format: "%02d", Int(duration / 60)))
-                                        .font(.system(size: 40, design: .rounded))
-                                        .bold()
-                                        .foregroundColor(Color.orange)
-                                    
-                                    Text("MIN")
-                                        .font(.system(size: 20, design: .rounded))
-                                        .bold()
-                                        .foregroundColor(.white)
-                                }
-                            }
-                            .frame(width: circleSize, height: circleSize)
-                            
+                            circleContent(duration: duration)
                         }
                     }
                     
                     Button(action: {
                         showCustomDurationPicker = true
                     }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.15))
-                            
-                            Text("Custom")
-                                .font(.system(size: 30, design: .rounded))
-                                .bold()
-                                .foregroundColor(.orange)
-                        }
-                        .frame(width: circleSize, height: circleSize)
-                        
+                        circleContent(custom: true)
                     }
                 }
                 .padding()
@@ -88,5 +61,38 @@ struct TimerSelectionView: View {
         .sheet(isPresented: $showSessionSummary) {
             SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
         }
+    }
+    
+    // Add this function to create circle content with orange ring and hover effect
+    func circleContent(duration: TimeInterval? = nil, custom: Bool = false) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color.black.opacity(0.15))
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10) // Add a shadow effect for hover
+            
+            // Add this Circle with stroke for the orange ring
+            Circle()
+                .stroke(Color.orange, lineWidth: 3)
+            
+            if custom {
+                Text("Custom")
+                    .font(.system(size: 30, design: .rounded))
+                    .bold()
+                    .foregroundColor(.orange)
+            } else {
+                VStack {
+                    Text(String(format: "%02d", Int(duration! / 60)))
+                        .font(.system(size: 40, design: .rounded))
+                        .bold()
+                        .foregroundColor(Color.orange)
+                    
+                    Text("MIN")
+                        .font(.system(size: 20, design: .rounded))
+                        .bold()
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .frame(width: UIScreen.main.bounds.width * 0.4, height: UIScreen.main.bounds.width * 0.4)
     }
 }
