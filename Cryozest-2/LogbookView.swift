@@ -25,7 +25,13 @@ struct LogbookView: View {
                 }
                 .padding()
             }
-            .background(Color.darkBackground.edgesIgnoringSafeArea(.all))
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .navigationBarTitle("Logbook", displayMode: .inline)
         }
     }

@@ -16,7 +16,14 @@ struct TimerCountdownView: View {
     }
     
     var body: some View {
-     
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .edgesIgnoringSafeArea(.all)
+            
             VStack {
                 Text("Time Remaining")
                     .font(.largeTitle)
@@ -29,18 +36,6 @@ struct TimerCountdownView: View {
                 
                 HStack {
                     Button(action: {
-                        pauseOrResumeTimer()
-                    }) {
-                        Text(timer == nil ? "Resume" : "Pause")
-                            .font(.title2)
-                            .bold()
-                            .frame(width: 100, height: 50)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    
-                    Button(action: {
                         cancelTimer()
                     }) {
                         Text("Cancel")
@@ -51,17 +46,31 @@ struct TimerCountdownView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
+                    
+                    Button(action: {
+                        pauseOrResumeTimer()
+                    }) {
+                        Text(timer == nil ? "Resume" : "Pause")
+                            .font(.title2)
+                            .bold()
+                            .frame(width: 100, height: 50)
+                            .background(Color.orange)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
                 }
                 .padding()
             }
-            .onAppear {
-                remainingTime = timerDuration
-                startTimer()
-            }
-            .onDisappear {
-                timer?.invalidate()
-            }
+        }
+        .onAppear {
+            remainingTime = timerDuration
+            startTimer()
+        }
+        .onDisappear {
+            timer?.invalidate()
+        }
     }
+
     
     func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60
