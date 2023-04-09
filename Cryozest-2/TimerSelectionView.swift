@@ -9,7 +9,7 @@ struct TimerSelectionView: View {
     init(timerDuration: TimeInterval = 0) {
         _timerDuration = State(initialValue: timerDuration)
     }
-
+    
     let defaultDurations: [TimeInterval] = [300, 600, 900, 1800, 2700]
     
     var body: some View {
@@ -32,33 +32,41 @@ struct TimerSelectionView: View {
                             timerDuration = duration
                             showTimerCountdownView = true
                         }) {
-                            Text(formatDuration(duration))
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.white)
-                                .frame(width: circleSize, height: circleSize)
-                                .background(Color.clear)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.orange, lineWidth: 4)
-                                )
-
+                            ZStack {
+                                Circle()
+                                    .fill(Color.black.opacity(0.15))
+                                
+                                VStack {
+                                    Text(String(format: "%02d", Int(duration / 60)))
+                                        .font(.system(size: 40, design: .rounded))
+                                        .bold()
+                                        .foregroundColor(Color.orange)
+                                    
+                                    Text("MIN")
+                                        .font(.system(size: 20, design: .rounded))
+                                        .bold()
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .frame(width: circleSize, height: circleSize)
+                            
                         }
                     }
                     
                     Button(action: {
                         showCustomDurationPicker = true
                     }) {
-                        Text("Custom")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.white)
-                            .frame(width: circleSize, height: circleSize)
-                            .background(Color.clear)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.orange, lineWidth: 4)
-                            )
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.15))
+                            
+                            Text("Custom")
+                                .font(.system(size: 30, design: .rounded))
+                                .bold()
+                                .foregroundColor(.orange)
+                        }
+                        .frame(width: circleSize, height: circleSize)
+                        
                     }
                 }
                 .padding()
@@ -81,12 +89,4 @@ struct TimerSelectionView: View {
             SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
         }
     }
-        
-    
-    func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
 }
-
