@@ -76,18 +76,18 @@ struct TimerSelectionView: View {
             
             if custom {
                 Text("Custom")
-                    .font(.system(size: 30, design: .rounded))
+                    .font(.system(size: 30, design: .monospaced))
                     .bold()
                     .foregroundColor(.orange)
             } else {
                 VStack {
                     Text(String(format: "%02d", Int(duration! / 60)))
-                        .font(.system(size: 40, design: .rounded))
+                        .font(.system(size: 40, design: .monospaced))
                         .bold()
                         .foregroundColor(Color.orange)
                     
                     Text("MIN")
-                        .font(.system(size: 20, design: .rounded))
+                        .font(.system(size: 20, design: .monospaced))
                         .bold()
                         .foregroundColor(.white)
                 }

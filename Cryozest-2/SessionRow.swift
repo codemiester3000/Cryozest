@@ -7,7 +7,7 @@ struct SessionRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text(session.date ?? "")
-                    .font(.system(size: 22, weight: .bold, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 20, weight: .bold, design: .monospaced)) // Use the rounded design for a modern look
                     .foregroundColor(.white)
                 
                 Text(session.therapyType ?? "")
@@ -20,11 +20,11 @@ struct SessionRow: View {
 
             VStack(alignment: .trailing, spacing: 8) {
                 Text("Duration: \(String(format: "%02d", Int(session.duration) / 60)):\(String(format: "%02d", Int(session.duration) % 60))")
-                    .font(.system(size: 16, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 14, design: .monospaced)) // Use the rounded design for a modern look
                     .foregroundColor(.white)
                 
                 Text("Temp: \(Int(session.temperature))°F")
-                    .font(.system(size: 16, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 14, design: .monospaced)) // Use the rounded design for a modern look
                     .foregroundColor(.white)
             }
         }
