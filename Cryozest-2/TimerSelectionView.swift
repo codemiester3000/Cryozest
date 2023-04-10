@@ -9,7 +9,7 @@ struct TimerSelectionView: View {
     init(timerDuration: TimeInterval = 0) {
         _timerDuration = State(initialValue: timerDuration)
     }
-
+    
     let defaultDurations: [TimeInterval] = [300, 600, 900, 1800, 2700]
     
     var body: some View {
@@ -32,33 +32,14 @@ struct TimerSelectionView: View {
                             timerDuration = duration
                             showTimerCountdownView = true
                         }) {
-                            Text(formatDuration(duration))
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.white)
-                                .frame(width: circleSize, height: circleSize)
-                                .background(Color.clear)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.orange, lineWidth: 4)
-                                )
-
+                            circleContent(duration: duration)
                         }
                     }
                     
                     Button(action: {
                         showCustomDurationPicker = true
                     }) {
-                        Text("Custom")
-                            .font(.title2)
-                            .bold()
-                            .foregroundColor(.white)
-                            .frame(width: circleSize, height: circleSize)
-                            .background(Color.clear)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.orange, lineWidth: 4)
-                            )
+                        circleContent(custom: true)
                     }
                 }
                 .padding()
@@ -81,12 +62,37 @@ struct TimerSelectionView: View {
             SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
         }
     }
-        
     
-    func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = Int(duration) / 60
-        let seconds = Int(duration) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+    // Add this function to create circle content with orange ring and hover effect
+    func circleContent(duration: TimeInterval? = nil, custom: Bool = false) -> some View {
+        ZStack {
+            Circle()
+                .fill(Color.black.opacity(0.15))
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10) // Add a shadow effect for hover
+            
+            // Add this Circle with stroke for the orange ring
+            Circle()
+                .stroke(Color.orange, lineWidth: 3)
+            
+            if custom {
+                Text("Custom")
+                    .font(.system(size: 30, design: .monospaced))
+                    .bold()
+                    .foregroundColor(.orange)
+            } else {
+                VStack {
+                    Text(String(format: "%02d", Int(duration! / 60)))
+                        .font(.system(size: 40, design: .monospaced))
+                        .bold()
+                        .foregroundColor(Color.orange)
+                    
+                    Text("MIN")
+                        .font(.system(size: 20, design: .monospaced))
+                        .bold()
+                        .foregroundColor(.white)
+                }
+            }
+        }
+        .frame(width: UIScreen.main.bounds.width * 0.4, height: UIScreen.main.bounds.width * 0.4)
     }
 }
-

@@ -46,7 +46,7 @@ struct CustomDurationPickerView: View {
                         .font(.title2)
                         .bold()
                         .padding()
-                        .background(Color.blue)
+                        .background(Color.orange)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
@@ -54,6 +54,13 @@ struct CustomDurationPickerView: View {
             }
             .navigationBarTitle("Custom Timer", displayMode: .inline)
         }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .edgesIgnoringSafeArea(.all)
     }
 }
-

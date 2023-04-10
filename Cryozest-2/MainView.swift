@@ -41,50 +41,52 @@ struct MainView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 50) {
-                
-                // CryoZest Title
+            VStack() {
                 
                 Spacer()
-                           Text("CryoZest")
-                               .font(.system(size: 36, weight: .bold, design: .rounded))
-                               .foregroundColor(Color.white)
-
-                           // Hot & Cold Therapy Subtitle
-                           Text("Hot & Cold Therapy")
-                               .font(.system(size: 18, weight: .regular, design: .rounded))
-                               .foregroundColor(Color.white)
+                Text("CryoZest")
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .foregroundColor(Color.white)
                 
-                LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .mask(
-                        Text(timerLabel)
-                            .font(.system(size: 72, weight: .thin, design: .rounded)) // Change the font weight to .thin
-                    )
-                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
+                Text(timerLabel)
+                    .font(.system(size: 72, weight: .bold, design: .monospaced)) // Change the font design and weight
+                    .foregroundColor(.white)
+                    .padding(EdgeInsets(top: 28, leading: 36, bottom: 28, trailing: 36))
+                    .background(Color.orange) // Change the background color
+                    .cornerRadius(16)
+                    .padding(.bottom, 30)
+                    .padding(.top, 30)
+                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
+
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 16)
                         .background(Color.orange) // Change the button color
                         .cornerRadius(40)
+                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
                 }
-            
+
+                
                 Spacer()
-            
+                
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
                 NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
                     .hidden()
             }
-            .padding()
-            .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all)) 
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
     }
     

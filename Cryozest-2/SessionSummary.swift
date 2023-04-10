@@ -24,10 +24,10 @@ struct SessionSummary: View {
     
     private var motivationalMessage: String {
         switch duration {
-        case ..<300: // less than 5 minutes
+        case ..<60: // less than 5 minutes
             return "Good work, next time try and go for a little bit longer."
-        case 300..<900: // 5-15 minutes
-            return "Great job on that session!"
+        case 60..<900: // 5-15 minutes
+            return "Great job on that session. Keep up the good work!"
         case 900..<1800: // 15-30 minutes
             return "Awesome work, you're really building up your tolerance!"
         default: // 30+ minutes
@@ -52,14 +52,15 @@ struct SessionSummary: View {
             HStack {
                 Text("Therapy Type: ")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.system(size: 16, design: .monospaced))
 
                 Spacer()
 
                 Picker(selection: $therapyType, label: HStack {
                     Text("Therapy Type")
                         .foregroundColor(.orange)
-                        .font(.headline)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
                     Image(systemName: "chevron.down")
                         .foregroundColor(.orange)
                 }) {
@@ -81,17 +82,19 @@ struct SessionSummary: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Duration (sec): \(Int(duration))")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.system(size: 16, design: .monospaced))
                 Slider(value: $duration, in: 0...3600, step: 1)
                     .accentColor(.orange)
             }
             .padding()
             
+            
+            
             // Temperature Slider
             VStack(alignment: .leading, spacing: 10) {
                 Text("Temperature (F): \(Int(temperature))")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.system(size: 16, design: .monospaced))
                 Slider(value: $temperature, in: 60...250, step: 1)
                     .accentColor(.orange)
             }
@@ -99,14 +102,14 @@ struct SessionSummary: View {
     
             
             // Body Weight Slider
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Body Weight (lbs): \(Int(bodyWeight))")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                Slider(value: $bodyWeight, in: 80...400, step: 1)
-                    .accentColor(.orange)
-            }
-            .padding()
+//            VStack(alignment: .leading, spacing: 10) {
+//                Text("Body Weight (lbs): \(Int(bodyWeight))")
+//                    .foregroundColor(.white)
+//                    .font(.system(size: 14, design: .monospaced))
+//                Slider(value: $bodyWeight, in: 80...400, step: 1)
+//                    .accentColor(.orange)
+//            }
+//            .padding()
             
             HStack {
                 Button(action: discardSession) {
@@ -116,7 +119,7 @@ struct SessionSummary: View {
                         .background(Color.red)
                         .foregroundColor(.white)
                         .cornerRadius(8)
-                        .font(.headline)
+                        .font(.system(size: 16, design: .monospaced))
                 }
                 .padding([.leading, .bottom, .trailing])
                 
@@ -127,7 +130,7 @@ struct SessionSummary: View {
                         .background(Color.orange)
                         .foregroundColor(.white)
                         .cornerRadius(8)
-                        .font(.headline)
+                        .font(.system(size: 16, design: .monospaced))
                 }
                 .padding([.leading, .bottom, .trailing])
             }
