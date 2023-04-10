@@ -15,9 +15,9 @@ struct TimerSelectionView: View {
     var body: some View {
         VStack {
             Text("Select Timer")
-                .font(.largeTitle)
+                .font(.system(size: 24, design: .monospaced))
                 .bold()
-                .padding()
+                .padding(.top, 16)
                 .foregroundColor(.white)
             
             ScrollView {

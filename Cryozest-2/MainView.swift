@@ -51,7 +51,7 @@ struct MainView: View {
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced)) // Change the font design and weight
                     .foregroundColor(.white)
-                    .padding(EdgeInsets(top: 28, leading: 36, bottom: 28, trailing: 36))
+                    .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
                     .background(Color.orange) // Change the background color
                     .cornerRadius(16)
                     .padding(.bottom, 30)
