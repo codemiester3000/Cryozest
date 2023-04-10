@@ -61,7 +61,7 @@ struct MainView: View {
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 16)

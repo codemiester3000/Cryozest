@@ -16,61 +16,76 @@ struct TimerCountdownView: View {
     }
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .edgesIgnoringSafeArea(.all)
-            
-            VStack {
-                Text("Time Remaining")
-                    .font(.largeTitle)
-                    .bold()
-                    .padding()
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .edgesIgnoringSafeArea(.all)
                 
-                Text(formatDuration(remainingTime))
-                    .font(.system(size: 48, design: .monospaced))
-                    .padding()
-                
-                HStack {
-                    Button(action: {
-                        cancelTimer()
-                    }) {
-                        Text("Cancel")
-                            .font(.title2)
-                            .bold()
-                            .frame(width: 100, height: 50)
-                            .background(Color.red)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                VStack {
+                    Text("Time Remaining")
+                        .font(.largeTitle)
+                        .bold()
+                        .padding()
+                    
+                    Text(formatDuration(remainingTime))
+                        .font(.system(size: 48, design: .monospaced))
+                        .padding()
+
+                    VStack {
+                        HStack {
+                            Button(action: {
+                                cancelTimer()
+                            }) {
+                                Text("Cancel")
+                                    .font(.title2)
+                                    .bold()
+                                    .frame(width: 100, height: 50)
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                            
+                            Button(action: {
+                                pauseOrResumeTimer()
+                            }) {
+                                Text(timer == nil ? "Resume" : "Pause")
+                                    .font(.title2)
+                                    .bold()
+                                    .frame(width: 100, height: 50)
+                                    .background(Color.orange)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                        }
+
+                        // Finish now button centered underneath the Cancel and Pause/Resume buttons
+                        Button(action: {
+                            remainingTime = 0
+                        }) {
+                            Text("Finish now")
+                                .font(.title2)
+                                .bold()
+                                .frame(width: 125, height: 50)
+                                .background(Color(red: 168/255, green: 191/255, blue: 135/255))
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                        .padding(.top, 12)
                     }
                     
-                    Button(action: {
-                        pauseOrResumeTimer()
-                    }) {
-                        Text(timer == nil ? "Resume" : "Pause")
-                            .font(.title2)
-                            .bold()
-                            .frame(width: 100, height: 50)
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
                 }
-                .padding()
+            }
+            .onAppear {
+                remainingTime = timerDuration
+                startTimer()
+            }
+            .onDisappear {
+                timer?.invalidate()
             }
         }
-        .onAppear {
-            remainingTime = timerDuration
-            startTimer()
-        }
-        .onDisappear {
-            timer?.invalidate()
-        }
-    }
-
     
     func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60
