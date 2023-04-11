@@ -57,7 +57,7 @@ struct MainView: View {
                     .padding(.bottom, 30)
                     .padding(.top, 30)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
-
+                
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
@@ -69,7 +69,7 @@ struct MainView: View {
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
                 }
-
+                
                 
                 Spacer()
                 
@@ -96,13 +96,13 @@ struct MainView: View {
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
         if timer == nil {
-            healthStore.requestAuthorization(toShare: [], read: [HKObjectType.quantityType(forIdentifier: .bodyMass)!, sleepAnalysisType, heartRateType, hrvType, respirationRateType]) { success, error in
+            HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
-                    fetchBodyWeight()
-                    fetchSleepAnalysis()
-                    fetchHeartRate()
-                    fetchHRV()
-                    fetchRespirationRate()
+                    HealthKitManager.shared.fetchBodyWeight { weight in
+                        if let weight = weight {
+                            self.bodyWeight = String(weight)
+                        }
+                    }
                 } else {
                     showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                 }
@@ -123,97 +123,12 @@ struct MainView: View {
         }
     }
     
-    func fetchBodyWeight() {
-        let weightType = HKSampleType.quantityType(forIdentifier: .bodyMass)!
-        let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-            DispatchQueue.main.async {
-                guard let samples = samples as? [HKQuantitySample], let quantity = samples.first?.quantity else {
-                    return
-                }
-                let weight = quantity.doubleValue(for: HKUnit.pound())
-                bodyWeight = String(weight)
-            }
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchSleepAnalysis() {
-        let query = HKSampleQuery(sampleType: sleepAnalysisType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKCategorySample], let sleepSample = results.first else {
-                // Handle error here
-                return
-            }
-            
-            // Process sleepSample here
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchHeartRate() {
-        let query = HKSampleQuery(sampleType: heartRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let heartRateSample = results.first else {
-                // Handle error here
-                return
-            }
-            
-            let heartRate = heartRateSample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-            
-            // Process heartRate here
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchHRV() {
-        let query = HKSampleQuery(sampleType: hrvType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let hrvSample = results.first else {
-                // Handle error here
-                return
-            }
-            
-            let hrv = hrvSample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
-            
-            // Process hrv here
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchRespirationRate() {
-        let query = HKSampleQuery(sampleType: respirationRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let respirationRateSample = results.first else {
-                // Handle error here
-                return
-            }
-            
-            let respirationRate = respirationRateSample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-            
-            // Process respirationRate here
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchBodyWeightfromHealthKit() {
-        let type = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
-        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let weight = results.first?.quantity.doubleValue(for: .pound()) else {
-                // Handle error here
-                return
-            }
-            DispatchQueue.main.async {
-                bodyWeight = String(format: "%.1f", weight)
-            }
-        }
-        healthStore.execute(query)
-    }
-    
-    
-    
     func showSummary() {
         // Show the session summary view
         withAnimation {
             showSessionSummary = true
         }
     }
-    
     
     func showAlert(title: String, message: String) {
         alertTitle = title
