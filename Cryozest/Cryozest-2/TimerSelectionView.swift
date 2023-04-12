@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct TimerSelectionView: View {
+    
+    
     @State private var timerDuration: TimeInterval
     @State private var showTimerCountdownView: Bool = false
     @State private var showCustomDurationPicker: Bool = false
@@ -59,8 +61,9 @@ struct TimerSelectionView: View {
             TimerCountdownView(timerDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView, showSessionSummary: $showSessionSummary)
         }
         .sheet(isPresented: $showSessionSummary) {
-            SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
+            SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0, startHeartRate: 0, endHeartRate: 0)
         }
+
     }
     
     // Add this function to create circle content with orange ring and hover effect
