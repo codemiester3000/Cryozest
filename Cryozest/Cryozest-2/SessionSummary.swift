@@ -6,16 +6,21 @@ struct SessionSummary: View {
     @State private var temperature: Double
     @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
+    @State private var startHeartRate: Double?
+    @State private var endHeartRate: Double?
     @Environment(\.presentationMode) var presentationMode
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double) {
+    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double, startHeartRate: Double?, endHeartRate: Double?) {
         _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
         _therapyType = State(initialValue: therapyType)
         _bodyWeight = State(initialValue: bodyWeight)
+        _startHeartRate = State(initialValue: startHeartRate)
+        _endHeartRate = State(initialValue: endHeartRate)
     }
+    
     
     private var waterConsumption: Int {
         let waterOunces = (bodyWeight / 30)
@@ -41,11 +46,26 @@ struct SessionSummary: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text(motivationalMessage)
-                .font(.system(size: 24, design: .rounded))
-                .multilineTextAlignment(.center)
-                .padding()
-                .foregroundColor(.white)
+            // VStack to display the start and end heart rate
+                        VStack {
+                            if let startHR = startHeartRate {
+                                Text("Start Heart Rate: \(Int(startHR)) bpm")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, design: .monospaced))
+                            }
+                            if let endHR = endHeartRate {
+                                Text("End Heart Rate: \(Int(endHR)) bpm")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, design: .monospaced))
+                            }
+                        }
+                        .padding()
+                        
+                        Text(motivationalMessage)
+                            .font(.system(size: 24, design: .rounded))
+                            .multilineTextAlignment(.center)
+                            .padding()
+                            .foregroundColor(.white)
             
             // TODO: Add back once we dynamically caluclate water consumption
             

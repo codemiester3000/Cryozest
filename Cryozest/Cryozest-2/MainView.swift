@@ -13,6 +13,12 @@ struct GradientBackgroundModifier: ViewModifier {
     }
 }
 
+extension Color {
+    static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
+    static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
+}
+
+
 struct MainView: View {
     
     let healthStore = HKHealthStore()
@@ -23,6 +29,7 @@ struct MainView: View {
     
     
     @Binding var sessions: [TherapySession]
+    
     
     @State private var temperature: String = ""
     @State private var humidity: String = ""
@@ -38,6 +45,9 @@ struct MainView: View {
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
     @State private var progressValue: CGFloat = 0
+    @State private var startHeartRate: Double?
+    @State private var endHeartRate: Double?
+    
     
     var body: some View {
         NavigationView {
@@ -76,8 +86,9 @@ struct MainView: View {
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0, startHeartRate: startHeartRate, endHeartRate: endHeartRate), isActive: $showSessionSummary)
                     .hidden()
+                
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
@@ -103,8 +114,16 @@ struct MainView: View {
                             self.bodyWeight = String(weight)
                         }
                     }
+                    
+                    // Fetch and store the latest heart rate at the beginning of the session
+                    HealthKitManager.shared.fetchHeartRate { heartRate in
+                        if let heartRate = heartRate {
+                            self.startHeartRate = heartRate
+                        }
+                    }
+                    
                 } else {
-                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                    showErrorAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                 }
             }
             
@@ -116,12 +135,21 @@ struct MainView: View {
                 timerLabel = String(format: "%02d:%02d", minutes, seconds)
             }
         } else { // Timer is running (shows 'stop').
+            // Fetch and store the latest heart rate at the end of the session
+            HealthKitManager.shared.fetchHeartRate { heartRate in
+                if let heartRate = heartRate {
+                    self.endHeartRate = heartRate
+                }
+            }
+            
             timer?.invalidate()
             timer = nil
             showSummary()
             timerLabel = "00:00"
         }
     }
+    
+    
     
     func showSummary() {
         // Show the session summary view
@@ -130,69 +158,63 @@ struct MainView: View {
         }
     }
     
-    func showAlert(title: String, message: String) {
+    func showErrorAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message
         showAlert = true
     }
-}
-
-struct PrimaryButton: View {
-    var title: String
-    var action: () -> Void
-    var timerIcon: Bool = false
     
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                if timerIcon {
-                    Image(systemName: "timer")
-                        .font(.headline)
+    
+    struct PrimaryButton: View {
+        var title: String
+        var action: () -> Void
+        var timerIcon: Bool = false
+        
+        var body: some View {
+            Button(action: action) {
+                HStack {
+                    if timerIcon {
+                        Image(systemName: "timer")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+                    
+                    Text(title)
                         .foregroundColor(.white)
+                        .font(.headline)
                 }
-                
-                Text(title)
-                    .foregroundColor(.white)
-                    .font(.headline)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.blue]), startPoint: .leading, endPoint: .trailing))
+                .cornerRadius(40)
+                .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 40)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 4)
+                )
             }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(LinearGradient(gradient: Gradient(colors: [Color.customBlue, Color.blue]), startPoint: .leading, endPoint: .trailing))
-            .cornerRadius(40)
-            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
-            .overlay(
-                RoundedRectangle(cornerRadius: 40)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 4)
-            )
-        }
-        .padding(.bottom, 8)
-    }
-}
-
-
-
-
-
-struct CustomTextField: View {
-    var placeholder: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType
-    
-    var body: some View {
-        TextField(placeholder, text: $text)
-            .padding(12)
-            .keyboardType(keyboardType)
-            .background(Color(.secondarySystemBackground))
-            .foregroundColor(Color(.label))
-            .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
             .padding(.bottom, 8)
+        }
+    }
+    
+    
+    
+    
+    
+    struct CustomTextField: View {
+        var placeholder: String
+        @Binding var text: String
+        var keyboardType: UIKeyboardType
+        
+        var body: some View {
+            TextField(placeholder, text: $text)
+                .padding(12)
+                .keyboardType(keyboardType)
+                .background(Color(.secondarySystemBackground))
+                .foregroundColor(Color(.label))
+                .cornerRadius(10)
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
+                .padding(.bottom, 8)
+        }
     }
 }
-
-// Add this extension to define the custom colors
-extension Color {
-    static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
-    static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
-}
-
