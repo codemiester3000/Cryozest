@@ -105,7 +105,7 @@ struct MainView: View {
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: $therapyType, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, therapyType: $therapyType, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
                     .hidden()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -118,9 +118,6 @@ struct MainView: View {
             )
         }
     }
-    
-    // MainView.swift - Segment 4
-    // The rest of the methods go here.
     
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
