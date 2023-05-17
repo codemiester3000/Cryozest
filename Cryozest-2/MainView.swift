@@ -27,7 +27,6 @@ struct MainView: View {
     @State private var temperature: String = ""
     @State private var humidity: String = ""
     @State private var bodyWeight: String = ""
-    @State private var selectedTherapy: TherapyType = .drySauna
     @State private var timerLabel: String = "00:00"
     @State private var timer: Timer?
     @State private var timerDuration: TimeInterval = 0
@@ -37,12 +36,11 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
-    @State private var progressValue: CGFloat = 0
+    @State private var therapyType: TherapyType = .drySauna
     
     var body: some View {
         NavigationView {
             VStack() {
-                
                 Spacer()
                 Text("CryoZest")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
@@ -57,6 +55,37 @@ struct MainView: View {
                     .padding(.bottom, 30)
                     .padding(.top, 30)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
+                
+                
+                // TherapyType picker
+                HStack {
+                    Text("Therapy Type: ")
+                        .foregroundColor(.white)
+                        .font(.system(size: 16, design: .monospaced))
+                    
+                    Spacer()
+                    
+                    Picker(selection: $therapyType, label: HStack {
+                        Text("Therapy Type")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 16, design: .monospaced))
+                            .bold()
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.orange)
+                    }) {
+                        ForEach(TherapyType.allCases) { therapyType in
+                            Text(therapyType.rawValue)
+                                .tag(therapyType)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)))
+                    .padding(.trailing)
+                    .accentColor(.orange)
+                }
+                .padding()
                 
                 
                 Button(action: startStopButtonPressed) {
@@ -76,7 +105,7 @@ struct MainView: View {
                 // MainView.swift - Navigation Links
                 NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
                     .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: .drySauna, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
+                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Double(temperature) ?? 0, therapyType: $therapyType, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
                     .hidden()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -5,6 +5,7 @@ struct TimerSelectionView: View {
     @State private var showTimerCountdownView: Bool = false
     @State private var showCustomDurationPicker: Bool = false
     @State private var showSessionSummary: Bool = false
+    @State private var therapyType: TherapyType = .drySauna
     
     init(timerDuration: TimeInterval = 0) {
         _timerDuration = State(initialValue: timerDuration)
@@ -59,7 +60,7 @@ struct TimerSelectionView: View {
             TimerCountdownView(timerDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView, showSessionSummary: $showSessionSummary)
         }
         .sheet(isPresented: $showSessionSummary) {
-            SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: TherapyType.drySauna, bodyWeight: nil ?? 0)
+            SessionSummary(duration: timerDuration, temperature: nil ?? 0, therapyType: $therapyType, bodyWeight: nil ?? 0)
         }
     }
     

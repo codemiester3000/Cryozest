@@ -2,18 +2,19 @@ import SwiftUI
 import CoreData
 
 struct SessionSummary: View {
+    @Binding private var therapyType: TherapyType
+    
     @State private var duration: TimeInterval
     @State private var temperature: Double
-    @State private var therapyType: TherapyType
     @State private var bodyWeight: Double
     @Environment(\.presentationMode) var presentationMode
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, temperature: Double, therapyType: TherapyType, bodyWeight: Double) {
+    init(duration: TimeInterval, temperature: Double, therapyType: Binding<TherapyType>, bodyWeight: Double) {
         _duration = State(initialValue: duration)
         _temperature = State(initialValue: temperature)
-        _therapyType = State(initialValue: therapyType)
+        _therapyType = therapyType
         _bodyWeight = State(initialValue: bodyWeight)
     }
     
@@ -46,8 +47,6 @@ struct SessionSummary: View {
                 .multilineTextAlignment(.center)
                 .padding()
                 .foregroundColor(.white)
-            
-            // TODO: Add back once we dynamically caluclate water consumption
             
             HStack {
                 Text("Therapy Type: ")
