@@ -86,6 +86,13 @@ struct MainView: View {
                 
                 Spacer()
                 
+                Text("Health data from sessions is available only with an Apple Watch")
+                                .foregroundColor(.white)
+                                .font(.system(size: 14))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 50)
+                
                 NavigationLink(destination: LogbookView(), isActive: $showLogbook) {
                     EmptyView()
                 }
@@ -166,65 +173,6 @@ struct MainView: View {
             }
         }
     }
-    
-    
-    
-    //    func startStopButtonPressed() {
-    //        // Timer has not started (shows 'start').
-    //        if timer == nil {
-    //            HealthKitManager.shared.requestAuthorization { success, error in
-    //                if success {
-    //                    pullHealthData()
-    //                } else {
-    //                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-    //                }
-    //            }
-    //
-    //            timerStartDate = Date()
-    //            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-    //                timerDuration = Date().timeIntervalSince(timerStartDate!)
-    //                let minutes = Int(timerDuration) / 60
-    //                let seconds = Int(timerDuration) % 60
-    //                timerLabel = String(format: "%02d:%02d", minutes, seconds)
-    //            }
-    //        } else { // Timer is running (shows 'stop').
-    //            timer?.invalidate()
-    //            timer = nil
-    //            showSummary()
-    //            timerLabel = "00:00"
-    //        }
-    //    }
-    //
-    //    func pullHealthData() {
-    //        print("pulling health data")
-    //        HealthKitManager.shared.requestAuthorization { success, error in
-    //            if success {
-    //                print("inside success")
-    //                timerStartDate = Date()
-    //                timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-    //
-    //                    print("pulling data after 5 seconds")
-    //                    timerDuration = Date().timeIntervalSince(timerStartDate!)
-    //                    let minutes = Int(timerDuration) / 60
-    //                    let seconds = Int(timerDuration) % 60
-    //                    timerLabel = String(format: "%02d:%02d", minutes, seconds)
-    //
-    //                    let startDate = timerStartDate!
-    //                    let endDate = Date()
-    //
-    //                    HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
-    //                        if let healthData = healthData {
-    //                            averageHeartRate = healthData.minHeartRate
-    //                            averageSpo2 = healthData.avgSpo2
-    //                            averageRespirationRate = healthData.avgRespirationRate
-    //                        }
-    //                    }
-    //                }
-    //            } else {
-    //                showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-    //            }
-    //        }
-    //    }
     
     func showSummary() {
         withAnimation {
