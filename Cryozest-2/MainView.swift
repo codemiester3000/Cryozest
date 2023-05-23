@@ -22,9 +22,13 @@ struct MainView: View {
     @State private var showSessionSummary: Bool = false
     @State private var therapyType: TherapyType = .drySauna
     @State private var isRunning = false
+    
     @State private var averageHeartRate: Double = 0.0
+    @State private var minHeartRate: Double = 1000.0
+    @State private var maxHeartRate: Double = 0.0
     @State private var averageSpo2: Double = 0.0
     @State private var averageRespirationRate: Double = 0.0
+    @State private var isHealthDataAvailable: Bool = false
     
     @State private var acceptedHealthKitPermissions: Bool = false
     
@@ -44,16 +48,17 @@ struct MainView: View {
                             self.therapyType = therapyType
                         }) {
                             Text(therapyType.rawValue)
-                                .font(.system(size: 16, design: .monospaced))
+                                .font(.system(size: 13, design: .monospaced))
                                 .foregroundColor(self.therapyType == therapyType ? .white : .orange)
-                                .frame(minWidth: 0, maxWidth: .infinity)
-                                .padding()
-                                .background(self.therapyType == therapyType ? Color.orange : Color.gray)
-                                .cornerRadius(8)
                         }
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 40, maxHeight: 40) // specify the height here
+                        .padding()
+                        .background(self.therapyType == therapyType ? Color.orange : Color.gray)
+                        .cornerRadius(8)
                     }
                 }
                 .padding()
+
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
@@ -78,7 +83,7 @@ struct MainView: View {
                 
                 Spacer()
                 
-                Text(self.acceptedHealthKitPermissions ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for Cryozest to give you the full health-tracking experience. Visit Settings -> Privacy -> Health to grant access")
+                Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for Cyrozest to give you the full health tracking experience. Visit Settings --> Privacy --> Health to grant access.")
                     .foregroundColor(.white)
                     .font(.system(size: 14))
                     .multilineTextAlignment(.center)
@@ -109,6 +114,18 @@ struct MainView: View {
                     endPoint: .bottom
                 )
             )
+            .onAppear() {
+                HealthKitManager.shared.requestAuthorization { success, error in
+                    if success {
+                        HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                            isHealthDataAvailable = isAuthorized
+                        }
+                    } else {
+                        showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                    }
+                }
+                
+            }
         }
     }
     
@@ -127,8 +144,8 @@ struct MainView: View {
                             }
             }
             
-            pullHealthData()
             timerStartDate = Date()
+            pullHealthData()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 print("here")
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
@@ -152,6 +169,9 @@ struct MainView: View {
             print("pulling data after 5 seconds")
             let startDate = timerStartDate!
             let endDate = Date()
+            
+            print("start date: ", startDate)
+            print("end date: ", endDate)
             
             HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
                 if let healthData = healthData {
