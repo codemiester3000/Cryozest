@@ -1,34 +1,18 @@
-// MainView.swift - Segment 1
 import SwiftUI
 import HealthKit
 
-//Modifier to create the gradient background
-struct GradientBackgroundModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom) // Change the gradient colors
-                .edgesIgnoringSafeArea(.all)
-            content
-        }
-    }
-}
-
 struct MainView: View {
-    
     let healthStore = HKHealthStore()
     let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
     let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-    let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-    
+    let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     
     @Binding var sessions: [TherapySession]
     
-    @State private var temperature: String = ""
-    @State private var humidity: String = ""
-    @State private var bodyWeight: String = ""
     @State private var timerLabel: String = "00:00"
     @State private var timer: Timer?
+    @State private var healthDataTimer: Timer?
     @State private var timerDuration: TimeInterval = 0
     @State private var timerStartDate: Date?
     @State private var showAlert: Bool = false
@@ -37,27 +21,29 @@ struct MainView: View {
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
     @State private var therapyType: TherapyType = .drySauna
+    @State private var isRunning = false
+    @State private var averageHeartRate: Double = 0.0
+    @State private var averageSpo2: Double = 0.0
+    @State private var averageRespirationRate: Double = 0.0
     
     var body: some View {
         NavigationView {
-            VStack() {
+            VStack {
                 Spacer()
                 Text("CryoZest")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundColor(Color.white)
                 
                 Text(timerLabel)
-                    .font(.system(size: 72, weight: .bold, design: .monospaced)) // Change the font design and weight
+                    .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(Color.orange) // Change the background color
+                    .background(Color.orange)
                     .cornerRadius(16)
                     .padding(.bottom, 30)
                     .padding(.top, 30)
-                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
+                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 
-                
-                // TherapyType picker
                 HStack {
                     Text("Therapy Type: ")
                         .foregroundColor(.white)
@@ -87,26 +73,34 @@ struct MainView: View {
                 }
                 .padding()
                 
-                
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
                         .font(.system(size: 24, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 16)
-                        .background(Color.orange) // Change the button color
+                        .background(Color.orange)
                         .cornerRadius(40)
-                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10) // Add a shadow effect
+                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
-                
                 
                 Spacer()
                 
-                // MainView.swift - Navigation Links
-                NavigationLink("", destination: LogbookView(), isActive: $showLogbook)
-                    .hidden()
-                NavigationLink("", destination: SessionSummary(duration: timerDuration, temperature: Int(temperature) ?? 0, therapyType: $therapyType, bodyWeight: Double(bodyWeight) ?? 0), isActive: $showSessionSummary)
-                    .hidden()
+                NavigationLink(destination: LogbookView(), isActive: $showLogbook) {
+                    EmptyView()
+                }
+                NavigationLink(
+                    destination: SessionSummary(
+                        duration: timerDuration,
+                        therapyType: $therapyType,
+                        averageHeartRate: averageHeartRate,
+                        averageSpo2: averageSpo2,
+                        averageRespirationRate: averageRespirationRate
+                    ),
+                    isActive: $showSessionSummary
+                ) {
+                    EmptyView()
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
@@ -119,23 +113,23 @@ struct MainView: View {
         }
     }
     
+    
+    
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
         if timer == nil {
             HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
-                    HealthKitManager.shared.fetchBodyWeight { weight in
-                        if let weight = weight {
-                            self.bodyWeight = String(weight)
-                        }
-                    }
+                    // pullHealthData()
                 } else {
                     showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                 }
             }
             
+            pullHealthData()
             timerStartDate = Date()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                print("here")
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
                 let seconds = Int(timerDuration) % 60
@@ -144,13 +138,91 @@ struct MainView: View {
         } else { // Timer is running (shows 'stop').
             timer?.invalidate()
             timer = nil
+            healthDataTimer?.invalidate()
+            healthDataTimer = nil
             showSummary()
             timerLabel = "00:00"
         }
     }
     
+    func pullHealthData() {
+        print("pulling health data")
+        healthDataTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+            print("pulling data after 5 seconds")
+            let startDate = timerStartDate!
+            let endDate = Date()
+            
+            HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
+                if let healthData = healthData {
+                    print("successfully called healthKitManager for data", healthData)
+                    averageHeartRate = healthData.avgHeartRate  // This line was changed
+                    averageSpo2 = healthData.avgSpo2
+                    averageRespirationRate = healthData.avgRespirationRate
+                }
+            }
+        }
+    }
+    
+    
+    
+    //    func startStopButtonPressed() {
+    //        // Timer has not started (shows 'start').
+    //        if timer == nil {
+    //            HealthKitManager.shared.requestAuthorization { success, error in
+    //                if success {
+    //                    pullHealthData()
+    //                } else {
+    //                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+    //                }
+    //            }
+    //
+    //            timerStartDate = Date()
+    //            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+    //                timerDuration = Date().timeIntervalSince(timerStartDate!)
+    //                let minutes = Int(timerDuration) / 60
+    //                let seconds = Int(timerDuration) % 60
+    //                timerLabel = String(format: "%02d:%02d", minutes, seconds)
+    //            }
+    //        } else { // Timer is running (shows 'stop').
+    //            timer?.invalidate()
+    //            timer = nil
+    //            showSummary()
+    //            timerLabel = "00:00"
+    //        }
+    //    }
+    //
+    //    func pullHealthData() {
+    //        print("pulling health data")
+    //        HealthKitManager.shared.requestAuthorization { success, error in
+    //            if success {
+    //                print("inside success")
+    //                timerStartDate = Date()
+    //                timer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+    //
+    //                    print("pulling data after 5 seconds")
+    //                    timerDuration = Date().timeIntervalSince(timerStartDate!)
+    //                    let minutes = Int(timerDuration) / 60
+    //                    let seconds = Int(timerDuration) % 60
+    //                    timerLabel = String(format: "%02d:%02d", minutes, seconds)
+    //
+    //                    let startDate = timerStartDate!
+    //                    let endDate = Date()
+    //
+    //                    HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
+    //                        if let healthData = healthData {
+    //                            averageHeartRate = healthData.minHeartRate
+    //                            averageSpo2 = healthData.avgSpo2
+    //                            averageRespirationRate = healthData.avgRespirationRate
+    //                        }
+    //                    }
+    //                }
+    //            } else {
+    //                showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+    //            }
+    //        }
+    //    }
+    
     func showSummary() {
-        // Show the session summary view
         withAnimation {
             showSessionSummary = true
         }
@@ -195,10 +267,6 @@ struct PrimaryButton: View {
     }
 }
 
-
-
-
-
 struct CustomTextField: View {
     var placeholder: String
     @Binding var text: String
@@ -216,7 +284,6 @@ struct CustomTextField: View {
     }
 }
 
-// Add this extension to define the custom colors
 extension Color {
     static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
     static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
