@@ -158,6 +158,10 @@ struct MainView: View {
                     averageHeartRate = healthData.avgHeartRate  // This line was changed
                     averageSpo2 = healthData.avgSpo2
                     averageRespirationRate = healthData.avgRespirationRate
+                    
+                    if (healthData.avgRespirationRate != 0) {
+                        print("respiration value: ", averageRespirationRate)
+                    }
                 }
             }
         }

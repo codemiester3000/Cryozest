@@ -6,7 +6,7 @@ struct SessionSummary: View {
     @State private var averageHeartRate: Double
     @State private var averageSpo2: Double
     @State private var averageRespirationRate: Double
-
+    
     @Binding private var therapyType: TherapyType
     @State private var durationHours: Int = 0
     @State private var durationMinutes: Int = 0
@@ -16,26 +16,26 @@ struct SessionSummary: View {
     @State private var showDurationPicker = false
     @State private var showTemperaturePicker = false
     @Environment(\.presentationMode) var presentationMode
-
+    
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
         self._averageHeartRate = State(initialValue: averageHeartRate)
         self._averageSpo2 = State(initialValue: averageSpo2)
         self._averageRespirationRate = State(initialValue: averageRespirationRate)
-
+        
         let (hours, minutes, seconds) = secondsToHoursMinutesSeconds(seconds: Int(duration))
         self._durationHours = State(initialValue: hours)
         self._durationMinutes = State(initialValue: minutes)
         self._durationSeconds = State(initialValue: seconds)
     }
-
+    
     private var totalDurationInSeconds: TimeInterval {
         return TimeInterval((durationHours * 3600) + (durationMinutes * 60) + durationSeconds)
     }
-
+    
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -45,14 +45,14 @@ struct SessionSummary: View {
                     .padding()
                 Spacer()
             }
-
+            
             HStack {
                 Text("Therapy Type: ")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
-
+                
                 Spacer()
-
+                
                 Picker(selection: $therapyType, label: HStack {
                     Text("Therapy Type")
                         .foregroundColor(.orange)
@@ -74,7 +74,7 @@ struct SessionSummary: View {
                 .accentColor(.orange)
             }
             .padding()
-
+            
             // Duration
             HStack {
                 Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
@@ -100,7 +100,7 @@ struct SessionSummary: View {
                             .pickerStyle(WheelPickerStyle())
                             .frame(width: 100)
                             .clipped()
-
+                            
                             Picker("Minutes", selection: $durationMinutes) {
                                 ForEach(0..<60) { minute in
                                     Text("\(minute)m")
@@ -109,7 +109,7 @@ struct SessionSummary: View {
                             .pickerStyle(WheelPickerStyle())
                             .frame(width: 100)
                             .clipped()
-
+                            
                             Picker("Seconds", selection: $durationSeconds) {
                                 ForEach(0..<60) { second in
                                     Text("\(second)s")
@@ -128,7 +128,41 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-
+            
+            // Temperature
+            HStack {
+                Text("Temperature: \(temperature)°F")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+                Button(action: { showTemperaturePicker.toggle() }) {
+                    Text("Edit")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
+                }
+                .sheet(isPresented: $showTemperaturePicker) {
+                    VStack {
+                        Text("Choose Temperature")
+                            .font(.title)
+                        Picker("Temperature", selection: $temperature) {
+                            ForEach(32...212, id: \.self) { temp in
+                                Text("\(temp)°F")
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(width: 150, height: 150)
+                        .clipped()
+                        Button("Done", action: { showTemperaturePicker.toggle() })
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            
             // Heart Rate
             HStack {
                 Text("Average Heart Rate: \(Int(averageHeartRate)) bpm")
@@ -137,7 +171,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-
+            
             // SpO2
             HStack {
                 Text("Average SpO2: \(Int(averageSpo2))%")
@@ -146,7 +180,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-
+            
             // Respiration Rate
             HStack {
                 Text("Average Respiration Rate: \(Int(averageRespirationRate)) breaths/min")
@@ -155,7 +189,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-
+            
             HStack {
                 Button(action: discardSession) {
                     Text("Discard")
@@ -167,7 +201,7 @@ struct SessionSummary: View {
                         .font(.system(size: 16, design: .monospaced))
                 }
                 .padding([.leading, .bottom, .trailing])
-
+                
                 Button(action: logSession) {
                     Text("Log Session")
                         .padding()
@@ -179,7 +213,7 @@ struct SessionSummary: View {
                 }
                 .padding([.leading, .bottom, .trailing])
             }
-
+            
             Spacer()
         }
         .padding(.horizontal)
@@ -202,17 +236,20 @@ struct SessionSummary: View {
         newSession.temperature = Double(temperature)
         newSession.therapyType = therapyType.rawValue
         newSession.id = UUID()
-
+        newSession.averageHeartRate = averageHeartRate
+        newSession.averageSpo2 = averageSpo2
+        newSession.averageRespirationRate = averageRespirationRate
+        
         do {
             try viewContext.save()
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
-
+        
         presentationMode.wrappedValue.dismiss()
     }
-
+    
     private func discardSession() {
         presentationMode.wrappedValue.dismiss()
     }
