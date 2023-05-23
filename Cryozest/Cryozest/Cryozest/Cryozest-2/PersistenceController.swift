@@ -11,7 +11,10 @@ struct PersistenceController {
         previewSession.date = "03/26/2023"
         previewSession.duration = 1800
         previewSession.temperature = 180
+        previewSession.humidity = 40
         previewSession.therapyType = "Dry Sauna"
+        previewSession.startHeartRate = 60
+        previewSession.endHeartRate = 85
         previewSession.id = UUID()
 
         do {

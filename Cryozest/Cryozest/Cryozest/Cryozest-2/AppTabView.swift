@@ -11,11 +11,11 @@ struct AppTabView: View {
                     Text("Stopwatch")
                 }
             
-//            TimerSelectionView()		
-//                .tabItem {
-//                    Image(systemName: "timer")
-//                    Text("Timer")
-//                }
+            TimerSelectionView()
+                .tabItem {
+                    Image(systemName: "timer")
+                    Text("Timer")
+                }
             
             LogbookView()
                 .tabItem {
