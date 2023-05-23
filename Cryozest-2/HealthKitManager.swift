@@ -2,84 +2,84 @@ import Foundation
 import HealthKit
 
 class HealthKitManager {
-    
     static let shared = HealthKitManager()
-    
+
     private let healthStore = HKHealthStore()
-    private let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
     private let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-    private let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-    
+    private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+
     private init() {}
-    
+
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
-        healthStore.requestAuthorization(toShare: [], read: [HKObjectType.quantityType(forIdentifier: .bodyMass)!, sleepAnalysisType, heartRateType, hrvType, respirationRateType]) { success, error in
+        let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type]
+
+        healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
+            print("Authorization status: \(success), error: \(String(describing: error))")
             completion(success, error)
         }
     }
-    
-    func fetchBodyWeight(completion: @escaping (Double?) -> Void) {
-        let weightType = HKSampleType.quantityType(forIdentifier: .bodyMass)!
-        let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+
+    func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double)?) -> Void) {
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        var avgHeartRate: Double = 0
+        var avgSpo2: Double = 0
+        var avgRespirationRate: Double = 0
+
+        let group = DispatchGroup()
+
+        group.enter()
+        let heartRateQuery = createAvgStatisticsQuery(for: heartRateType, with: predicate) { statistics in
+            if let statistics = statistics, let heartRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+                print("Fetched average heart rate: \(heartRate)")
+                avgHeartRate = heartRate
+            } else {
+                print("Failed to fetch average heart rate or no heart rate data available")
+            }
+            group.leave()
+        }
+        healthStore.execute(heartRateQuery)
+
+        group.enter()
+        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
+            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
+                print("Fetched average SpO2: \(spo2)")
+                avgSpo2 = spo2
+            } else {
+                print("Failed to fetch average SpO2 or no SpO2 data available")
+            }
+            group.leave()
+        }
+        healthStore.execute(spo2Query)
+
+        group.enter()
+        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
+            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+                print("Fetched average respiration rate: \(respirationRate)")
+                avgRespirationRate = respirationRate
+            } else {
+                print("Failed to fetch average respiration rate or no respiration rate data available")
+            }
+            group.leave()
+        }
+        healthStore.execute(respirationRateQuery)
+
+        group.notify(queue: .main) {
+            print("All queries completed. Average Heart Rate: \(avgHeartRate), Average SpO2: \(avgSpo2), Average Respiration Rate: \(avgRespirationRate)")
+            completion((avgHeartRate, avgSpo2, avgRespirationRate))
+        }
+    }
+
+    private func createAvgStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
+        let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
             DispatchQueue.main.async {
-                guard let samples = samples as? [HKQuantitySample], let quantity = samples.first?.quantity else {
-                    completion(nil)
-                    return
+                if let error = error {
+                    print("Error during \(type.identifier) query: \(error)")
                 }
-                let weight = quantity.doubleValue(for: HKUnit.pound())
-                completion(weight)
+                completion(statistics)
             }
         }
-        healthStore.execute(query)
-    }
-    
-    func fetchSleepAnalysis(completion: @escaping ([HKCategorySample]?) -> Void) {
-        let query = HKSampleQuery(sampleType: sleepAnalysisType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKCategorySample] else {
-                completion(nil)
-                return
-            }
-            completion(results)
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchHeartRate(completion: @escaping (Double?) -> Void) {
-        let query = HKSampleQuery(sampleType: heartRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let heartRateSample = results.first else {
-                completion(nil)
-                return
-            }
-            let heartRate = heartRateSample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-            completion(heartRate)
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchHRV(completion: @escaping (Double?) -> Void) {
-        let query = HKSampleQuery(sampleType: hrvType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let hrvSample = results.first else {
-                completion(nil)
-                return
-            }
-            let hrv = hrvSample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
-            completion(hrv)
-        }
-        healthStore.execute(query)
-    }
-    
-    func fetchRespirationRate() {
-        let query = HKSampleQuery(sampleType: respirationRateType, predicate: nil, limit: 1, sortDescriptors: nil) { query, results, error in
-            guard let results = results as? [HKQuantitySample], let respirationRateSample = results.first else {
-                // Handle error here
-                return
-            }
-            
-            let respirationRate = respirationRateSample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-            
-            // Process respirationRate here
-        }
-        healthStore.execute(query)
+        return query
     }
 }

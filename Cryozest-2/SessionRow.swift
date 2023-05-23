@@ -7,11 +7,11 @@ struct SessionRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text(session.date ?? "")
-                    .font(.system(size: 20, weight: .bold, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                
+
                 Text(session.therapyType ?? "")
-                    .font(.system(size: 18, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 18, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(.orange)
             }
@@ -19,22 +19,24 @@ struct SessionRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 8) {
-                Text("Duration: \(String(format: "%02d", Int(session.duration) / 60)):\(String(format: "%02d", Int(session.duration) % 60))")
-                    .font(.system(size: 14, design: .monospaced)) // Use the rounded design for a modern look
+                Text("Duration: \(formattedDuration)")
+                    .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
-                
+
                 Text("Temp: \(Int(session.temperature))°F")
-                    .font(.system(size: 14, design: .monospaced)) // Use the rounded design for a modern look
+                    .font(.system(size: 14, design: .rounded))
                     .foregroundColor(.white)
             }
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
         .background(Color(red: 0.2, green: 0.2, blue: 0.2).brightness(0.3))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.orange, lineWidth: 6)
-        )
         .cornerRadius(16)
+    }
+    
+    private var formattedDuration: String {
+        let minutes = Int(session.duration) / 60
+        let seconds = Int(session.duration) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }
