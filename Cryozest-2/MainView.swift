@@ -26,13 +26,34 @@ struct MainView: View {
     @State private var averageSpo2: Double = 0.0
     @State private var averageRespirationRate: Double = 0.0
     
+    @State private var acceptedHealthKitPermissions: Bool = false
+    
     var body: some View {
         NavigationView {
             VStack {
                 Spacer()
+                
                 Text("CryoZest")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundColor(Color.white)
+                
+                // Therapy Buttons
+                HStack {
+                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                        Button(action: {
+                            self.therapyType = therapyType
+                        }) {
+                            Text(therapyType.rawValue)
+                                .font(.system(size: 16, design: .monospaced))
+                                .foregroundColor(self.therapyType == therapyType ? .white : .orange)
+                                .frame(minWidth: 0, maxWidth: .infinity)
+                                .padding()
+                                .background(self.therapyType == therapyType ? Color.orange : Color.gray)
+                                .cornerRadius(8)
+                        }
+                    }
+                }
+                .padding()
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
@@ -43,35 +64,6 @@ struct MainView: View {
                     .padding(.bottom, 30)
                     .padding(.top, 30)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                
-                HStack {
-                    Text("Therapy Type: ")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    
-                    Spacer()
-                    
-                    Picker(selection: $therapyType, label: HStack {
-                        Text("Therapy Type")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 16, design: .monospaced))
-                            .bold()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.orange)
-                    }) {
-                        ForEach(TherapyType.allCases) { therapyType in
-                            Text(therapyType.rawValue)
-                                .tag(therapyType)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)))
-                    .padding(.trailing)
-                    .accentColor(.orange)
-                }
-                .padding()
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
@@ -86,12 +78,12 @@ struct MainView: View {
                 
                 Spacer()
                 
-                Text("Health data from sessions is available only with an Apple Watch")
-                                .foregroundColor(.white)
-                                .font(.system(size: 14))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 20)
-                                .padding(.bottom, 50)
+                Text(self.acceptedHealthKitPermissions ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for Cryozest to give you the full health-tracking experience. Visit Settings -> Privacy -> Health to grant access")
+                    .foregroundColor(.white)
+                    .font(.system(size: 14))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 50)
                 
                 NavigationLink(destination: LogbookView(), isActive: $showLogbook) {
                     EmptyView()
@@ -120,17 +112,19 @@ struct MainView: View {
         }
     }
     
-    
-    
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
         if timer == nil {
             HealthKitManager.shared.requestAuthorization { success, error in
-                if success {
-                    // pullHealthData()
-                } else {
-                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-                }
+                DispatchQueue.main.async {
+                                if success {
+                                    // pullHealthData()
+                                    self.acceptedHealthKitPermissions = true
+                                } else {
+                                    self.acceptedHealthKitPermissions = false
+                                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                                }
+                            }
             }
             
             pullHealthData()
@@ -240,4 +234,3 @@ extension Color {
     static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
     static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
 }
-
