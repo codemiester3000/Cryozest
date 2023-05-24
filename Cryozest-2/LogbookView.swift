@@ -34,7 +34,7 @@ struct LogbookView: View {
                             ForEach(groupedSessions.keys.sorted(), id: \.self) { therapyType in
                                 // Add the therapy type header
                                 Text(therapyType)
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: 20, weight: .bold, design: .monospaced))
                                     .foregroundColor(.white)
                                     .padding(.top)
 

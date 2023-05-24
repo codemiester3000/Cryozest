@@ -46,212 +46,68 @@ struct SessionSummary: View {
         ZStack {
             
             LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)
-                       .edgesIgnoringSafeArea(.all)
+                .edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 5) {
-                HStack {
-                    Text("Summary")
-                        .foregroundColor(.white)
-                        .font(.system(size: 30, design: .monospaced))
-                        .padding()
-                    Spacer()
-                }
+            VStack() {
                 
-                HStack {
-                    Text("Therapy Type: ")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    
-                    Spacer()
-                    
-                    Picker(selection: $therapyType, label: HStack {
-                        Text("Therapy Type")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 16, design: .monospaced))
-                            .bold()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.orange)
-                    }) {
-                        ForEach(TherapyType.allCases) { therapyType in
-                            Text(therapyType.rawValue)
-                                .tag(therapyType)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal)
-//                    .background(RoundedRectangle(cornerRadius: 8).fill(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)))
-                    .padding(.trailing)
-                    .accentColor(.orange)
-                }
-                .padding()
-                
-                // Duration
-                HStack {
-                    Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                    Button(action: { showDurationPicker.toggle() }) {
-                        Text("Edit")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 16, design: .monospaced))
-                            .bold()
-                    }
-                    .sheet(isPresented: $showDurationPicker) {
-                        VStack {
-                            Text("Choose Duration")
-                                .font(.title)
-                            HStack {
-                                Picker("Hours", selection: $durationHours) {
-                                    ForEach(0..<24) { hour in
-                                        Text("\(hour)h")
-                                    }
-                                }
-                                .pickerStyle(WheelPickerStyle())
-                                .frame(width: 100)
-                                .clipped()
-                                
-                                Picker("Minutes", selection: $durationMinutes) {
-                                    ForEach(0..<60) { minute in
-                                        Text("\(minute)m")
-                                    }
-                                }
-                                .pickerStyle(WheelPickerStyle())
-                                .frame(width: 100)
-                                .clipped()
-                                
-                                Picker("Seconds", selection: $durationSeconds) {
-                                    ForEach(0..<60) { second in
-                                        Text("\(second)s")
-                                    }
-                                }
-                                .pickerStyle(WheelPickerStyle())
-                                .frame(width: 100)
-                                .clipped()
-                            }
-                            Button("Done", action: { showDurationPicker.toggle() })
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.orange)
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .padding()
-                
-                // Temperature
-                HStack {
-                    Text("Temperature: \(temperature)°F")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                    Button(action: { showTemperaturePicker.toggle() }) {
-                        Text("Edit")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 16, design: .monospaced))
-                            .bold()
-                    }
-                    .sheet(isPresented: $showTemperaturePicker) {
-                        VStack {
-                            Text("Choose Temperature")
-                                .font(.title)
-                            Picker("Temperature", selection: $temperature) {
-                                ForEach(32...212, id: \.self) { temp in
-                                    Text("\(temp)°F")
-                                }
-                            }
-                            .pickerStyle(WheelPickerStyle())
-                            .frame(width: 150, height: 150)
-                            .clipped()
-                            Button("Done", action: { showTemperaturePicker.toggle() })
-                                .padding()
-                                .foregroundColor(.white)
-                                .background(Color.orange)
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .padding()
-                
-                // Heart Rate
-                HStack {
-                    Text("Average HR: \(averageHeartRate != 0 && averageHeartRate != 1000 ? "\(Int(averageHeartRate)) bpm" : "No Data Available")")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                }
-                .padding()
-                
-                //Min Heart Rate
-                
-                HStack {
-                    Text("Min HR: \(minHeartRate != 0 && minHeartRate != 1000 ? "\(Int(minHeartRate)) bpm" : "No Data Available")")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                }
-                .padding()
-                
-                //Max Heart Rate
-                
-                HStack {
-                    Text("Max HR: \(maxHeartRate != 0 && maxHeartRate != 1000 ? "\(Int(maxHeartRate)) bpm" : "No Data Available")")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                }
-                .padding()
-                
-                // SpO2
-                
-                HStack {
-                    Text("Average SpO2: \(averageSpo2 != 0 && averageSpo2 != 1000 ? "\(Int(averageSpo2 * 100))%" : "No Data Available")")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                }
-                .padding()
-                
-                // Respiration Rate
-                
-                HStack {
-                    Text("Average Resp. Rate: \(averageRespirationRate != 0 && averageRespirationRate != 1000 ? "\(Int(averageRespirationRate)) breaths/min" : "No Data Available")")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, design: .monospaced))
-                    Spacer()
-                }
-                .padding()
-                
-                HStack {
-                    Button(action: discardSession) {
-                        Text("Discard")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
+                VStack {
+                    HStack {
+                        Text("Summary")
                             .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.system(size: 16, design: .monospaced))
+                            .font(.system(size: 30, weight: .bold, design: .monospaced))
+                            .padding(.top, 26)
+
                     }
-                    .padding([.leading, .bottom, .trailing])
                     
-                    Button(action: logSession) {
-                        Text("Log Session")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .cornerRadius(8)
-                            .font(.system(size: 16, design: .monospaced))
+                    Spacer()
+                }
+                
+                
+                TherapyTypeView(therapyType: $therapyType)
+                
+                DurationView(durationHours: $durationHours, durationMinutes: $durationMinutes, durationSeconds: $durationSeconds)
+                
+                
+                TemperatureView(temperature: $temperature)
+            
+                
+                HeartRateView(label: "Average HR", heartRate: Int(averageHeartRate))
+                HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
+                HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
+
+                
+                VStack {
+                    Spacer()
+                    HStack {
+                        
+                        Spacer()
+                        
+                        Button(action: discardSession) {
+                            Text("Discard")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        }
+                        .padding([.leading, .bottom, .trailing])
+                        
+                        Button(action: logSession) {
+                            Text("Log Session")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.orange)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        }
+                        .padding([.leading, .bottom, .trailing])
                     }
-                    .padding([.leading, .bottom, .trailing])
                 }
                 
             }
             .padding(.horizontal)
-            .ignoresSafeArea()
-            .edgesIgnoringSafeArea(.all)
-            
         }
     }
     
@@ -290,4 +146,178 @@ struct SessionSummary: View {
     private func discardSession() {
         presentationMode.wrappedValue.dismiss()
     }
+    
+    struct HeartRateView: View {
+        var label: String
+        var heartRate: Int
+
+        var body: some View {
+            HStack {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.red)
+                Text("\(label): \(heartRate != 0 && heartRate != 1000 ? "\(heartRate) bpm" : "No Data Available")")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+    
+    struct DurationView: View {
+        @State var showDurationPicker = false
+        @Binding var durationHours: Int
+        @Binding var durationMinutes: Int
+        @Binding var durationSeconds: Int
+
+        var body: some View {
+            HStack {
+                Image(systemName: "clock")
+                    .foregroundColor(.orange)
+                Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+                Button(action: { showDurationPicker.toggle() }) {
+                    Text("Edit")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
+                }
+                .sheet(isPresented: $showDurationPicker) {
+                    VStack {
+                        Text("Choose Duration")
+                            .font(.title)
+                        HStack {
+                            Picker("Hours", selection: $durationHours) {
+                                ForEach(0..<24) { hour in
+                                    Text("\(hour)h")
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .frame(width: 100)
+                            .clipped()
+                            
+                            Picker("Minutes", selection: $durationMinutes) {
+                                ForEach(0..<60) { minute in
+                                    Text("\(minute)m")
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .frame(width: 100)
+                            .clipped()
+                            
+                            Picker("Seconds", selection: $durationSeconds) {
+                                ForEach(0..<60) { second in
+                                    Text("\(second)s")
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .frame(width: 100)
+                            .clipped()
+                        }
+                        Button("Done", action: { showDurationPicker.toggle() })
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+
+    
+    struct TemperatureView: View {
+        @State var showTemperaturePicker = false
+        @Binding var temperature: Int
+
+        var body: some View {
+            HStack {
+                Image(systemName: "thermometer")
+                    .foregroundColor(.orange)
+                Text("Temperature: \(temperature)°F")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+                Button(action: { showTemperaturePicker.toggle() }) {
+                    Text("Edit")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
+                }
+                .sheet(isPresented: $showTemperaturePicker) {
+                    VStack {
+                        Text("Choose Temperature")
+                            .font(.title)
+                        Picker("Temperature", selection: $temperature) {
+                            ForEach(32...212, id: \.self) { temp in
+                                Text("\(temp)°F")
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(width: 150, height: 150)
+                        .clipped()
+                        Button("Done", action: { showTemperaturePicker.toggle() })
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+    
+    struct TherapyTypeView: View {
+        @Binding var therapyType: TherapyType
+
+        var body: some View {
+            HStack {
+                Image(systemName: "waveform.path.ecg")
+                    .foregroundColor(.white)
+                Text("Therapy Type: ")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+
+                Spacer()
+
+                Picker(selection: $therapyType, label: HStack {
+                    Text("Therapy Type")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.orange)
+                }) {
+                    ForEach(TherapyType.allCases) { therapyType in
+                        Text(therapyType.rawValue)
+                            .tag(therapyType)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal)
+                .padding(.trailing)
+                .accentColor(.orange)
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+
+
 }
