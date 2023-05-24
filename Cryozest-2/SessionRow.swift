@@ -33,7 +33,15 @@ struct SessionRow: View {
             // Health Metrics
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Heart Rate: \(Int(session.averageHeartRate)) bpm")
+                    Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
+                        .font(.system(size: 14, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
+                        .font(.system(size: 14, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.white)
 
@@ -47,7 +55,6 @@ struct SessionRow: View {
                 }
                 Spacer()
             }
-
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
