@@ -16,13 +16,11 @@ struct SessionSummary: View {
     @State private var bodyWeight: Double = 0
     @State private var showDurationPicker = false
     @State private var showTemperaturePicker = false
-    
-    
-    
+
     @Environment(\.presentationMode) var presentationMode
-    
+
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
@@ -31,20 +29,20 @@ struct SessionSummary: View {
         self._averageRespirationRate = State(initialValue: averageRespirationRate)
         self._minHeartRate = State(initialValue: minHeartRate)
         self._maxHeartRate = State(initialValue: maxHeartRate)
-        
+
         let (hours, minutes, seconds) = secondsToHoursMinutesSeconds(seconds: Int(duration))
         self._durationHours = State(initialValue: hours)
         self._durationMinutes = State(initialValue: minutes)
         self._durationSeconds = State(initialValue: seconds)
     }
-    
+
     private var totalDurationInSeconds: TimeInterval {
         return TimeInterval((durationHours * 3600) + (durationMinutes * 60) + durationSeconds)
     }
-    
-    
+
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 5) {
             HStack {
                 Text("Summary")
                     .foregroundColor(.white)
@@ -52,14 +50,14 @@ struct SessionSummary: View {
                     .padding()
                 Spacer()
             }
-            
+
             HStack {
                 Text("Therapy Type: ")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
-                
+
                 Spacer()
-                
+
                 Picker(selection: $therapyType, label: HStack {
                     Text("Therapy Type")
                         .foregroundColor(.orange)
@@ -81,7 +79,7 @@ struct SessionSummary: View {
                 .accentColor(.orange)
             }
             .padding()
-            
+
             // Duration
             HStack {
                 Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
@@ -107,7 +105,7 @@ struct SessionSummary: View {
                             .pickerStyle(WheelPickerStyle())
                             .frame(width: 100)
                             .clipped()
-                            
+
                             Picker("Minutes", selection: $durationMinutes) {
                                 ForEach(0..<60) { minute in
                                     Text("\(minute)m")
@@ -116,7 +114,7 @@ struct SessionSummary: View {
                             .pickerStyle(WheelPickerStyle())
                             .frame(width: 100)
                             .clipped()
-                            
+
                             Picker("Seconds", selection: $durationSeconds) {
                                 ForEach(0..<60) { second in
                                     Text("\(second)s")
@@ -135,7 +133,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            
+
             // Temperature
             HStack {
                 Text("Temperature: \(temperature)°F")
@@ -169,59 +167,56 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            
+
             // Heart Rate
             HStack {
-                Text("Average Heart Rate: \(Int(averageHeartRate)) bpm")
+                Text("Average HR: \(averageHeartRate != 0 && averageHeartRate != 1000 ? "\(Int(averageHeartRate)) bpm" : "No Data Available")")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
             .padding()
-            
+
             //Min Heart Rate
-            
+
             HStack {
-                Text("Min Heart Rate: \(Int(minHeartRate)) bpm")
+                Text("Min HR: \(minHeartRate != 0 && minHeartRate != 1000 ? "\(Int(minHeartRate)) bpm" : "No Data Available")")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
             .padding()
-            
+
             //Max Heart Rate
-            
+
             HStack {
-                Text("Max Heart Rate: \(Int(maxHeartRate)) bpm")
+                Text("Max HR: \(maxHeartRate != 0 && maxHeartRate != 1000 ? "\(Int(maxHeartRate)) bpm" : "No Data Available")")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
             .padding()
-            
+
             // SpO2
-            
+
             HStack {
-                Text("Average SpO2: \(Int(averageSpo2 * 100))%")
+                Text("Average SpO2: \(averageSpo2 != 0 && averageSpo2 != 1000 ? "\(Int(averageSpo2 * 100))%" : "No Data Available")")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
             .padding()
-            
+
             // Respiration Rate
-            
+
             HStack {
-                Text("Average Respiration Rate: \(Int(averageRespirationRate)) breaths/min")
+                Text("Average Resp. Rate: \(averageRespirationRate != 0 && averageRespirationRate != 1000 ? "\(Int(averageRespirationRate)) breaths/min" : "No Data Available")")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
             .padding()
-            
-         
-            
-            
+
             HStack {
                 Button(action: discardSession) {
                     Text("Discard")
@@ -233,7 +228,7 @@ struct SessionSummary: View {
                         .font(.system(size: 16, design: .monospaced))
                 }
                 .padding([.leading, .bottom, .trailing])
-                
+
                 Button(action: logSession) {
                     Text("Log Session")
                         .padding()
@@ -245,21 +240,21 @@ struct SessionSummary: View {
                 }
                 .padding([.leading, .bottom, .trailing])
             }
-            
+
             //Spacer()
         }
         .padding(.horizontal)
         .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom))
         .ignoresSafeArea()
     }
-    
+
     func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
         let seconds = (seconds % 3600) % 60
         return (hours, minutes, seconds)
     }
-    
+
     private func logSession() {
         let newSession = TherapySessionEntity(context: viewContext)
         let dateFormatter = DateFormatter()
@@ -274,18 +269,17 @@ struct SessionSummary: View {
         newSession.averageRespirationRate = averageRespirationRate
         newSession.minHeartRate = minHeartRate
         newSession.maxHeartRate = maxHeartRate
-        
-        
+
         do {
             try viewContext.save()
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
-        
+
         presentationMode.wrappedValue.dismiss()
     }
-    
+
     private func discardSession() {
         presentationMode.wrappedValue.dismiss()
     }
