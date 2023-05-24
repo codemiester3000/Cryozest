@@ -33,31 +33,57 @@ struct SessionRow: View {
             // Health Metrics
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
-
-                    Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
-
-                    Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
-
-                    Text("SpO2: \(Int(session.averageSpo2))%")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
                     
-                    Text("Respiration Rate: \(Int(session.averageRespirationRate)) breaths/min")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.orange)
+                        
+                        Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
+                            .font(.system(size: 14, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.orange)
+                        
+                        Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
+                            .font(.system(size: 14, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack {
+                        Image(systemName: "waveform.path.ecg")
+                            .foregroundColor(.orange)
+                        
+                        Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
+                            .font(.system(size: 14, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    
+
+//                    Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
+//                        .font(.system(size: 14, design: .rounded))
+//                        .foregroundColor(.white)
+//
+//                    Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
+//                        .font(.system(size: 14, design: .rounded))
+//                        .foregroundColor(.white)
+
+//                    Text("SpO2: \(Int(session.averageSpo2))%")
+//                        .font(.system(size: 14, design: .rounded))
+//                        .foregroundColor(.white)
+//
+//                    Text("Respiration Rate: \(Int(session.averageRespirationRate)) breaths/min")
+//                        .font(.system(size: 14, design: .rounded))
+//                        .foregroundColor(.white)
                 }
                 Spacer()
             }
         }
         .padding(.horizontal, 24)
-        .padding(.vertical, 16)
+        .padding(.top, 24)
+        .padding(.bottom, 16)
         .background(Color(red: 0.2, green: 0.2, blue: 0.2).brightness(0.3))
         .cornerRadius(16)
     }

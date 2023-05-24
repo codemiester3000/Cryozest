@@ -108,6 +108,7 @@ struct SessionSummary: View {
                 
             }
             .padding(.horizontal)
+            .padding(.bottom, 26)
         }
     }
     
