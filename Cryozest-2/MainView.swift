@@ -37,8 +37,12 @@ struct MainView: View {
                 Spacer()
                 
                 Text("CryoZest")
-                    .font(.system(size: 36, weight: .bold, design: .monospaced))
+                    .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
+                    //.padding(.top, 52)
+                    //.padding(.bottom, 26)
+                
+                //Spacer()
                 
                 // Therapy Buttons
                 HStack {
@@ -56,8 +60,9 @@ struct MainView: View {
                         .cornerRadius(8)
                     }
                 }
-                .padding()
-                
+                .padding(.horizontal)
+                .padding(.bottom, 26)
+                .padding(.top, 26)
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
@@ -65,16 +70,15 @@ struct MainView: View {
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
                     .background(Color.orange)
                     .cornerRadius(16)
-                    .padding(.bottom, 30)
-                    .padding(.top, 30)
+                    .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .font(.system(size: 28, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 28)
                         .background(Color.orange)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
@@ -84,10 +88,10 @@ struct MainView: View {
                 
                 Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for Cyrozest to give you the full health tracking experience. Visit Settings --> Privacy --> Health to grant access.")
                     .foregroundColor(.white)
-                    .font(.system(size: 14))
+                    .font(.system(size: 12))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 50)
+                    .padding(.bottom, 26)
                 
                 NavigationLink(destination: LogbookView(), isActive: $showLogbook) {
                     EmptyView()
@@ -259,3 +263,4 @@ extension Color {
     static let darkBackground = Color(red: 26 / 255, green: 32 / 255, blue: 44 / 255)
     static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
 }
+
