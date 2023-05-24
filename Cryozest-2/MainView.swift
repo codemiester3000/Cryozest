@@ -37,7 +37,7 @@ struct MainView: View {
                 Spacer()
                 
                 Text("CryoZest")
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
                 
                 // Therapy Buttons
