@@ -6,7 +6,8 @@ struct SessionSummary: View {
     @State private var averageHeartRate: Double
     @State private var averageSpo2: Double
     @State private var averageRespirationRate: Double
-    
+    @State private var minHeartRate: Double
+    @State private var maxHeartRate: Double
     @Binding private var therapyType: TherapyType
     @State private var durationHours: Int = 0
     @State private var durationMinutes: Int = 0
@@ -15,16 +16,21 @@ struct SessionSummary: View {
     @State private var bodyWeight: Double = 0
     @State private var showDurationPicker = false
     @State private var showTemperaturePicker = false
+    
+    
+    
     @Environment(\.presentationMode) var presentationMode
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double) {
+    init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
         self._averageHeartRate = State(initialValue: averageHeartRate)
         self._averageSpo2 = State(initialValue: averageSpo2)
         self._averageRespirationRate = State(initialValue: averageRespirationRate)
+        self._minHeartRate = State(initialValue: minHeartRate)
+        self._maxHeartRate = State(initialValue: maxHeartRate)
         
         let (hours, minutes, seconds) = secondsToHoursMinutesSeconds(seconds: Int(duration))
         self._durationHours = State(initialValue: hours)
@@ -35,6 +41,7 @@ struct SessionSummary: View {
     private var totalDurationInSeconds: TimeInterval {
         return TimeInterval((durationHours * 3600) + (durationMinutes * 60) + durationSeconds)
     }
+    
     
     var body: some View {
         VStack(spacing: 20) {
@@ -172,9 +179,30 @@ struct SessionSummary: View {
             }
             .padding()
             
-            // SpO2
+            //Min Heart Rate
+            
             HStack {
-                Text("Average SpO2: \(Int(averageSpo2))%")
+                Text("Min Heart Rate: \(Int(minHeartRate)) bpm")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            
+            //Max Heart Rate
+            
+            HStack {
+                Text("Max Heart Rate: \(Int(maxHeartRate)) bpm")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            
+            // SpO2
+            
+            HStack {
+                Text("Average SpO2: \(Int(averageSpo2 * 100))%")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
@@ -182,6 +210,7 @@ struct SessionSummary: View {
             .padding()
             
             // Respiration Rate
+            
             HStack {
                 Text("Average Respiration Rate: \(Int(averageRespirationRate)) breaths/min")
                     .foregroundColor(.white)
@@ -189,6 +218,9 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
+            
+         
+            
             
             HStack {
                 Button(action: discardSession) {
@@ -214,10 +246,11 @@ struct SessionSummary: View {
                 .padding([.leading, .bottom, .trailing])
             }
             
-            Spacer()
+            //Spacer()
         }
         .padding(.horizontal)
-        .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom).edgesIgnoringSafeArea(.all))
+        .background(LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom))
+        .ignoresSafeArea()
     }
     
     func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
@@ -239,6 +272,9 @@ struct SessionSummary: View {
         newSession.averageHeartRate = averageHeartRate
         newSession.averageSpo2 = averageSpo2
         newSession.averageRespirationRate = averageRespirationRate
+        newSession.minHeartRate = minHeartRate
+        newSession.maxHeartRate = maxHeartRate
+        
         
         do {
             try viewContext.save()

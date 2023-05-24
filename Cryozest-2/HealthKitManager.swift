@@ -12,6 +12,7 @@ class HealthKitManager {
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
+        print("request authorization")
         let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
@@ -53,14 +54,16 @@ class HealthKitManager {
     }
     
     
-    func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double)?) -> Void) {
+    func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double)?) -> Void) {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
         var avgHeartRate: Double = 0
         var mostRecentHeartRate: Double = 0
+        var minHeartRate: Double = 0
+        var maxHeartRate: Double = 0
         var avgSpo2: Double = 0
         var avgRespirationRate: Double = 0
-        
+
         let group = DispatchGroup()
         
         group.enter()
@@ -74,6 +77,28 @@ class HealthKitManager {
             group.leave()
         }
         healthStore.execute(heartRateQuery)
+        
+        group.enter()
+        fetchMinimumHeartRate(from: startDate, to: endDate) { heartRate in
+            if let heartRate = heartRate {
+                print("Fetched minimum heart rate: \(heartRate)")
+                minHeartRate = heartRate
+            } else {
+                print("Failed to fetch minimum heart rate")
+            }
+            group.leave()
+        }
+        
+        group.enter()
+        fetchMaximumHeartRate(from: startDate, to: endDate) { heartRate in
+            if let heartRate = heartRate {
+                print("Fetched maximum heart rate: \(heartRate)")
+                maxHeartRate = heartRate
+            } else {
+                print("Failed to fetch maximum heart rate")
+            }
+            group.leave()
+        }
         
         group.enter()
         let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
@@ -100,10 +125,12 @@ class HealthKitManager {
         healthStore.execute(respirationRateQuery)
         
         group.notify(queue: .main) {
-            print("All queries completed. Average Heart Rate: \(avgHeartRate), Average SpO2: \(avgSpo2), Average Respiration Rate: \(avgRespirationRate)")
-            completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate))
+            print("All queries completed. Average Heart Rate: \(avgHeartRate), Most Recent Heart Rate: \(mostRecentHeartRate), Minimum Heart Rate: \(minHeartRate), Maximum Heart Rate: \(maxHeartRate), Average SpO2: \(avgSpo2), Average Respiration Rate: \(avgRespirationRate)")
+            completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate, minHeartRate, maxHeartRate))
         }
     }
+
+    
     
     private func createAvgStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
@@ -148,4 +175,60 @@ class HealthKitManager {
         return query
     }
     
+    func fetchMinimumHeartRate(from startDate: Date, to endDate: Date, completion: @escaping (Double?) -> Void) {
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        let minHeartRateQuery = createMinStatisticsQuery(for: heartRateType, with: predicate) { statistics in
+            if let statistics = statistics, let heartRate = statistics.minimumQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+                print("Fetched minimum heart rate: \(heartRate)")
+                completion(heartRate)
+            } else {
+                print("Failed to fetch minimum heart rate")
+                completion(nil)
+            }
+        }
+        
+        healthStore.execute(minHeartRateQuery)
+    }
+
+    func fetchMaximumHeartRate(from startDate: Date, to endDate: Date, completion: @escaping (Double?) -> Void) {
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        let maxHeartRateQuery = createMaxStatisticsQuery(for: heartRateType, with: predicate) { statistics in
+            if let statistics = statistics, let heartRate = statistics.maximumQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+                print("Fetched maximum heart rate: \(heartRate)")
+                completion(heartRate)
+            } else {
+                print("Failed to fetch maximum heart rate")
+                completion(nil)
+            }
+        }
+        
+        healthStore.execute(maxHeartRateQuery)
+    }
+
+    private func createMinStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
+        let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteMin) { _, statistics, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error during \(type.identifier) query: \(error)")
+                }
+                completion(statistics)
+            }
+        }
+        return query
+    }
+
+    private func createMaxStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
+        let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteMax) { _, statistics, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error during \(type.identifier) query: \(error)")
+                }
+                completion(statistics)
+            }
+        }
+        return query
+    }
+
 }

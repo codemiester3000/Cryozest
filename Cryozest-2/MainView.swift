@@ -22,7 +22,6 @@ struct MainView: View {
     @State private var showSessionSummary: Bool = false
     @State private var therapyType: TherapyType = .drySauna
     @State private var isRunning = false
-    
     @State private var averageHeartRate: Double = 0.0
     @State private var minHeartRate: Double = 1000.0
     @State private var maxHeartRate: Double = 0.0
@@ -58,7 +57,7 @@ struct MainView: View {
                     }
                 }
                 .padding()
-
+                
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
@@ -99,7 +98,9 @@ struct MainView: View {
                         therapyType: $therapyType,
                         averageHeartRate: averageHeartRate,
                         averageSpo2: averageSpo2,
-                        averageRespirationRate: averageRespirationRate
+                        averageRespirationRate: averageRespirationRate,
+                        minHeartRate: minHeartRate,
+                        maxHeartRate: maxHeartRate
                     ),
                     isActive: $showSessionSummary
                 ) {
@@ -115,8 +116,10 @@ struct MainView: View {
                 )
             )
             .onAppear() {
+                print("on appear")
                 HealthKitManager.shared.requestAuthorization { success, error in
                     if success {
+                        print("requesting health auth")
                         HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
                             isHealthDataAvailable = isAuthorized
                         }
@@ -134,14 +137,14 @@ struct MainView: View {
         if timer == nil {
             HealthKitManager.shared.requestAuthorization { success, error in
                 DispatchQueue.main.async {
-                                if success {
-                                    // pullHealthData()
-                                    self.acceptedHealthKitPermissions = true
-                                } else {
-                                    self.acceptedHealthKitPermissions = false
-                                    showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-                                }
-                            }
+                    if success {
+                        // pullHealthData()
+                        self.acceptedHealthKitPermissions = true
+                    } else {
+                        self.acceptedHealthKitPermissions = false
+                        showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                    }
+                }
             }
             
             timerStartDate = Date()
@@ -179,6 +182,8 @@ struct MainView: View {
                     averageHeartRate = healthData.avgHeartRate  // This line was changed
                     averageSpo2 = healthData.avgSpo2
                     averageRespirationRate = healthData.avgRespirationRate
+                    minHeartRate = healthData.minHeartRate
+                    maxHeartRate = healthData.maxHeartRate
                     
                     if (healthData.avgRespirationRate != 0) {
                         print("respiration value: ", averageRespirationRate)
