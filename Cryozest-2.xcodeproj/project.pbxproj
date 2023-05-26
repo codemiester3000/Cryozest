@@ -470,6 +470,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Cryozest-2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CryoZest;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "To determine water intake suggestions";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "To determine water intake suggestions";
@@ -504,6 +505,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Cryozest-2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CryoZest;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "To determine water intake suggestions";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "To determine water intake suggestions";
