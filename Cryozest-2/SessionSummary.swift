@@ -19,7 +19,7 @@ struct SessionSummary: View {
     @State private var waterLoss: Double = 0.0
     @State private var hydrationSuggestion: Double = 0.0
     
-    
+    let healthKitManager = HealthKitManager.shared
     
     @Environment(\.presentationMode) var presentationMode
     
@@ -44,16 +44,13 @@ struct SessionSummary: View {
         return TimeInterval((durationHours * 3600) + (durationMinutes * 60) + durationSeconds)
     }
     
-    
     var body: some View {
         
         ZStack {
-            
             LinearGradient(gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]), startPoint: .top, endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)
             
             VStack() {
-                
                 VStack {
                     HStack {
                         Text("Summary")
@@ -62,10 +59,7 @@ struct SessionSummary: View {
                             .padding(.top, 26)
                         
                     }
-                    
                     Spacer()
-                    
-                    
                 }
                 
                 
@@ -116,6 +110,17 @@ struct SessionSummary: View {
             }
             .padding(.horizontal)
             .padding(.bottom, 26)
+        }
+        .onAppear {
+            HealthKitManager.shared.fetchMostRecentBodyMass { fetchedBodyWeight in
+                if let fetchedBodyWeight = fetchedBodyWeight {
+                    print("owen here: ", fetchedBodyWeight)
+                    self.bodyWeight = fetchedBodyWeight
+                } else {
+                    // If fetch fails, bodyWeight stays at 150
+                    print("Failed to fetch most recent body mass")
+                }
+            }
         }
     }
     

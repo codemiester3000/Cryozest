@@ -8,12 +8,13 @@ class HealthKitManager {
     private let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
     private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
     private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+    private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
     
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
         print("request authorization")
-        let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type]
+        let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type, bodyMassType]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             print("Authorization status: \(success), error: \(String(describing: error))")
@@ -53,6 +54,32 @@ class HealthKitManager {
         }
     }
     
+    func fetchMostRecentBodyMass(completion: @escaping (Double?) -> Void) {
+        // Don't limit by start date.
+        let predicate = HKQuery.predicateForSamples(withStart: nil, end: Date(), options: .strictEndDate)
+        
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        
+        let bodyMassQuery = HKSampleQuery(sampleType: bodyMassType, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            
+            // Ensure the samples are not nil and get the first sample
+            guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
+                print("Failed to fetch most recent body mass")
+                completion(nil)
+                return
+            }
+            
+            let bodyMass = sample.quantity.doubleValue(for: HKUnit.pound())
+            print("Fetched most recent body mass: \(bodyMass)")
+            completion(bodyMass)
+        }
+        
+        healthStore.execute(bodyMassQuery)
+    }
+
+
+    
+    
     
     func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double)?) -> Void) {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
@@ -63,7 +90,7 @@ class HealthKitManager {
         var maxHeartRate: Double = 0
         var avgSpo2: Double = 0
         var avgRespirationRate: Double = 0
-
+        
         let group = DispatchGroup()
         
         group.enter()
@@ -129,7 +156,7 @@ class HealthKitManager {
             completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate, minHeartRate, maxHeartRate))
         }
     }
-
+    
     
     
     private func createAvgStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
@@ -190,7 +217,7 @@ class HealthKitManager {
         
         healthStore.execute(minHeartRateQuery)
     }
-
+    
     func fetchMaximumHeartRate(from startDate: Date, to endDate: Date, completion: @escaping (Double?) -> Void) {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
@@ -206,7 +233,7 @@ class HealthKitManager {
         
         healthStore.execute(maxHeartRateQuery)
     }
-
+    
     private func createMinStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteMin) { _, statistics, error in
             DispatchQueue.main.async {
@@ -218,7 +245,7 @@ class HealthKitManager {
         }
         return query
     }
-
+    
     private func createMaxStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteMax) { _, statistics, error in
             DispatchQueue.main.async {
@@ -230,5 +257,5 @@ class HealthKitManager {
         }
         return query
     }
-
+    
 }
