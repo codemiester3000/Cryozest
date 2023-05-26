@@ -2,7 +2,7 @@ import Foundation
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case drySauna = "Sauna"
-    case steamRoom = "Steam Room"
+    case hotYoga = "Hot Yoga"
     case coldPlunge = "Cold Plunge"
     case coldShower = "Cold Shower"
     
@@ -12,8 +12,8 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         switch self {
         case .drySauna:
             return "flame.fill" // Suggests heat
-        case .steamRoom:
-            return "smoke.fill" // Suggests steam
+        case .hotYoga:
+            return "leaf.fill" // Suggests steam
         case .coldPlunge:
             return "thermometer.snowflake" // Suggests cold water
         case .coldShower:
