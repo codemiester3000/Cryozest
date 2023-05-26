@@ -7,6 +7,7 @@ struct MainView: View {
     let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
     let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
     let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+    let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
     @Binding var sessions: [TherapySession]
     
@@ -39,39 +40,47 @@ struct MainView: View {
                 Text("CryoZest")
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
-                    //.padding(.top, 52)
-                    //.padding(.bottom, 26)
+                //.padding(.top, 52)
+                //.padding(.bottom, 26)
                 
                 //Spacer()
                 
-                // Therapy Buttons
-                HStack {
+                LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
                             self.therapyType = therapyType
                         }) {
-                            Text(therapyType.rawValue)
-                                .font(.system(size: 13, design: .monospaced))
-                                .foregroundColor(self.therapyType == therapyType ? .white : .orange)
+                            HStack {
+                                Image(systemName: therapyType.icon)
+                                    .foregroundColor(.white) // Here
+                                Text(therapyType.rawValue)
+                                    .font(.system(size: 15, design: .monospaced)) // Smaller font
+                                    .foregroundColor(.white) // Here
+                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
+                            .background(self.therapyType == therapyType ?
+                                        (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                        : Color.gray)
+                            .cornerRadius(8)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 40, maxHeight: 40) // specify the height here
-                        .padding()
-                        .background(self.therapyType == therapyType ? Color.orange : Color.gray)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 5) // Less padding
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 26)
-                .padding(.top, 26)
+                .padding(.horizontal, 10) // Less horizontal padding for the grid
+                .padding(.bottom, 20) // Less bottom padding for the grid
+                .padding(.top, 20) // Less top padding for the grid
+                
+                
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(Color.orange)
+                    .background(self.therapyType == .coldPlunge || self.therapyType == .coldShower ? Color.blue : Color.orange)
                     .cornerRadius(16)
                     .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
@@ -79,10 +88,11 @@ struct MainView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 28)
-                        .background(Color.orange)
+                        .background(self.therapyType == .coldPlunge || self.therapyType == .coldShower ? Color.blue : Color.orange)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
+                
                 
                 Spacer()
                 
