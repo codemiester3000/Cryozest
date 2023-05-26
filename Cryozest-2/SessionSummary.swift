@@ -13,9 +13,13 @@ struct SessionSummary: View {
     @State private var durationMinutes: Int = 0
     @State private var durationSeconds: Int = 0
     @State private var temperature: Int = 70
-    @State private var bodyWeight: Double = 0
+    @State private var bodyWeight: Double = 150
     @State private var showDurationPicker = false
     @State private var showTemperaturePicker = false
+    @State private var waterLoss: Double = 0.0
+    @State private var hydrationSuggestion: Double = 0.0
+
+   
     
     @Environment(\.presentationMode) var presentationMode
     
@@ -60,22 +64,25 @@ struct SessionSummary: View {
                     }
                     
                     Spacer()
+                    
+                    
                 }
                 
                 
                 TherapyTypeView(therapyType: $therapyType)
                 
                 DurationView(durationHours: $durationHours, durationMinutes: $durationMinutes, durationSeconds: $durationSeconds)
-                
-                
+
                 TemperatureView(temperature: $temperature)
-            
                 
+                BodyWeightView(bodyWeight: $bodyWeight) // Adding Body Weight to Session
+                
+            
+                HydrationSuggestionView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight)
                 HeartRateView(label: "Average HR", heartRate: Int(averageHeartRate))
                 HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
                 HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
 
-                
                 VStack {
                     Spacer()
                     HStack {
@@ -112,6 +119,21 @@ struct SessionSummary: View {
         }
     }
     
+//    private func calculateWaterLoss() {
+//        // Convert the duration to hours.
+//        let durationInHours = totalDurationInSeconds / 3600.0
+//
+//        // Calculate the adjustment for temperature. Increase water loss by 10% for every 10 degrees above 70.
+//        let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
+//
+//        // Calculate water loss.
+//        let waterLossPerHour = 0.5 + temperatureAdjustment
+//        let waterLoss = (durationInHours * bodyWeight / 2.2046) * waterLossPerHour
+//
+//        // Update the hydration suggestion.
+//        hydrationSuggestion = waterLoss
+//    }
+    
     func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
@@ -133,6 +155,7 @@ struct SessionSummary: View {
         newSession.averageRespirationRate = averageRespirationRate
         newSession.minHeartRate = minHeartRate
         newSession.maxHeartRate = maxHeartRate
+        newSession.bodyWeight = bodyWeight
         
         do {
             try viewContext.save()
@@ -235,6 +258,53 @@ struct SessionSummary: View {
         }
     }
 
+    //Adding Body Weight output to Session Summary Screen
+    struct BodyWeightView: View {
+        @State var showWeightPicker = false
+        @Binding var bodyWeight: Double
+
+        var body: some View {
+            HStack {
+                Image(systemName: "scalemass")
+                    .foregroundColor(.orange)
+                Text("Body Weight: \(Int(bodyWeight)) lbs")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+                Button(action: { showWeightPicker.toggle() }) {
+                    Text("Edit")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 16, design: .monospaced))
+                        .bold()
+                }
+                .sheet(isPresented: $showWeightPicker) {
+                    VStack {
+                        Text("Choose Weight")
+                            .font(.title)
+                        Picker("Weight", selection: $bodyWeight) {
+                            ForEach(50...300, id: \.self) { weight in
+                                Text("\(weight) lbs")
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(width: 150, height: 150)
+                        .clipped()
+                        Button("Done", action: { showWeightPicker.toggle() })
+                            .padding()
+                            .foregroundColor(.white)
+                            .background(Color.orange)
+                            .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+    
+    
     
     struct TemperatureView: View {
         @State var showTemperaturePicker = false
@@ -320,5 +390,64 @@ struct SessionSummary: View {
         }
     }
 
+//    struct HydrationSuggestionView: View {
+//        @State var showHydrationSuggestion = false
+//        @Binding var hydrationSuggestion: String
+//
+//        var body: some View {
+//            HStack {
+//                Image(systemName: "drop.fill")
+//                    .foregroundColor(.orange)
+//                Text("H2O Suggestion: \(hydrationSuggestion)")
+//                    .foregroundColor(.white)
+//                    .font(.system(size: 16, design: .monospaced))
+//                Spacer()
+//                Button(action: { showHydrationSuggestion.toggle() }) {
+//                    Text("Update")
+//                        .foregroundColor(.white)
+//                        .font(.system(size: 16, design: .monospaced))
+//                        .bold()
+//                }
+//                // Configure the action for the Calculate button here
+//            }
+//            .padding()
+//            .background(Color.gray.opacity(0.2))
+//            .cornerRadius(10)
+//            .padding(.horizontal)
+//        }
+//    }
+    
+    struct HydrationSuggestionView: View {
+        @State var showHydrationSuggestion = false
+        @State var waterLoss: Double = 0.0
+
+        var totalDurationInSeconds: TimeInterval
+        var temperature: Int
+        var bodyWeight: Double
+
+        private func calculateWaterLoss() -> Double {
+            let durationInHours = totalDurationInSeconds / 3600.0
+            let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
+            let waterLossPerHour = 0.5 + temperatureAdjustment
+            return (durationInHours * bodyWeight / 2.2046) * waterLossPerHour
+        }
+
+        var body: some View {
+            let formattedWaterLoss = calculateWaterLoss()
+            HStack {
+                Image(systemName: "drop.fill")
+                    .foregroundColor(.blue)
+                Text("H20: \(formattedWaterLoss, specifier: "%.2f") liters")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
 
 }
+
