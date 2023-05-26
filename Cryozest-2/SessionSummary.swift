@@ -401,19 +401,22 @@ struct SessionSummary: View {
             let durationInHours = totalDurationInSeconds / 3600.0
             let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
             let waterLossPerHour = 0.5 + temperatureAdjustment
-            return (durationInHours * bodyWeight / 2.2046) * waterLossPerHour
+            let waterLossInLiters = (durationInHours * (0.25 * (bodyWeight/30))) * waterLossPerHour
+            let waterLossInOunces = waterLossInLiters * 33.814
+            return waterLossInOunces
         }
-        
+
         var body: some View {
             let formattedWaterLoss = calculateWaterLoss()
             HStack {
                 Image(systemName: "drop.fill")
                     .foregroundColor(.blue)
-                Text("Restore: \(formattedWaterLoss, specifier: "%.2f") liters")
+                Text("H20: \(formattedWaterLoss, specifier: "%.2f") oz")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
+            
             .padding()
             .background(Color.gray.opacity(0.2))
             .cornerRadius(10)
