@@ -405,23 +405,42 @@ struct SessionSummary: View {
             let waterLossInOunces = waterLossInLiters * 33.814
             return waterLossInOunces
         }
-
+        
         var body: some View {
             let formattedWaterLoss = calculateWaterLoss()
+            let roundedUpWaterLoss = Int(ceil(formattedWaterLoss))
+            
             HStack {
                 Image(systemName: "drop.fill")
                     .foregroundColor(.blue)
-                Text("H20: \(formattedWaterLoss, specifier: "%.2f") oz")
+                Text("Suggested H20: \(roundedUpWaterLoss) oz")
                     .foregroundColor(.white)
                     .font(.system(size: 16, design: .monospaced))
                 Spacer()
             }
-            
             .padding()
             .background(Color.gray.opacity(0.2))
             .cornerRadius(10)
             .padding(.horizontal)
         }
+
+
+//        var body: some View {
+//            let formattedWaterLoss = calculateWaterLoss()
+//            HStack {
+//                Image(systemName: "drop.fill")
+//                    .foregroundColor(.blue)
+//                Text("H20: \(formattedWaterLoss, specifier: "%.2f") oz")
+//                    .foregroundColor(.white)
+//                    .font(.system(size: 16, design: .monospaced))
+//                Spacer()
+//            }
+//
+//            .padding()
+//            .background(Color.gray.opacity(0.2))
+//            .cornerRadius(10)
+//            .padding(.horizontal)
+//        }
     }
     
 }
