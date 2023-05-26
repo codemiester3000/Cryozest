@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SessionRow: View {
     var session: TherapySessionEntity
-
+    
     var body: some View {
         VStack {
             HStack {
@@ -10,20 +10,20 @@ struct SessionRow: View {
                     Text(session.date ?? "")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-
+                    
                     Text(session.therapyType ?? "")
                         .font(.system(size: 18, design: .rounded))
                         .fontWeight(.bold)
                         .foregroundColor(.orange)
                 }
-
+                
                 Spacer()
-
+                
                 VStack(alignment: .trailing, spacing: 8) {
                     Text("Duration: \(formattedDuration)")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.white)
-
+                    
                     Text("Temp: \(Int(session.temperature))°F")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.white)
@@ -34,49 +34,39 @@ struct SessionRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     
-                    HStack {
-                        Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.orange)
-                        
-                        Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
-                            .font(.system(size: 14, design: .rounded))
-                            .foregroundColor(.white)
+                    if session.averageHeartRate != 0 {
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(.orange)
+                            
+                            Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
+                                .font(.system(size: 14, design: .rounded))
+                                .foregroundColor(.white)
+                        }
                     }
                     
-                    HStack {
-                        Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.orange)
-                        
-                        Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
-                            .font(.system(size: 14, design: .rounded))
-                            .foregroundColor(.white)
+                    
+                    if session.minHeartRate != 1000 {
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(.orange)
+                            
+                            Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
+                                .font(.system(size: 14, design: .rounded))
+                                .foregroundColor(.white)
+                        }
                     }
                     
-                    HStack {
-                        Image(systemName: "waveform.path.ecg")
-                            .foregroundColor(.orange)
-                        
-                        Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
-                            .font(.system(size: 14, design: .rounded))
-                            .foregroundColor(.white)
+                    if session.maxHeartRate != 0 {
+                        HStack {
+                            Image(systemName: "waveform.path.ecg")
+                                .foregroundColor(.orange)
+                            
+                            Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
+                                .font(.system(size: 14, design: .rounded))
+                                .foregroundColor(.white)
+                        }
                     }
-                    
-
-//                    Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
-//                        .font(.system(size: 14, design: .rounded))
-//                        .foregroundColor(.white)
-//
-//                    Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
-//                        .font(.system(size: 14, design: .rounded))
-//                        .foregroundColor(.white)
-
-//                    Text("SpO2: \(Int(session.averageSpo2))%")
-//                        .font(.system(size: 14, design: .rounded))
-//                        .foregroundColor(.white)
-//
-//                    Text("Respiration Rate: \(Int(session.averageRespirationRate)) breaths/min")
-//                        .font(.system(size: 14, design: .rounded))
-//                        .foregroundColor(.white)
                 }
                 Spacer()
             }
