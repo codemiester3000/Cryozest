@@ -73,9 +73,14 @@ struct SessionSummary: View {
                 
                 
                 HydrationSuggestionView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight)
-                HeartRateView(label: "Average HR", heartRate: Int(averageHeartRate))
-                HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
-                HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
+                
+                if (NoHealthDataAvailble()) {
+                    NoHealthDataView()
+                } else {
+                    HeartRateView(label: "Average HR", heartRate: Int(averageHeartRate))
+                    HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
+                    HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
+                }
                 
                 VStack {
                     Spacer()
@@ -161,6 +166,29 @@ struct SessionSummary: View {
         presentationMode.wrappedValue.dismiss()
     }
     
+    private func NoHealthDataAvailble() -> Bool {
+        print("owen here", averageHeartRate, minHeartRate, maxHeartRate)
+        return averageHeartRate == 0 && minHeartRate == 1000 && maxHeartRate == 0
+    }
+    
+    struct NoHealthDataView: View {
+        
+        var body: some View {
+            HStack {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.red)
+                Text("Wear Apple watch to get heartrate metrics. Min duration of ~3 min required.")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            .background(Color.gray.opacity(0.6))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+    
     struct HeartRateView: View {
         var label: String
         var heartRate: Int
@@ -175,7 +203,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -242,7 +270,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -295,7 +323,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -343,7 +371,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -377,12 +405,10 @@ struct SessionSummary: View {
                 }
                 .pickerStyle(MenuPickerStyle())
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal)
-                .padding(.trailing)
                 .accentColor(.orange)
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -419,7 +445,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(Color.gray.opacity(0.6))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -437,7 +463,7 @@ struct SessionSummary: View {
 //            }
 //
 //            .padding()
-//            .background(Color.gray.opacity(0.2))
+//            .background(Color.gray.opacity(0.6))
 //            .cornerRadius(10)
 //            .padding(.horizontal)
 //        }
