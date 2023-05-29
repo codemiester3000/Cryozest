@@ -6,15 +6,15 @@ class HealthKitManager {
     
     private let healthStore = HKHealthStore()
     private let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-    private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-    private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+    // private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+    // private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
     
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
         print("request authorization")
-        let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type, bodyMassType]
+        let typesToRead: Set<HKObjectType> = [heartRateType, bodyMassType]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             print("Authorization status: \(success), error: \(String(describing: error))")
@@ -23,7 +23,7 @@ class HealthKitManager {
     }
     
     func areHealthMetricsAuthorized(completion: @escaping (Bool) -> Void) {
-        let typesToRead: Set<HKObjectType> = [heartRateType, respirationRateType, spo2Type]
+        let typesToRead: Set<HKObjectType> = [heartRateType]
         
         healthStore.getRequestStatusForAuthorization(toShare: [], read: typesToRead) { (status, error) in
             if let error = error {
@@ -123,29 +123,29 @@ class HealthKitManager {
             group.leave()
         }
         
-        group.enter()
-        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
-            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
-                print("Fetched average SpO2: \(spo2)")
-                avgSpo2 = spo2
-            } else {
-                print("Failed to fetch average SpO2 or no SpO2 data available")
-            }
-            group.leave()
-        }
-        healthStore.execute(spo2Query)
-        
-        group.enter()
-        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
-            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                print("Fetched average respiration rate: \(respirationRate)")
-                avgRespirationRate = respirationRate
-            } else {
-                print("Failed to fetch average respiration rate or no respiration rate data available")
-            }
-            group.leave()
-        }
-        healthStore.execute(respirationRateQuery)
+//        group.enter()
+//        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
+//            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
+//                print("Fetched average SpO2: \(spo2)")
+//                avgSpo2 = spo2
+//            } else {
+//                print("Failed to fetch average SpO2 or no SpO2 data available")
+//            }
+//            group.leave()
+//        }
+//        healthStore.execute(spo2Query)
+//
+//        group.enter()
+//        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
+//            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+//                print("Fetched average respiration rate: \(respirationRate)")
+//                avgRespirationRate = respirationRate
+//            } else {
+//                print("Failed to fetch average respiration rate or no respiration rate data available")
+//            }
+//            group.leave()
+//        }
+//        healthStore.execute(respirationRateQuery)
         
         group.notify(queue: .main) {
             print("All queries completed. Average Heart Rate: \(avgHeartRate), Most Recent Heart Rate: \(mostRecentHeartRate), Minimum Heart Rate: \(minHeartRate), Maximum Heart Rate: \(maxHeartRate), Average SpO2: \(avgSpo2), Average Respiration Rate: \(avgRespirationRate)")
