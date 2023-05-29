@@ -25,7 +25,7 @@ struct SessionSummary: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-   init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
+    init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
         self._averageHeartRate = State(initialValue: averageHeartRate)
@@ -347,7 +347,7 @@ struct SessionSummary: View {
     
     
     
-  struct TemperatureView: View {
+    struct TemperatureView: View {
         @State var showTemperaturePicker = false
         @Binding var temperature: Int
         @Binding var therapyType: TherapyType
@@ -478,24 +478,6 @@ struct SessionSummary: View {
             .cornerRadius(10)
             .padding(.horizontal)
         }
-
-
-//        var body: some View {
-//            let formattedWaterLoss = calculateWaterLoss()
-//            HStack {
-//                Image(systemName: "drop.fill")
-//                    .foregroundColor(.blue)
-//                Text("H20: \(formattedWaterLoss, specifier: "%.2f") oz")
-//                    .foregroundColor(.white)
-//                    .font(.system(size: 16, design: .monospaced))
-//                Spacer()
-//            }
-//
-//            .padding()
-//            .background(Color.gray.opacity(0.6))
-//            .cornerRadius(10)
-//            .padding(.horizontal)
-//        }
     }
     
 }

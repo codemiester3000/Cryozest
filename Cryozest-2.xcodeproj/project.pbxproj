@@ -25,6 +25,7 @@
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
+		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
+		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +128,7 @@
 				C538085429CFD5DC002E90FF /* TherapySession.swift */,
 				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
 				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
+				C5CD67662A255A7A008F455E /* AnalysisView.swift */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
@@ -302,6 +305,7 @@
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
+				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
