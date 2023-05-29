@@ -25,7 +25,7 @@ struct SessionSummary: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     
-    init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
+   init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
         self._averageHeartRate = State(initialValue: averageHeartRate)
@@ -38,6 +38,21 @@ struct SessionSummary: View {
         self._durationHours = State(initialValue: hours)
         self._durationMinutes = State(initialValue: minutes)
         self._durationSeconds = State(initialValue: seconds)
+        
+        let initialTemperature: Int
+        switch therapyType.wrappedValue {
+        case .drySauna:
+            initialTemperature = 165
+        case .coldPlunge:
+            initialTemperature = 50
+        case .coldShower:
+            initialTemperature = 60
+        case .hotYoga:
+            initialTemperature = 110
+        default:
+            initialTemperature = 70
+        }
+        self._temperature = State(initialValue: initialTemperature)
     }
     
     private var totalDurationInSeconds: TimeInterval {
