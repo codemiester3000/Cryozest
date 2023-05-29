@@ -67,7 +67,7 @@ struct SessionSummary: View {
                 
                 DurationView(durationHours: $durationHours, durationMinutes: $durationMinutes, durationSeconds: $durationSeconds)
                 
-                TemperatureView(temperature: $temperature)
+                TemperatureView(temperature: $temperature, therapyType: $therapyType)
                 
                 BodyWeightView(bodyWeight: $bodyWeight) // Adding Body Weight to Session
                 
@@ -332,9 +332,23 @@ struct SessionSummary: View {
     
     
     
-    struct TemperatureView: View {
+  struct TemperatureView: View {
         @State var showTemperaturePicker = false
         @Binding var temperature: Int
+        @Binding var therapyType: TherapyType
+        
+        var temperatureRange: Range<Int> {
+            switch therapyType {
+            case .drySauna:
+                return 100..<250
+            case .coldPlunge:
+                return 0..<70
+            case .coldShower:
+                return 0..<80
+            case .hotYoga:
+                return 70..<200
+            }
+        }
         
         var body: some View {
             HStack {
@@ -355,7 +369,7 @@ struct SessionSummary: View {
                         Text("Choose Temperature")
                             .font(.title)
                         Picker("Temperature", selection: $temperature) {
-                            ForEach(32...212, id: \.self) { temp in
+                            ForEach(temperatureRange, id: \.self) { temp in
                                 Text("\(temp)°F")
                             }
                         }
