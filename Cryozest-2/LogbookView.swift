@@ -50,13 +50,9 @@ struct LogbookView: View {
                 }
             }
             .padding(.horizontal) // Add horizontal padding to the VStack
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
+            .background(Color(.sRGB, red: 0.15, green: 0.15, blue: 0.15, opacity: 0.9))
+                
+            
         }
     }
 }

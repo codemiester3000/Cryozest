@@ -123,6 +123,26 @@ class HealthKitManager {
             group.leave()
         }
         
+        func fetchHeartRateData(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]) -> Void) {
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+                
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+                
+            let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+                guard let samples = samples as? [HKQuantitySample], error == nil else {
+                    print("Failed to fetch heart rate data")
+                    completion([])
+                    return
+                }
+                    
+                print("Fetched heart rate data")
+                completion(samples)
+            }
+                
+            healthStore.execute(query)
+        }
+
+        
 //        group.enter()
 //        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
 //            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {

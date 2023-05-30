@@ -23,33 +23,33 @@ struct AnalysisView: View {
     var body: some View {
         VStack {
             Text("Analysis")
-                .font(.system(size: 40, weight: .bold, design: .monospaced))
+                .font(.system(size: 25, weight: .bold, design: .monospaced))
                 .foregroundColor(Color.white)
+                .padding(.top, 20)
+                .padding(.leading, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            LazyVGrid(columns: gridItems, spacing: 10) {
+            HStack {
                 ForEach(TherapyType.allCases, id: \.self) { therapyType in
                     Button(action: {
                         self.therapyType = therapyType
                     }) {
                         HStack {
-                            Image(systemName: therapyType.icon)
-                                .foregroundColor(.white) // Here
                             Text(therapyType.rawValue)
-                                .font(.system(size: 15, design: .monospaced)) // Smaller font
-                                .foregroundColor(.white) // Here
+                                .font(.system(size: 15, design: .monospaced))
+                                .foregroundColor(.white)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
                         .background(self.therapyType == therapyType ?
                                     (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
                                     : Color.gray)
                         .cornerRadius(8)
                     }
-                    .padding(.horizontal, 5) // Less padding
                 }
             }
-            .padding(.horizontal, 10) // Less horizontal padding for the grid
-            .padding(.bottom, 20) // Less bottom padding for the grid
-            .padding(.top, 20) // Less top padding for the grid
+            .padding(.horizontal, 10)
+            .padding(.bottom, 20)
+            .padding(.top, 20)
             
             Picker("Time frame", selection: $selectedTimeFrame) {
                 Text("Last 7 days")
@@ -72,16 +72,16 @@ struct AnalysisView: View {
                          longestStreak: getLongestStreak(for: therapyType),
                          totalTime: getTotalTime(for: therapyType),
                          totalSessions: getTotalSessions(for: therapyType))
-            .padding(.horizontal)
+                .padding(.horizontal)
+                .background(Color(.sRGB, red: 0.15, green: 0.15, blue: 0.15, opacity: 0.9))
+                .cornerRadius(8)
+                .padding(10)
+            
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .background(Color(.sRGB, red: 0.15, green: 0.15, blue: 0.15, opacity: 0.9))
+
         .navigationTitle("Analysis")
     }
     
