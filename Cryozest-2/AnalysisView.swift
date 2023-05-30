@@ -49,22 +49,30 @@ struct AnalysisView: View {
             }
             .padding(.horizontal, 10) // Less horizontal padding for the grid
             .padding(.bottom, 20) // Less bottom padding for the grid
-            .padding(.top, 10) // Less top padding for the grid
+            .padding(.top, 20) // Less top padding for the grid
             
             Picker("Time frame", selection: $selectedTimeFrame) {
-                            Text("Last 7 days").tag(TimeFrame.week)
-                            Text("Last Month").tag(TimeFrame.month)
-                            Text("All Time").tag(TimeFrame.allTime)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding()
+                Text("Last 7 days")
+                    .tag(TimeFrame.week)
+                    .foregroundColor(selectedTimeFrame == .week ? .orange : .primary)
+                Text("Last Month")
+                    .tag(TimeFrame.month)
+                    .foregroundColor(selectedTimeFrame == .month ? .orange : .primary)
+                Text("All Time")
+                    .tag(TimeFrame.allTime)
+                    .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.bottom, 28)
+            .padding(.horizontal)
+            
             
             AnalysisCard(therapyType: self.therapyType,
                          currentStreak: getCurrentStreak(for: therapyType),
                          longestStreak: getLongestStreak(for: therapyType),
                          totalTime: getTotalTime(for: therapyType),
                          totalSessions: getTotalSessions(for: therapyType))
-                .padding(.horizontal)
+            .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -172,14 +180,27 @@ struct AnalysisCard: View {
     var longestStreak: Int
     var totalTime: TimeInterval
     var totalSessions: Int
-
+    
     var body: some View {
         VStack {
-            Text(therapyType.rawValue)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.bottom, 5)
+            
+            
+            
+            HStack {
+                
+                //                Image(systemName: therapyType.icon)
+                //                    .foregroundColor(therapyType.rawValue == TherapyType.drySauna.rawValue || therapyType.rawValue == TherapyType.hotYoga.rawValue ? .orange : .blue)
+                //                    .font(.title)
+                Text(therapyType.rawValue)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 5)
+                
+                
+            }
+            
+            
             
             HStack {
                 Image(systemName: "flame.fill")

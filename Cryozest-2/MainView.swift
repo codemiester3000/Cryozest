@@ -66,8 +66,6 @@ struct MainView: View {
                 .padding(.bottom, 20) // Less bottom padding for the grid
                 .padding(.top, 20) // Less top padding for the grid
                 
-                
-                
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
