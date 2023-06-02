@@ -124,10 +124,8 @@ struct MainView: View {
                 )
             )
             .onAppear() {
-                print("on appear")
                 HealthKitManager.shared.requestAuthorization { success, error in
                     if success {
-                        print("requesting health auth")
                         HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
                             isHealthDataAvailable = isAuthorized
                         }
@@ -158,7 +156,6 @@ struct MainView: View {
             timerStartDate = Date()
             pullHealthData()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                print("here")
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
                 let seconds = Int(timerDuration) % 60
@@ -175,27 +172,17 @@ struct MainView: View {
     }
     
     func pullHealthData() {
-        print("pulling health data")
         healthDataTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            print("pulling data after 5 seconds")
             let startDate = timerStartDate!
             let endDate = Date()
             
-            print("start date: ", startDate)
-            print("end date: ", endDate)
-            
             HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
                 if let healthData = healthData {
-                    print("successfully called healthKitManager for data", healthData)
                     averageHeartRate = healthData.avgHeartRate  // This line was changed
                     averageSpo2 = healthData.avgSpo2
                     averageRespirationRate = healthData.avgRespirationRate
                     minHeartRate = healthData.minHeartRate
                     maxHeartRate = healthData.maxHeartRate
-                    
-                    if (healthData.avgRespirationRate != 0) {
-                        print("respiration value: ", averageRespirationRate)
-                    }
                 }
             }
         }

@@ -136,11 +136,9 @@ struct SessionSummary: View {
         .onAppear {
             HealthKitManager.shared.fetchMostRecentBodyMass { fetchedBodyWeight in
                 if let fetchedBodyWeight = fetchedBodyWeight {
-                    print("owen here: ", fetchedBodyWeight)
                     self.bodyWeight = fetchedBodyWeight
                 } else {
                     // If fetch fails, bodyWeight stays at 150
-                    print("Failed to fetch most recent body mass")
                 }
             }
         }
@@ -184,7 +182,6 @@ struct SessionSummary: View {
     }
     
     private func NoHealthDataAvailble() -> Bool {
-        print("owen here", averageHeartRate, minHeartRate, maxHeartRate)
         return averageHeartRate == 0 && minHeartRate == 1000 && maxHeartRate == 0
     }
     
@@ -521,9 +518,7 @@ struct SessionSummary: View {
 
             let tempAdjustmentFactor: Double
             if temperature > 70 {
-                print("TEMP:", temperature)
                 tempAdjustmentFactor = Double(temperature - 70) * 0.02
-                print("factor: ", tempAdjustmentFactor)
             } else {
                 tempAdjustmentFactor = 1.0
             }

@@ -13,11 +13,9 @@ class HealthKitManager {
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
-        print("request authorization")
         let typesToRead: Set<HKObjectType> = [heartRateType, bodyMassType]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
-            print("Authorization status: \(success), error: \(String(describing: error))")
             completion(success, error)
         }
     }
@@ -27,27 +25,25 @@ class HealthKitManager {
         
         healthStore.getRequestStatusForAuthorization(toShare: [], read: typesToRead) { (status, error) in
             if let error = error {
-                print("Error checking authorization status: \(error)")
+     
                 completion(false)
                 return
             }
             
-            print("owen here", status.rawValue)
             
             switch status {
             case .unnecessary:
                 // The system doesn't need to request authorization because the user has already granted access.
                 completion(true)
             case .shouldRequest:
-                print("here 2")
                 // The system needs to request authorization.
                 completion(false)
             case .unknown:
-                print("here")
+
                 // The system can't determine whether it needs to request authorization.
                 completion(false)
             @unknown default:
-                print("here 1")
+         
                 // Handle potential future cases.
                 completion(false)
             }
@@ -64,13 +60,13 @@ class HealthKitManager {
             
             // Ensure the samples are not nil and get the first sample
             guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
-                print("Failed to fetch most recent body mass")
+                
                 completion(nil)
                 return
             }
             
             let bodyMass = sample.quantity.doubleValue(for: HKUnit.pound())
-            print("Fetched most recent body mass: \(bodyMass)")
+           
             completion(bodyMass)
         }
         
@@ -92,10 +88,10 @@ class HealthKitManager {
         group.enter()
         let heartRateQuery = createAvgStatisticsQuery(for: heartRateType, with: predicate) { statistics in
             if let statistics = statistics, let heartRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                print("Fetched average heart rate: \(heartRate)")
+               
                 avgHeartRate = heartRate
             } else {
-                print("Failed to fetch average heart rate or no heart rate data available")
+                
             }
             group.leave()
         }
@@ -104,7 +100,6 @@ class HealthKitManager {
         group.enter()
         fetchMinimumHeartRate(from: startDate, to: endDate) { heartRate in
             if let heartRate = heartRate {
-                print("Fetched minimum heart rate: \(heartRate)")
                 minHeartRate = heartRate
             } else {
                 print("Failed to fetch minimum heart rate")
@@ -115,7 +110,6 @@ class HealthKitManager {
         group.enter()
         fetchMaximumHeartRate(from: startDate, to: endDate) { heartRate in
             if let heartRate = heartRate {
-                print("Fetched maximum heart rate: \(heartRate)")
                 maxHeartRate = heartRate
             } else {
                 print("Failed to fetch maximum heart rate")
@@ -148,7 +142,6 @@ class HealthKitManager {
 //        healthStore.execute(respirationRateQuery)
         
         group.notify(queue: .main) {
-            print("All queries completed. Average Heart Rate: \(avgHeartRate), Most Recent Heart Rate: \(mostRecentHeartRate), Minimum Heart Rate: \(minHeartRate), Maximum Heart Rate: \(maxHeartRate), Average SpO2: \(avgSpo2), Average Respiration Rate: \(avgRespirationRate)")
             completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate, minHeartRate, maxHeartRate))
         }
     }
@@ -175,7 +168,6 @@ class HealthKitManager {
         
         let heartRateQuery = createAvgStatisticsQuery(for: heartRateType, with: predicate) { statistics in
             if let statistics = statistics, let heartRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                print("Fetched most recent heart rate over past 10 seconds: \(heartRate)")
                 completion(heartRate)
             } else {
                 print("Failed to fetch most recent heart rate")
@@ -203,7 +195,6 @@ class HealthKitManager {
         
         let minHeartRateQuery = createMinStatisticsQuery(for: heartRateType, with: predicate) { statistics in
             if let statistics = statistics, let heartRate = statistics.minimumQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                print("Fetched minimum heart rate: \(heartRate)")
                 completion(heartRate)
             } else {
                 print("Failed to fetch minimum heart rate")
@@ -219,7 +210,6 @@ class HealthKitManager {
         
         let maxHeartRateQuery = createMaxStatisticsQuery(for: heartRateType, with: predicate) { statistics in
             if let statistics = statistics, let heartRate = statistics.maximumQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                print("Fetched maximum heart rate: \(heartRate)")
                 completion(heartRate)
             } else {
                 print("Failed to fetch maximum heart rate")
