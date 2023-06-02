@@ -74,8 +74,7 @@ struct SessionRow: View {
         .padding(.horizontal, 24)
         .padding(.top, 24)
         .padding(.bottom, 16)
-        .background(Color(red: 0.2, green: 0.2, blue: 0.2).brightness(0.3).opacity(0.6))
-        //.background(Color.gray.opacity(0.8))
+        .background(Color(.darkGray))
         .cornerRadius(16)
     }
     

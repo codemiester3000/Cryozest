@@ -71,7 +71,8 @@ struct AnalysisView: View {
                          currentStreak: getCurrentStreak(for: therapyType),
                          longestStreak: getLongestStreak(for: therapyType),
                          totalTime: getTotalTime(for: therapyType),
-                         totalSessions: getTotalSessions(for: therapyType))
+                         totalSessions: getTotalSessions(for: therapyType),
+                         timeFrame: selectedTimeFrame)
             .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -180,37 +181,34 @@ struct AnalysisCard: View {
     var longestStreak: Int
     var totalTime: TimeInterval
     var totalSessions: Int
-    
+    var timeFrame: TimeFrame
+
     var body: some View {
-        VStack {
-            
-            
-            
+        VStack(alignment: .leading) {
             HStack {
-                
-                //                Image(systemName: therapyType.icon)
-                //                    .foregroundColor(therapyType.rawValue == TherapyType.drySauna.rawValue || therapyType.rawValue == TherapyType.hotYoga.rawValue ? .orange : .blue)
-                //                    .font(.title)
                 Text(therapyType.rawValue)
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .padding(.bottom, 5)
-                
-                
-            }
-            
-            
-            
-            HStack {
-                Image(systemName: "flame.fill")
-                    .foregroundColor(.red)
-                    .font(.system(size: 24))
-                Text("Current Streak: \(currentStreak) Days")
+
+                Spacer()
+
+                Text(timeFrame.displayString())
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .font(.callout)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.orange)
+                    .cornerRadius(8)
             }
-            
+            .padding(.bottom, 10)
+
+            Label("Current Streak: \(currentStreak) Days", systemImage: "flame.fill")
+                .font(.callout)
+                .foregroundColor(.white)
+                .padding(.bottom, 10)
+
             HStack {
                 VStack(alignment: .leading) {
                     Text("Longest Streak")
@@ -221,9 +219,9 @@ struct AnalysisCard: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                 }
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .leading) {
                     Text("Total Sessions")
                         .font(.headline)
@@ -235,27 +233,39 @@ struct AnalysisCard: View {
                 }
             }
             .padding(.top, 10)
-            
+
             Divider()
-            
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Total Time")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("\(Int(totalTime / 60)) mins")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                }
-                
-                Spacer()
+                .background(Color.white)
+
+            VStack(alignment: .leading) {
+                Text("Total Time")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Text("\(Int(totalTime / 60)) mins")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
             }
             .padding(.top, 10)
         }
         .padding()
-        .cornerRadius(10)
+        .background(Color(.darkGray))
+        .cornerRadius(16)
         .padding(.horizontal)
     }
 }
+
+extension TimeFrame {
+    func displayString() -> String {
+        switch self {
+        case .week:
+            return "Last 7 Days"
+        case .month:
+            return "Last Month"
+        case .allTime:
+            return "All Time"
+        }
+    }
+}
+
 

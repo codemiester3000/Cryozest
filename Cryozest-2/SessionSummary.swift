@@ -78,7 +78,7 @@ struct SessionSummary: View {
                 }
                 
                 
-                TherapyTypeView(therapyType: $therapyType)
+                TherapyTypeView(therapyType: $therapyType, temperature: $temperature)
                 
                 DurationView(durationHours: $durationHours, durationMinutes: $durationMinutes, durationSeconds: $durationSeconds)
                 
@@ -200,7 +200,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -220,7 +220,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -287,7 +287,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -340,7 +340,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -399,7 +399,7 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -407,6 +407,7 @@ struct SessionSummary: View {
     
     struct TherapyTypeView: View {
         @Binding var therapyType: TherapyType
+        @Binding var temperature: Int
         
         var body: some View {
             HStack {
@@ -434,13 +435,28 @@ struct SessionSummary: View {
                 .pickerStyle(MenuPickerStyle())
                 .frame(maxWidth: .infinity)
                 .accentColor(.orange)
+                .onChange(of: therapyType, perform: { newValue in
+                    switch newValue {
+                    case .drySauna:
+                        temperature = 165
+                    case .coldPlunge:
+                        temperature = 50
+                    case .coldShower:
+                        temperature = 60
+                    case .hotYoga:
+                        temperature = 110
+                    default:
+                        temperature = 70
+                    }
+                })
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
     }
+
     
     
     struct HydrationSuggestionView: View {
@@ -473,7 +489,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -531,7 +547,7 @@ struct SessionSummary: View {
                 Spacer()
             }
             .padding()
-            .background(Color.gray.opacity(0.6))
+            .background(Color(.darkGray))
             .cornerRadius(10)
             .padding(.horizontal)
         }
