@@ -89,6 +89,8 @@ struct SessionSummary: View {
                 
                 HydrationSuggestionView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight)
                 
+                CalorieLossEstimationView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight, therapyType: therapyType)
+                
                 if (NoHealthDataAvailble()) {
                     NoHealthDataView()
                 } else {
@@ -115,7 +117,7 @@ struct SessionSummary: View {
                         .padding([.leading, .bottom, .trailing])
                         
                         Button(action: logSession) {
-                            Text("Log Session")
+                            Text("Save")
                                 .padding()
                                 .frame(maxWidth: .infinity)
                                 .background(Color.orange)
@@ -343,10 +345,7 @@ struct SessionSummary: View {
             .padding(.horizontal)
         }
     }
-    
-    
-    
-    
+     
     struct TemperatureView: View {
         @State var showTemperaturePicker = false
         @Binding var temperature: Int
@@ -480,4 +479,62 @@ struct SessionSummary: View {
         }
     }
     
+    struct CalorieLossEstimationView: View {
+        @State var showCalorieLossEstimation = false
+        @State var calorieLoss: Double = 0.0
+
+        var totalDurationInSeconds: TimeInterval
+        var temperature: Int
+        var bodyWeight: Double
+        var therapyType: TherapyType
+
+        private func calculateCalorieLoss() -> Double {
+            let durationInMinutes = totalDurationInSeconds / 60.0
+            let burnRatePerMinute: Double
+
+            switch therapyType {
+            case .drySauna:
+                burnRatePerMinute = 0.89 * bodyWeight / 150.0 // 0.42 is a base rate assuming a reference weight of 150 lbs
+            case .coldPlunge:
+                burnRatePerMinute = 2.75 * bodyWeight / 150.0 // 2.75 is a base rate assuming a reference weight of 150 lbs
+            case .coldShower:
+                burnRatePerMinute = 1.85 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .hotYoga:
+                burnRatePerMinute = 4.5 * bodyWeight / 150.0 // 4.5 is a base rate assuming a reference weight of 150 lbs
+            }
+
+            let tempAdjustmentFactor: Double
+            if temperature > 70 {
+                print("TEMP:", temperature)
+                tempAdjustmentFactor = Double(temperature - 70) * 0.02
+                print("factor: ", tempAdjustmentFactor)
+            } else {
+                tempAdjustmentFactor = 1.0
+            }
+
+            let calorieLoss = durationInMinutes * burnRatePerMinute * tempAdjustmentFactor
+            return calorieLoss
+        }
+
+
+
+        var body: some View {
+            let formattedCalorieLoss = calculateCalorieLoss()
+            let roundedCalorieLoss = Int(ceil(formattedCalorieLoss))
+
+            HStack {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.red)
+                Text("Calories Lost: ~ \(roundedCalorieLoss) cal")
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, design: .monospaced))
+                Spacer()
+            }
+            .padding()
+            .background(Color.gray.opacity(0.6))
+            .cornerRadius(10)
+            .padding(.horizontal)
+        }
+    }
+
 }
