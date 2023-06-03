@@ -336,10 +336,10 @@ struct StreakCalendarView: View {
     }
     
     private func dateFromDay(day: String, daysInWeek: [String]) -> Date {
-        let today = Calendar.current.component(.weekday, from: Date())
-        let index = (7 + today - daysInWeek.firstIndex(of: day)!) % 7
-        let date = Calendar.current.date(byAdding: .day, value: -index, to: Date())
+        let index = daysInWeek.firstIndex(of: day)! - 6
+        let date = Calendar.current.date(byAdding: .day, value: index, to: Date())
         
+        // print("dateFromDay", day, date, index)
         return date!
     }
     
