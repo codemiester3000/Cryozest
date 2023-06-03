@@ -155,7 +155,6 @@ struct MainView: View {
             }
             
             timerStartDate = Date()
-            pullHealthData()
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
@@ -165,29 +164,63 @@ struct MainView: View {
         } else { // Timer is running (shows 'stop').
             timer?.invalidate()
             timer = nil
-            healthDataTimer?.invalidate()
-            healthDataTimer = nil
+            pullHealthData()
             showSummary()
             timerLabel = "00:00"
         }
     }
+
+    
+//    func startStopButtonPressed() {
+//        // Timer has not started (shows 'start').
+//        if timer == nil {
+//            HealthKitManager.shared.requestAuthorization { success, error in
+//                DispatchQueue.main.async {
+//                    if success {
+//                        // pullHealthData()
+//                        self.acceptedHealthKitPermissions = true
+//                    } else {
+//                        self.acceptedHealthKitPermissions = false
+//                        showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+//                    }
+//                }
+//            }
+//
+//            timerStartDate = Date()
+//            pullHealthData()
+//            timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//                timerDuration = Date().timeIntervalSince(timerStartDate!)
+//                let minutes = Int(timerDuration) / 60
+//                let seconds = Int(timerDuration) % 60
+//                timerLabel = String(format: "%02d:%02d", minutes, seconds)
+//            }
+//        } else { // Timer is running (shows 'stop').
+//            timer?.invalidate()
+//            timer = nil
+//            healthDataTimer?.invalidate()
+//            healthDataTimer = nil
+//            showSummary()
+//            timerLabel = "00:00"
+//        }
+//    }
     
     func pullHealthData() {
-        healthDataTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            let startDate = timerStartDate!
-            let endDate = Date()
-            
-            HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
-                if let healthData = healthData {
-                    averageHeartRate = healthData.avgHeartRate  // This line was changed
-                    averageSpo2 = healthData.avgSpo2
-                    averageRespirationRate = healthData.avgRespirationRate
-                    minHeartRate = healthData.minHeartRate
-                    maxHeartRate = healthData.maxHeartRate
-                }
+        let startDate = timerStartDate!
+        let endDate = Date()
+
+        HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
+            if let healthData = healthData {
+                averageHeartRate = healthData.avgHeartRate
+                averageSpo2 = healthData.avgSpo2
+                averageRespirationRate = healthData.avgRespirationRate
+                minHeartRate = healthData.minHeartRate
+                maxHeartRate = healthData.maxHeartRate
+
+                print("pulling health data")
             }
         }
     }
+
     
     func showSummary() {
         withAnimation {
