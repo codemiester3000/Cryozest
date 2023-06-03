@@ -2,14 +2,19 @@ import SwiftUI
 
 struct LogbookView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    
     @FetchRequest(
         entity: TherapySessionEntity.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: false)]) // Change ascending to false
+        sortDescriptors: [])
     private var sessions: FetchedResults<TherapySessionEntity>
+    
+    @State private var therapyType: TherapyType = .drySauna
+    
+    let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
 
-    // A computed property to group sessions by therapy type
-    private var groupedSessions: [String: [TherapySessionEntity]] {
-        Dictionary(grouping: sessions, by: { $0.therapyType ?? "" })
+    private var sortedSessions: [TherapySessionEntity] {
+        let therapyTypeSessions = sessions.filter { $0.therapyType == therapyType.rawValue }
+        return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
     }
     
     var body: some View {
@@ -21,35 +26,51 @@ struct LogbookView: View {
                     .bold()
                     .padding(.top, 24)
                     .padding(.leading, 16)
+                
+                LazyVGrid(columns: gridItems, spacing: 10) {
+                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                        Button(action: {
+                            self.therapyType = therapyType
+                        }) {
+                            HStack {
+                                Image(systemName: therapyType.icon)
+                                    .foregroundColor(.white)
+                                Text(therapyType.rawValue)
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                            .background(self.therapyType == therapyType ?
+                                        (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                        : Color(.gray))
+                            .cornerRadius(8)
+                        }
+                        .padding(.horizontal, 5)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.bottom, 20)
+                .padding(.top, 20)
 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
-                        if sessions.isEmpty {
+                        if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white)
                                 .font(.system(size: 18, design: .rounded))
                                 .padding()
                         } else {
-                            // Iterate over the grouped sessions dictionary
-                            ForEach(groupedSessions.keys.sorted(), id: \.self) { therapyType in
-                                // Add the therapy type header
-                                Text(therapyType)
-                                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                            // Iterate over the sorted sessions
+                            ForEach(sortedSessions, id: \.self) { session in
+                                SessionRow(session: session)
                                     .foregroundColor(.white)
-                                    .padding(.top)
-
-                                // Iterate over sessions in the current group
-                                ForEach(groupedSessions[therapyType] ?? [], id: \.self) { session in
-                                    SessionRow(session: session)
-                                        .foregroundColor(.white)
-                                }
                             }
                         }
                     }
                     .padding()
                 }
             }
-            .padding(.horizontal) // Add horizontal padding to the VStack
+            .padding(.horizontal)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
@@ -60,4 +81,3 @@ struct LogbookView: View {
         }
     }
 }
-

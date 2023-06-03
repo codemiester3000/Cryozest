@@ -26,6 +26,7 @@ struct AnalysisView: View {
                 .font(.system(size: 40, weight: .bold, design: .monospaced))
                 .foregroundColor(Color.white)
             
+            
             LazyVGrid(columns: gridItems, spacing: 10) {
                 ForEach(TherapyType.allCases, id: \.self) { therapyType in
                     Button(action: {

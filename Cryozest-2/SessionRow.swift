@@ -4,71 +4,37 @@ struct SessionRow: View {
     var session: TherapySessionEntity
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(session.date ?? "")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    Text(session.therapyType ?? "")
-                        .font(.system(size: 18, design: .rounded))
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                }
-                
+                Text(session.date ?? "")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
                 Spacer()
-                
-                VStack(alignment: .trailing, spacing: 8) {
-                    Text("Duration: \(formattedDuration)")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    Text("Temp: \(Int(session.temperature))°F")
-                        .font(.system(size: 14, design: .rounded))
-                        .foregroundColor(.white)
-                }
+                Text(session.therapyType ?? "")
+                    .font(.system(size: 20, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             }
-            Spacer()
-            // Health Metrics
+            
             HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    
-                    if session.averageHeartRate != 0 {
-                        HStack {
-                            Image(systemName: "waveform.path.ecg")
-                                .foregroundColor(.orange)
-                            
-                            Text("Average Heart Rate: \(Int(session.averageHeartRate)) bpm")
-                                .font(.system(size: 14, design: .rounded))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    
-                    
-                    if session.minHeartRate != 1000 {
-                        HStack {
-                            Image(systemName: "waveform.path.ecg")
-                                .foregroundColor(.orange)
-                            
-                            Text("Min Heart Rate: \(Int(session.minHeartRate)) bpm")
-                                .font(.system(size: 14, design: .rounded))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    
-                    if session.maxHeartRate != 0 {
-                        HStack {
-                            Image(systemName: "waveform.path.ecg")
-                                .foregroundColor(.orange)
-                            
-                            Text("Max Heart Rate: \(Int(session.maxHeartRate)) bpm")
-                                .font(.system(size: 14, design: .rounded))
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
+                Text("Duration: \(formattedDuration)")
+                    .font(.system(size: 16, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
                 Spacer()
+                Text("Temp: \(Int(session.temperature))°F")
+                    .font(.system(size: 16, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+            }
+            
+            // Health Metrics
+            VStack(alignment: .leading, spacing: 10) {
+                HeartRateView(title: "Average Heart Rate", value: session.averageHeartRate)
+                HeartRateView(title: "Min Heart Rate", value: session.minHeartRate, maxValue: 1000)
+                HeartRateView(title: "Max Heart Rate", value: session.maxHeartRate)
             }
         }
         .padding(.horizontal, 24)
@@ -76,6 +42,21 @@ struct SessionRow: View {
         .padding(.bottom, 16)
         .background(Color(.darkGray))
         .cornerRadius(16)
+        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
+    }
+    
+    private func HeartRateView(title: String, value: Double, maxValue: Double = 0) -> some View {
+        HStack {
+            if value != maxValue {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.orange)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                Text("\(title): \(value) bpm")
+                    .font(.system(size: 16, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+            }
+        }
     }
     
     private var formattedDuration: String {

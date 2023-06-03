@@ -35,11 +35,12 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Spacer()
+                //Spacer()
                 
                 Text("CryoZest")
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
+                    .padding(.top, 75)
 
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
