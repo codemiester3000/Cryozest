@@ -24,7 +24,7 @@ struct LogbookView: View {
                     .font(.system(size: 24, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .bold()
-                    .padding(.top, 24)
+                    .padding(.top, 36)
                     .padding(.leading, 16)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
