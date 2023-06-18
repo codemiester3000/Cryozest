@@ -41,7 +41,7 @@ struct LogbookView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
                             .background(self.therapyType == therapyType ?
-                                        (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                        (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
                                         : Color(.gray))
                             .cornerRadius(8)
                         }

@@ -45,7 +45,7 @@ struct SessionSummary: View {
             initialTemperature = 165
         case .coldPlunge:
             initialTemperature = 50
-        case .coldShower:
+        case .meditation:
             initialTemperature = 60
         case .hotYoga:
             initialTemperature = 110
@@ -354,7 +354,7 @@ struct SessionSummary: View {
                 return 100..<250
             case .coldPlunge:
                 return 0..<70
-            case .coldShower:
+            case .meditation:
                 return 0..<80
             case .hotYoga:
                 return 70..<200
@@ -438,7 +438,7 @@ struct SessionSummary: View {
                         temperature = 165
                     case .coldPlunge:
                         temperature = 50
-                    case .coldShower:
+                    case .meditation:
                         temperature = 60
                     case .hotYoga:
                         temperature = 110
@@ -510,7 +510,7 @@ struct SessionSummary: View {
                 burnRatePerMinute = 0.89 * bodyWeight / 150.0 // 0.42 is a base rate assuming a reference weight of 150 lbs
             case .coldPlunge:
                 burnRatePerMinute = 2.75 * bodyWeight / 150.0 // 2.75 is a base rate assuming a reference weight of 150 lbs
-            case .coldShower:
+            case .meditation:
                 burnRatePerMinute = 1.85 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             case .hotYoga:
                 burnRatePerMinute = 4.5 * bodyWeight / 150.0 // 4.5 is a base rate assuming a reference weight of 150 lbs

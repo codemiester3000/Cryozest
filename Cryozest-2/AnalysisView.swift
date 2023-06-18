@@ -41,7 +41,7 @@ struct AnalysisView: View {
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
                         .background(self.therapyType == therapyType ?
-                                    (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                    (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
                                     : Color(.darkGray))
                         .cornerRadius(8)
                     }
@@ -68,14 +68,29 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             
-            AnalysisCard(therapyType: self.therapyType,
-                         currentStreak: getCurrentStreak(for: therapyType),
-                         longestStreak: getLongestStreak(for: therapyType),
-                         totalTime: getTotalTime(for: therapyType),
-                         totalSessions: getTotalSessions(for: therapyType),
-                         timeFrame: selectedTimeFrame,
-                         sessions: sessions)
-            .padding(.horizontal)
+            ScrollView {
+                SessionTimeAnalysisCard(
+                    therapyType: self.therapyType,
+                    totalTime: getTotalTime(for: therapyType),
+                    totalSessions: getTotalSessions(for: therapyType),
+                    timeFrame: selectedTimeFrame
+                )
+                .padding(.horizontal)
+                
+                StreakAnalysisCard(
+                    therapyType: self.therapyType,
+                    currentStreak: getCurrentStreak(for: therapyType),
+                    sessions: sessions
+                )
+                .padding(.horizontal)
+                
+                AvgHeartRateComparisonView(
+                    therapyType: .meditation,
+                    sessions: sessions,
+                    avgHeartRateOnTherapyDays: 70,
+                    avgHeartRateOnNonTherapyDays: 100
+                )
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -174,37 +189,18 @@ enum TimeFrame {
     case week, month, allTime
 }
 
-struct AnalysisCard: View {
+struct StreakAnalysisCard: View {
     var therapyType: TherapyType
     var currentStreak: Int
-    var longestStreak: Int
-    var totalTime: TimeInterval
-    var totalSessions: Int
-    var timeFrame: TimeFrame
-    
     var sessions: FetchedResults<TherapySessionEntity>
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
-                Text(therapyType.rawValue)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text(timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.orange)
-                    .cornerRadius(8)
-            }
-            .padding(.bottom, 10)
-            
+            Text("Streaks")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+
             HStack {
                 Text("Current Streak:")
                     .font(.headline)
@@ -216,28 +212,45 @@ struct AnalysisCard: View {
             }
             .padding(.bottom, 10)
             
-            //            HStack {
-            //                VStack(alignment: .leading) {
-            //                    Text("Longest Streak")
-            //                        .font(.headline)
-            //                        .foregroundColor(.white.opacity(0.7))
-            //                    Text("\(longestStreak) Days")
-            //                        .font(.title2)
-            //                        .fontWeight(.semibold)
-            //                        .foregroundColor(.white)
-            //                }
-            //
-            //                Spacer()
-            //
-            //            }
-            //            .padding(.top, 10)
-            
             StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
                 .padding(.top, 10)
                 .padding(.bottom, 10)
-            
-            Divider()
-                .background(Color.white)
+        }
+        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+        .background(Color(.darkGray))
+        .cornerRadius(16)
+    }
+}
+
+struct SessionTimeAnalysisCard: View {
+    var therapyType: TherapyType
+    var totalTime: TimeInterval
+    var totalSessions: Int
+    var timeFrame: TimeFrame
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text("Time")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Spacer()
+                
+                Text(timeFrame.displayString())
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.orange)
+                    .cornerRadius(8)
+            }
+//            .padding(.bottom, 10)
+
+//            Divider()
+//                .background(Color.white)
             
             HStack {
                 VStack(alignment: .leading) {
@@ -264,14 +277,83 @@ struct AnalysisCard: View {
                 }
                 .padding(.top, 10)
             }
-            
-            
         }
         .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
         .background(Color(.darkGray))
         .cornerRadius(16)
     }
 }
+
+
+struct AvgHeartRateComparisonView: View {
+    var therapyType: TherapyType
+    var sessions: FetchedResults<TherapySessionEntity>
+    var avgHeartRateOnTherapyDays: Double
+    var avgHeartRateOnNonTherapyDays: Double
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text("Average Heart Rate Comparison")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Text(therapyType.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.orange)
+                    .cornerRadius(8)
+            }
+            .padding(.bottom, 10)
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("On Therapy Days")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("\(avgHeartRateOnTherapyDays, specifier: "%.2f") bpm")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .leading) {
+                    Text("On Non-Therapy Days")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("\(avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+            }
+            
+            HStack {
+                Text("Difference")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                Text("\(avgHeartRateOnTherapyDays - avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(avgHeartRateOnTherapyDays > avgHeartRateOnNonTherapyDays ? .red : .green)
+            }
+            .padding(.top, 10)
+        }
+        .padding(20)
+        .background(Color.gray.opacity(0.3))
+        .cornerRadius(15)
+    }
+}
+
 
 struct StreakCalendarView: View {
     var therapySessions: [TherapySessionEntity]
@@ -348,8 +430,6 @@ struct StreakCalendarView: View {
         return date > Date()
     }
 }
-
-
 
 extension TimeFrame {
     func displayString() -> String {
