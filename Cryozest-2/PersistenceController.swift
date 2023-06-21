@@ -8,7 +8,7 @@ struct PersistenceController {
 
         // Add preview data here if necessary
         let previewSession = TherapySessionEntity(context: viewContext)
-        previewSession.date = "03/26/2023"
+        previewSession.date = Date()
         previewSession.duration = 1800
         previewSession.temperature = 180
         previewSession.therapyType = "Dry Sauna"

@@ -19,16 +19,10 @@ struct LogbookView: View {
         return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
     }
     
-    let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        return formatter
-    }()
-    
     private func updateSessionDates() {
         self.sessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { dateFormatter.date(from: $0.date ?? "") }
+            .compactMap { $0.date }
     }
     
     var body: some View {
@@ -47,6 +41,8 @@ struct LogbookView: View {
                             self.therapyType = therapyType
                             print("Therapy Type Changed: \(self.therapyType)")
                             updateSessionDates()
+                            
+                            print("session dates Changed: \(self.sessionDates)")
                         }) {
                             HStack {
                                 Image(systemName: therapyType.icon)
