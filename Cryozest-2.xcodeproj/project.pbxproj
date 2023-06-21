@@ -27,7 +27,6 @@
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
 		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
 		C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */; };
-		C5BD39B72A42864300BCB3DF /* DateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B62A42864300BCB3DF /* DateCell.swift */; };
 		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 /* End PBXBuildFile section */
@@ -74,7 +73,6 @@
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
 		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		C5BD39B62A42864300BCB3DF /* DateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCell.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -134,7 +132,6 @@
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
 				C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */,
-				C5BD39B62A42864300BCB3DF /* DateCell.swift */,
 				C538085429CFD5DC002E90FF /* TherapySession.swift */,
 				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
 				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
@@ -322,7 +319,6 @@
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
-				C5BD39B72A42864300BCB3DF /* DateCell.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,

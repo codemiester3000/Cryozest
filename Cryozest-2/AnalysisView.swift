@@ -200,7 +200,7 @@ struct StreakAnalysisCard: View {
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
-
+            
             HStack {
                 Text("Current Streak:")
                     .font(.headline)
@@ -216,6 +216,7 @@ struct StreakAnalysisCard: View {
                 .padding(.top, 10)
                 .padding(.bottom, 10)
         }
+        .frame(maxWidth: .infinity)
         .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
         .background(Color(.darkGray))
         .cornerRadius(16)
@@ -227,7 +228,7 @@ struct SessionTimeAnalysisCard: View {
     var totalTime: TimeInterval
     var totalSessions: Int
     var timeFrame: TimeFrame
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -235,7 +236,7 @@ struct SessionTimeAnalysisCard: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-
+                
                 Spacer()
                 
                 Text(timeFrame.displayString())
@@ -247,10 +248,6 @@ struct SessionTimeAnalysisCard: View {
                     .background(Color.orange)
                     .cornerRadius(8)
             }
-//            .padding(.bottom, 10)
-
-//            Divider()
-//                .background(Color.white)
             
             HStack {
                 VStack(alignment: .leading) {
@@ -278,6 +275,7 @@ struct SessionTimeAnalysisCard: View {
                 .padding(.top, 10)
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
         .background(Color(.darkGray))
         .cornerRadius(16)
