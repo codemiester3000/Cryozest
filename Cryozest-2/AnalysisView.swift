@@ -244,7 +244,7 @@ struct SessionTimeAnalysisCard: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 4) // test
                     .background(Color.orange)
                     .cornerRadius(8)
             }
