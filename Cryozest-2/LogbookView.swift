@@ -60,15 +60,14 @@ struct LogbookView: View {
                     }
                 }
                 .padding(.horizontal, 10)
-                .padding(.bottom, 20)
+                .padding(.bottom, 5)
                 .padding(.top, 20)
                 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         
                         CalendarView(sessionDates: sessionDates)
-                            .frame(height: 400) // Set a fixed height for the calendar
-                            .padding()
+                            .frame(height: 300) // Set a fixed height for the calendar
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
