@@ -41,7 +41,7 @@ struct MainView: View {
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
                     .padding(.top, 75)
-
+                
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
@@ -56,7 +56,7 @@ struct MainView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
                             .background(self.therapyType == therapyType ?
-                                        (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                        (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
                                         : Color.gray)
                             .cornerRadius(8)
                         }
@@ -71,7 +71,7 @@ struct MainView: View {
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(self.therapyType == .coldPlunge || self.therapyType == .coldShower ? Color.blue : Color.orange)
+                    .background(self.therapyType == .coldPlunge || self.therapyType == .meditation ? Color.blue : Color.orange)
                     .cornerRadius(16)
                     .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
@@ -83,7 +83,7 @@ struct MainView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 28)
-                        .background(self.therapyType == .coldPlunge || self.therapyType == .coldShower ? Color.blue : Color.orange)
+                        .background(self.therapyType == .coldPlunge || self.therapyType == .meditation ? Color.blue : Color.orange)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
@@ -156,6 +156,7 @@ struct MainView: View {
             
             timerStartDate = Date()
             pullHealthData()
+            
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
@@ -186,6 +187,15 @@ struct MainView: View {
                     maxHeartRate = healthData.maxHeartRate
                 }
             }
+            
+            // Fetch Average Heart Rate Excluding Specific Days
+//            HealthKitManager.shared.fetchAvgHeartRateExcluding(days: []) { avgHeartRateExcluding in
+//                if let avgHeartRateExcluding = avgHeartRateExcluding {
+//                    print("Average Heart Rate Excluding Specific Days: \(avgHeartRateExcluding)")
+//                } else {
+//                    print("Failed to fetch average heart rate excluding specific days.")
+//                }
+//            }
         }
     }
     

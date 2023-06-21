@@ -1,4 +1,5 @@
 import SwiftUI
+import JTAppleCalendar
 
 struct LogbookView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -9,12 +10,25 @@ struct LogbookView: View {
     private var sessions: FetchedResults<TherapySessionEntity>
     
     @State private var therapyType: TherapyType = .drySauna
+    @State private var sessionDates = [Date]()
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
-
+    
     private var sortedSessions: [TherapySessionEntity] {
         let therapyTypeSessions = sessions.filter { $0.therapyType == therapyType.rawValue }
         return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
+    }
+    
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        return formatter
+    }()
+    
+    private func updateSessionDates() {
+        self.sessionDates = sessions
+            .filter { $0.therapyType == therapyType.rawValue }
+            .compactMap { dateFormatter.date(from: $0.date ?? "") }
     }
     
     var body: some View {
@@ -25,12 +39,14 @@ struct LogbookView: View {
                     .foregroundColor(.white)
                     .bold()
                     .padding(.top, 36)
-                    .padding(.leading, 16)
+                    .padding(.leading, 24)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
                             self.therapyType = therapyType
+                            print("Therapy Type Changed: \(self.therapyType)")
+                            updateSessionDates()
                         }) {
                             HStack {
                                 Image(systemName: therapyType.icon)
@@ -41,7 +57,7 @@ struct LogbookView: View {
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
                             .background(self.therapyType == therapyType ?
-                                        (therapyType == .coldPlunge || therapyType == .coldShower ? Color.blue : Color.orange)
+                                        (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
                                         : Color(.gray))
                             .cornerRadius(8)
                         }
@@ -49,11 +65,39 @@ struct LogbookView: View {
                     }
                 }
                 .padding(.horizontal, 10)
-                .padding(.bottom, 20)
+                .padding(.bottom, 5)
                 .padding(.top, 20)
-
+                
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
+                        
+                        HStack {
+                            Text("Completed days = ")
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, design: .monospaced))
+                            Circle()
+                                .fill(Color.orange)
+                                .frame(width: 25, height: 25)
+                        }
+                        .padding(.horizontal)
+                        
+                        HStack {
+                            Text("Today = ")
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, design: .monospaced))
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 25, height: 25)
+                        }
+                        .padding(.horizontal)
+                        
+                        CalendarView(sessionDates: $sessionDates, therapyType: $therapyType)
+                            .background(Color(UIColor.darkGray))
+                            .frame(height: 300) // Set a fixed height for the calendar
+                            .cornerRadius(16)
+                            .frame(maxWidth: .infinity)
+                        
+                        
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white)
@@ -70,7 +114,7 @@ struct LogbookView: View {
                     .padding()
                 }
             }
-            .padding(.horizontal)
+            //.padding(.horizontal)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),

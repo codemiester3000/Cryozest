@@ -25,11 +25,10 @@ class HealthKitManager {
         
         healthStore.getRequestStatusForAuthorization(toShare: [], read: typesToRead) { (status, error) in
             if let error = error {
-     
+                
                 completion(false)
                 return
             }
-            
             
             switch status {
             case .unnecessary:
@@ -39,11 +38,11 @@ class HealthKitManager {
                 // The system needs to request authorization.
                 completion(false)
             case .unknown:
-
+                
                 // The system can't determine whether it needs to request authorization.
                 completion(false)
             @unknown default:
-         
+                
                 // Handle potential future cases.
                 completion(false)
             }
@@ -66,7 +65,7 @@ class HealthKitManager {
             }
             
             let bodyMass = sample.quantity.doubleValue(for: HKUnit.pound())
-           
+            
             completion(bodyMass)
         }
         
@@ -88,7 +87,7 @@ class HealthKitManager {
         group.enter()
         let heartRateQuery = createAvgStatisticsQuery(for: heartRateType, with: predicate) { statistics in
             if let statistics = statistics, let heartRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-               
+                
                 avgHeartRate = heartRate
             } else {
                 
@@ -117,29 +116,29 @@ class HealthKitManager {
             group.leave()
         }
         
-//        group.enter()
-//        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
-//            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
-//                print("Fetched average SpO2: \(spo2)")
-//                avgSpo2 = spo2
-//            } else {
-//                print("Failed to fetch average SpO2 or no SpO2 data available")
-//            }
-//            group.leave()
-//        }
-//        healthStore.execute(spo2Query)
-//
-//        group.enter()
-//        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
-//            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-//                print("Fetched average respiration rate: \(respirationRate)")
-//                avgRespirationRate = respirationRate
-//            } else {
-//                print("Failed to fetch average respiration rate or no respiration rate data available")
-//            }
-//            group.leave()
-//        }
-//        healthStore.execute(respirationRateQuery)
+        //        group.enter()
+        //        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
+        //            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
+        //                print("Fetched average SpO2: \(spo2)")
+        //                avgSpo2 = spo2
+        //            } else {
+        //                print("Failed to fetch average SpO2 or no SpO2 data available")
+        //            }
+        //            group.leave()
+        //        }
+        //        healthStore.execute(spo2Query)
+        //
+        //        group.enter()
+        //        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
+        //            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
+        //                print("Fetched average respiration rate: \(respirationRate)")
+        //                avgRespirationRate = respirationRate
+        //            } else {
+        //                print("Failed to fetch average respiration rate or no respiration rate data available")
+        //            }
+        //            group.leave()
+        //        }
+        //        healthStore.execute(respirationRateQuery)
         
         group.notify(queue: .main) {
             completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate, minHeartRate, maxHeartRate))
@@ -243,5 +242,56 @@ class HealthKitManager {
         }
         return query
     }
+    
+    func fetchAvgHeartRateExcluding(days: [Date], completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        
+        // Start date is 1 month ago
+        let startDate = calendar.date(byAdding: .month, value: -1, to: Date())!
+        let endDate = Date()
+        
+        // Convert dates to be excluded into just the day component
+        var excludedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            excludedDays.append(dayComponent)
+        }
+        
+        // Create a predicate to filter out the days to be excluded
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var totalHeartRate = 0.0
+            var count = 0.0
+            
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                
+                // Exclude the sample if its day component is in the excludedDays array
+                if excludedDays.contains(sampleDayComponent) {
+                    continue
+                }
+                
+                totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                count += 1
+            }
+            
+            DispatchQueue.main.async {
+                let avgHeartRate = totalHeartRate / count
+                completion(avgHeartRate)
+            }
+        }
+        
+        healthStore.execute(heartRateQuery)
+    }
+    
     
 }

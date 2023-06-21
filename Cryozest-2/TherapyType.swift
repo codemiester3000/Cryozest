@@ -4,7 +4,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case drySauna = "Sauna"
     case hotYoga = "Hot Yoga"
     case coldPlunge = "Cold Plunge"
-    case coldShower = "Cold Shower"
+    case meditation = "Meditation"
     
     var id: String { self.rawValue }
     
@@ -16,7 +16,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "leaf.fill" // Suggests steam
         case .coldPlunge:
             return "thermometer.snowflake" // Suggests cold water
-        case .coldShower:
+        case .meditation:
             return "drop.fill" // Suggests a shower
         }
     }
