@@ -67,10 +67,8 @@ struct AnalysisView: View {
             .padding(.bottom, 28)
             .padding(.horizontal)
             
-            
             ScrollView {
                 SessionTimeAnalysisCard(
-                    therapyType: self.therapyType,
                     totalTime: getTotalTime(for: therapyType),
                     totalSessions: getTotalSessions(for: therapyType),
                     timeFrame: selectedTimeFrame
@@ -85,7 +83,7 @@ struct AnalysisView: View {
                 .padding(.horizontal)
                 
                 AvgHeartRateComparisonView(
-                    therapyType: .meditation,
+                    therapyType: self.therapyType,
                     sessions: sessions,
                     avgHeartRateOnTherapyDays: 70,
                     avgHeartRateOnNonTherapyDays: 100
@@ -224,7 +222,6 @@ struct StreakAnalysisCard: View {
 }
 
 struct SessionTimeAnalysisCard: View {
-    var therapyType: TherapyType
     var totalTime: TimeInterval
     var totalSessions: Int
     var timeFrame: TimeFrame
@@ -292,7 +289,7 @@ struct AvgHeartRateComparisonView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("Average Heart Rate Comparison")
+                Text("Heart Rate")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -310,47 +307,48 @@ struct AvgHeartRateComparisonView: View {
             }
             .padding(.bottom, 10)
             
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("On Therapy Days")
+            VStack {
+                HStack {
+                    Text("On \(therapyType.rawValue) Days")
                         .font(.headline)
                         .foregroundColor(.white)
+                    Spacer()
                     Text("\(avgHeartRateOnTherapyDays, specifier: "%.2f") bpm")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                        .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 }
                 
-                Spacer()
-                
-                VStack(alignment: .leading) {
+                HStack {
                     Text("On Non-Therapy Days")
                         .font(.headline)
                         .foregroundColor(.white)
+                    Spacer()
                     Text("\(avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
-                        .font(.largeTitle)
+                        .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
-            }
-            
-            HStack {
-                Text("Difference")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Spacer()
-                Text("\(avgHeartRateOnTherapyDays - avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(avgHeartRateOnTherapyDays > avgHeartRateOnNonTherapyDays ? .red : .green)
+                
+                HStack {
+                    Text("Difference")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(avgHeartRateOnTherapyDays - avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
+                        .font(.system(size: 18, weight: .bold, design: .monospaced))
+                        .foregroundColor(avgHeartRateOnTherapyDays > avgHeartRateOnNonTherapyDays ? .red : .green)
+                }
             }
             .padding(.top, 10)
         }
-        .padding(20)
-        .background(Color.gray.opacity(0.3))
-        .cornerRadius(15)
+        .frame(maxWidth: .infinity)
+        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+        .background(Color(.darkGray))
+        .cornerRadius(16)
+        .padding(.horizontal)
     }
 }
+
 
 
 struct StreakCalendarView: View {

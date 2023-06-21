@@ -67,7 +67,9 @@ struct LogbookView: View {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         
                         CalendarView(sessionDates: sessionDates)
+                            .background(Color(UIColor.gray))
                             .frame(height: 300) // Set a fixed height for the calendar
+                            .cornerRadius(16)
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
