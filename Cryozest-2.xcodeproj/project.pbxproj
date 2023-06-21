@@ -25,6 +25,10 @@
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
+		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
+		C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */; };
+		C5BD39B72A42864300BCB3DF /* DateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B62A42864300BCB3DF /* DateCell.swift */; };
+		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +73,8 @@
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
+		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		C5BD39B62A42864300BCB3DF /* DateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateCell.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -77,6 +83,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */,
+				C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +133,8 @@
 				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
+				C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */,
+				C5BD39B62A42864300BCB3DF /* DateCell.swift */,
 				C538085429CFD5DC002E90FF /* TherapySession.swift */,
 				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
 				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
@@ -183,6 +193,10 @@
 			dependencies = (
 			);
 			name = "Cryozest-2";
+			packageProductDependencies = (
+				C5BD39B22A42833400BCB3DF /* JTAppleCalendar */,
+				C5BD39B92A428ACC00BCB3DF /* FSCalendar */,
+			);
 			productName = "Cryozest-2";
 			productReference = C57EE32929CA8E31002A4875 /* Cryozest-2.app */;
 			productType = "com.apple.product-type.application";
@@ -255,6 +269,10 @@
 				Base,
 			);
 			mainGroup = C57EE32029CA8E31002A4875;
+			packageReferences = (
+				C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */,
+				C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */,
+			);
 			productRefGroup = C57EE32A29CA8E31002A4875 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -302,7 +320,9 @@
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
+				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
+				C5BD39B72A42864300BCB3DF /* DateCell.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
@@ -647,6 +667,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/patchthecode/JTAppleCalendar.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C5BD39B22A42833400BCB3DF /* JTAppleCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */;
+			productName = JTAppleCalendar;
+		};
+		C5BD39B92A428ACC00BCB3DF /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */ = {

@@ -1,4 +1,5 @@
 import SwiftUI
+import JTAppleCalendar
 
 struct LogbookView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -11,10 +12,20 @@ struct LogbookView: View {
     @State private var therapyType: TherapyType = .drySauna
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
-
+    
     private var sortedSessions: [TherapySessionEntity] {
         let therapyTypeSessions = sessions.filter { $0.therapyType == therapyType.rawValue }
         return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
+    }
+    
+    let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        return formatter
+    }()
+    
+    private var sessionDates: [Date] {
+        sessions.compactMap { dateFormatter.date(from: $0.date ?? "") }
     }
     
     var body: some View {
@@ -51,9 +62,14 @@ struct LogbookView: View {
                 .padding(.horizontal, 10)
                 .padding(.bottom, 20)
                 .padding(.top, 20)
-
+                
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
+                        
+                        CalendarView(sessionDates: sessionDates)
+                            .frame(height: 400) // Set a fixed height for the calendar
+                            .padding()
+                        
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white)
@@ -66,6 +82,8 @@ struct LogbookView: View {
                                     .foregroundColor(.white)
                             }
                         }
+                        
+                        
                     }
                     .padding()
                 }
