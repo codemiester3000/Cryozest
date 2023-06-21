@@ -36,7 +36,7 @@ struct LogbookView: View {
                     .foregroundColor(.white)
                     .bold()
                     .padding(.top, 36)
-                    .padding(.leading, 16)
+                    .padding(.leading, 24)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
@@ -67,9 +67,11 @@ struct LogbookView: View {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         
                         CalendarView(sessionDates: sessionDates)
-                            .background(Color(UIColor.gray))
+                            .background(Color(UIColor.darkGray))
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
+                            .frame(maxWidth: .infinity)
+
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
@@ -89,7 +91,7 @@ struct LogbookView: View {
                     .padding()
                 }
             }
-            .padding(.horizontal)
+            //.padding(.horizontal)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),

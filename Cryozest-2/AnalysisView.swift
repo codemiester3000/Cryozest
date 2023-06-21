@@ -22,9 +22,16 @@ struct AnalysisView: View {
     
     var body: some View {
         VStack {
-            Text("Analysis")
-                .font(.system(size: 40, weight: .bold, design: .monospaced))
-                .foregroundColor(Color.white)
+            HStack {
+                Text("Analysis")
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .bold()
+                    .padding(.top, 36)
+                    .padding(.leading, 24)
+                
+                Spacer()
+            }
             
             
             LazyVGrid(columns: gridItems, spacing: 10) {
@@ -42,7 +49,7 @@ struct AnalysisView: View {
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
                         .background(self.therapyType == therapyType ?
                                     (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
-                                    : Color(.darkGray))
+                                    : Color(.gray))
                         .cornerRadius(8)
                     }
                     .padding(.horizontal, 5) // Less padding
