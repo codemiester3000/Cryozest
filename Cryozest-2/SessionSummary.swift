@@ -153,9 +153,7 @@ struct SessionSummary: View {
     
     private func logSession() {
         let newSession = TherapySessionEntity(context: viewContext)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        newSession.date = dateFormatter.string(from: Date())
+        newSession.date = Date()
         newSession.duration = totalDurationInSeconds
         newSession.temperature = Double(temperature)
         newSession.therapyType = therapyType.rawValue

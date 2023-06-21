@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SessionRow: View {
     var session: TherapySessionEntity
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -52,16 +52,9 @@ struct SessionRow: View {
     }
     
     private var formattedDate: String {
-        let inputFormatter = DateFormatter()
-        inputFormatter.dateFormat = "MM/dd/yyyy"
-        
-        guard let date = inputFormatter.date(from: session.date ?? "") else {
-            return ""
-        }
-        
-        let outputFormatter = DateFormatter()
-        outputFormatter.dateStyle = .long
-        return outputFormatter.string(from: date)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: session.date ?? Date())
     }
     
     private var formattedDuration: String {

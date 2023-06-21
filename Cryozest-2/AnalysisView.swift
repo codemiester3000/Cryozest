@@ -41,23 +41,23 @@ struct AnalysisView: View {
                     }) {
                         HStack {
                             Image(systemName: therapyType.icon)
-                                .foregroundColor(.white) // Here
+                                .foregroundColor(.white)
                             Text(therapyType.rawValue)
-                                .font(.system(size: 15, design: .monospaced)) // Smaller font
-                                .foregroundColor(.white) // Here
+                                .font(.system(size: 15, design: .monospaced))
+                                .foregroundColor(.white)
                         }
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
                         .background(self.therapyType == therapyType ?
                                     (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
                                     : Color(.gray))
                         .cornerRadius(8)
                     }
-                    .padding(.horizontal, 5) // Less padding
+                    .padding(.horizontal, 5)
                 }
             }
-            .padding(.horizontal, 10) // Less horizontal padding for the grid
-            .padding(.bottom, 20) // Less bottom padding for the grid
-            .padding(.top, 20) // Less top padding for the grid
+            .padding(.horizontal, 10)
+            .padding(.bottom, 20)
+            .padding(.top, 20)
             
             Picker("Time frame", selection: $selectedTimeFrame) {
                 Text("Last 7 days")
@@ -114,7 +114,7 @@ struct AnalysisView: View {
         var currentDate = Date()
         
         for session in sortedSessions {
-            guard let dateString = session.date, let date = dateFormatter.date(from: dateString) else {
+            guard let date = session.date else {
                 continue
             }
             if !Calendar.current.isDate(date, inSameDayAs: currentDate) {
@@ -134,8 +134,7 @@ struct AnalysisView: View {
         var streakStarted = false
         
         for session in sessions {
-            guard let dateString = session.date,
-                  let date = dateFormatter.date(from: dateString),
+            guard let date = session.date,
                   session.therapyType == therapyType.rawValue,
                   isWithinTimeFrame(date: date) else {
                 continue
@@ -158,8 +157,7 @@ struct AnalysisView: View {
     
     func getTotalTime(for therapyType: TherapyType) -> TimeInterval {
         return sessions.compactMap { session -> TimeInterval? in
-            guard let dateString = session.date,
-                  let date = dateFormatter.date(from: dateString),
+            guard let date = session.date,
                   session.therapyType == therapyType.rawValue,
                   isWithinTimeFrame(date: date) else {
                 return nil
@@ -170,8 +168,7 @@ struct AnalysisView: View {
     
     func getTotalSessions(for therapyType: TherapyType) -> Int {
         return sessions.filter { session in
-            guard let dateString = session.date,
-                  let date = dateFormatter.date(from: dateString) else {
+            guard let date = session.date else {
                 return false
             }
             return session.therapyType == therapyType.rawValue && isWithinTimeFrame(date: date)
@@ -181,17 +178,33 @@ struct AnalysisView: View {
     func isWithinTimeFrame(date: Date) -> Bool {
         switch selectedTimeFrame {
         case .week:
-            return Calendar.current.dateComponents([.weekOfYear], from: date, to: Date()).weekOfYear == 0
+            return Calendar.current.isDate(date, inSameDayAs: Date())
         case .month:
-            return Calendar.current.dateComponents([.month], from: date, to: Date()).month == 0
+            guard let oneMonthAgo = Calendar.current.date(byAdding: .month, value: -1, to: Date()) else {
+                return false
+            }
+            let dateInterval = DateInterval(start: oneMonthAgo, end: Date())
+            return dateInterval.contains(date)
         case .allTime:
             return true
         }
     }
+
 }
 
 enum TimeFrame {
     case week, month, allTime
+
+    func displayString() -> String {
+        switch self {
+        case .week:
+            return "Last 7 Days"
+        case .month:
+            return "Last Month"
+        case .allTime:
+            return "All Time"
+        }
+    }
 }
 
 struct StreakAnalysisCard: View {
@@ -248,7 +261,7 @@ struct SessionTimeAnalysisCard: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 4) // test
+                    .padding(.vertical, 4)
                     .background(Color.orange)
                     .cornerRadius(8)
             }
@@ -285,7 +298,6 @@ struct SessionTimeAnalysisCard: View {
         .cornerRadius(16)
     }
 }
-
 
 struct AvgHeartRateComparisonView: View {
     var therapyType: TherapyType
@@ -356,8 +368,6 @@ struct AvgHeartRateComparisonView: View {
     }
 }
 
-
-
 struct StreakCalendarView: View {
     var therapySessions: [TherapySessionEntity]
     var therapyType: TherapyType
@@ -396,8 +406,7 @@ struct StreakCalendarView: View {
     
     private func didHaveTherapyOnDate(date: Date) -> Bool {
         return therapySessions.contains(where: { session in
-            guard let dateString = session.date,
-                  let sessionDate = dateFormatter.date(from: dateString) else {
+            guard let sessionDate = session.date else {
                 return false
             }
             
@@ -409,7 +418,7 @@ struct StreakCalendarView: View {
     }
     
     private func getDaysArray() -> [String] {
-        let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        let daysInWeek = Calendar.current.shortWeekdaySymbols
         let today = Calendar.current.component(.weekday, from: Date())
         var lastSevenDays = [String]()
         
@@ -423,10 +432,7 @@ struct StreakCalendarView: View {
     
     private func dateFromDay(day: String, daysInWeek: [String]) -> Date {
         let index = daysInWeek.firstIndex(of: day)! - 6
-        let date = Calendar.current.date(byAdding: .day, value: index, to: Date())
-        
-        // print("dateFromDay", day, date, index)
-        return date!
+        return Calendar.current.date(byAdding: .day, value: index, to: Date())!
     }
     
     private func isDateInFuture(date: Date) -> Bool {
@@ -434,17 +440,16 @@ struct StreakCalendarView: View {
     }
 }
 
-extension TimeFrame {
-    func displayString() -> String {
-        switch self {
-        case .week:
-            return "Last 7 Days"
-        case .month:
-            return "Last Month"
-        case .allTime:
-            return "All Time"
-        }
-    }
-}
 
-
+//extension TimeFrame {
+//    func displayString() -> String {
+//        switch self {
+//        case .week:
+//            return "Last 7 Days"
+//        case .month:
+//            return "Last Month"
+//        case .allTime:
+//            return "All Time"
+//        }
+//    }
+//}
