@@ -9,6 +9,8 @@ struct AnalysisView: View {
     )
     private var sessions: FetchedResults<TherapySessionEntity>
     
+    let healthKitManager = HealthKitManager.shared
+    
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
     @State private var therapyType: TherapyType = .drySauna
@@ -189,12 +191,12 @@ struct AnalysisView: View {
             return true
         }
     }
-
+    
 }
 
 enum TimeFrame {
     case week, month, allTime
-
+    
     func displayString() -> String {
         switch self {
         case .week:
@@ -302,8 +304,27 @@ struct SessionTimeAnalysisCard: View {
 struct AvgHeartRateComparisonView: View {
     var therapyType: TherapyType
     var sessions: FetchedResults<TherapySessionEntity>
+    
     var avgHeartRateOnTherapyDays: Double
     var avgHeartRateOnNonTherapyDays: Double
+    
+    private func getRestingHeartRateOnTherapyDays() -> Double {
+        let completedSessionDates = sessions
+            .filter { $0.therapyType == therapyType.rawValue }
+            .compactMap { $0.date }
+        
+        HealthKitManager.shared.fetchAvgHeartRateExcluding(days: completedSessionDates) { avgHeartRateExcluding in
+            if let avgHeartRateExcluding = avgHeartRateExcluding {
+                
+                print(completedSessionDates)
+                
+                print("Average Heart Rate Excluding Specific Days: \(avgHeartRateExcluding)")
+            } else {
+                print("Failed to fetch average heart rate excluding specific days.")
+            }
+        }
+        return 0.0
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -332,7 +353,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(avgHeartRateOnTherapyDays, specifier: "%.2f") bpm")
+                    Text("\(getRestingHeartRateOnTherapyDays(), specifier: "%.2f") bpm")
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 }
@@ -365,6 +386,9 @@ struct AvgHeartRateComparisonView: View {
         .background(Color(.darkGray))
         .cornerRadius(16)
         .padding(.horizontal)
+        .onAppear {
+            // print(sessions)
+        }
     }
 }
 
@@ -439,17 +463,3 @@ struct StreakCalendarView: View {
         return date > Date()
     }
 }
-
-
-//extension TimeFrame {
-//    func displayString() -> String {
-//        switch self {
-//        case .week:
-//            return "Last 7 Days"
-//        case .month:
-//            return "Last Month"
-//        case .allTime:
-//            return "All Time"
-//        }
-//    }
-//}

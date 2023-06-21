@@ -36,7 +36,6 @@ struct MainView: View {
         NavigationView {
             VStack {
                 //Spacer()
-                
                 Text("CryoZest")
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
