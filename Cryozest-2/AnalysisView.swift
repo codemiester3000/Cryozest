@@ -91,12 +91,7 @@ struct AnalysisView: View {
                 )
                 .padding(.horizontal)
                 
-                AvgHeartRateComparisonView(
-                    therapyType: self.therapyType,
-                    sessions: sessions,
-                    avgHeartRateOnTherapyDays: 70,
-                    avgHeartRateOnNonTherapyDays: 100
-                )
+                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, sessions: sessions))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -298,97 +293,6 @@ struct SessionTimeAnalysisCard: View {
         .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
         .background(Color(.darkGray))
         .cornerRadius(16)
-    }
-}
-
-struct AvgHeartRateComparisonView: View {
-    var therapyType: TherapyType
-    var sessions: FetchedResults<TherapySessionEntity>
-    
-    var avgHeartRateOnTherapyDays: Double
-    var avgHeartRateOnNonTherapyDays: Double
-    
-    private func getRestingHeartRateOnTherapyDays() -> Double {
-        let completedSessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { $0.date }
-        
-        HealthKitManager.shared.fetchAvgHeartRateExcluding(days: completedSessionDates) { avgHeartRateExcluding in
-            if let avgHeartRateExcluding = avgHeartRateExcluding {
-                
-                print(completedSessionDates)
-                
-                print("Average Heart Rate Excluding Specific Days: \(avgHeartRateExcluding)")
-            } else {
-                print("Failed to fetch average heart rate excluding specific days.")
-            }
-        }
-        return 0.0
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Heart Rate")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text(therapyType.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.orange)
-                    .cornerRadius(8)
-            }
-            .padding(.bottom, 10)
-            
-            VStack {
-                HStack {
-                    Text("On \(therapyType.rawValue) Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("\(getRestingHeartRateOnTherapyDays(), specifier: "%.2f") bpm")
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                }
-                
-                HStack {
-                    Text("On Non-Therapy Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("\(avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-                
-                HStack {
-                    Text("Difference")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("\(avgHeartRateOnTherapyDays - avgHeartRateOnNonTherapyDays, specifier: "%.2f") bpm")
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundColor(avgHeartRateOnTherapyDays > avgHeartRateOnNonTherapyDays ? .red : .green)
-                }
-            }
-            .padding(.top, 10)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-        .background(Color(.darkGray))
-        .cornerRadius(16)
-        .padding(.horizontal)
-        .onAppear {
-            // print(sessions)
-        }
     }
 }
 
