@@ -62,10 +62,10 @@
             filePath = "Cryozest-2/AnalysisView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "195"
-            endingLineNumber = "195"
-            landmarkName = "displayString()"
-            landmarkType = "7">
+            startingLineNumber = "192"
+            endingLineNumber = "192"
+            landmarkName = "TimeFrame"
+            landmarkType = "13">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
