@@ -68,24 +68,33 @@ struct LogbookView: View {
                     LazyVStack(alignment: .leading, spacing: 16) {
                         
                         HStack {
-                            Text("Completed days = ")
-                                .foregroundColor(.white)
-                                .font(.system(size: 16, design: .monospaced))
-                            Circle()
-                                .fill(Color.orange)
-                                .frame(width: 25, height: 25)
+                            HStack(spacing: 10) {
+                                Text("Completed = ")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+
+                                Circle()
+                                    .fill(Color.orange)
+                                    .frame(width: 25, height: 25)
+                            }
+                            .padding(8)
+                            //.background(Color.gray)
+                            .cornerRadius(12)
+
+                            HStack(spacing: 10) {
+                                Text("Today = ")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 25, height: 25)
+                            }
+                            .padding(8)
+                            //.background(Color.gray)
+                            .cornerRadius(8)
                         }
-                        .padding(.horizontal)
-                        
-                        HStack {
-                            Text("Today = ")
-                                .foregroundColor(.white)
-                                .font(.system(size: 16, design: .monospaced))
-                            Circle()
-                                .fill(Color.red)
-                                .frame(width: 25, height: 25)
-                        }
-                        .padding(.horizontal)
+
                         
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyType)
                             .background(Color(UIColor.darkGray))
@@ -109,6 +118,7 @@ struct LogbookView: View {
                     }
                     .padding()
                 }
+                .onAppear(perform: updateSessionDates)
             }
             //.padding(.horizontal)
             .background(

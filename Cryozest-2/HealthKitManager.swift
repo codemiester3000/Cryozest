@@ -13,17 +13,19 @@ class HealthKitManager {
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
-        // Define the sleep analysis type
+        // Define the types
+        let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+        let restingHeartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
+        let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
         
-        let typesToRead: Set<HKObjectType> = [heartRateType, bodyMassType, sleepAnalysisType]
+        let typesToRead: Set<HKObjectType> = [heartRateType, restingHeartRateType, bodyMassType, sleepAnalysisType]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             completion(success, error)
         }
     }
-    
-    
+
     func areHealthMetricsAuthorized(completion: @escaping (Bool) -> Void) {
         let typesToRead: Set<HKObjectType> = [heartRateType]
         
@@ -251,10 +253,12 @@ class HealthKitManager {
         let calendar = Calendar.current
 
         // Convert dates into just the day component
-        var includedDays: [Int] = []
+        var includedDays: [Date] = []
         for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            if let dayStart = calendar.date(from: components) {
+                includedDays.append(dayStart)
+            }
         }
 
         // Create a predicate to fetch all heart rate samples
@@ -275,10 +279,10 @@ class HealthKitManager {
             var count = 0.0
 
             for sample in samples {
-                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sample.endDate))
 
                 // Only include the sample if its day component is in the includedDays array
-                if includedDays.contains(sampleDayComponent) {
+                if includedDays.contains(sampleDayStart!) {
                     totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
                     count += 1
                 }
@@ -297,6 +301,7 @@ class HealthKitManager {
 
         healthStore.execute(heartRateQuery)
     }
+
 
     
     func fetchAvgHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {

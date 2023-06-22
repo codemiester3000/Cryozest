@@ -59,11 +59,14 @@
             func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
                 let cell = (calendar.dequeueReusableCell(withIdentifier: "cell", for: date, at: position) as? SessionCompleteCell) ?? SessionCompleteCell()
                 
+                let sessionExistsOnDate = parent.sessionDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
+                
                 // Show the circle view if the session is complete
-                cell.showCircle(parent.sessionDates.contains(date))
+                cell.showCircle(sessionExistsOnDate)
                 
                 return cell
             }
+
             
             func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
                 // Disable date selection

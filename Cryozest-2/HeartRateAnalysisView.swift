@@ -39,12 +39,14 @@ class HeartRateViewModel: ObservableObject {
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
         
-        HealthKitManager.shared.fetchAvgHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
+        print("completed session days: ", completedSessionDates)
+        
+        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.restingHeartRateOnTherapyDays = avgHeartRateExcluding
                 self.calculateDifference()
             } else {
-                print("Failed to fetch average heart rate excluding specific days.")
+                print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
         }
     }
@@ -68,7 +70,7 @@ class HeartRateViewModel: ObservableObject {
             }
         }
         
-        HealthKitManager.shared.fetchAvgHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
+        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
             if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
                 
                 print("success ", fetchedAvgHeartRateExcluding)
