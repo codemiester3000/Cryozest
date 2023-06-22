@@ -77,6 +77,9 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             ScrollView {
+                
+                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, sessions: sessions))
+                
                 SessionTimeAnalysisCard(
                     totalTime: getTotalTime(for: therapyType),
                     totalSessions: getTotalSessions(for: therapyType),
@@ -90,8 +93,6 @@ struct AnalysisView: View {
                     sessions: sessions
                 )
                 .padding(.horizontal)
-                
-                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, sessions: sessions))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
