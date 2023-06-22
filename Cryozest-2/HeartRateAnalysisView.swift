@@ -26,6 +26,10 @@ class HeartRateViewModel: ObservableObject {
         fetchHeartRates()
     }
     
+    func getTherapyColor() -> Color {
+        return therapyType == .coldPlunge || therapyType == .meditation ? .blue : .orange
+    }
+    
     func fetchHeartRates() {
         fetchrestingHeartRateTherapyDays()
         fetchrestingHeartRateNonTherapyDays()
@@ -122,7 +126,7 @@ struct AvgHeartRateComparisonView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.orange)
+                    .background(heartRateViewModel.getTherapyColor())
                     .cornerRadius(8)
             }
             .padding(.bottom, 10)
@@ -148,7 +152,7 @@ struct AvgHeartRateComparisonView: View {
                     Text("Resting Heart Rate")
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
-                        .foregroundColor(.orange)
+                        .foregroundColor(heartRateViewModel.getTherapyColor())
                     Spacer()
                 }
                 
@@ -180,7 +184,7 @@ struct AvgHeartRateComparisonView: View {
                     Text("Avg Heart Rate")
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
-                        .foregroundColor(.orange)
+                        .foregroundColor(heartRateViewModel.getTherapyColor())
                     Spacer()
                 }
                 
