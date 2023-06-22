@@ -4,11 +4,13 @@ class HeartRateViewModel: ObservableObject {
     @Published var restingHeartRateOnTherapyDays: Double = 0.0
     @Published var avgHeartRateOnNonTherapyDays: Double = 0.0
     
+    @Published var difference: Double = 0.0
+    
     @Published var therapyType: TherapyType {
-            didSet {
-                fetchHeartRates()
-            }
+        didSet {
+            fetchHeartRates()
         }
+    }
     var sessions: FetchedResults<TherapySessionEntity>
     
     init(therapyType: TherapyType, sessions: FetchedResults<TherapySessionEntity>) {
@@ -23,6 +25,15 @@ class HeartRateViewModel: ObservableObject {
         fetchAvgHeartRateOnNonTherapyDays()
     }
     
+    private func calculateDifference() {
+        if restingHeartRateOnTherapyDays != 0 {
+            let differenceValue = (avgHeartRateOnNonTherapyDays - restingHeartRateOnTherapyDays) / restingHeartRateOnTherapyDays * 100
+            difference = differenceValue
+        } else {
+            print("Resting heart rate on therapy days is zero, can't calculate difference.")
+        }
+    }
+    
     private func fetchRestingHeartRateOnTherapyDays() {
         let completedSessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
@@ -31,6 +42,7 @@ class HeartRateViewModel: ObservableObject {
         HealthKitManager.shared.fetchAvgHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.restingHeartRateOnTherapyDays = avgHeartRateExcluding
+                self.calculateDifference()
             } else {
                 print("Failed to fetch average heart rate excluding specific days.")
             }
@@ -62,6 +74,7 @@ class HeartRateViewModel: ObservableObject {
                 print("success ", fetchedAvgHeartRateExcluding)
                 
                 self.avgHeartRateOnNonTherapyDays = fetchedAvgHeartRateExcluding
+                self.calculateDifference()
             } else {
                 print("Failed to fetch average heart rate excluding specific days.")
             }
@@ -94,6 +107,24 @@ struct AvgHeartRateComparisonView: View {
             .padding(.bottom, 10)
             
             VStack {
+                
+                if heartRateViewModel.difference != 0 {
+                    HStack {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.yellow)
+                        
+                        let differencePercentage = abs(heartRateViewModel.difference)
+                        let therapyType = heartRateViewModel.therapyType.rawValue
+                        let differenceLabel = heartRateViewModel.difference <= 0 ? "increase" : "decrease"
+                        
+                        Text("You have a \(differencePercentage, specifier: "%.2f")% \(differenceLabel) in HR on \(therapyType) days")
+                            .font(.headline)
+                            .foregroundColor(heartRateViewModel.difference >= 0 ? .green : .red)
+                    }
+                    .padding(.bottom)
+                }
+
+                
                 HStack {
                     Text("On \(heartRateViewModel.therapyType.rawValue) Days")
                         .font(.headline)
@@ -114,19 +145,6 @@ struct AvgHeartRateComparisonView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                 }
-                
-                // Uncomment this to use once you've implemented calculating the difference in your ViewModel.
-                /*
-                 HStack {
-                 Text("Difference")
-                 .font(.headline)
-                 .foregroundColor(.white)
-                 Spacer()
-                 Text("\(heartRateViewModel.difference, specifier: "%.2f") bpm")
-                 .font(.system(size: 18, weight: .bold, design: .monospaced))
-                 .foregroundColor(heartRateViewModel.difference > 0 ? .red : .green)
-                 }
-                 */
             }
             .padding(.top, 10)
         }

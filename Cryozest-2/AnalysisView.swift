@@ -77,7 +77,6 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             ScrollView {
-                
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, sessions: sessions))
                 
                 SessionTimeAnalysisCard(
