@@ -100,7 +100,7 @@ class HeartRateViewModel: ObservableObject {
         case .month:
             numberOfDays = 30
         case .allTime:
-            numberOfDays = 100
+            numberOfDays = 365
         }
         
         // Exclude completedSessionDates from the last month's dates.

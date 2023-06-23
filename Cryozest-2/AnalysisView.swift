@@ -68,7 +68,7 @@ struct AnalysisView: View {
                 Text("Last Month")
                     .tag(TimeFrame.month)
                     .foregroundColor(selectedTimeFrame == .month ? .orange : .primary)
-                Text("All Time")
+                Text("Last Year")
                     .tag(TimeFrame.allTime)
                     .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
             }
