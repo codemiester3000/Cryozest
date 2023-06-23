@@ -193,7 +193,7 @@ enum TimeFrame {
         case .month:
             return "Last Month"
         case .allTime:
-            return "All Time"
+            return "Last Year"
         }
     }
 }
