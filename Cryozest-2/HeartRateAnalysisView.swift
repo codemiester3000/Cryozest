@@ -10,7 +10,8 @@ class HeartRateViewModel: ObservableObject {
     @Published var restingHeartRateTherapyDays: Double = 0.0
     @Published var restingHeartRateNonTherapyDays: Double = 0.0
     
-    @Published var difference: Double = 0.0
+    @Published var restingHeartRateDifference: Double = 0.0
+    @Published var avgHeartRateDifference: Double = 0.0
     
     @Published var therapyType: TherapyType {
         didSet {
@@ -35,14 +36,24 @@ class HeartRateViewModel: ObservableObject {
         fetchrestingHeartRateNonTherapyDays()
     }
     
-    private func calculateDifference() {
+    private func calculateRestingHRDifference() {
         if restingHeartRateTherapyDays != 0 {
-            let differenceValue = (restingHeartRateNonTherapyDays - restingHeartRateTherapyDays) / restingHeartRateTherapyDays * 100
-            difference = differenceValue
+            let differenceValue = (restingHeartRateTherapyDays - restingHeartRateNonTherapyDays) / restingHeartRateNonTherapyDays * 100
+            restingHeartRateDifference = differenceValue
         } else {
             print("Resting heart rate on therapy days is zero, can't calculate difference.")
         }
     }
+    
+    private func calculateAvgHRDifference() {
+        if avgHeartRateTherapyDays != 0 {
+            let differenceValue = (avgHeartRateTherapyDays - avgHeartRateNonTherapyDays) / avgHeartRateNonTherapyDays * 100
+            avgHeartRateDifference = differenceValue
+        } else {
+            print("Resting heart rate on therapy days is zero, can't calculate difference.")
+        }
+    }
+    
     
     private func fetchrestingHeartRateTherapyDays() {
         let completedSessionDates = sessions
@@ -54,7 +65,7 @@ class HeartRateViewModel: ObservableObject {
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.restingHeartRateTherapyDays = avgHeartRateExcluding
-                self.calculateDifference()
+                self.calculateRestingHRDifference()
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
@@ -63,6 +74,7 @@ class HeartRateViewModel: ObservableObject {
         HealthKitManager.shared.fetchAvgHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.avgHeartRateTherapyDays = avgHeartRateExcluding
+                self.calculateAvgHRDifference()
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
@@ -91,7 +103,7 @@ class HeartRateViewModel: ObservableObject {
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
             if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
                 self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
-                self.calculateDifference()
+                self.calculateRestingHRDifference()
             } else {
                 print("Failed to fetch average heart rate excluding specific days.")
             }
@@ -100,6 +112,7 @@ class HeartRateViewModel: ObservableObject {
         HealthKitManager.shared.fetchAvgHeartRateForDays(days: lastMonthDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
+                self.calculateAvgHRDifference()
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
@@ -132,20 +145,22 @@ struct AvgHeartRateComparisonView: View {
             .padding(.bottom, 10)
             
             VStack {
-                if heartRateViewModel.difference != 0 {
-                    HStack {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        
-                        let differencePercentage = abs(heartRateViewModel.difference)
-                        let therapyType = heartRateViewModel.therapyType.rawValue
-                        let differenceLabel = heartRateViewModel.difference <= 0 ? "increase" : "decrease"
-                        
-                        Text("You have a \(differencePercentage, specifier: "%.2f")% \(differenceLabel) in RHR on \(therapyType) days")
-                            .font(.headline)
-                            .foregroundColor(heartRateViewModel.difference >= 0 ? .green : .red)
-                    }
-                    .padding(.bottom)
+                if heartRateViewModel.restingHeartRateDifference != 0 {
+                    let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
+                    let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
+                    HeartRateDifferenceView(differencePercentage: differencePercentage,
+                                            therapyType: heartRateViewModel.therapyType.rawValue,
+                                            isIncreased: isIncreased,
+                    heartRateType: "RHR")
+                }
+                
+                if heartRateViewModel.avgHeartRateDifference != 0 {
+                    let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
+                    let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
+                    HeartRateDifferenceView(differencePercentage: differencePercentage,
+                                            therapyType: heartRateViewModel.therapyType.rawValue,
+                                            isIncreased: isIncreased,
+                    heartRateType: "Avg HR")
                 }
                 
                 HStack {
@@ -219,6 +234,29 @@ struct AvgHeartRateComparisonView: View {
         .onAppear {
             heartRateViewModel.fetchHeartRates()
         }
+    }
+}
+
+struct HeartRateDifferenceView: View {
+    let differencePercentage: Double
+    let therapyType: String
+    let isIncreased: Bool
+    let heartRateType: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: isIncreased ? "arrow.up" : "arrow.down")
+                .foregroundColor(isIncreased ? .red : .green)
+            
+            let differenceLabel = isIncreased ? "increase" : "decrease"
+            
+            Text("\(differencePercentage, specifier: "%.2f")% \(differenceLabel) in \(heartRateType) on \(therapyType) days")
+                .font(.headline)
+                .foregroundColor(isIncreased ? .red : .green)
+            
+            Spacer()
+        }
+        .padding(.bottom)
     }
 }
 
