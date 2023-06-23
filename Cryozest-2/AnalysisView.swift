@@ -58,8 +58,8 @@ struct AnalysisView: View {
                 }
             }
             .padding(.horizontal, 10)
-            .padding(.bottom, 20)
-            .padding(.top, 20)
+            .padding(.bottom, 8)
+            .padding(.top, 8)
             
             Picker("Time frame", selection: $selectedTimeFrame) {
                 Text("Last 7 days")
@@ -73,7 +73,7 @@ struct AnalysisView: View {
                     .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
             }
             .pickerStyle(SegmentedPickerStyle())
-            .padding(.bottom, 28)
+            .padding(.bottom, 8)
             .padding(.horizontal)
             
             ScrollView {

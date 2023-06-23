@@ -61,14 +61,13 @@ struct LogbookView: View {
                     }
                 }
                 .padding(.horizontal, 10)
-                .padding(.bottom, 5)
-                .padding(.top, 20)
+                .padding(.bottom, 8)
+                .padding(.top, 8)
                 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
-                        
                         HStack {
-                            HStack(spacing: 10) {
+                            HStack() {
                                 Text("Completed = ")
                                     .foregroundColor(.white)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
@@ -77,11 +76,10 @@ struct LogbookView: View {
                                     .fill(Color.orange)
                                     .frame(width: 25, height: 25)
                             }
-                            .padding(8)
-                            //.background(Color.gray)
+                            .padding(.leading, 8)
                             .cornerRadius(12)
 
-                            HStack(spacing: 10) {
+                            HStack() {
                                 Text("Today = ")
                                     .foregroundColor(.white)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
@@ -90,8 +88,7 @@ struct LogbookView: View {
                                     .fill(Color.red)
                                     .frame(width: 25, height: 25)
                             }
-                            .padding(8)
-                            //.background(Color.gray)
+                            .padding(.leading, 8)
                             .cornerRadius(8)
                         }
 
@@ -101,7 +98,7 @@ struct LogbookView: View {
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
                             .frame(maxWidth: .infinity)
-                        
+                            .padding(.top, 8)
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
@@ -116,11 +113,11 @@ struct LogbookView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.bottom, 12)
                 }
                 .onAppear(perform: updateSessionDates)
             }
-            //.padding(.horizontal)
             .background(
                 LinearGradient(
                     gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),

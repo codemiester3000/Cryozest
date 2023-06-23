@@ -120,6 +120,12 @@ class HeartRateViewModel: ObservableObject {
     }
 }
 
+extension Double {
+    func formatBPM() -> String {
+        return self == 0.0 ? "N/A" : String(format: "%.2f bpm", self)
+    }
+}
+
 struct AvgHeartRateComparisonView: View {
     @ObservedObject var heartRateViewModel: HeartRateViewModel
     
@@ -176,7 +182,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(heartRateViewModel.restingHeartRateTherapyDays, specifier: "%.2f") bpm")
+                    Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 }
@@ -186,7 +192,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(heartRateViewModel.restingHeartRateNonTherapyDays, specifier: "%.2f") bpm")
+                    Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -208,7 +214,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(heartRateViewModel.avgHeartRateTherapyDays, specifier: "%.2f") bpm")
+                    Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
                 }
@@ -218,7 +224,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(heartRateViewModel.avgHeartRateNonTherapyDays, specifier: "%.2f") bpm")
+                    Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
