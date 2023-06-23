@@ -13,6 +13,12 @@ class HeartRateViewModel: ObservableObject {
     @Published var restingHeartRateDifference: Double = 0.0
     @Published var avgHeartRateDifference: Double = 0.0
     
+    @Published var timeFrame: TimeFrame {
+        didSet {
+            fetchHeartRates()
+        }
+    }
+    
     @Published var therapyType: TherapyType {
         didSet {
             fetchHeartRates()
@@ -20,15 +26,12 @@ class HeartRateViewModel: ObservableObject {
     }
     var sessions: FetchedResults<TherapySessionEntity>
     
-    init(therapyType: TherapyType, sessions: FetchedResults<TherapySessionEntity>) {
+    init(therapyType: TherapyType, timeFrame: TimeFrame, sessions: FetchedResults<TherapySessionEntity>) {
         self.therapyType = therapyType
+        self.timeFrame = timeFrame
         self.sessions = sessions
         
         fetchHeartRates()
-    }
-    
-    func getTherapyColor() -> Color {
-        return therapyType == .coldPlunge || therapyType == .meditation ? .blue : .orange
     }
     
     func fetchHeartRates() {
@@ -139,14 +142,23 @@ struct AvgHeartRateComparisonView: View {
                 
                 Spacer()
                 
-                Text(heartRateViewModel.therapyType.rawValue)
+                Text(heartRateViewModel.timeFrame.displayString())
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(heartRateViewModel.getTherapyColor())
+                    .background(heartRateViewModel.therapyType.color)
                     .cornerRadius(8)
+                
+//                Text(heartRateViewModel.therapyType.rawValue)
+//                    .font(.subheadline)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.white)
+//                    .padding(.horizontal, 8)
+//                    .padding(.vertical, 4)
+//                    .background(heartRateViewModel.getTherapyColor())
+//                    .cornerRadius(8)
             }
             .padding(.bottom, 10)
             
@@ -173,7 +185,7 @@ struct AvgHeartRateComparisonView: View {
                     Text("Resting Heart Rate")
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
-                        .foregroundColor(heartRateViewModel.getTherapyColor())
+                        .foregroundColor(.orange)
                     Spacer()
                 }
                 
@@ -205,7 +217,7 @@ struct AvgHeartRateComparisonView: View {
                     Text("Avg Heart Rate")
                         .font(.system(size: 18, weight: .bold, design: .monospaced))
                         .fontWeight(.bold)
-                        .foregroundColor(heartRateViewModel.getTherapyColor())
+                        .foregroundColor(.orange)
                     Spacer()
                 }
                 

@@ -30,6 +30,7 @@
 		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
 		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
 		C5BD39BE2A43D0E300BCB3DF /* HeartRateAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */; };
+		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateAnalysisView.swift; sourceTree = "<group>"; };
+		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -142,6 +144,7 @@
 				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
 				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
 				C5CD67662A255A7A008F455E /* AnalysisView.swift */,
+				C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
@@ -332,6 +335,7 @@
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
+				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,

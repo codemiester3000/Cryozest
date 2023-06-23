@@ -77,18 +77,15 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             ScrollView {
-                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, sessions: sessions))
+                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
-                SessionTimeAnalysisCard(
+                DurationAnalysisView(
                     totalTime: getTotalTime(for: therapyType),
                     totalSessions: getTotalSessions(for: therapyType),
-                    timeFrame: selectedTimeFrame
-                )
-                .padding(.horizontal)
-                
-                StreakAnalysisCard(
+                    timeFrame: selectedTimeFrame,
                     therapyType: self.therapyType,
                     currentStreak: getCurrentStreak(for: therapyType),
+                    longestStreak: getLongestStreak(for: therapyType), // Assuming you have a function to get the longest streak
                     sessions: sessions
                 )
                 .padding(.horizontal)
@@ -123,7 +120,6 @@ struct AnalysisView: View {
         
         return currentStreak
     }
-    
     
     func getLongestStreak(for therapyType: TherapyType) -> Int {
         var longestStreak = 0
@@ -191,7 +187,6 @@ struct AnalysisView: View {
 
 enum TimeFrame {
     case week, month, allTime
-    
     func displayString() -> String {
         switch self {
         case .week:
@@ -201,98 +196,6 @@ enum TimeFrame {
         case .allTime:
             return "All Time"
         }
-    }
-}
-
-struct StreakAnalysisCard: View {
-    var therapyType: TherapyType
-    var currentStreak: Int
-    var sessions: FetchedResults<TherapySessionEntity>
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text("Streaks")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            HStack {
-                Text("Current Streak:")
-                    .font(.headline)
-                    .foregroundColor(.white.opacity(0.7))
-                Text("\(currentStreak) Days")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-            }
-            .padding(.bottom, 10)
-            
-            StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
-                .padding(.top, 10)
-                .padding(.bottom, 10)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-        .background(Color(.darkGray))
-        .cornerRadius(16)
-    }
-}
-
-struct SessionTimeAnalysisCard: View {
-    var totalTime: TimeInterval
-    var totalSessions: Int
-    var timeFrame: TimeFrame
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Time")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text(timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.orange)
-                    .cornerRadius(8)
-            }
-            
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Total Sessions")
-                        .font(.headline)
-                        .foregroundColor(.white.opacity(0.7))
-                    Text("\(totalSessions)")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                }
-                .padding(.top, 10)
-                
-                Spacer()
-                
-                VStack(alignment: .leading) {
-                    Text("Total Time")
-                        .font(.headline)
-                        .foregroundColor(.white.opacity(0.7))
-                    Text("\(Int(totalTime / 60)) mins")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                }
-                .padding(.top, 10)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-        .background(Color(.darkGray))
-        .cornerRadius(16)
     }
 }
 
@@ -307,7 +210,7 @@ struct StreakCalendarView: View {
     }()
     
     var body: some View {
-        HStack(spacing: 20) {
+        HStack() {
             ForEach(getDaysArray(), id: \.self) { day in
                 VStack {
                     Text(day)

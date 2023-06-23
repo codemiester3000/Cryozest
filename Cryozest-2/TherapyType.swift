@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case drySauna = "Sauna"
@@ -18,6 +18,15 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "thermometer.snowflake" // Suggests cold water
         case .meditation:
             return "drop.fill" // Suggests a shower
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .drySauna, .hotYoga:
+            return .orange
+        case .coldPlunge, .meditation:
+            return .blue
         }
     }
 }
