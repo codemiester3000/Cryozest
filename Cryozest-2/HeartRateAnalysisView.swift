@@ -93,9 +93,19 @@ class HeartRateViewModel: ObservableObject {
         let calendar = Calendar.current
         let dateOneMonthAgo = calendar.date(byAdding: .month, value: -1, to: Date())!
         
+        let numberOfDays: Int
+        switch timeFrame {
+        case .week:
+            numberOfDays = 7
+        case .month:
+            numberOfDays = 30
+        case .allTime:
+            numberOfDays = 100
+        }
+        
         // Exclude completedSessionDates from the last month's dates.
         var lastMonthDates = [Date]()
-        for day in 0..<30 {
+        for day in 0..<numberOfDays {
             if let date = calendar.date(byAdding: .day, value: -day, to: Date()),
                !completedSessionDates.contains(date),
                date >= dateOneMonthAgo {
@@ -150,15 +160,6 @@ struct AvgHeartRateComparisonView: View {
                     .padding(.vertical, 4)
                     .background(heartRateViewModel.therapyType.color)
                     .cornerRadius(8)
-                
-//                Text(heartRateViewModel.therapyType.rawValue)
-//                    .font(.subheadline)
-//                    .fontWeight(.semibold)
-//                    .foregroundColor(.white)
-//                    .padding(.horizontal, 8)
-//                    .padding(.vertical, 4)
-//                    .background(heartRateViewModel.getTherapyColor())
-//                    .cornerRadius(8)
             }
             .padding(.bottom, 10)
             

@@ -303,7 +303,6 @@ class HealthKitManager {
     }
 
 
-    
     func fetchAvgHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         

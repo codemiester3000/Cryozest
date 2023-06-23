@@ -182,7 +182,6 @@ struct AnalysisView: View {
             return true
         }
     }
-    
 }
 
 enum TimeFrame {
