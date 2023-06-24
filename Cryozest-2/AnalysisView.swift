@@ -9,6 +9,17 @@ struct AnalysisView: View {
     )
     private var sessions: FetchedResults<TherapySessionEntity>
     
+    @FetchRequest(
+        entity: SelectedTherapy.entity(),
+        sortDescriptors: []
+    )
+    private var selectedTherapies: FetchedResults<SelectedTherapy>
+    
+    var selectedTherapyTypes: [TherapyType] {
+        // convert the selected therapy types from strings to TherapyType values
+        selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+    }
+    
     let healthKitManager = HealthKitManager.shared
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
@@ -37,7 +48,7 @@ struct AnalysisView: View {
             
             
             LazyVGrid(columns: gridItems, spacing: 10) {
-                ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                ForEach(selectedTherapyTypes, id: \.self) { therapyType in
                     Button(action: {
                         self.therapyType = therapyType
                     }) {
@@ -50,7 +61,7 @@ struct AnalysisView: View {
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
                         .background(self.therapyType == therapyType ?
-                                    (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
+                                    therapyType.color
                                     : Color(.gray))
                         .cornerRadius(8)
                     }
@@ -99,6 +110,11 @@ struct AnalysisView: View {
                 endPoint: .bottom
             )
         )
+        .onAppear {
+            if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
+                self.therapyType = therapyType
+            }
+        }
         .navigationTitle("Analysis")
     }
     

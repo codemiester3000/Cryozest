@@ -9,10 +9,29 @@ struct LogbookView: View {
         sortDescriptors: [])
     private var sessions: FetchedResults<TherapySessionEntity>
     
+    @FetchRequest(
+        entity: SelectedTherapy.entity(),
+        sortDescriptors: []
+    )
+    private var selectedTherapies: FetchedResults<SelectedTherapy>
+    
+    var selectedTherapyTypes: [TherapyType] {
+        // convert the selected therapy types from strings to TherapyType values
+        selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+    }
+    
     @State private var therapyType: TherapyType = .drySauna
     @State private var sessionDates = [Date]()
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
+    
+    init() {
+        if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
+            _therapyType = State(initialValue: therapyType)
+        } else {
+            _therapyType = State(initialValue: .drySauna)
+        }
+    }
     
     private var sortedSessions: [TherapySessionEntity] {
         let therapyTypeSessions = sessions.filter { $0.therapyType == therapyType.rawValue }
@@ -36,7 +55,7 @@ struct LogbookView: View {
                     .padding(.leading, 24)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                    ForEach(selectedTherapyTypes, id: \.self) { therapyType in
                         Button(action: {
                             self.therapyType = therapyType
                             print("Therapy Type Changed: \(self.therapyType)")
@@ -52,9 +71,7 @@ struct LogbookView: View {
                                     .foregroundColor(.white)
                             }
                             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
-                            .background(self.therapyType == therapyType ?
-                                        (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
-                                        : Color(.gray))
+                            .background(self.therapyType == therapyType ? therapyType.color : Color.gray)
                             .cornerRadius(8)
                         }
                         .padding(.horizontal, 5)
@@ -71,19 +88,19 @@ struct LogbookView: View {
                                 Text("Completed = ")
                                     .foregroundColor(.white)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
-
+                                
                                 Circle()
-                                    .fill(Color.orange)
+                                    .fill(self.therapyType.color)
                                     .frame(width: 25, height: 25)
                             }
                             .padding(.leading, 8)
                             .cornerRadius(12)
-
+                            
                             HStack() {
                                 Text("Today = ")
                                     .foregroundColor(.white)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
-
+                                
                                 Circle()
                                     .fill(Color.red)
                                     .frame(width: 25, height: 25)
@@ -91,7 +108,7 @@ struct LogbookView: View {
                             .padding(.leading, 8)
                             .cornerRadius(8)
                         }
-
+                        
                         
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyType)
                             .background(Color(UIColor.darkGray))
@@ -116,7 +133,12 @@ struct LogbookView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 12)
                 }
-                .onAppear(perform: updateSessionDates)
+                .onAppear {
+                    if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
+                        self.therapyType = therapyType
+                        updateSessionDates()
+                    }
+                }
             }
             .background(
                 LinearGradient(

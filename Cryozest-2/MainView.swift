@@ -1,7 +1,12 @@
 import SwiftUI
 import HealthKit
+import CoreData
 
 struct MainView: View {
+    
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(entity: SelectedTherapy.entity(), sortDescriptors: []) private var selectedTherapies: FetchedResults<SelectedTherapy>
+    
     let healthStore = HKHealthStore()
     let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
     let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
@@ -33,6 +38,8 @@ struct MainView: View {
     @State private var acceptedHealthKitPermissions: Bool = false
     
     var body: some View {
+        let therapyTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
+        
         NavigationView {
             VStack {
                 //Spacer()
@@ -42,35 +49,33 @@ struct MainView: View {
                     .padding(.top, 75)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                    ForEach(therapyTypes, id: \.self) { selectedTherapyType in
                         Button(action: {
-                            self.therapyType = therapyType
+                            self.therapyType = selectedTherapyType
                         }) {
                             HStack {
-                                Image(systemName: therapyType.icon)
-                                    .foregroundColor(.white) // Here
-                                Text(therapyType.rawValue)
-                                    .font(.system(size: 15, design: .monospaced)) // Smaller font
-                                    .foregroundColor(.white) // Here
+                                Image(systemName: selectedTherapyType.icon)
+                                    .foregroundColor(.white)
+                                Text(selectedTherapyType.rawValue)
+                                    .font(.system(size: 15, design: .monospaced))
+                                    .foregroundColor(.white)
                             }
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50) // Smaller button
-                            .background(self.therapyType == therapyType ?
-                                        (therapyType == .coldPlunge || therapyType == .meditation ? Color.blue : Color.orange)
-                                        : Color.gray)
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
+                            .background(self.therapyType == selectedTherapyType ? selectedTherapyType.color : Color.gray)
                             .cornerRadius(8)
                         }
-                        .padding(.horizontal, 5) // Less padding
+                        .padding(.horizontal, 5)
                     }
                 }
-                .padding(.horizontal, 10) // Less horizontal padding for the grid
-                .padding(.bottom, 20) // Less bottom padding for the grid
-                .padding(.top, 20) // Less top padding for the grid
+                .padding(.horizontal, 10)
+                .padding(.bottom, 20)
+                .padding(.top, 20)
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(self.therapyType == .coldPlunge || self.therapyType == .meditation ? Color.blue : Color.orange)
+                    .background(self.therapyType.color)
                     .cornerRadius(16)
                     .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
@@ -82,7 +87,7 @@ struct MainView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 28)
-                        .background(self.therapyType == .coldPlunge || self.therapyType == .meditation ? Color.blue : Color.orange)
+                        .background(self.therapyType.color)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
@@ -124,6 +129,12 @@ struct MainView: View {
                 )
             )
             .onAppear() {
+                
+                // On first load always have the first therapyType selected.
+                if let firstTherapy = therapyTypes.first {
+                    therapyType = firstTherapy
+                }
+                
                 HealthKitManager.shared.requestAuthorization { success, error in
                     if success {
                         HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
@@ -135,8 +146,14 @@ struct MainView: View {
                 }
                 
             }
+            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
+                Image(systemName: "gearshape.fill")
+                    .foregroundColor(.orange)
+                    .font(.title)
+            })
         }
     }
+    
     
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
@@ -186,15 +203,6 @@ struct MainView: View {
                     maxHeartRate = healthData.maxHeartRate
                 }
             }
-            
-            // Fetch Average Heart Rate Excluding Specific Days
-//            HealthKitManager.shared.fetchAvgHeartRateExcluding(days: []) { avgHeartRateExcluding in
-//                if let avgHeartRateExcluding = avgHeartRateExcluding {
-//                    print("Average Heart Rate Excluding Specific Days: \(avgHeartRateExcluding)")
-//                } else {
-//                    print("Failed to fetch average heart rate excluding specific days.")
-//                }
-//            }
         }
     }
     
@@ -208,55 +216,6 @@ struct MainView: View {
         alertTitle = title
         alertMessage = message
         showAlert = true
-    }
-}
-
-struct PrimaryButton: View {
-    var title: String
-    var action: () -> Void
-    var timerIcon: Bool = false
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                if timerIcon {
-                    Image(systemName: "timer")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                }
-                
-                Text(title)
-                    .foregroundColor(.white)
-                    .font(.headline)
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(LinearGradient(gradient: Gradient(colors: [Color.customBlue, Color.blue]), startPoint: .leading, endPoint: .trailing))
-            .cornerRadius(40)
-            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 5)
-            .overlay(
-                RoundedRectangle(cornerRadius: 40)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 4)
-            )
-        }
-        .padding(.bottom, 8)
-    }
-}
-
-struct CustomTextField: View {
-    var placeholder: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType
-    
-    var body: some View {
-        TextField(placeholder, text: $text)
-            .padding(12)
-            .keyboardType(keyboardType)
-            .background(Color(.secondarySystemBackground))
-            .foregroundColor(Color(.label))
-            .cornerRadius(10)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.systemGray4), lineWidth: 1))
-            .padding(.bottom, 8)
     }
 }
 

@@ -356,6 +356,22 @@ struct SessionSummary: View {
                 return 0..<80
             case .hotYoga:
                 return 70..<200
+            case .coldShower:
+                return 0..<70
+            case .weightTraining:
+                return 0..<100
+            case .running:
+                return 0..<100
+            case .stretching:
+                return 0..<100
+            case .iceBath:
+                return 0..<100
+            case .coldYoga:
+                return 0..<100
+            case .deepBreathing:
+                return 0..<100
+            case .sleep:
+                return 0..<100
             }
         }
         
@@ -509,9 +525,25 @@ struct SessionSummary: View {
             case .coldPlunge:
                 burnRatePerMinute = 2.75 * bodyWeight / 150.0 // 2.75 is a base rate assuming a reference weight of 150 lbs
             case .meditation:
-                burnRatePerMinute = 1.85 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             case .hotYoga:
                 burnRatePerMinute = 4.5 * bodyWeight / 150.0 // 4.5 is a base rate assuming a reference weight of 150 lbs
+            case .running:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .stretching:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .weightTraining:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .coldShower:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .iceBath:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .coldYoga:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .deepBreathing:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            case .sleep:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             }
 
             let tempAdjustmentFactor: Double

@@ -1,22 +1,22 @@
-//
-//  SessionCompletedCell.swift
-//  Cryozest-2
-//
-//  Created by Owen Khoury on 6/21/23.
-//
-
 import SwiftUI
 import FSCalendar
 
 class SessionCompleteCell: FSCalendarCell {
     var circleView: UIView?
+    var therapyType: TherapyType? {
+        didSet {
+            // Whenever therapyType changes, update circleView's background color
+            if let therapyType = therapyType {
+                circleView?.backgroundColor = UIColor(therapyType.color)
+            }
+        }
+    }
 
     override init!(frame: CGRect) {
         super.init(frame: frame)
 
         // Create the circle view with larger size
         circleView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 30)) // 30% larger than 20x20
-        circleView?.backgroundColor = .orange
         circleView?.layer.cornerRadius = 15 // Half the width and height to make it circular
         circleView?.isHidden = true // Hide it initially
 

@@ -31,6 +31,7 @@
 		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
 		C5BD39BE2A43D0E300BCB3DF /* HeartRateAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */; };
 		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
+		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +80,7 @@
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateAnalysisView.swift; sourceTree = "<group>"; };
 		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
+		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -151,6 +153,7 @@
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
 				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
 				0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */,
+				C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */,
 				C57EE35A29CA8FBF002A4875 /* SessionRow.swift */,
 				C57EE33029CA8E34002A4875 /* Assets.xcassets */,
 				C57EE33229CA8E34002A4875 /* Preview Content */,
@@ -328,6 +331,7 @@
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C5BD39BE2A43D0E300BCB3DF /* HeartRateAnalysisView.swift in Sources */,
+				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
 				C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
