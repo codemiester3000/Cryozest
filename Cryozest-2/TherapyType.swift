@@ -8,7 +8,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case coldPlunge = "Cold Plunge"
     case coldShower = "Cold Shower"
     case iceBath = "Ice Bath"
-    case coldYoga = "Cold Yoga"
+    case coldYoga = "Yoga"
     case meditation = "Meditation"
     case stretching = "Stretching"
     case deepBreathing = "Deep Breathing"
