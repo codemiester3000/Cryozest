@@ -42,7 +42,6 @@ struct MainView: View {
         
         NavigationView {
             VStack {
-                //Spacer()
                 Text("CryoZest")
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
@@ -146,7 +145,7 @@ struct MainView: View {
                 }
             }
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
-                SettingsIconView()
+                SettingsIconView().id(UUID())
             })
         }
     }
