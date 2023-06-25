@@ -25,6 +25,8 @@
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
+		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
+		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
 		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
 		C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */; };
 		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
@@ -76,6 +78,8 @@
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
+		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
 		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateAnalysisView.swift; sourceTree = "<group>"; };
@@ -137,6 +141,7 @@
 				0543F28B29D0078200620A55 /* Cryozest-2.entitlements */,
 				0543F28A29D003B600620A55 /* Info.plist */,
 				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
+				C59E385B2A48A58000FBD9D0 /* LoadingView.swift */,
 				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
 				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
 				C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */,
@@ -148,6 +153,7 @@
 				C5CD67662A255A7A008F455E /* AnalysisView.swift */,
 				C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
+				C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
@@ -324,6 +330,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */,
 				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
@@ -337,6 +344,7 @@
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
+				C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */,
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,

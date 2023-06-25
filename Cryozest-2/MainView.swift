@@ -146,9 +146,7 @@ struct MainView: View {
                 }
             }
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
-                Image(systemName: "gearshape.fill")
-                    .foregroundColor(.orange)
-                    .font(.title)
+                SettingsIconView()
             })
         }
     }
