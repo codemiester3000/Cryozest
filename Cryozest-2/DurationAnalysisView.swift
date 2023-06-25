@@ -91,6 +91,8 @@ struct DurationAnalysisView: View {
                 .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
                 .background(Color(.darkGray))
                 .cornerRadius(16)
+                .transition(.opacity) // The view will fade in when it appears
+                .animation(.easeIn)
                 
             }
         }
@@ -105,7 +107,7 @@ struct DurationAnalysisView: View {
     
     private func startLoading() {
         isLoading = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             isLoading = false
         }
     }

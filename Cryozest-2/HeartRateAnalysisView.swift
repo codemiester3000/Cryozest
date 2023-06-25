@@ -277,6 +277,8 @@ struct AvgHeartRateComparisonView: View {
             .background(Color(.darkGray))
             .cornerRadius(16)
             .padding(.horizontal)
+            .transition(.opacity) // The view will fade in when it appears
+            .animation(.easeIn)
         }
     }
 }
