@@ -13,15 +13,21 @@ class HeartRateViewModel: ObservableObject {
     @Published var restingHeartRateDifference: Double = 0.0
     @Published var avgHeartRateDifference: Double = 0.0
     
+    @Published var isLoading: Bool = true
+    
     @Published var timeFrame: TimeFrame {
         didSet {
-            fetchHeartRates()
+            if oldValue != timeFrame {
+                fetchHeartRates()
+            }
         }
     }
     
     @Published var therapyType: TherapyType {
         didSet {
-            fetchHeartRates()
+            if oldValue != therapyType {
+                fetchHeartRates()
+            }
         }
     }
     var sessions: FetchedResults<TherapySessionEntity>
@@ -35,9 +41,17 @@ class HeartRateViewModel: ObservableObject {
     }
     
     func fetchHeartRates() {
-        fetchrestingHeartRateTherapyDays()
-        fetchrestingHeartRateNonTherapyDays()
+        self.isLoading = true
+        let group = DispatchGroup()
+        
+        fetchrestingHeartRateTherapyDays(group: group)
+        fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        group.notify(queue: .main) {
+            self.isLoading = false
+        }
     }
+    
     
     private func calculateRestingHRDifference() {
         if restingHeartRateTherapyDays != 0 {
@@ -58,13 +72,14 @@ class HeartRateViewModel: ObservableObject {
     }
     
     
-    private func fetchrestingHeartRateTherapyDays() {
+    private func fetchrestingHeartRateTherapyDays(group: DispatchGroup) {
         let completedSessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
         
         print("completed session days: ", completedSessionDates)
         
+        group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.restingHeartRateTherapyDays = avgHeartRateExcluding
@@ -72,8 +87,10 @@ class HeartRateViewModel: ObservableObject {
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
+            group.leave()
         }
         
+        group.enter()
         HealthKitManager.shared.fetchAvgHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.avgHeartRateTherapyDays = avgHeartRateExcluding
@@ -81,10 +98,11 @@ class HeartRateViewModel: ObservableObject {
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
+            group.leave()
         }
     }
     
-    private func fetchrestingHeartRateNonTherapyDays() {
+    private func fetchrestingHeartRateNonTherapyDays(group: DispatchGroup) {
         let completedSessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
@@ -113,6 +131,7 @@ class HeartRateViewModel: ObservableObject {
             }
         }
         
+        group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
             if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
                 self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
@@ -120,8 +139,10 @@ class HeartRateViewModel: ObservableObject {
             } else {
                 print("Failed to fetch average heart rate excluding specific days.")
             }
+            group.leave()
         }
         
+        group.enter()
         HealthKitManager.shared.fetchAvgHeartRateForDays(days: lastMonthDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
@@ -129,6 +150,7 @@ class HeartRateViewModel: ObservableObject {
             } else {
                 print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
+            group.leave()
         }
     }
 }
@@ -143,115 +165,118 @@ struct AvgHeartRateComparisonView: View {
     @ObservedObject var heartRateViewModel: HeartRateViewModel
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("Heart Rate")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text(heartRateViewModel.timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(heartRateViewModel.therapyType.color)
-                    .cornerRadius(8)
-            }
-            .padding(.bottom, 10)
-            
-            VStack {
-                if heartRateViewModel.restingHeartRateDifference != 0 {
-                    let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
-                    let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
-                    HeartRateDifferenceView(differencePercentage: differencePercentage,
-                                            therapyType: heartRateViewModel.therapyType.rawValue,
-                                            isIncreased: isIncreased,
-                    heartRateType: "RHR")
-                }
-                
-                if heartRateViewModel.avgHeartRateDifference != 0 {
-                    let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
-                    let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
-                    HeartRateDifferenceView(differencePercentage: differencePercentage,
-                                            therapyType: heartRateViewModel.therapyType.rawValue,
-                                            isIncreased: isIncreased,
-                    heartRateType: "Avg HR")
-                }
-                
-                HStack {
-                    Text("Resting Heart Rate")
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                    Spacer()
-                }
-                
-                HStack {
-                    Text("On \(heartRateViewModel.therapyType.rawValue) Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                }
-                
-                HStack {
-                    Text("On Non-\(heartRateViewModel.therapyType.rawValue) Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.top, 10)
-            
-            VStack {
-                HStack {
-                    Text("Avg Heart Rate")
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                    Spacer()
-                }
-                
-                HStack {
-                    Text("On \(heartRateViewModel.therapyType.rawValue) Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                }
-                
-                HStack {
-                    Text("On Non-\(heartRateViewModel.therapyType.rawValue) Days")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
-                        .font(.system(size: 18, weight: .bold, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(.top, 10)
+        
+        if heartRateViewModel.isLoading {
+            LoadingView()
         }
-        .frame(maxWidth: .infinity)
-        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-        .background(Color(.darkGray))
-        .cornerRadius(16)
-        .padding(.horizontal)
-        .onAppear {
-            heartRateViewModel.fetchHeartRates()
+        else {
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("Heart Rate")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Text(heartRateViewModel.timeFrame.displayString())
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(heartRateViewModel.therapyType.color)
+                        .cornerRadius(8)
+                }
+                .padding(.bottom, 10)
+                
+                VStack {
+                    if heartRateViewModel.restingHeartRateDifference != 0 {
+                        let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
+                        let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
+                        HeartRateDifferenceView(differencePercentage: differencePercentage,
+                                                therapyType: heartRateViewModel.therapyType.rawValue,
+                                                isIncreased: isIncreased,
+                                                heartRateType: "RHR")
+                    }
+                    
+                    if heartRateViewModel.avgHeartRateDifference != 0 {
+                        let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
+                        let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
+                        HeartRateDifferenceView(differencePercentage: differencePercentage,
+                                                therapyType: heartRateViewModel.therapyType.rawValue,
+                                                isIncreased: isIncreased,
+                                                heartRateType: "Avg HR")
+                    }
+                    
+                    HStack {
+                        Text("Resting Heart Rate")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack {
+                        Text("On Non-\(heartRateViewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.top, 10)
+                
+                VStack {
+                    HStack {
+                        Text("Avg Heart Rate")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    
+                    HStack {
+                        Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack {
+                        Text("On Non-\(heartRateViewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.top, 10)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+            .background(Color(.darkGray))
+            .cornerRadius(16)
+            .padding(.horizontal)
         }
     }
 }
@@ -261,7 +286,7 @@ struct HeartRateDifferenceView: View {
     let therapyType: String
     let isIncreased: Bool
     let heartRateType: String
-
+    
     var body: some View {
         HStack {
             Image(systemName: isIncreased ? "arrow.up" : "arrow.down")
@@ -278,4 +303,3 @@ struct HeartRateDifferenceView: View {
         .padding(.bottom)
     }
 }
-

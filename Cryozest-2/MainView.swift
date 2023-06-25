@@ -144,7 +144,6 @@ struct MainView: View {
                         showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                     }
                 }
-                
             }
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
                 Image(systemName: "gearshape.fill")
