@@ -5,7 +5,7 @@ class SettingsIconViewModel: ObservableObject {
     private var timer: Timer?
 
     init() {
-        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
             withAnimation {
                 self?.rotationDegrees += 360
             }
