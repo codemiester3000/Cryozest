@@ -6,7 +6,7 @@ struct HRVAnalysisView: View {
     @State private var maxHRV: String = "Loading..."
     @State private var minHRV: String = "Loading..."
     @State private var trend: String = "Loading..."
-
+    
     var body: some View {
         VStack {
             Text("Heart Rate Variability")
@@ -31,13 +31,13 @@ struct HRVAnalysisView: View {
     
     private func loadData() {
         let lastSevenDays = Array(0...6).map { Date().addingTimeInterval(-86400 * Double($0)) }
-//        HealthKitManager.shared.fetchLatestHRV { latest in
-//            if let latest = latest {
-//                self.latestHRV = String(format: "%.2f", latest)
-//            } else {
-//                self.latestHRV = "No data"
-//            }
-//        }
+        //        HealthKitManager.shared.fetchLatestHRV { latest in
+        //            if let latest = latest {
+        //                self.latestHRV = String(format: "%.2f", latest)
+        //            } else {
+        //                self.latestHRV = "No data"
+        //            }
+        //        }
         HealthKitManager.shared.fetchAvgHRVForDays(days: lastSevenDays) { average in
             if let average = average {
                 self.averageHRV = String(format: "%.2f", average)

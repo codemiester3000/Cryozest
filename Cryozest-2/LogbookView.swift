@@ -16,8 +16,12 @@ struct LogbookView: View {
     private var selectedTherapies: FetchedResults<SelectedTherapy>
     
     var selectedTherapyTypes: [TherapyType] {
-        // convert the selected therapy types from strings to TherapyType values
-        selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+        // Convert the selected therapy types from strings to TherapyType values
+        if selectedTherapies.isEmpty {
+            return Array(TherapyType.allCases.prefix(4))
+        } else {
+            return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+        }
     }
     
     @State private var therapyType: TherapyType = .drySauna

@@ -400,7 +400,7 @@ struct HeartRateDifferenceView: View {
     let therapyType: String
     let isIncreased: Bool
     let heartRateType: String
-
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: isIncreased ? "arrow.up" : "arrow.down")

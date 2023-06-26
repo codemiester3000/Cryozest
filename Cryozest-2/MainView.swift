@@ -5,7 +5,21 @@ import CoreData
 struct MainView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(entity: SelectedTherapy.entity(), sortDescriptors: []) private var selectedTherapies: FetchedResults<SelectedTherapy>
+    
+    @FetchRequest(
+        entity: SelectedTherapy.entity(),
+        sortDescriptors: []
+    )
+    private var selectedTherapies: FetchedResults<SelectedTherapy>
+    
+    var selectedTherapyTypes: [TherapyType] {
+        // Convert the selected therapy types from strings to TherapyType values
+        if selectedTherapies.isEmpty {
+            return Array(TherapyType.allCases.prefix(4))
+        } else {
+            return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+        }
+    }
     
     let healthStore = HKHealthStore()
     let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
@@ -38,8 +52,6 @@ struct MainView: View {
     @State private var acceptedHealthKitPermissions: Bool = false
     
     var body: some View {
-        let therapyTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
-        
         NavigationView {
             VStack {
                 Text("CryoZest")
@@ -48,7 +60,7 @@ struct MainView: View {
                     .padding(.top, 75)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(therapyTypes, id: \.self) { selectedTherapyType in
+                    ForEach(selectedTherapyTypes, id: \.self) { selectedTherapyType in
                         Button(action: {
                             self.therapyType = selectedTherapyType
                         }) {
@@ -130,7 +142,7 @@ struct MainView: View {
             .onAppear() {
                 
                 // On first load always have the first therapyType selected.
-                if let firstTherapy = therapyTypes.first {
+                if let firstTherapy = selectedTherapyTypes.first {
                     therapyType = firstTherapy
                 }
                 
