@@ -10,6 +10,7 @@
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
+		C53190592A491F7C0029653B /* HRVAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53190582A491F7C0029653B /* HRVAnalysisView.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
@@ -60,6 +61,7 @@
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		C53190582A491F7C0029653B /* HRVAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVAnalysisView.swift; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
 				C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
+				C53190582A491F7C0029653B /* HRVAnalysisView.swift */,
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
 				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
@@ -351,6 +354,7 @@
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
+				C53190592A491F7C0029653B /* HRVAnalysisView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

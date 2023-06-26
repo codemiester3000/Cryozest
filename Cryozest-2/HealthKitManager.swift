@@ -10,6 +10,8 @@ class HealthKitManager {
     // private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
     
+    private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+    
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
@@ -18,14 +20,15 @@ class HealthKitManager {
         let restingHeartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
         
-        let typesToRead: Set<HKObjectType> = [heartRateType, restingHeartRateType, bodyMassType, sleepAnalysisType]
+        let typesToRead: Set<HKObjectType> = [heartRateType, restingHeartRateType, bodyMassType, sleepAnalysisType, hrvType]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             completion(success, error)
         }
     }
-
+    
     func areHealthMetricsAuthorized(completion: @escaping (Bool) -> Void) {
         let typesToRead: Set<HKObjectType> = [heartRateType]
         
@@ -251,7 +254,7 @@ class HealthKitManager {
     
     func fetchAvgRestingHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
-
+        
         // Convert dates into just the day component
         var includedDays: [Date] = []
         for date in days {
@@ -260,34 +263,34 @@ class HealthKitManager {
                 includedDays.append(dayStart)
             }
         }
-
+        
         // Create a predicate to fetch all heart rate samples
         let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
-
+        
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         
         let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-
+            
             guard let samples = samples as? [HKQuantitySample] else {
                 DispatchQueue.main.async {
                     completion(nil)
                 }
                 return
             }
-
+            
             var totalHeartRate = 0.0
             var count = 0.0
-
+            
             for sample in samples {
                 let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sample.endDate))
-
+                
                 // Only include the sample if its day component is in the includedDays array
                 if includedDays.contains(sampleDayStart!) {
                     totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
                     count += 1
                 }
             }
-
+            
             DispatchQueue.main.async {
                 if count != 0 {
                     let avgHeartRate = totalHeartRate / count
@@ -298,11 +301,11 @@ class HealthKitManager {
                 }
             }
         }
-
+        
         healthStore.execute(heartRateQuery)
     }
-
-
+    
+    
     func fetchAvgHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         
@@ -371,61 +374,272 @@ class HealthKitManager {
         // Query the sleep analysis samples
         let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
             
-            // Now within this sleepQuery completion, start the heart rate query
-            let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-                
-                guard let heartRateSamples = samples as? [HKQuantitySample] else {
-                    DispatchQueue.main.async {
-                        completion(nil)
-                    }
-                    return
-                }
-                
-                var totalHeartRate = 0.0
-                var count = 0.0
-                
-                // For each heart rate sample
-                for sample in heartRateSamples {
-                    let sampleDayComponent = calendar.component(.day, from: sample.endDate)
-                    
-                    // Only include the sample if its day component is in the includedDays array
-                    if includedDays.contains(sampleDayComponent) {
-                        
-                        // Here's where we check if the heart rate sample's date is within any of the sleep periods
-                        let heartRateSampleDate = sample.endDate
-                        
-                        // Filter the sleep samples to find if there is a sleep period that includes this heart rate sample
-                        let matchingSleepSamples = samples?.filter { sleepSample in
-                            let sleepStartDate = sleepSample.startDate
-                            let sleepEndDate = sleepSample.endDate
-                            
-                            return heartRateSampleDate >= sleepStartDate && heartRateSampleDate <= sleepEndDate
-                        }
-                        
-                        // If there is a matching sleep period, add the heart rate to the total and increment the count
-                        if matchingSleepSamples?.isEmpty == false {
-                            totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                            count += 1
-                        }
-                    }
-                }
-                
+            guard let sleepSamples = samples else {
                 DispatchQueue.main.async {
-                    if count != 0 {
-                        let avgHeartRate = totalHeartRate / count
-                        completion(avgHeartRate)
-                    } else {
-                        print("No heart rate samples found for the specified days during sleep hours.")
-                        completion(nil)
-                    }
+                    completion(nil)
                 }
+                return
             }
             
-            self.healthStore.execute(heartRateQuery)
+            var totalHeartRate = 0.0
+            var count = 0.0
+            
+            // For each sleep sample
+            for sleepSample in sleepSamples {
+                let sleepStartDate = sleepSample.startDate
+                let sleepEndDate = sleepSample.endDate
+                
+                // Create a predicate to fetch heart rate samples that fall within the sleep period
+                let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartDate, end: sleepEndDate, options: .strictStartDate)
+                
+                // Query the heart rate samples
+                let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
+                    
+                    guard let heartRateSamples = heartRateSamples as? [HKQuantitySample] else {
+                        DispatchQueue.main.async {
+                            completion(nil)
+                        }
+                        return
+                    }
+                    
+                    // For each heart rate sample, add the heart rate to the total and increment the count
+                    for sample in heartRateSamples {
+                        totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                        count += 1
+                    }
+                }
+                
+                self.healthStore.execute(heartRateQuery)
+            }
+            
+            DispatchQueue.main.async {
+                if count != 0 {
+                    let avgHeartRate = totalHeartRate / count
+                    completion(avgHeartRate)
+                } else {
+                    print("No heart rate samples found for the specified days during sleep hours.")
+                    completion(nil)
+                }
+            }
         }
         
         healthStore.execute(sleepQuery)
     }
     
     
+    func fetchAvgHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            var totalHRV = 0.0
+            var count = 0.0
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                if includedDays.contains(sampleDayComponent) {
+                    totalHRV += sample.quantity.doubleValue(for: HKUnit(from: "ms"))
+                    count += 1
+                }
+            }
+            DispatchQueue.main.async {
+                if count != 0 {
+                    let avgHRV = totalHRV / count
+                    completion(avgHRV)
+                } else {
+                    print("No HRV samples found for the specified days.")
+                    completion(nil)
+                }
+            }
+        }
+        healthStore.execute(hrvQuery)
+    }
+    
+    func fetchMaxHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        
+        // Convert dates into just the day component
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        
+        // Create a predicate to fetch all HRV samples
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        
+        let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var hrvValues: [Double] = []
+            
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                
+                // Only include the sample if its day component is in the includedDays array
+                if includedDays.contains(sampleDayComponent) {
+                    let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
+                    hrvValues.append(hrvValue)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                let maxHRV = hrvValues.max()
+                completion(maxHRV)
+            }
+        }
+        
+        healthStore.execute(hrvQuery)
+    }
+    
+    func fetchMinHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        
+        // Convert dates into just the day component
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        
+        // Create a predicate to fetch all HRV samples
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        
+        let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var hrvValues: [Double] = []
+            
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                
+                // Only include the sample if its day component is in the includedDays array
+                if includedDays.contains(sampleDayComponent) {
+                    let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
+                    hrvValues.append(hrvValue)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                let minHRV = hrvValues.min()
+                completion(minHRV)
+            }
+        }
+        
+        healthStore.execute(hrvQuery)
+    }
+    
+    
+    
+    
+    func fetchHRVTrendForDays(days: [Date], completion: @escaping (Trend?) -> Void) {
+        let calendar = Calendar.current
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        let query = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var hrvValuesForIncludedDays: [Double] = []
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                if includedDays.contains(sampleDayComponent) {
+                    let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                    hrvValuesForIncludedDays.append(hrvValue)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                guard let firstValue = hrvValuesForIncludedDays.first, let lastValue = hrvValuesForIncludedDays.last else {
+                    completion(nil)
+                    return
+                }
+                completion(firstValue < lastValue ? .increasing : .decreasing)
+            }
+        }
+        healthStore.execute(query)
+    }
+    
+    func fetchHRVDataForChart(days: [Date], completion: @escaping ([ChartDataEntry]?) -> Void) {
+        let calendar = Calendar.current
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        let query = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var chartDataEntries: [ChartDataEntry] = []
+            for sample in samples {
+                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
+                if includedDays.contains(sampleDayComponent) {
+                    let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                    let chartDataEntry = ChartDataEntry(value: hrvValue, date: sample.endDate)
+                    chartDataEntries.append(chartDataEntry)
+                }
+            }
+            
+            DispatchQueue.main.async {
+                completion(chartDataEntries)
+            }
+        }
+        healthStore.execute(query)
+    }
 }
+
+enum Trend: CustomStringConvertible {
+    case increasing
+    case decreasing
+    
+    var description: String {
+        switch self {
+        case .increasing: return "Increasing"
+        case .decreasing: return "Decreasing"
+        }
+    }
+}
+
+
+struct ChartDataEntry {
+    let value: Double
+    let date: Date
+}
+

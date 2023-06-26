@@ -90,6 +90,8 @@ struct AnalysisView: View {
             ScrollView {
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
+                // HRVAnalysisView()
+                
                 DurationAnalysisView(
                     totalTime: getTotalTime(for: therapyType),
                     totalSessions: getTotalSessions(for: therapyType),
