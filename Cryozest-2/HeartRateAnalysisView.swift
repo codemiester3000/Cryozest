@@ -64,7 +64,7 @@ class HeartRateViewModel: ObservableObject {
             let differenceValue = (restingHeartRateTherapyDays - restingHeartRateNonTherapyDays) / restingHeartRateNonTherapyDays * 100
             restingHeartRateDifference = differenceValue
         } else {
-            print("Resting heart rate on therapy days is zero, can't calculate difference.")
+            // print("Resting heart rate on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -73,7 +73,7 @@ class HeartRateViewModel: ObservableObject {
             let differenceValue = (avgHeartRateTherapyDays - avgHeartRateNonTherapyDays) / avgHeartRateNonTherapyDays * 100
             avgHeartRateDifference = differenceValue
         } else {
-            print("Resting heart rate on therapy days is zero, can't calculate difference.")
+            // print("Resting heart rate on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -82,7 +82,7 @@ class HeartRateViewModel: ObservableObject {
             let differenceValue = (avgHeartRateSleepTherapyDays - avgHeartRateSleepNonTherapyDays) / avgHeartRateSleepNonTherapyDays * 100
             avgHeartRateSleepDifference = differenceValue
         } else {
-            print("Average heart rate during sleep on therapy days is zero, can't calculate difference.")
+            // print("Average heart rate during sleep on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -90,8 +90,6 @@ class HeartRateViewModel: ObservableObject {
         let completedSessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
-        
-        print("completed session days: ", completedSessionDates)
         
 //        group.enter()
 //        HealthKitManager.shared.fetchAvgHeartRateDuringSleepForDays(days: completedSessionDates) { avgHeartRateSleep in
@@ -110,7 +108,7 @@ class HeartRateViewModel: ObservableObject {
                 self.restingHeartRateTherapyDays = avgHeartRateExcluding
                 self.calculateRestingHRDifference()
             } else {
-                print("Owen here. Failed to fetch average heart rate excluding specific days.")
+                // print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
@@ -121,7 +119,7 @@ class HeartRateViewModel: ObservableObject {
                 self.avgHeartRateTherapyDays = avgHeartRateExcluding
                 self.calculateAvgHRDifference()
             } else {
-                print("Owen here. Failed to fetch average heart rate excluding specific days.")
+                // print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
@@ -173,7 +171,7 @@ class HeartRateViewModel: ObservableObject {
                 self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
                 self.calculateRestingHRDifference()
             } else {
-                print("Failed to fetch average heart rate excluding specific days.")
+                // print("Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
@@ -184,7 +182,7 @@ class HeartRateViewModel: ObservableObject {
                 self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
                 self.calculateAvgHRDifference()
             } else {
-                print("Owen here. Failed to fetch average heart rate excluding specific days.")
+                // print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
