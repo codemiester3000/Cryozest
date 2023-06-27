@@ -357,14 +357,15 @@ class HealthKitManager {
     
     func fetchAvgHeartRateDuringSleepForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
-        
+        let dispatchGroup = DispatchGroup()
+
         // Convert dates into just the day component
         var includedDays: [Int] = []
         for date in days {
             let dayComponent = calendar.component(.day, from: date)
             includedDays.append(dayComponent)
         }
-        
+
         // Define the sleep analysis type
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
         
@@ -392,13 +393,15 @@ class HealthKitManager {
                 // Create a predicate to fetch heart rate samples that fall within the sleep period
                 let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartDate, end: sleepEndDate, options: .strictStartDate)
                 
+                // Define the heart rate type
+                let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+                
                 // Query the heart rate samples
-                let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
+                dispatchGroup.enter()
+                let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
                     
                     guard let heartRateSamples = heartRateSamples as? [HKQuantitySample] else {
-                        DispatchQueue.main.async {
-                            completion(nil)
-                        }
+                        dispatchGroup.leave()
                         return
                     }
                     
@@ -407,12 +410,12 @@ class HealthKitManager {
                         totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
                         count += 1
                     }
+                    dispatchGroup.leave()
                 }
-                
                 self.healthStore.execute(heartRateQuery)
             }
             
-            DispatchQueue.main.async {
+            dispatchGroup.notify(queue: .main) {
                 if count != 0 {
                     let avgHeartRate = totalHeartRate / count
                     completion(avgHeartRate)
@@ -422,10 +425,9 @@ class HealthKitManager {
                 }
             }
         }
-        
         healthStore.execute(sleepQuery)
     }
-    
+
     
     func fetchAvgHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
