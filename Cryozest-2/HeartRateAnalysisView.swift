@@ -276,7 +276,7 @@ struct AvgHeartRateComparisonView: View {
                             .padding(.trailing, 10)
                     }
                     .padding(.vertical, 5) // Provide some space
-                    .background(heartRateViewModel.therapyType.color.opacity(0.2)) // Different background for therapy days
+                    .background(heartRateViewModel.therapyType.color.opacity(0.2))
                     .cornerRadius(15) // Adds rounded corners
                     
                     HStack {

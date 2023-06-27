@@ -250,9 +250,9 @@ struct StreakCalendarView: View {
         if isDateInFuture(date: date) {
             return Color.gray
         } else if didHaveTherapyOnDate(date: date) {
-            return Color.green
+            return therapyType.color
         } else {
-            return Color.red
+            return Color.gray
         }
     }
     

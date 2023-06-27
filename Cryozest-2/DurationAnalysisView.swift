@@ -42,50 +42,77 @@ struct DurationAnalysisView: View {
                         }
                     }
                     
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Total Sessions")
-                                .font(.headline)
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("\(totalSessions)")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                    VStack {
+                        HStack {
+                            Text("Completed: ")
+                                .font(.system(size: 18, weight: .bold, design: .default))
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                            Spacer()
+                            
+                            HStack {
+                                Text("\(totalSessions) sessions")
+                                    .font(.system(size: 18, weight: .bold, design: .default))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 5) // Provide some space
+                            .background(therapyType.color.opacity(0.2))
+                            .cornerRadius(15) // Adds rounded corners
+                            
                         }
-                        .padding(.top, 10)
+                        .padding(.vertical, 8)
                         
-                        Spacer()
-                        
-                        VStack(alignment: .leading) {
-                            Text("Total Time")
-                                .font(.headline)
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("\(Int(totalTime / 60)) mins")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                        HStack {
+                            Text("Time Spent: ")
+                                .font(.system(size: 18, weight: .bold, design: .default))
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                            Spacer()
+                            HStack {
+                                Text("\(Int(totalTime / 60)) mins")
+                                    .font(.system(size: 18, weight: .bold, design: .default))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 5) // Provide some space
+                            .background(therapyType.color.opacity(0.2))
+                            .cornerRadius(15) // Adds rounded corners
                         }
-                        .padding(.top, 10)
+                        .padding(.vertical, 8)
+                        
+                        HStack {
+                            
+                            Text("Current Streak: ")
+                                .font(.system(size: 18, weight: .bold, design: .default))
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                            
+                            Spacer()
+                            
+                            HStack {
+                                Text("\(currentStreak) days")
+                                    .font(.system(size: 18, weight: .bold, design: .default))
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 20)
+                            }
+                            .padding(.vertical, 5) // Provide some space
+                            .background(therapyType.color.opacity(0.2))
+                            .cornerRadius(15) // Adds rounded corners
+                        }
+                        .padding(.vertical, 8)
                     }
+                    .padding(.top, 4)
                     
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Current Streak")
-                                .font(.headline)
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("\(currentStreak) days")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                        }
-                        .padding(.top, 10)
-                        
-                        Spacer()
-                    }
                     
-                    StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
-                        .padding(.top, 10)
-                        .padding(.bottom, 10)
+                    
+                    
+                                        StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
+                                            .padding(.top, 10)
+                                            .padding(.bottom, 10)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
