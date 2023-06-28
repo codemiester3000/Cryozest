@@ -1,9 +1,5 @@
 import SwiftUI
 
-extension Color {
-    static let customGray = Color(red: 0.9, green: 0.9, blue: 0.9)
-}
-
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
     
@@ -33,8 +29,7 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(Color.blue)
+        .accentColor(Color.orange).opacity(0.9).saturation(0.7)
         .background(Color.clear)
-        
     }
 }

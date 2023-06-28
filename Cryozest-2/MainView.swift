@@ -51,13 +51,16 @@ struct MainView: View {
     
     @State private var acceptedHealthKitPermissions: Bool = false
     
+    @State private var countDown: Bool = false
+    @State private var initialTimerDuration: TimeInterval = 0
+    
     var body: some View {
         NavigationView {
             VStack {
                 Text("CryoZest")
                     .font(.system(size: 40, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.white)
-                    .padding(.top, 75)
+                    .padding(.top, 35)
                 
                 LazyVGrid(columns: gridItems, spacing: 10) {
                     ForEach(selectedTherapyTypes, id: \.self) { selectedTherapyType in
@@ -91,6 +94,24 @@ struct MainView: View {
                     .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 
+                HStack(spacing: 10) {
+                    ForEach([5, 10, 15], id: \.self) { time in
+                        Button(action: {
+                            startCountdown(for: Double(time) * 60)
+                        }) {
+                            Text("\(time) min")
+                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(self.therapyType.color)
+                                .cornerRadius(40)
+                                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                        }
+                        .disabled(timer != nil)
+                        .opacity(timer != nil ? 0.3 : 1)
+                    }
+                }.padding(.bottom, 28)
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
@@ -162,6 +183,12 @@ struct MainView: View {
         }
     }
     
+    func startCountdown(for seconds: TimeInterval) {
+        initialTimerDuration = seconds
+        timerDuration = seconds
+        countDown = true
+        startStopButtonPressed()
+    }
     
     func startStopButtonPressed() {
         // Timer has not started (shows 'start').
@@ -182,7 +209,22 @@ struct MainView: View {
             pullHealthData()
             
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                timerDuration = Date().timeIntervalSince(timerStartDate!)
+                
+                if self.countDown {
+                    timerDuration -= 1
+                    if timerDuration <= 0 {
+                        timer?.invalidate()
+                        timer = nil
+                        countDown = false
+                        showSummary()
+                        timerLabel = "00:00"
+                        return
+                    }
+                } else {
+                    timerDuration = Date().timeIntervalSince(timerStartDate!)
+                }
+                
+                // timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
                 let seconds = Int(timerDuration) % 60
                 timerLabel = String(format: "%02d:%02d", minutes, seconds)
@@ -194,6 +236,12 @@ struct MainView: View {
             healthDataTimer = nil
             showSummary()
             timerLabel = "00:00"
+            
+            // For stopwatch timers
+            if countDown {
+                timerDuration = initialTimerDuration - timerDuration
+                countDown = false
+            }
         }
     }
     
