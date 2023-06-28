@@ -18,7 +18,7 @@ struct AnalysisView: View {
     var selectedTherapyTypes: [TherapyType] {
         // Convert the selected therapy types from strings to TherapyType values
         if selectedTherapies.isEmpty {
-            return Array(TherapyType.allCases.prefix(4))
+            return [.drySauna, .weightTraining, .coldPlunge, .meditation]
         } else {
             return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }
