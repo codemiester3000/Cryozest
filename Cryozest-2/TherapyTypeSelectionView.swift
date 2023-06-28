@@ -4,6 +4,7 @@ import CoreData
 struct TherapyTypeSelectionView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.managedObjectContext) var managedObjectContext
+    @EnvironmentObject var appState: AppState
     @State var selectedTypes: [TherapyType] = []
     @State var showAlert = false
     @State var alertTitle = ""
@@ -72,6 +73,7 @@ struct TherapyTypeSelectionView: View {
                     } else {
                         // Save the selected types and dismiss the view.
                         saveSelectedTherapies(therapyTypes: selectedTypes, context: managedObjectContext)
+                        appState.hasSelectedTherapyTypes = true
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
