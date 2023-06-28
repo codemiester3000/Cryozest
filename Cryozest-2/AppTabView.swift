@@ -29,7 +29,7 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(Color.orange).opacity(0.9).saturation(0.7)
+        .accentColor(Color.orange).opacity(0.85)
         .background(Color.clear)
     }
 }
