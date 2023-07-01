@@ -4,6 +4,8 @@ import CoreData
 
 struct MainView: View {
     
+    @Environment(\.scenePhase) private var scenePhase
+    
     @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(
@@ -180,6 +182,36 @@ struct MainView: View {
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
                 SettingsIconView().id(UUID())
             })
+        }
+        .onChange(of: scenePhase) { newScenePhase in
+            switch newScenePhase {
+            case .active:
+                // App has returned to the foreground, load timer state
+                let now = Date()
+                let timerStartDate = UserDefaults.standard.object(forKey: "timerStartDate") as? Date ?? now
+                let initialTimerDuration = UserDefaults.standard.double(forKey: "timerDuration")
+                let elapsedTime = now.timeIntervalSince(timerStartDate)
+                let remainingTime = max(0, initialTimerDuration - elapsedTime)
+                
+                if remainingTime > 0 {
+                    // Timer was running when app went to background
+                    self.timerStartDate = timerStartDate
+                    self.timerDuration = remainingTime
+                } else {
+                    // Timer was not running
+                    self.timerStartDate = nil
+                    self.timerDuration = 0
+                }
+                
+            case .inactive, .background:
+                // App has gone to the background, save timer state
+                UserDefaults.standard.set(self.timerStartDate, forKey: "timerStartDate")
+                UserDefaults.standard.set(self.initialTimerDuration, forKey: "timerDuration")
+                
+            @unknown default:
+                // Future cases
+                break
+            }
         }
     }
     
