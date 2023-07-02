@@ -47,18 +47,6 @@ class HeartRateViewModel: ObservableObject {
         fetchHeartRates()
     }
     
-    func fetchHeartRates() {
-        self.isLoading = true
-        let group = DispatchGroup()
-        
-        fetchrestingHeartRateTherapyDays(group: group)
-        fetchrestingHeartRateNonTherapyDays(group: group)
-        
-        group.notify(queue: .main) {
-            self.isLoading = false
-        }
-    }
-    
     private func calculateRestingHRDifference() {
         if restingHeartRateTherapyDays != 0 {
             let differenceValue = (restingHeartRateTherapyDays - restingHeartRateNonTherapyDays) / restingHeartRateNonTherapyDays * 100
@@ -77,6 +65,18 @@ class HeartRateViewModel: ObservableObject {
         if avgHeartRateSleepTherapyDays != 0 {
             let differenceValue = (avgHeartRateSleepTherapyDays - avgHeartRateSleepNonTherapyDays) / avgHeartRateSleepNonTherapyDays * 100
             avgHeartRateSleepDifference = differenceValue
+        }
+    }
+    
+    func fetchHeartRates() {
+        self.isLoading = true
+        let group = DispatchGroup()
+        
+        fetchrestingHeartRateTherapyDays(group: group)
+        fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        group.notify(queue: .main) {
+            self.isLoading = false
         }
     }
     
