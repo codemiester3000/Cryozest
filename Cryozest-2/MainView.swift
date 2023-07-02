@@ -14,6 +14,12 @@ struct MainView: View {
     )
     private var selectedTherapies: FetchedResults<SelectedTherapy>
     
+    @FetchRequest(
+        entity: CustomTimer.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \CustomTimer.duration, ascending: true)]
+    )
+    private var customTimers: FetchedResults<CustomTimer>
+    
     var selectedTherapyTypes: [TherapyType] {
         // Convert the selected therapy types from strings to TherapyType values
         if selectedTherapies.isEmpty {
@@ -50,11 +56,10 @@ struct MainView: View {
     @State private var averageSpo2: Double = 0.0
     @State private var averageRespirationRate: Double = 0.0
     @State private var isHealthDataAvailable: Bool = false
-    
     @State private var acceptedHealthKitPermissions: Bool = false
-    
     @State private var countDown: Bool = false
     @State private var initialTimerDuration: TimeInterval = 0
+    @State private var showCreateTimer = false
     
     var body: some View {
         NavigationView {
@@ -97,11 +102,11 @@ struct MainView: View {
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 
                 HStack(spacing: 10) {
-                    ForEach([5, 10, 15], id: \.self) { time in
+                    ForEach(customTimers, id: \.self) { timer in
                         Button(action: {
-                            startCountdown(for: Double(time) * 60)
+                            startCountdown(for: Double(timer.duration) * 60)
                         }) {
-                            Text("\(time) min")
+                            Text("\(timer.duration) min")
                                 .font(.system(size: 16, weight: .bold, design: .monospaced))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
@@ -110,10 +115,27 @@ struct MainView: View {
                                 .cornerRadius(40)
                                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                         }
-                        .disabled(timer != nil)
-                        .opacity(timer != nil ? 0.3 : 1)
+                        .disabled(self.timer != nil)
+                        .opacity(self.timer != nil ? 0.3 : 1)
                     }
-                }.padding(.bottom, 28)
+                    Button(action: {
+                        // Navigate to a view for creating a new custom timer
+                        showCreateTimer = true
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(self.therapyType.color)
+                            .cornerRadius(40)
+                            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                    }
+                    .disabled(self.timer != nil)
+                    .opacity(self.timer != nil ? 0.3 : 1)
+                    
+                }
+                .padding(.bottom, 28)
                 
                 Button(action: startStopButtonPressed) {
                     Text(timer == nil ? "Start" : "Stop")
@@ -164,6 +186,22 @@ struct MainView: View {
             )
             .onAppear() {
                 
+                // Add default timers if no custom ones are saved
+                if customTimers.isEmpty {
+                    let defaultDurations = [5, 10, 15]
+                    for duration in defaultDurations {
+                        let newTimer = CustomTimer(context: viewContext)
+                        newTimer.duration = Int32(duration)
+                    }
+                }
+                
+                do {
+                    try viewContext.save()
+                } catch {
+                    // Handle the error appropriately
+                    print("Failed to save new timers: \(error)")
+                }
+                
                 // On first load always have the first therapyType selected.
                 if let firstTherapy = selectedTherapyTypes.first {
                     therapyType = firstTherapy
@@ -179,6 +217,10 @@ struct MainView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showCreateTimer) {
+                        CreateTimerView()
+                            .environment(\.managedObjectContext, self.viewContext)
+                    }
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
                 SettingsIconView().id(UUID())
             })
