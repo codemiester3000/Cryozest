@@ -43,6 +43,8 @@ class SleepViewModel: ObservableObject {
         
         fetchDataForTherapyDays(group: group)
         
+        fetchDataNonTherapyDays(group: group)
+        
         // Stop showing ghost card once data is available.
         group.notify(queue: .main) {
             self.isLoading = false
@@ -65,7 +67,7 @@ class SleepViewModel: ObservableObject {
         group.enter()
         healthKitManager.fetchAvgSleepDurationForDays(days: completedSessionDates) { avgSleep in
             if let avgSleep = avgSleep {
-                self.avgSleepDurationTherapyDays = avgSleep
+                self.avgSleepDurationTherapyDays = Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
             }
         }
         group.leave()
@@ -100,6 +102,8 @@ class SleepViewModel: ObservableObject {
             }
         }
         
+        print("Recovery analysis: ", timeFrameDates)
+        
         group.enter()
         healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: timeFrameDates) { avgHeartRate in
             if let avgHeartRate = avgHeartRate {
@@ -111,7 +115,7 @@ class SleepViewModel: ObservableObject {
         group.enter()
         healthKitManager.fetchAvgSleepDurationForDays(days: timeFrameDates) { avgSleep in
             if let avgSleep = avgSleep {
-                self.avgSleepDurationNonTherapyDays = avgSleep
+                self.avgSleepDurationNonTherapyDays =  Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
             }
         }
         group.leave()
@@ -144,8 +148,6 @@ struct RecoveryAnalysisView: View {
             }
             .padding(.bottom, 10)
             
-            
-            // Resting Heart Rate View.
             HStack {
                 Text("Avg Sleep Duration")
                     .font(.system(size: 18, weight: .bold, design: .default))
@@ -153,14 +155,13 @@ struct RecoveryAnalysisView: View {
                     .foregroundColor(.orange)
                 Spacer()
             }
-            
             HStack {
                 Text("On \(viewModel.therapyType.rawValue) Days")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding(.leading, 10)
                 Spacer()
-                Text("\(viewModel.avgSleepDurationTherapyDays)")
+                Text("\(viewModel.avgSleepDurationTherapyDays, specifier: "%.1f") Hrs")
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(.trailing, 10)
@@ -168,14 +169,13 @@ struct RecoveryAnalysisView: View {
             .padding(.vertical, 5) // Provide some space
             .background(viewModel.therapyType.color.opacity(0.2))
             .cornerRadius(15) // Adds rounded corners
-            
             HStack {
                 Text("Off Days")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding(.leading, 10)
                 Spacer()
-                Text("\(viewModel.avgSleepDurationNonTherapyDays)")
+                Text("\(viewModel.avgSleepDurationNonTherapyDays, specifier: "%.1f") Hrs")
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
