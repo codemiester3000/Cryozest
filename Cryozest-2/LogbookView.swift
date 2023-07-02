@@ -2,6 +2,9 @@ import SwiftUI
 import JTAppleCalendar
 
 struct LogbookView: View {
+    
+    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
+    
     @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(
@@ -29,7 +32,8 @@ struct LogbookView: View {
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
-    init() {
+    init(therapyTypeSelection: TherapyTypeSelection) {
+        self.therapyTypeSelection = therapyTypeSelection
         if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
             _therapyType = State(initialValue: therapyType)
         } else {
@@ -58,7 +62,7 @@ struct LogbookView: View {
                     .padding(.top, 36)
                     .padding(.leading, 24)
                 
-                TherapyTypeGrid(therapyType: $therapyType, selectedTherapyTypes: selectedTherapyTypes)
+                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
@@ -69,7 +73,7 @@ struct LogbookView: View {
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
                                 
                                 Circle()
-                                    .fill(self.therapyType.color)
+                                    .fill(self.therapyTypeSelection.selectedTherapyType.color)
                                     .frame(width: 25, height: 25)
                             }
                             .padding(.leading, 8)

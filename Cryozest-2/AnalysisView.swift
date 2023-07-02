@@ -2,6 +2,9 @@ import SwiftUI
 import CoreData
 
 struct AnalysisView: View {
+    
+    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
+    
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         entity: TherapySessionEntity.entity(),
@@ -37,6 +40,10 @@ struct AnalysisView: View {
         return df
     }()
     
+    init(therapyTypeSelection: TherapyTypeSelection) {
+        self.therapyTypeSelection = therapyTypeSelection
+    }
+    
     var body: some View {
         VStack {
             HStack {
@@ -50,7 +57,7 @@ struct AnalysisView: View {
                 Spacer()
             }
             
-            TherapyTypeGrid(therapyType: $therapyType, selectedTherapyTypes: selectedTherapyTypes)
+            TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
             
             Picker("Time frame", selection: $selectedTimeFrame) {
                 Text("Last 7 days")
@@ -74,16 +81,16 @@ struct AnalysisView: View {
                     totalTime: getTotalTime(for: therapyType),
                     totalSessions: getTotalSessions(for: therapyType),
                     timeFrame: selectedTimeFrame,
-                    therapyType: self.therapyType,
+                    therapyType: self.therapyTypeSelection.selectedTherapyType,
                     currentStreak: getCurrentStreak(for: therapyType),
                     longestStreak: getLongestStreak(for: therapyType), // Assuming you have a function to get the longest streak
                     sessions: sessions
                 )
                 .padding(.horizontal)
                 
-                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
-                RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

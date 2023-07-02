@@ -4,6 +4,8 @@ import CoreData
 
 struct MainView: View {
     
+    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
+    
     @Environment(\.scenePhase) private var scenePhase
     
     @Environment(\.managedObjectContext) private var viewContext
@@ -36,7 +38,10 @@ struct MainView: View {
     let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
-    @Binding var sessions: [TherapySession]
+    @FetchRequest(
+        entity: TherapySessionEntity.entity(),
+        sortDescriptors: [])
+    private var sessions: FetchedResults<TherapySessionEntity>
     
     @State private var timerLabel: String = "00:00"
     @State private var timer: Timer?
@@ -61,6 +66,10 @@ struct MainView: View {
     @State private var initialTimerDuration: TimeInterval = 0
     @State private var showCreateTimer = false
     
+    init(therapyTypeSelection: TherapyTypeSelection) {
+        self.therapyTypeSelection = therapyTypeSelection
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -69,13 +78,14 @@ struct MainView: View {
                     .foregroundColor(Color.white)
                     .padding(.top, 35)
                 
-                TherapyTypeGrid(therapyType: $therapyType, selectedTherapyTypes: selectedTherapyTypes)
+                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+                    .padding(.bottom, 18)
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(self.therapyType.color)
+                    .background(self.therapyTypeSelection.selectedTherapyType.color)
                     .cornerRadius(16)
                     .padding(.bottom, 28)
                     .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
@@ -90,7 +100,7 @@ struct MainView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 10)
-                                .background(self.therapyType.color)
+                                .background(self.therapyTypeSelection.selectedTherapyType.color)
                                 .cornerRadius(40)
                                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                         }
@@ -106,7 +116,7 @@ struct MainView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                            .background(self.therapyType.color)
+                            .background(self.therapyTypeSelection.selectedTherapyType.color)
                             .cornerRadius(40)
                             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                     }
@@ -122,7 +132,7 @@ struct MainView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 80)
                         .padding(.vertical, 28)
-                        .background(self.therapyType.color)
+                        .background(self.therapyTypeSelection.selectedTherapyType.color)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
@@ -137,7 +147,7 @@ struct MainView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 26)
                 
-                NavigationLink(destination: LogbookView(), isActive: $showLogbook) {
+                NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
                 }
                 NavigationLink(
@@ -197,9 +207,9 @@ struct MainView: View {
                 }
             }
             .sheet(isPresented: $showCreateTimer) {
-                        CreateTimerView()
-                            .environment(\.managedObjectContext, self.viewContext)
-                    }
+                CreateTimerView()
+                    .environment(\.managedObjectContext, self.viewContext)
+            }
             .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
                 SettingsIconView().id(UUID())
             })

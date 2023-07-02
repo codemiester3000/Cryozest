@@ -1,7 +1,11 @@
 import SwiftUI
 
+class TherapyTypeSelection: ObservableObject {
+    @Published var selectedTherapyType: TherapyType = .drySauna
+}
+
 struct TherapyTypeGrid: View {
-    @Binding var therapyType: TherapyType
+    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     
     let selectedTherapyTypes: [TherapyType]
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
@@ -10,7 +14,7 @@ struct TherapyTypeGrid: View {
         LazyVGrid(columns: gridItems, spacing: 10) {
             ForEach(selectedTherapyTypes, id: \.self) { therapyType in
                 Button(action: {
-                    self.therapyType = therapyType
+                    self.therapyTypeSelection.selectedTherapyType = therapyType
                 }) {
                     HStack {
                         Image(systemName: therapyType.icon)
@@ -20,7 +24,7 @@ struct TherapyTypeGrid: View {
                             .foregroundColor(.white)
                     }
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
-                    .background(self.therapyType == therapyType ?
+                    .background(self.therapyTypeSelection.selectedTherapyType == therapyType ?
                                 therapyType.color
                                 : Color(.gray))
                     .cornerRadius(8)
