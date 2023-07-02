@@ -69,28 +69,7 @@ struct MainView: View {
                     .foregroundColor(Color.white)
                     .padding(.top, 35)
                 
-                LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(selectedTherapyTypes, id: \.self) { selectedTherapyType in
-                        Button(action: {
-                            self.therapyType = selectedTherapyType
-                        }) {
-                            HStack {
-                                Image(systemName: selectedTherapyType.icon)
-                                    .foregroundColor(.white)
-                                Text(selectedTherapyType.rawValue)
-                                    .font(.system(size: 15, design: .monospaced))
-                                    .foregroundColor(.white)
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
-                            .background(self.therapyType == selectedTherapyType ? selectedTherapyType.color : Color.gray)
-                            .cornerRadius(8)
-                        }
-                        .padding(.horizontal, 5)
-                    }
-                }
-                .padding(.horizontal, 10)
-                .padding(.bottom, 20)
-                .padding(.top, 20)
+                TherapyTypeGrid(therapyType: $therapyType, selectedTherapyTypes: selectedTherapyTypes)
                 
                 Text(timerLabel)
                     .font(.system(size: 72, weight: .bold, design: .monospaced))

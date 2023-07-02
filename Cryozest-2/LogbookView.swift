@@ -58,32 +58,7 @@ struct LogbookView: View {
                     .padding(.top, 36)
                     .padding(.leading, 24)
                 
-                LazyVGrid(columns: gridItems, spacing: 10) {
-                    ForEach(selectedTherapyTypes, id: \.self) { therapyType in
-                        Button(action: {
-                            self.therapyType = therapyType
-                            print("Therapy Type Changed: \(self.therapyType)")
-                            updateSessionDates()
-                            
-                            print("session dates Changed: \(self.sessionDates)")
-                        }) {
-                            HStack {
-                                Image(systemName: therapyType.icon)
-                                    .foregroundColor(.white)
-                                Text(therapyType.rawValue)
-                                    .font(.system(size: 15, design: .monospaced))
-                                    .foregroundColor(.white)
-                            }
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
-                            .background(self.therapyType == therapyType ? therapyType.color : Color.gray)
-                            .cornerRadius(8)
-                        }
-                        .padding(.horizontal, 5)
-                    }
-                }
-                .padding(.horizontal, 10)
-                .padding(.bottom, 8)
-                .padding(.top, 8)
+                TherapyTypeGrid(therapyType: $therapyType, selectedTherapyTypes: selectedTherapyTypes)
                 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 16) {
