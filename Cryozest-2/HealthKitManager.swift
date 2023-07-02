@@ -426,6 +426,8 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
+    // TODO: speed this up by not quering to the distant past but only as far back as the earliest data.
+    
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
@@ -440,22 +442,27 @@ class HealthKitManager {
         
         let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
             
-            guard let sleepSamples = samples else {
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-                return
-            }
+            guard let sleepSamples = samples as? [HKCategorySample] else {
+                        DispatchQueue.main.async {
+                            completion(nil)
+                        }
+                        return
+                    }
             
             var totalDuration = 0.0
             var count = 0.0
             
             for sleepSample in sleepSamples {
                 let sampleDayComponent = calendar.component(.day, from: sleepSample.endDate)
-                if includedDays.contains(sampleDayComponent) {
+                if includedDays.contains(sampleDayComponent) && sleepSample.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue {
                     let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
                     totalDuration += duration
-                    count += 1
+                    
+                    print("inside the sleep method: ", duration)
+                    
+                    if (duration > 0) {
+                        count += 1
+                    }
                 }
             }
             

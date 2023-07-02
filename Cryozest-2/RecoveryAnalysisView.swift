@@ -148,6 +148,7 @@ struct RecoveryAnalysisView: View {
             }
             .padding(.bottom, 10)
             
+            // Sleep data
             HStack {
                 Text("Avg Sleep Duration")
                     .font(.system(size: 18, weight: .bold, design: .default))
@@ -176,6 +177,41 @@ struct RecoveryAnalysisView: View {
                     .padding(.leading, 10)
                 Spacer()
                 Text("\(viewModel.avgSleepDurationNonTherapyDays, specifier: "%.1f") Hrs")
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.trailing, 10)
+            }
+            
+            // Heart Rate Data
+            HStack {
+                Text("Avg Sleeping HR")
+                    .font(.system(size: 18, weight: .bold, design: .default))
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
+                Spacer()
+            }
+            HStack {
+                Text("On \(viewModel.therapyType.rawValue) Days")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.leading, 10)
+                Spacer()
+                Text("\(viewModel.sleepingHeartRateTherapyDays, specifier: "%.1f") Hrs")
+                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .padding(.trailing, 10)
+            }
+            .padding(.vertical, 5) // Provide some space
+            .background(viewModel.therapyType.color.opacity(0.2))
+            .cornerRadius(15) // Adds rounded corners
+            HStack {
+                Text("Off Days")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.leading, 10)
+                Spacer()
+                Text("\(viewModel.sleepingHeartRateNonTherapyDays, specifier: "%.1f") Hrs")
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
