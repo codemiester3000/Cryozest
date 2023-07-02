@@ -296,7 +296,7 @@ class HealthKitManager {
                     let avgHeartRate = totalHeartRate / count
                     completion(avgHeartRate)
                 } else {
-                    print("No resting heart rate samples found for the specified days.")
+                    // print("No resting heart rate samples found for the specified days.")
                     completion(nil)
                 }
             }
@@ -346,7 +346,7 @@ class HealthKitManager {
                     let avgHeartRate = totalHeartRate / count
                     completion(avgHeartRate)
                 } else {
-                    print("No heart rate samples found for the specified days.")
+                    // print("No heart rate samples found for the specified days.")
                     completion(nil)
                 }
             }
@@ -417,7 +417,54 @@ class HealthKitManager {
                     let avgHeartRate = totalHeartRate / count
                     completion(avgHeartRate)
                 } else {
-                    print("No heart rate samples found for the specified days during sleep hours.")
+                    // print("No heart rate samples found for the specified days during sleep hours.")
+                    completion(nil)
+                }
+            }
+        }
+        
+        healthStore.execute(sleepQuery)
+    }
+    
+    // Duration in Seconds
+    func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        var includedDays: [Int] = []
+        for date in days {
+            let dayComponent = calendar.component(.day, from: date)
+            includedDays.append(dayComponent)
+        }
+        
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        let sleepPredicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            
+            guard let sleepSamples = samples else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var totalDuration = 0.0
+            var count = 0.0
+            
+            for sleepSample in sleepSamples {
+                let sampleDayComponent = calendar.component(.day, from: sleepSample.endDate)
+                if includedDays.contains(sampleDayComponent) {
+                    let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                    totalDuration += duration
+                    count += 1
+                }
+            }
+            
+            DispatchQueue.main.async {
+                if count != 0 {
+                    let avgDuration = totalDuration / count
+                    completion(avgDuration)
+                } else {
+                    print("No sleep duration samples found for the specified days.")
                     completion(nil)
                 }
             }
@@ -456,7 +503,7 @@ class HealthKitManager {
                     let avgHRV = totalHRV / count
                     completion(avgHRV)
                 } else {
-                    print("No HRV samples found for the specified days.")
+                    // print("No HRV samples found for the specified days.")
                     completion(nil)
                 }
             }

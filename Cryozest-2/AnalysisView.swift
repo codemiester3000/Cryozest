@@ -92,8 +92,6 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             ScrollView {
-                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                
                 // HRVAnalysisView()
                 
                 DurationAnalysisView(
@@ -106,6 +104,10 @@ struct AnalysisView: View {
                     sessions: sessions
                 )
                 .padding(.horizontal)
+                
+                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                
+                RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyType, timeFrame: selectedTimeFrame, sessions: sessions))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

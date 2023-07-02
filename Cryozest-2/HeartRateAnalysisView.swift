@@ -63,8 +63,6 @@ class HeartRateViewModel: ObservableObject {
         if restingHeartRateTherapyDays != 0 {
             let differenceValue = (restingHeartRateTherapyDays - restingHeartRateNonTherapyDays) / restingHeartRateNonTherapyDays * 100
             restingHeartRateDifference = differenceValue
-        } else {
-            // print("Resting heart rate on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -72,8 +70,6 @@ class HeartRateViewModel: ObservableObject {
         if avgHeartRateTherapyDays != 0 {
             let differenceValue = (avgHeartRateTherapyDays - avgHeartRateNonTherapyDays) / avgHeartRateNonTherapyDays * 100
             avgHeartRateDifference = differenceValue
-        } else {
-            // print("Resting heart rate on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -81,8 +77,6 @@ class HeartRateViewModel: ObservableObject {
         if avgHeartRateSleepTherapyDays != 0 {
             let differenceValue = (avgHeartRateSleepTherapyDays - avgHeartRateSleepNonTherapyDays) / avgHeartRateSleepNonTherapyDays * 100
             avgHeartRateSleepDifference = differenceValue
-        } else {
-            // print("Average heart rate during sleep on therapy days is zero, can't calculate difference.")
         }
     }
     
@@ -90,17 +84,6 @@ class HeartRateViewModel: ObservableObject {
         let completedSessionDates = sessions
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
-        
-//        group.enter()
-//        HealthKitManager.shared.fetchAvgHeartRateDuringSleepForDays(days: completedSessionDates) { avgHeartRateSleep in
-//            if let avgHeartRateSleep = avgHeartRateSleep {
-//                self.avgHeartRateSleepTherapyDays = avgHeartRateSleep
-//                self.calculateAvgHRSleepDifference()
-//            } else {
-//                print("Failed to fetch average heart rate during sleep on therapy days.")
-//            }
-//            group.leave()
-//        }
         
         group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
@@ -153,17 +136,6 @@ class HeartRateViewModel: ObservableObject {
                 lastMonthDates.append(date)
             }
         }
-        
-//        group.enter()
-//        HealthKitManager.shared.fetchAvgHeartRateDuringSleepForDays(days: lastMonthDates) { fetchedAvgHeartRateSleep in
-//            if let fetchedAvgHeartRateSleep = fetchedAvgHeartRateSleep {
-//                self.avgHeartRateSleepNonTherapyDays = fetchedAvgHeartRateSleep
-//                self.calculateAvgHRSleepDifference()
-//            } else {
-//                print("Failed to fetch average heart rate during sleep on non-therapy days.")
-//            }
-//            group.leave()
-//        }
         
         group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
@@ -257,7 +229,7 @@ struct AvgHeartRateComparisonView: View {
                     // Resting Heart Rate View.
                     HStack {
                         Text("Resting Heart Rate")
-                            // .font(.system(size: 18, weight: .bold, design: .monospaced))
+                        // .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
@@ -298,7 +270,7 @@ struct AvgHeartRateComparisonView: View {
                 VStack {
                     HStack {
                         Text("Avg Heart Rate")
-                            //.font(.system(size: 18, weight: .bold, design: .monospaced))
+                        //.font(.system(size: 18, weight: .bold, design: .monospaced))
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
@@ -334,57 +306,6 @@ struct AvgHeartRateComparisonView: View {
                     }
                 }
                 .padding(.top, 10)
-                
-                // Resting Heart Rate during sleep view.
-//                VStack {
-//                    if heartRateViewModel.avgHeartRateSleepDifference != 0 {
-//                        let differencePercentage = abs(heartRateViewModel.avgHeartRateSleepDifference)
-//                        let isIncreased = heartRateViewModel.avgHeartRateSleepDifference >= 0
-//                        HeartRateDifferenceView(differencePercentage: differencePercentage,
-//                                                therapyType: heartRateViewModel.therapyType.rawValue,
-//                                                isIncreased: isIncreased,
-//                                                heartRateType: "Avg HR during Sleep")
-//                    }
-//
-//                    HStack {
-//                        Text("HR during Sleep")
-//                            .font(.system(size: 18, weight: .bold, design: .monospaced))
-//                            .fontWeight(.bold)
-//                            .foregroundColor(.orange)
-//                        Spacer()
-//                    }
-//                    .padding(.top, 10)
-//
-//                    HStack {
-//                        Text("On \(heartRateViewModel.therapyType.rawValue) Days")
-//                            .font(.headline)
-//                            .foregroundColor(.white)
-//                            .padding(.leading, 10) // Horizontal padding on the inside
-//                        Spacer()
-//                        Text(heartRateViewModel.avgHeartRateSleepTherapyDays.formatBPM())
-//                            .font(.system(size: 18, weight: .bold, design: .monospaced))
-//                            .fontWeight(.bold)
-//                            .foregroundColor(.white) // Change to a different color for therapy days
-//                            .padding(.trailing, 10) // Horizontal padding on the inside
-//                    }
-//                    .padding(.vertical, 5) // Provide some space
-//                    .background(heartRateViewModel.therapyType.color.opacity(0.2)) // Different background for therapy days
-//                    .cornerRadius(15) // Adds rounded corners
-//
-//                    HStack {
-//                        Text("Off Days")
-//                            .font(.headline)
-//                            .foregroundColor(.white)
-//                            .padding(.leading, 10)
-//                        Spacer()
-//                        Text(heartRateViewModel.avgHeartRateSleepNonTherapyDays.formatBPM())
-//                            .font(.system(size: 18, weight: .semibold, design: .monospaced)) // Make the font weight a bit lighter
-//                            .foregroundColor(.white)
-//                            .padding(.trailing, 10)
-//                    }
-//                    .padding(.vertical, 5) // Provide some space
-//                }
-//                .padding(.top, 10)
             }
             .frame(maxWidth: .infinity)
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))

@@ -107,12 +107,9 @@ struct DurationAnalysisView: View {
                     }
                     .padding(.top, 4)
                     
-                    
-                    
-                    
-                                        StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
-                                            .padding(.top, 10)
-                                            .padding(.bottom, 10)
+//                    StreakCalendarView(therapySessions: Array(sessions), therapyType: therapyType)
+//                        .padding(.top, 10)
+//                        .padding(.bottom, 10)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
