@@ -14,14 +14,14 @@ class SleepViewModel: ObservableObject {
     @Published var timeFrame: TimeFrame {
         didSet {
             if oldValue != timeFrame {
-                fetchSleepData()
+                fetchRecoveryData()
             }
         }
     }
     @Published var therapyType: TherapyType {
         didSet {
             if oldValue != therapyType {
-                fetchSleepData()
+                fetchRecoveryData()
             }
         }
     }
@@ -33,10 +33,10 @@ class SleepViewModel: ObservableObject {
         self.therapyType = therapyType
         self.timeFrame = timeFrame
         self.sessions = sessions
-        fetchSleepData()
+        fetchRecoveryData()
     }
     
-    func fetchSleepData() {
+    func fetchRecoveryData() {
         isLoading = true
         
         let group = DispatchGroup()
@@ -128,105 +128,112 @@ struct RecoveryAnalysisView: View {
     @ObservedObject var viewModel: SleepViewModel
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("Recovery")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+        
+        if viewModel.isLoading {
+            LoadingView()
+        } else {
+            VStack {
+                HStack {
+                    Text("Recovery")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Text(viewModel.timeFrame.displayString())
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(viewModel.therapyType.color)
+                        .cornerRadius(8)
+                }
+                .padding(.bottom, 10)
                 
-                Spacer()
+                // Sleep data
+                VStack {
+                    HStack {
+                        Text("Avg Sleep Duration")
+                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    HStack {
+                        Text("On \(viewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.leading, 10)
+                        Spacer()
+                        Text("\(viewModel.avgSleepDurationTherapyDays, specifier: "%.1f") Hrs")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                            .padding(.trailing, 10)
+                    }
+                    .padding(.vertical, 5) // Provide some space
+                    .background(viewModel.therapyType.color.opacity(0.2))
+                    .cornerRadius(15) // Adds rounded corners
+                    HStack {
+                        Text("Off Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.leading, 10)
+                        Spacer()
+                        Text("\(viewModel.avgSleepDurationNonTherapyDays, specifier: "%.1f") Hrs")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 10)
+                    }
+                }
                 
-                Text(viewModel.timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(viewModel.therapyType.color)
-                    .cornerRadius(8)
+                // Heart Rate Data
+                VStack {
+                    HStack {
+                        Text("Avg Sleeping HR")
+                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        Spacer()
+                    }
+                    HStack {
+                        Text("On \(viewModel.therapyType.rawValue) Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.leading, 10)
+                        Spacer()
+                        Text("\(viewModel.sleepingHeartRateTherapyDays, specifier: "%.1f") BPM")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                            .padding(.trailing, 10)
+                    }
+                    .padding(.vertical, 5) // Provide some space
+                    .background(viewModel.therapyType.color.opacity(0.2))
+                    .cornerRadius(15) // Adds rounded corners
+                    HStack {
+                        Text("Off Days")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.leading, 10)
+                        Spacer()
+                        Text("\(viewModel.sleepingHeartRateNonTherapyDays, specifier: "%.1f") BPM")
+                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 10)
+                    }
+                }
+                .padding(.top, 10)
             }
-            .padding(.bottom, 10)
-            
-            // Sleep data
-            HStack {
-                Text("Avg Sleep Duration")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
-                Spacer()
-            }
-            HStack {
-                Text("On \(viewModel.therapyType.rawValue) Days")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.leading, 10)
-                Spacer()
-                Text("\(viewModel.avgSleepDurationTherapyDays, specifier: "%.1f") Hrs")
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .padding(.trailing, 10)
-            }
-            .padding(.vertical, 5) // Provide some space
-            .background(viewModel.therapyType.color.opacity(0.2))
-            .cornerRadius(15) // Adds rounded corners
-            HStack {
-                Text("Off Days")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.leading, 10)
-                Spacer()
-                Text("\(viewModel.avgSleepDurationNonTherapyDays, specifier: "%.1f") Hrs")
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.trailing, 10)
-            }
-            
-            // Heart Rate Data
-            HStack {
-                Text("Avg Sleeping HR")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
-                Spacer()
-            }
-            HStack {
-                Text("On \(viewModel.therapyType.rawValue) Days")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.leading, 10)
-                Spacer()
-                Text("\(viewModel.sleepingHeartRateTherapyDays, specifier: "%.1f") Hrs")
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .padding(.trailing, 10)
-            }
-            .padding(.vertical, 5) // Provide some space
-            .background(viewModel.therapyType.color.opacity(0.2))
-            .cornerRadius(15) // Adds rounded corners
-            HStack {
-                Text("Off Days")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.leading, 10)
-                Spacer()
-                Text("\(viewModel.sleepingHeartRateNonTherapyDays, specifier: "%.1f") Hrs")
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.trailing, 10)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-        .background(Color(.darkGray))
-        .cornerRadius(16)
-        .padding(.horizontal)
-        .transition(.opacity) // The view will fade in when it appears
-        .animation(.easeIn)
-        .onAppear {
-            viewModel.fetchSleepData()
+            .frame(maxWidth: .infinity)
+            .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+            .background(Color(.darkGray))
+            .cornerRadius(16)
+            .padding(.horizontal)
+            .transition(.opacity) // The view will fade in when it appears
+            .animation(.easeIn)
         }
     }
 }
