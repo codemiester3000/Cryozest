@@ -229,7 +229,7 @@ struct RecoveryAnalysisView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-            .background(Color(.darkGray))
+            .background(Color(.darkGray).opacity(0.95))
             .cornerRadius(16)
             .padding(.horizontal)
             .transition(.opacity) // The view will fade in when it appears
