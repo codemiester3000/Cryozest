@@ -28,7 +28,8 @@ struct TherapyTypeSelectionView: View {
                 Text("Select up to 4 therapy types")
                     .font(.headline)
                     .foregroundColor(.white)
-                    .padding(.bottom, 8)
+                    .scaleEffect(1.3)
+                    .padding(.bottom, 12)
                 
                 ScrollView {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
@@ -64,7 +65,7 @@ struct TherapyTypeSelectionView: View {
                 }
                 
                 Spacer()
-                Button("Done") {
+                Button(action: {
                     // Check for fewer than 2 types
                     if selectedTypes.count < 2 {
                         alertTitle = "Too Few Types"
@@ -76,16 +77,24 @@ struct TherapyTypeSelectionView: View {
                         appState.hasSelectedTherapyTypes = true
                         presentationMode.wrappedValue.dismiss()
                     }
+                }) {
+                    Text("Done")
+                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 80)
+                        .padding(.vertical, 28)
+                        .background(Color.blue)
+                        .cornerRadius(40)
+                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
                 }
-                .padding()
-                .background(Color.blue)
+                .padding(.vertical, 12)
                 .foregroundColor(.white)
                 .cornerRadius(8)
             }
             .onAppear {
                 selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
             }
-            .padding()
+            .padding(.horizontal, 12)
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
