@@ -31,14 +31,12 @@ class HealthKitManager {
     
     func areHealthMetricsAuthorized(completion: @escaping (Bool) -> Void) {
         let typesToRead: Set<HKObjectType> = [heartRateType]
-        
         healthStore.getRequestStatusForAuthorization(toShare: [], read: typesToRead) { (status, error) in
             if let error = error {
                 
                 completion(false)
                 return
             }
-            
             switch status {
             case .unnecessary:
                 // The system doesn't need to request authorization because the user has already granted access.
@@ -61,9 +59,7 @@ class HealthKitManager {
     func fetchMostRecentBodyMass(completion: @escaping (Double?) -> Void) {
         // Don't limit by start date.
         let predicate = HKQuery.predicateForSamples(withStart: nil, end: Date(), options: .strictEndDate)
-        
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        
         let bodyMassQuery = HKSampleQuery(sampleType: bodyMassType, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
             
             // Ensure the samples are not nil and get the first sample
@@ -77,7 +73,6 @@ class HealthKitManager {
             
             completion(bodyMass)
         }
-        
         healthStore.execute(bodyMassQuery)
     }
     
@@ -125,36 +120,10 @@ class HealthKitManager {
             group.leave()
         }
         
-        //        group.enter()
-        //        let spo2Query = createAvgStatisticsQuery(for: spo2Type, with: predicate) { statistics in
-        //            if let statistics = statistics, let spo2 = statistics.averageQuantity()?.doubleValue(for: HKUnit.percent()) {
-        //                print("Fetched average SpO2: \(spo2)")
-        //                avgSpo2 = spo2
-        //            } else {
-        //                print("Failed to fetch average SpO2 or no SpO2 data available")
-        //            }
-        //            group.leave()
-        //        }
-        //        healthStore.execute(spo2Query)
-        //
-        //        group.enter()
-        //        let respirationRateQuery = createAvgStatisticsQuery(for: respirationRateType, with: predicate) { statistics in
-        //            if let statistics = statistics, let respirationRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-        //                print("Fetched average respiration rate: \(respirationRate)")
-        //                avgRespirationRate = respirationRate
-        //            } else {
-        //                print("Failed to fetch average respiration rate or no respiration rate data available")
-        //            }
-        //            group.leave()
-        //        }
-        //        healthStore.execute(respirationRateQuery)
-        
         group.notify(queue: .main) {
             completion((avgHeartRate, mostRecentHeartRate, avgSpo2, avgRespirationRate, minHeartRate, maxHeartRate))
         }
     }
-    
-    
     
     private func createAvgStatisticsQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKStatistics?) -> Void) -> HKStatisticsQuery {
         let query = HKStatisticsQuery(quantityType: type, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
@@ -163,36 +132,6 @@ class HealthKitManager {
                     print("Error during \(type.identifier) query: \(error)")
                 }
                 completion(statistics)
-            }
-        }
-        return query
-    }
-    
-    func fetchMostRecentHeartRate(completion: @escaping (Double?) -> Void) {
-        let endDate = Date()
-        let startDate = endDate.addingTimeInterval(-10) // 10 seconds before the current date/time
-        
-        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-        
-        let heartRateQuery = createAvgStatisticsQuery(for: heartRateType, with: predicate) { statistics in
-            if let statistics = statistics, let heartRate = statistics.averageQuantity()?.doubleValue(for: HKUnit(from: "count/min")) {
-                completion(heartRate)
-            } else {
-                print("Failed to fetch most recent heart rate")
-                completion(nil)
-            }
-        }
-        
-        healthStore.execute(heartRateQuery)
-    }
-    
-    private func createMostRecentSampleQuery(for type: HKQuantityType, with predicate: NSPredicate, completion: @escaping (HKQuantitySample?) -> Void) -> HKSampleQuery {
-        let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Error during \(type.identifier) query: \(error)")
-                }
-                completion(samples?.first as? HKQuantitySample)
             }
         }
         return query
@@ -313,7 +252,7 @@ class HealthKitManager {
         
         healthStore.execute(heartRateQuery)
     }
-
+    
     func fetchAvgHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         guard !days.isEmpty else {
             completion(nil)
@@ -375,7 +314,7 @@ class HealthKitManager {
         
         healthStore.execute(heartRateQuery)
     }
-
+    
     
     func fetchAvgHeartRateDuringSleepForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
@@ -447,8 +386,6 @@ class HealthKitManager {
         
         healthStore.execute(sleepQuery)
     }
-    
-    // TODO: speed this up by not quering to the distant past but only as far back as the earliest data.
     
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
@@ -662,40 +599,6 @@ class HealthKitManager {
         }
         healthStore.execute(query)
     }
-    
-    func fetchHRVDataForChart(days: [Date], completion: @escaping ([ChartDataEntry]?) -> Void) {
-        let calendar = Calendar.current
-        var includedDays: [Int] = []
-        for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
-        }
-        
-        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
-        let query = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-            guard let samples = samples as? [HKQuantitySample] else {
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-                return
-            }
-            
-            var chartDataEntries: [ChartDataEntry] = []
-            for sample in samples {
-                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
-                if includedDays.contains(sampleDayComponent) {
-                    let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
-                    let chartDataEntry = ChartDataEntry(value: hrvValue, date: sample.endDate)
-                    chartDataEntries.append(chartDataEntry)
-                }
-            }
-            
-            DispatchQueue.main.async {
-                completion(chartDataEntries)
-            }
-        }
-        healthStore.execute(query)
-    }
 }
 
 enum Trend: CustomStringConvertible {
@@ -709,10 +612,3 @@ enum Trend: CustomStringConvertible {
         }
     }
 }
-
-
-struct ChartDataEntry {
-    let value: Double
-    let date: Date
-}
-
