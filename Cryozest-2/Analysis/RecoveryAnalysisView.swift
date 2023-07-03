@@ -74,38 +74,16 @@ class SleepViewModel: ObservableObject {
     }
     
     private func fetchDataNonTherapyDays(group: DispatchGroup) {
-        let completedSessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { $0.date }
+        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         
-        // Get the dates for the last month.
-        let calendar = Calendar.current
-        let dateOneMonthAgo = calendar.date(byAdding: .month, value: -1, to: Date())!
+        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
         
-        let numberOfDays: Int
-        switch timeFrame {
-        case .week:
-            numberOfDays = 7
-        case .month:
-            numberOfDays = 30
-        case .allTime:
-            numberOfDays = 365
-        }
+        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
         
-        // Exclude completedSessionDates from the last month's dates.
-        var timeFrameDates = [Date]()
-        for day in 0..<numberOfDays {
-            if let date = calendar.date(byAdding: .day, value: -day, to: Date()),
-               !completedSessionDates.contains(date),
-               date >= dateOneMonthAgo {
-                timeFrameDates.append(date)
-            }
-        }
-        
-        print("Recovery analysis: ", timeFrameDates)
+        print("Recovery analysis: ", nonTherapyDates, nonTherapyDates.count)
         
         group.enter()
-        healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: timeFrameDates) { avgHeartRate in
+        healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: nonTherapyDates) { avgHeartRate in
             if let avgHeartRate = avgHeartRate {
                 self.sleepingHeartRateNonTherapyDays = avgHeartRate
             }
@@ -113,7 +91,7 @@ class SleepViewModel: ObservableObject {
         group.leave()
         
         group.enter()
-        healthKitManager.fetchAvgSleepDurationForDays(days: timeFrameDates) { avgSleep in
+        healthKitManager.fetchAvgSleepDurationForDays(days: nonTherapyDates) { avgSleep in
             if let avgSleep = avgSleep {
                 self.avgSleepDurationNonTherapyDays =  Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
             }
