@@ -158,6 +158,7 @@ struct AvgHeartRateComparisonView: View {
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
+                        .underline()
                     
                     Spacer()
                     

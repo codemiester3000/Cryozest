@@ -27,6 +27,7 @@ struct DurationAnalysisView: View {
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
+                            .underline()
                         
                         Spacer()
                         
