@@ -315,25 +315,30 @@ class HealthKitManager {
         healthStore.execute(heartRateQuery)
     }
     
-    
     func fetchAvgHeartRateDuringSleepForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         
         // Convert dates into just the day component
-        var includedDays: [Int] = []
+        var includedDays: [Set<Int>] = []
         for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            if let dayStart = calendar.date(from: components) {
+                let set = Set([components.year!, components.month!, components.day!])
+                includedDays.append(set)
+            }
         }
         
-        // Define the sleep analysis type
+        // Calculate earliest and latest date in the days array
+        let earliestDate = days.min() ?? Date.distantPast
+        let latestDate = days.max() ?? Date.distantFuture
+        
+        // Create a predicate to fetch sleep samples within the range of the earliest and latest dates
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: latestDate, options: .strictStartDate)
+        
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
         
-        // Create a predicate to fetch all sleep analysis samples
-        let sleepPredicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
-        
         // Query the sleep analysis samples
-        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
             
             guard let sleepSamples = samples else {
                 DispatchQueue.main.async {
@@ -345,40 +350,48 @@ class HealthKitManager {
             var totalHeartRate = 0.0
             var count = 0.0
             
+            let dispatchGroup = DispatchGroup()
+            
             // For each sleep sample
             for sleepSample in sleepSamples {
                 let sleepStartDate = sleepSample.startDate
                 let sleepEndDate = sleepSample.endDate
+                let sleepStartComponents = calendar.dateComponents([.year, .month, .day], from: sleepStartDate)
                 
-                // Create a predicate to fetch heart rate samples that fall within the sleep period
-                let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartDate, end: sleepEndDate, options: .strictStartDate)
+                let sleepStartSet = Set([sleepStartComponents.year!, sleepStartComponents.month!, sleepStartComponents.day!])
                 
-                // Query the heart rate samples
-                let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
+                // Only proceed if the sleepSample is in includedDays
+                if includedDays.contains(sleepStartSet) {
                     
-                    guard let heartRateSamples = heartRateSamples as? [HKQuantitySample] else {
-                        DispatchQueue.main.async {
-                            completion(nil)
+                    // Create a predicate to fetch heart rate samples that fall within the sleep period
+                    let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartDate, end: sleepEndDate, options: .strictStartDate)
+                    
+                    // Query the heart rate samples
+                    dispatchGroup.enter()
+                    let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
+                        
+                        guard let heartRateSamples = heartRateSamples as? [HKQuantitySample] else {
+                            dispatchGroup.leave()
+                            return
                         }
-                        return
+                        
+                        // For each heart rate sample, add the heart rate to the total and increment the count
+                        for sample in heartRateSamples {
+                            totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                            count += 1
+                        }
+                        dispatchGroup.leave()
                     }
-                    
-                    // For each heart rate sample, add the heart rate to the total and increment the count
-                    for sample in heartRateSamples {
-                        totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                        count += 1
-                    }
+                    self.healthStore.execute(heartRateQuery)
                 }
-                
-                self.healthStore.execute(heartRateQuery)
             }
             
-            DispatchQueue.main.async {
+            // Wait for all heart rate queries to complete
+            dispatchGroup.notify(queue: DispatchQueue.main) {
                 if count != 0 {
                     let avgHeartRate = totalHeartRate / count
                     completion(avgHeartRate)
                 } else {
-                    // print("No heart rate samples found for the specified days during sleep hours.")
                     completion(nil)
                 }
             }
@@ -387,19 +400,30 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
+    
+    
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
-        var includedDays: [Int] = []
+        
+        // Convert dates into just the day component
+        var includedDays: [Date] = []
         for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+            let components = calendar.dateComponents([.year, .month, .day], from: date)
+            if let dayStart = calendar.date(from: components) {
+                includedDays.append(dayStart)
+            }
         }
         
-        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
-        let sleepPredicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+        // Calculate earliest and latest date in the days array
+        let earliestDate = includedDays.min() ?? Date.distantPast
         
-        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+        // Create a predicate to fetch heart rate samples within the range of the earliest and latest dates
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
+        
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
             
             guard let sleepSamples = samples as? [HKCategorySample] else {
                 DispatchQueue.main.async {
@@ -408,29 +432,25 @@ class HealthKitManager {
                 return
             }
             
+            // Sum up all of the time the user spent asleep during the time frame and divide by the number of days in the time frame.
             var totalDuration = 0.0
-            var count = 0.0
-            
             for sleepSample in sleepSamples {
-                let sampleDayComponent = calendar.component(.day, from: sleepSample.endDate)
-                if includedDays.contains(sampleDayComponent) && sleepSample.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue {
+                if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sleepSample.endDate)), includedDays.contains(sampleDayStart) {
                     let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
-                    totalDuration += duration
                     
-                    print("inside the sleep method: ", duration)
-                    
-                    if (duration > 0) {
-                        count += 1
+                    // Only include samples greater than 30 minutes (1800 seconds).
+                    if (duration > 1800) {
+                        totalDuration += duration
                     }
                 }
             }
             
             DispatchQueue.main.async {
-                if count != 0 {
-                    let avgDuration = totalDuration / count
+                if days.count != 0 {
+                    let avgDuration = totalDuration / Double(days.count)
                     completion(avgDuration)
                 } else {
-                    print("No sleep duration samples found for the specified days.")
+                    //print("No sleep duration samples found for the specified days.")
                     completion(nil)
                 }
             }

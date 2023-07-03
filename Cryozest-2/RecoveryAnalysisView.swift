@@ -56,21 +56,23 @@ class SleepViewModel: ObservableObject {
             .filter { $0.therapyType == therapyType.rawValue }
             .compactMap { $0.date }
         
+        print("fetchDataForTherapyDays ", completedSessionDates)
+        
         group.enter()
         healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: completedSessionDates) { avgHeartRate in
             if let avgHeartRate = avgHeartRate {
                 self.sleepingHeartRateTherapyDays = avgHeartRate
             }
+            group.leave()
         }
-        group.leave()
         
         group.enter()
         healthKitManager.fetchAvgSleepDurationForDays(days: completedSessionDates) { avgSleep in
             if let avgSleep = avgSleep {
                 self.avgSleepDurationTherapyDays = Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
             }
+            group.leave()
         }
-        group.leave()
     }
     
     private func fetchDataNonTherapyDays(group: DispatchGroup) {
@@ -83,16 +85,16 @@ class SleepViewModel: ObservableObject {
             if let avgHeartRate = avgHeartRate {
                 self.sleepingHeartRateNonTherapyDays = avgHeartRate
             }
+            group.leave()
         }
-        group.leave()
         
         group.enter()
         healthKitManager.fetchAvgSleepDurationForDays(days: nonTherapyDates) { avgSleep in
             if let avgSleep = avgSleep {
                 self.avgSleepDurationNonTherapyDays =  Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
             }
+            group.leave()
         }
-        group.leave()
     }
 }
 

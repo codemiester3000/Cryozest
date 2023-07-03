@@ -100,11 +100,6 @@ struct AnalysisView: View {
                 endPoint: .bottom
             )
         )
-        .onAppear {
-            if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
-                self.therapyTypeSelection.selectedTherapyType = therapyType
-            }
-        }
         .navigationTitle("Analysis")
     }
     
