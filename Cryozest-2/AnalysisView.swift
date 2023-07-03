@@ -31,7 +31,6 @@ struct AnalysisView: View {
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
-    @State private var therapyType: TherapyType = .drySauna
     @State private var selectedTimeFrame: TimeFrame = .week
     
     private let dateFormatter: DateFormatter = {
@@ -78,12 +77,12 @@ struct AnalysisView: View {
                 // HRVAnalysisView()
                 
                 DurationAnalysisView(
-                    totalTime: getTotalTime(for: therapyType),
-                    totalSessions: getTotalSessions(for: therapyType),
+                    totalTime: getTotalTime(for: therapyTypeSelection.selectedTherapyType),
+                    totalSessions: getTotalSessions(for: therapyTypeSelection.selectedTherapyType),
                     timeFrame: selectedTimeFrame,
                     therapyType: self.therapyTypeSelection.selectedTherapyType,
-                    currentStreak: getCurrentStreak(for: therapyType),
-                    longestStreak: getLongestStreak(for: therapyType), // Assuming you have a function to get the longest streak
+                    currentStreak: getCurrentStreak(for: therapyTypeSelection.selectedTherapyType),
+                    longestStreak: getLongestStreak(for: therapyTypeSelection.selectedTherapyType), // Assuming you have a function to get the longest streak
                     sessions: sessions
                 )
                 .padding(.horizontal)
@@ -103,7 +102,7 @@ struct AnalysisView: View {
         )
         .onAppear {
             if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
-                self.therapyType = therapyType
+                self.therapyTypeSelection.selectedTherapyType = therapyType
             }
         }
         .navigationTitle("Analysis")

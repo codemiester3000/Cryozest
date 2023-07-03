@@ -53,8 +53,6 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
-    // @State private var therapyType: TherapyType = .drySauna
-    @State private var isRunning = false
     @State private var averageHeartRate: Double = 0.0
     @State private var minHeartRate: Double = 1000.0
     @State private var maxHeartRate: Double = 0.0
