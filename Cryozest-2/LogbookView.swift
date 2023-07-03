@@ -102,7 +102,7 @@ struct LogbookView: View {
                         } else {
                             // Iterate over the sorted sessions
                             ForEach(sortedSessions, id: \.self) { session in
-                                SessionRow(session: session)
+                                SessionRow(session: session, therapyTypeSelection: therapyTypeSelection)
                                     .foregroundColor(.white)
                             }
                         }

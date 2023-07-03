@@ -28,10 +28,10 @@ struct CalendarView: UIViewRepresentable {
         calendar.appearance.headerTitleFont = UIFont.boldSystemFont(ofSize: 18)
         
         // Hide weekdays
-        calendar.weekdayHeight = 0.1
-        
+        // calendar.weekdayHeight = 0.1
         // Set todayColor to clear
         // calendar.appearance.todayColor = .clear
+        calendar.appearance.weekdayTextColor = .magenta
         
         // Hide out-of-month dates
         calendar.placeholderType = .none

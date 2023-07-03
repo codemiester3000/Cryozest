@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SessionRow: View {
     var session: TherapySessionEntity
+    var therapyTypeSelection: TherapyTypeSelection
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -14,7 +15,7 @@ struct SessionRow: View {
                 Text(session.therapyType ?? "")
                     .font(.system(size: 20, design: .monospaced))
                     .fontWeight(.bold)
-                    .foregroundColor(.orange)
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                     .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             }
             
@@ -73,7 +74,7 @@ struct SessionRow: View {
         return HStack {
             if Double(roundedValue) != maxValue {
                 Image(systemName: "heart.fill")
-                    .foregroundColor(.orange)
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                     .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
                 Text("\(title): \(roundedValue) bpm")
                     .font(.system(size: 16, design: .monospaced))
