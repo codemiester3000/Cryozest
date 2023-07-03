@@ -9,7 +9,7 @@ struct TherapyTypeGrid: View {
     
     let selectedTherapyTypes: [TherapyType]
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
-
+    
     var body: some View {
         LazyVGrid(columns: gridItems, spacing: 10) {
             ForEach(selectedTherapyTypes, id: \.self) { therapyType in
@@ -35,6 +35,11 @@ struct TherapyTypeGrid: View {
         .padding(.horizontal, 10)
         .padding(.bottom, 8)
         .padding(.top, 8)
+        .onAppear {
+            if !selectedTherapyTypes.contains(therapyTypeSelection.selectedTherapyType) {
+                therapyTypeSelection.selectedTherapyType = selectedTherapyTypes.first ?? .drySauna
+            }
+        }
     }
 }
 

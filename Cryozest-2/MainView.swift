@@ -53,7 +53,7 @@ struct MainView: View {
     @State private var alertMessage: String = ""
     @State private var showLogbook: Bool = false
     @State private var showSessionSummary: Bool = false
-    @State private var therapyType: TherapyType = .drySauna
+    // @State private var therapyType: TherapyType = .drySauna
     @State private var isRunning = false
     @State private var averageHeartRate: Double = 0.0
     @State private var minHeartRate: Double = 1000.0
@@ -153,7 +153,7 @@ struct MainView: View {
                 NavigationLink(
                     destination: SessionSummary(
                         duration: timerDuration,
-                        therapyType: $therapyType,
+                        therapyType: $therapyTypeSelection.selectedTherapyType,
                         averageHeartRate: averageHeartRate,
                         averageSpo2: averageSpo2,
                         averageRespirationRate: averageRespirationRate,
@@ -189,11 +189,6 @@ struct MainView: View {
                 } catch {
                     // Handle the error appropriately
                     print("Failed to save new timers: \(error)")
-                }
-                
-                // On first load always have the first therapyType selected.
-                if let firstTherapy = selectedTherapyTypes.first {
-                    therapyType = firstTherapy
                 }
                 
                 HealthKitManager.shared.requestAuthorization { success, error in

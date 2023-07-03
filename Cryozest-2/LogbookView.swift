@@ -27,28 +27,22 @@ struct LogbookView: View {
         }
     }
     
-    @State private var therapyType: TherapyType = .drySauna
     @State private var sessionDates = [Date]()
     
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
-        if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
-            _therapyType = State(initialValue: therapyType)
-        } else {
-            _therapyType = State(initialValue: .drySauna)
-        }
     }
     
     private var sortedSessions: [TherapySessionEntity] {
-        let therapyTypeSessions = sessions.filter { $0.therapyType == therapyType.rawValue }
+        let therapyTypeSessions = sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
         return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
     }
     
     private func updateSessionDates() {
         self.sessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
+            .filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
             .compactMap { $0.date }
     }
     
@@ -93,7 +87,7 @@ struct LogbookView: View {
                         }
                         
                         
-                        CalendarView(sessionDates: $sessionDates, therapyType: $therapyType)
+                        CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                             .background(Color(UIColor.darkGray))
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
@@ -117,10 +111,10 @@ struct LogbookView: View {
                     .padding(.bottom, 12)
                 }
                 .onAppear {
-                    if let firstTherapy = selectedTherapies.first, let therapyType = TherapyType(rawValue: firstTherapy.therapyType ?? "") {
-                        self.therapyType = therapyType
-                        updateSessionDates()
-                    }
+                    updateSessionDates()
+                }
+                .onChange(of: therapyTypeSelection.selectedTherapyType) { _ in
+                    updateSessionDates()
                 }
             }
             .background(
