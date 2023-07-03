@@ -33,6 +33,7 @@
 		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
 		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
 		C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */; };
+		C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B6FD7E2A53586F00933029 /* DateUtils.swift */; };
 		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
 		C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */; };
 		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
@@ -92,6 +93,7 @@
 		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
 		C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeGrid.swift; sourceTree = "<group>"; };
+		C5B6FD7E2A53586F00933029 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
 		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BD2A43D0E300BCB3DF /* HeartRateAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateAnalysisView.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
 				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
+				C5B6FD7E2A53586F00933029 /* DateUtils.swift */,
 				0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */,
 				C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */,
 				C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */,
@@ -373,6 +376,7 @@
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
+				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
 				C53190592A491F7C0029653B /* HRVAnalysisView.swift in Sources */,
 			);
