@@ -210,10 +210,9 @@ class HealthKitManager {
         
         // Calculate earliest and latest date in the days array
         let earliestDate = includedDays.min() ?? Date.distantPast
-        let latestDate = includedDays.max() ?? Date.distantFuture
         
         // Create a predicate to fetch heart rate samples within the range of the earliest and latest dates
-        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: latestDate, options: .strictStartDate)
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
         
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         
@@ -272,10 +271,9 @@ class HealthKitManager {
         
         // Calculate earliest and latest date in the days array
         let earliestDate = includedDays.min() ?? Date.distantPast
-        let latestDate = includedDays.max() ?? Date.distantFuture
         
         // Create a predicate to fetch heart rate samples within the range of the earliest and latest dates
-        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: latestDate, options: .strictStartDate)
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
         
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         

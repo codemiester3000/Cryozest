@@ -81,9 +81,9 @@ class HeartRateViewModel: ObservableObject {
     }
     
     private func fetchrestingHeartRateTherapyDays(group: DispatchGroup) {
-        let completedSessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { $0.date }
+        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
+        
+        print("fetchrestingHeartRateTherapyDays ", completedSessionDates)
         
         group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
