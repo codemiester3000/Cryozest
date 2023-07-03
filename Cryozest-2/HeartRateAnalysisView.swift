@@ -109,36 +109,12 @@ class HeartRateViewModel: ObservableObject {
     }
     
     private func fetchrestingHeartRateNonTherapyDays(group: DispatchGroup) {
-        let completedSessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { $0.date }
-        
-        // Get the dates for the last month.
-        let calendar = Calendar.current
-        let dateOneMonthAgo = calendar.date(byAdding: .month, value: -1, to: Date())!
-        
-        let numberOfDays: Int
-        switch timeFrame {
-        case .week:
-            numberOfDays = 7
-        case .month:
-            numberOfDays = 30
-        case .allTime:
-            numberOfDays = 365
-        }
-        
-        // Exclude completedSessionDates from the last month's dates.
-        var lastMonthDates = [Date]()
-        for day in 0..<numberOfDays {
-            if let date = calendar.date(byAdding: .day, value: -day, to: Date()),
-               !completedSessionDates.contains(date),
-               date >= dateOneMonthAgo {
-                lastMonthDates.append(date)
-            }
-        }
+        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
+        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
+        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
         
         group.enter()
-        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: lastMonthDates) { fetchedAvgHeartRateExcluding in
+        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: nonTherapyDates) { fetchedAvgHeartRateExcluding in
             if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
                 self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
                 self.calculateRestingHRDifference()
@@ -149,7 +125,7 @@ class HeartRateViewModel: ObservableObject {
         }
         
         group.enter()
-        HealthKitManager.shared.fetchAvgHeartRateForDays(days: lastMonthDates) { avgHeartRateExcluding in
+        HealthKitManager.shared.fetchAvgHeartRateForDays(days: nonTherapyDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
                 self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
                 self.calculateAvgHRDifference()
