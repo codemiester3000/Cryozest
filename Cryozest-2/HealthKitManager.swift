@@ -328,10 +328,9 @@ class HealthKitManager {
         
         // Calculate earliest and latest date in the days array
         let earliestDate = days.min() ?? Date.distantPast
-        let latestDate = days.max() ?? Date.distantFuture
         
         // Create a predicate to fetch sleep samples within the range of the earliest and latest dates
-        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: latestDate, options: .strictStartDate)
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
         
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
         

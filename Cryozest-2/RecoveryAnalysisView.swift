@@ -52,9 +52,7 @@ class SleepViewModel: ObservableObject {
     }
     
     private func fetchDataForTherapyDays(group: DispatchGroup) {
-        let completedSessionDates = sessions
-            .filter { $0.therapyType == therapyType.rawValue }
-            .compactMap { $0.date }
+        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         
         print("fetchDataForTherapyDays ", completedSessionDates)
         
@@ -144,7 +142,7 @@ struct RecoveryAnalysisView: View {
                             .foregroundColor(.white)
                             .padding(.leading, 10)
                         Spacer()
-                        Text("\(viewModel.avgSleepDurationTherapyDays, specifier: "%.1f") Hrs")
+                        Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
@@ -158,7 +156,7 @@ struct RecoveryAnalysisView: View {
                             .foregroundColor(.white)
                             .padding(.leading, 10)
                         Spacer()
-                        Text("\(viewModel.avgSleepDurationNonTherapyDays, specifier: "%.1f") Hrs")
+                        Text((viewModel.avgSleepDurationNonTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationNonTherapyDays) + " Hrs" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -181,7 +179,7 @@ struct RecoveryAnalysisView: View {
                             .foregroundColor(.white)
                             .padding(.leading, 10)
                         Spacer()
-                        Text("\(viewModel.sleepingHeartRateTherapyDays, specifier: "%.1f") BPM")
+                        Text((viewModel.sleepingHeartRateTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateTherapyDays) + " BPM" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
@@ -195,9 +193,8 @@ struct RecoveryAnalysisView: View {
                             .foregroundColor(.white)
                             .padding(.leading, 10)
                         Spacer()
-                        Text("\(viewModel.sleepingHeartRateNonTherapyDays, specifier: "%.1f") BPM")
+                        Text((viewModel.sleepingHeartRateNonTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateNonTherapyDays) + " BPM" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
