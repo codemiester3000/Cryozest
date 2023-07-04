@@ -29,7 +29,7 @@ struct TherapyTypeSelectionView: View {
                     .font(.headline)
                     .foregroundColor(.white)
                     .scaleEffect(1.3)
-                    .padding(.bottom, 12)
+                    .padding(.vertical, 12)
                 
                 ScrollView {
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
