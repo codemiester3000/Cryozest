@@ -22,14 +22,14 @@ struct WelcomeView: View {
                 Spacer()
             }
             
-            // Content overlayr
+            // Content overlay
             VStack(spacing: 1) {
                 Spacer()
                 Image("TestLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 250) // adjust this to change the logo size
-                    .padding(.vertical, 20)
+                    .padding(.vertical, 30)
                 
                 
                 Text("Welcome to CryoZest")
@@ -37,26 +37,37 @@ struct WelcomeView: View {
                     .fontWeight(.heavy)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
-                    .padding(.vertical, 30)
-                
-                Text("We believe that health and wellbeing should be backed by solid data. We champion a data-centric approach to unlock and enhance your potential")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                    .padding(.vertical, 30)
-                
-                Text("Cryozest pairs with your Apple Watch, transforming your activities and therapies into data-driven wellness recommendations that are tailor-made for you")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                    .padding(.vertical, 1)
                 
                 Spacer()
                 
-                Text("Ready to begin your path to optimized health?")
+                Text("Where data drives wellness, enabling a healthier, data-informed you")
+                    .font(.system(size: 17)) // replace 20 with your desired font size
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .padding(.vertical, 1)
+                
+//                Text("Track therapies, compare to your baseline metrics, and discover the impact on your health - all through smart analysis.")
+//                    .font(.subheadline)
+//                    .foregroundColor(.white)
+//                    .multilineTextAlignment(.center)
+//                    .padding(.horizontal)
+//                    .padding(.vertical, 30)
+//
+                Spacer()
+
+                Text("Track therapies while tapping into your Apple Watch data. Our smart system crafts personalized wellness guidance by comparing current progress to baseline health metrics, revealing impactful health insights")
+                    .font(.system(size: 17)) // replace 20 with your desired font size
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                Spacer()
+
+                
+                Text("Start a health journey with privacy ensured - no data stored, ever")
                     .font(.headline)
-                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                 
@@ -89,4 +100,3 @@ struct WelcomeView: View {
         }
     }
 }
-
