@@ -429,25 +429,25 @@ class HealthKitManager {
                 return
             }
             
-            // Sum up all of the time the user spent asleep during the time frame and divide by the number of days in the time frame.
+            // Sum up all of the time the user spent asleep during the time frame.
             var totalDuration = 0.0
+            var sampleDays = Set<Date>()
             for sleepSample in sleepSamples {
                 if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sleepSample.endDate)), includedDays.contains(sampleDayStart) {
                     let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
                     
-                    // Only include samples greater than 30 minutes (1800 seconds).
-                    if (duration > 1800) {
+                    if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
                         totalDuration += duration
+                        sampleDays.insert(sampleDayStart)
                     }
                 }
             }
             
             DispatchQueue.main.async {
-                if days.count != 0 {
-                    let avgDuration = totalDuration / Double(days.count)
+                if !sampleDays.isEmpty {
+                    let avgDuration = totalDuration / Double(sampleDays.count)
                     completion(avgDuration)
                 } else {
-                    //print("No sleep duration samples found for the specified days.")
                     completion(nil)
                 }
             }
@@ -455,6 +455,7 @@ class HealthKitManager {
         
         healthStore.execute(sleepQuery)
     }
+
     
     
     func fetchAvgHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
