@@ -150,7 +150,7 @@ struct MainView: View {
                 }
                 NavigationLink(
                     destination: SessionSummary(
-                        duration: timerDuration,
+                        duration: timerDuration == 0 ? initialTimerDuration : timerDuration,
                         therapyType: $therapyTypeSelection.selectedTherapyType,
                         averageHeartRate: averageHeartRate,
                         averageSpo2: averageSpo2,
@@ -224,7 +224,7 @@ struct MainView: View {
                 } else {
                     // Timer was not running
                     self.timerStartDate = nil
-                    self.timerDuration = 0
+                    // self.timerDuration = 0
                 }
                 
             case .inactive, .background:
