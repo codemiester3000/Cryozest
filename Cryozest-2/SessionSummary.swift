@@ -19,6 +19,10 @@ struct SessionSummary: View {
     @State private var waterLoss: Double = 0.0
     @State private var hydrationSuggestion: Double = 0.0
     
+    private var hasHealthData: Bool {
+        return averageHeartRate != 0 && minHeartRate != 1000 && maxHeartRate != 0
+    }
+    
     let healthKitManager = HealthKitManager.shared
     
     @Environment(\.presentationMode) var presentationMode
@@ -134,15 +138,21 @@ struct SessionSummary: View {
             .padding(.bottom, 26)
         }
         .onAppear {
-            HealthKitManager.shared.fetchMostRecentBodyMass { fetchedBodyWeight in
-                if let fetchedBodyWeight = fetchedBodyWeight {
-                    self.bodyWeight = fetchedBodyWeight
-                } else {
-                    // If fetch fails, bodyWeight stays at 150
-                }
+            fetchBodyWeight()
+        }
+    }
+    
+    func fetchBodyWeight() {
+        HealthKitManager.shared.fetchMostRecentBodyMass { fetchedBodyWeight in
+            if let fetchedBodyWeight = fetchedBodyWeight {
+                self.bodyWeight = fetchedBodyWeight
+            } else {
+                // Set a default value for bodyWeight when the fetch fails
+                self.bodyWeight = 150
             }
         }
     }
+    
     
     func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
         let hours = seconds / 3600
@@ -166,7 +176,13 @@ struct SessionSummary: View {
         newSession.bodyWeight = bodyWeight
         
         do {
-            try viewContext.save()
+            do {
+                try viewContext.save()
+                presentationMode.wrappedValue.dismiss()
+            } catch {
+                // Handle the error here, e.g., display an error message or log the error
+                print("Failed to save session: \(error.localizedDescription)")
+            }
         } catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
@@ -180,7 +196,7 @@ struct SessionSummary: View {
     }
     
     private func NoHealthDataAvailble() -> Bool {
-        return averageHeartRate == 0 && minHeartRate == 1000 && maxHeartRate == 0
+        return averageHeartRate == 0 || minHeartRate == 1000 || maxHeartRate == 0
     }
     
     struct NoHealthDataView: View {
@@ -340,7 +356,7 @@ struct SessionSummary: View {
             .padding(.horizontal)
         }
     }
-     
+    
     struct TemperatureView: View {
         @State var showTemperaturePicker = false
         @Binding var temperature: Int
@@ -467,7 +483,7 @@ struct SessionSummary: View {
             .padding(.horizontal)
         }
     }
-
+    
     
     
     struct HydrationSuggestionView: View {
@@ -479,6 +495,10 @@ struct SessionSummary: View {
         var bodyWeight: Double
         
         private func calculateWaterLoss() -> Double {
+            guard bodyWeight != 0 else {
+                return 0.0 // or handle the error case appropriately
+            }
+            
             let durationInHours = totalDurationInSeconds / 3600.0
             let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
             let waterLossPerHour = 0.5 + temperatureAdjustment
@@ -509,16 +529,16 @@ struct SessionSummary: View {
     struct CalorieLossEstimationView: View {
         @State var showCalorieLossEstimation = false
         @State var calorieLoss: Double = 0.0
-
+        
         var totalDurationInSeconds: TimeInterval
         var temperature: Int
         var bodyWeight: Double
         var therapyType: TherapyType
-
+        
         private func calculateCalorieLoss() -> Double {
             let durationInMinutes = totalDurationInSeconds / 60.0
             let burnRatePerMinute: Double
-
+            
             switch therapyType {
             case .drySauna:
                 burnRatePerMinute = 0.89 * bodyWeight / 150.0 // 0.42 is a base rate assuming a reference weight of 150 lbs
@@ -545,24 +565,24 @@ struct SessionSummary: View {
             case .sleep:
                 burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             }
-
+            
             let tempAdjustmentFactor: Double
             if temperature > 70 {
                 tempAdjustmentFactor = Double(temperature - 70) * 0.02
             } else {
                 tempAdjustmentFactor = 1.0
             }
-
+            
             let calorieLoss = durationInMinutes * burnRatePerMinute * tempAdjustmentFactor
             return calorieLoss
         }
-
-
-
+        
+        
+        
         var body: some View {
             let formattedCalorieLoss = calculateCalorieLoss()
             let roundedCalorieLoss = Int(ceil(formattedCalorieLoss))
-
+            
             HStack {
                 Image(systemName: "flame.fill")
                     .foregroundColor(.red)
@@ -577,5 +597,5 @@ struct SessionSummary: View {
             .padding(.horizontal)
         }
     }
-
+    
 }

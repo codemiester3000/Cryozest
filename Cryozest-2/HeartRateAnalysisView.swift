@@ -178,7 +178,7 @@ struct AvgHeartRateComparisonView: View {
                     if heartRateViewModel.restingHeartRateDifference != 0 || heartRateViewModel.avgHeartRateDifference != 0 {
                         HStack {
                             Text("On \(heartRateViewModel.therapyType.rawValue) days")
-                                .foregroundColor(Color(red: 0.6, green: 0.0, blue: 0.6))
+                                .foregroundColor(.white)
                                 .font(.system(size: 16, weight: .bold, design: .default))
                             Spacer()
                         }

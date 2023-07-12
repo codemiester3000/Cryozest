@@ -150,7 +150,7 @@ struct MainView: View {
                 }
                 NavigationLink(
                     destination: SessionSummary(
-                        duration: timerDuration == 0 ? initialTimerDuration : timerDuration,
+                        duration: timerDuration <= 0 ? initialTimerDuration : timerDuration,
                         therapyType: $therapyTypeSelection.selectedTherapyType,
                         averageHeartRate: averageHeartRate,
                         averageSpo2: averageSpo2,
@@ -223,8 +223,8 @@ struct MainView: View {
                     self.timerDuration = remainingTime
                 } else {
                     // Timer was not running
-                    self.timerStartDate = nil
-                    // self.timerDuration = 0
+                    // self.timerStartDate = nil
+                    self.timerDuration = 0
                 }
                 
             case .inactive, .background:
@@ -281,6 +281,11 @@ struct MainView: View {
                 timerLabel = String(format: "%02d:%02d", minutes, seconds)
             }
         } else { // Timer is running (shows 'stop').
+            
+            
+            pullHealthData()
+            
+            
             timer?.invalidate()
             timer = nil
             healthDataTimer?.invalidate()
@@ -297,7 +302,7 @@ struct MainView: View {
     }
     
     func pullHealthData() {
-        let startDate = timerStartDate!
+        guard let startDate = timerStartDate else { return }
         let endDate = Date()
 
         HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
@@ -312,7 +317,6 @@ struct MainView: View {
     }
     
     func showSummary() {
-        pullHealthData()
         withAnimation {
             showSessionSummary = true
         }
