@@ -262,10 +262,7 @@ struct MainView: View {
             }
             
             timerStartDate = Date()
-            pullHealthData()
-            
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                
                 if self.countDown {
                     timerDuration -= 1
                     if timerDuration <= 0 {
@@ -279,8 +276,6 @@ struct MainView: View {
                 } else {
                     timerDuration = Date().timeIntervalSince(timerStartDate!)
                 }
-                
-                // timerDuration = Date().timeIntervalSince(timerStartDate!)
                 let minutes = Int(timerDuration) / 60
                 let seconds = Int(timerDuration) % 60
                 timerLabel = String(format: "%02d:%02d", minutes, seconds)
@@ -302,23 +297,22 @@ struct MainView: View {
     }
     
     func pullHealthData() {
-        healthDataTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            let startDate = timerStartDate!
-            let endDate = Date()
-            
-            HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
-                if let healthData = healthData {
-                    averageHeartRate = healthData.avgHeartRate  // This line was changed
-                    averageSpo2 = healthData.avgSpo2
-                    averageRespirationRate = healthData.avgRespirationRate
-                    minHeartRate = healthData.minHeartRate
-                    maxHeartRate = healthData.maxHeartRate
-                }
+        let startDate = timerStartDate!
+        let endDate = Date()
+
+        HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
+            if let healthData = healthData {
+                averageHeartRate = healthData.avgHeartRate  // This line was changed
+                averageSpo2 = healthData.avgSpo2
+                averageRespirationRate = healthData.avgRespirationRate
+                minHeartRate = healthData.minHeartRate
+                maxHeartRate = healthData.maxHeartRate
             }
         }
     }
     
     func showSummary() {
+        pullHealthData()
         withAnimation {
             showSessionSummary = true
         }

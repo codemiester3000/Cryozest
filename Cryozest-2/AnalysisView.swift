@@ -74,18 +74,7 @@ struct AnalysisView: View {
             .padding(.horizontal)
             
             ScrollView {
-                // HRVAnalysisView()
-                
-                DurationAnalysisView(
-                    totalTime: getTotalTime(for: therapyTypeSelection.selectedTherapyType),
-                    totalSessions: getTotalSessions(for: therapyTypeSelection.selectedTherapyType),
-                    timeFrame: selectedTimeFrame,
-                    therapyType: self.therapyTypeSelection.selectedTherapyType,
-                    currentStreak: getCurrentStreak(for: therapyTypeSelection.selectedTherapyType),
-                    longestStreak: getLongestStreak(for: therapyTypeSelection.selectedTherapyType), // Assuming you have a function to get the longest streak
-                    sessions: sessions
-                )
-                .padding(.horizontal)
+                DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
                 
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
@@ -196,77 +185,5 @@ enum TimeFrame {
         case .allTime:
             return "Last Year"
         }
-    }
-}
-
-struct StreakCalendarView: View {
-    var therapySessions: [TherapySessionEntity]
-    var therapyType: TherapyType
-    
-    let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        return formatter
-    }()
-    
-    var body: some View {
-        HStack() {
-            ForEach(getDaysArray(), id: \.self) { day in
-                VStack {
-                    Text(day)
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
-                    Circle()
-                        .fill(getColorForDate(date: dateFromDay(day: day, daysInWeek: getDaysArray())))
-                        .frame(width: 10, height: 10)
-                }
-            }
-        }
-    }
-    
-    private func getColorForDate(date: Date) -> Color {
-        if isDateInFuture(date: date) {
-            return Color.gray
-        } else if didHaveTherapyOnDate(date: date) {
-            return therapyType.color
-        } else {
-            return Color.gray
-        }
-    }
-    
-    private func didHaveTherapyOnDate(date: Date) -> Bool {
-        return therapySessions.contains(where: { session in
-            guard let sessionDate = session.date else {
-                return false
-            }
-            
-            let sessionDay = Calendar.current.startOfDay(for: sessionDate)
-            let checkDay = Calendar.current.startOfDay(for: date)
-            
-            return Calendar.current.isDate(sessionDay, inSameDayAs: checkDay) && session.therapyType == therapyType.rawValue
-        })
-    }
-    
-    private func getDaysArray() -> [String] {
-        let daysInWeek = Calendar.current.shortWeekdaySymbols
-        let today = Calendar.current.component(.weekday, from: Date())
-        var lastSevenDays = [String]()
-        
-        for i in 0..<7 {
-            let index = (today - i - 1 + 7) % 7
-            lastSevenDays.insert(daysInWeek[index], at: 0)
-        }
-        
-        return lastSevenDays
-    }
-    
-    private func dateFromDay(day: String, daysInWeek: [String]) -> Date {
-        let index = daysInWeek.firstIndex(of: day)! - 6
-        return Calendar.current.date(byAdding: .day, value: index, to: Date())!
-    }
-    
-    private func isDateInFuture(date: Date) -> Bool {
-        return date > Date()
     }
 }
