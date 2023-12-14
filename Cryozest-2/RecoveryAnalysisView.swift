@@ -112,7 +112,6 @@ struct RecoveryAnalysisView: View {
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .padding(.bottom, 10)
                 
                 Text(viewModel.timeFrame.displayString())
                     .font(.subheadline)
@@ -122,7 +121,6 @@ struct RecoveryAnalysisView: View {
                     .padding(.vertical, 4)
                     .background(viewModel.therapyType.color)
                     .cornerRadius(8)
-                    .padding(.bottom, 10)
                 
                 Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 10)
                     
@@ -132,14 +130,20 @@ struct RecoveryAnalysisView: View {
                         Text("Avg Sleep Duration")
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.darkBackground)
                         Spacer()
                     }
                     HStack {
-                        Text("On \(viewModel.therapyType.rawValue) Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("On \(viewModel.therapyType.rawValue) Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -150,10 +154,16 @@ struct RecoveryAnalysisView: View {
 //                    .background(viewModel.therapyType.color.opacity(0.2))
 //                    .cornerRadius(15) // Adds rounded corners
                     HStack {
-                        Text("Off Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("Off Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text((viewModel.avgSleepDurationNonTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationNonTherapyDays) + " Hrs" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -163,7 +173,7 @@ struct RecoveryAnalysisView: View {
                     }
                 }
                 
-                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 10)
+                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 4)
                 
                 // Heart Rate Data
                 VStack {
@@ -171,14 +181,20 @@ struct RecoveryAnalysisView: View {
                         Text("Avg Sleeping HR")
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.darkBackground)
                         Spacer()
                     }
                     HStack {
-                        Text("On \(viewModel.therapyType.rawValue) Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("On \(viewModel.therapyType.rawValue) Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text((viewModel.sleepingHeartRateTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateTherapyDays) + " BPM" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -189,10 +205,16 @@ struct RecoveryAnalysisView: View {
 //                    .background(viewModel.therapyType.color.opacity(0.2))
 //                    .cornerRadius(15) // Adds rounded corners
                     HStack {
-                        Text("Off Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("Off Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text((viewModel.sleepingHeartRateNonTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateNonTherapyDays) + " BPM" : "N/A"))
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -206,7 +228,7 @@ struct RecoveryAnalysisView: View {
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
 //            .background(Color(.darkGray).opacity(0.95))
             .cornerRadius(16)
-            .padding(.horizontal)
+//            .padding(.horizontal)
             .transition(.opacity) // The view will fade in when it appears
             .animation(.easeIn)
         }

@@ -213,10 +213,17 @@ struct AvgHeartRateComparisonView: View {
                     }
                     
                     HStack {
-                        Text("On \(heartRateViewModel.therapyType.rawValue) Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
+                       
                         Spacer()
                         Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -228,10 +235,16 @@ struct AvgHeartRateComparisonView: View {
 //                    .cornerRadius(15) // Adds rounded corners
                     
                     HStack {
-                        Text("Off Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("Off Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -256,10 +269,16 @@ struct AvgHeartRateComparisonView: View {
                     }
                     
                     HStack {
-                        Text("On \(heartRateViewModel.therapyType.rawValue) Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -271,10 +290,17 @@ struct AvgHeartRateComparisonView: View {
 //                    .cornerRadius(15) // Adds rounded corners
                     
                     HStack {
-                        Text("Off Days")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.leading, 10)
+                        HStack {
+                            Image(systemName: "heart")
+                                .foregroundColor(.red)
+                                .padding(.leading, 10)
+                            
+                            Text("Off Days")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.leading, 10)
+                        }
+
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -289,7 +315,7 @@ struct AvgHeartRateComparisonView: View {
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
             //.background(Color(.darkGray).opacity(0.7))
             .cornerRadius(16)
-            .padding(.horizontal)
+//            .padding(.horizontal)
             .transition(.opacity) // The view will fade in when it appears
             .animation(.easeIn)
         }

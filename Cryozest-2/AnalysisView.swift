@@ -75,7 +75,9 @@ struct AnalysisView: View {
                 .padding(.bottom, 16)
                 .padding(.horizontal)
                 
-                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
+                Divider()
+                    .background(Color.black.opacity(0.8))
+                    .padding(.vertical, 8)
                 
                 DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
                 
