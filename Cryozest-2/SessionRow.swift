@@ -1,57 +1,72 @@
 import SwiftUI
+import HealthKit
 
 struct SessionRow: View {
     var session: TherapySessionEntity
     var therapyTypeSelection: TherapyTypeSelection
 
+    @State private var averageHeartRateForDay: Double? = nil
+    @State private var averageHRVForDay: Double? = nil
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text(formattedDate)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.headline)
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
                 Spacer()
                 Text(session.therapyType ?? "")
-                    .font(.system(size: 20, design: .monospaced))
-                    .fontWeight(.bold)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             }
             
-            HStack {
-                Text("\(formattedDuration)")
-                    .font(.system(size: 16, design: .rounded))
+            Divider().background(Color.white.opacity(0.8))
+
+            // Displaying average heart rate for the day
+            if let avgHeartRate = averageHeartRateForDay {
+                Text("Average Heart Rate for the Day: \(Int(avgHeartRate)) bpm")
+                    .font(.subheadline)
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                Divider().background(Color.white.opacity(0.8))
+            }
+
+            // Displaying average HRV for the day
+            if let avgHRV = averageHRVForDay {
+                Text("Average HRV for the Day: \(String(format: "%.2f", avgHRV)) ms")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Divider().background(Color.white.opacity(0.8))
+            }
+
+            HStack {
+                Label("\(formattedDuration)", systemImage: "clock")
+                    .foregroundColor(.white)
                 Spacer()
                 Text("\(Int(session.temperature))°F")
-                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             }
             
-            // Health Metrics
-            VStack(alignment: .leading, spacing: 10) {
-                if session.averageHeartRate > 0 {
-                    HeartRateView(title: "Average Heart Rate", value: session.averageHeartRate)
-                }
-                if session.minHeartRate > 0 {
-                    HeartRateView(title: "Min Heart Rate", value: session.minHeartRate, maxValue: 1000)
-                }
-                if session.maxHeartRate > 0 {
-                    HeartRateView(title: "Max Heart Rate", value: session.maxHeartRate)
-                }
+            Divider().background(Color.white.opacity(0.8))
+
+            VStack(alignment: .leading, spacing: 8) {
+                HeartRateView(title: "Average Heart Rate", value: session.averageHeartRate)
+                HeartRateView(title: "Min Heart Rate", value: session.minHeartRate, maxValue: 1000)
+                HeartRateView(title: "Max Heart Rate", value: session.maxHeartRate)
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 24)
-        .padding(.bottom, 16)
+        .padding()
         .background(Color(.darkGray))
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
+        .shadow(radius: 5)
+        .onAppear {
+            loadAverageHeartRate()
+            loadAverageHRV()
+        }
     }
-    
+
     private var formattedDate: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -68,7 +83,7 @@ struct SessionRow: View {
             return "\(minutes) mins \(seconds) secs"
         }
     }
-    
+
     private func HeartRateView(title: String, value: Double, maxValue: Double = 0) -> some View {
         let roundedValue = Int((value * 10).rounded() / 10)
         return HStack {
@@ -81,6 +96,20 @@ struct SessionRow: View {
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             }
+        }
+    }
+
+    private func loadAverageHeartRate() {
+        guard let sessionDate = session.date else { return }
+        HealthKitManager.shared.fetchAvgHeartRateForDays(days: [sessionDate]) { averageHeartRate in
+            self.averageHeartRateForDay = averageHeartRate
+        }
+    }
+
+    private func loadAverageHRV() {
+        guard let sessionDate = session.date else { return }
+        HealthKitManager.shared.fetchAvgHRVForDays(days: [sessionDate]) { averageHRV in
+            self.averageHRVForDay = averageHRV
         }
     }
 }
