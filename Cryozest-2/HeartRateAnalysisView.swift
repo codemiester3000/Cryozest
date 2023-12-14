@@ -153,25 +153,24 @@ struct AvgHeartRateComparisonView: View {
         }
         else {
             VStack(alignment: .leading) {
-                HStack {
-                    Text("Heart Rate")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .underline()
-                    
-                    Spacer()
-                    
-                    Text(heartRateViewModel.timeFrame.displayString())
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(heartRateViewModel.therapyType.color)
-                        .cornerRadius(8)
-                }
-                .padding(.bottom, 10)
+                
+                Text("Heart Rate")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+                
+                Text(heartRateViewModel.timeFrame.displayString())
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(heartRateViewModel.therapyType.color)
+                    .cornerRadius(8)
+                    .padding(.bottom, 10)
+                
+                Divider().background(Color.darkBackground.opacity(0.8))
                 
                 VStack {
                     
@@ -209,7 +208,7 @@ struct AvgHeartRateComparisonView: View {
                         // .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.darkBackground)
                         Spacer()
                     }
                     
@@ -225,8 +224,8 @@ struct AvgHeartRateComparisonView: View {
                             .padding(.trailing, 10)
                     }
                     .padding(.vertical, 5) // Provide some space
-                    .background(heartRateViewModel.therapyType.color.opacity(0.2))
-                    .cornerRadius(15) // Adds rounded corners
+//                    .background(heartRateViewModel.therapyType.color.opacity(0.2))
+//                    .cornerRadius(15) // Adds rounded corners
                     
                     HStack {
                         Text("Off Days")
@@ -243,6 +242,8 @@ struct AvgHeartRateComparisonView: View {
                 }
                 .padding(.top, 10)
                 
+                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 2)
+                
                 // Average Heart Rate View.
                 VStack {
                     HStack {
@@ -250,7 +251,7 @@ struct AvgHeartRateComparisonView: View {
                         //.font(.system(size: 18, weight: .bold, design: .monospaced))
                             .font(.system(size: 18, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.orange)
+                            .foregroundColor(.darkBackground)
                         Spacer()
                     }
                     
@@ -266,8 +267,8 @@ struct AvgHeartRateComparisonView: View {
                             .padding(.trailing, 10)
                     }
                     .padding(.vertical, 5) // Provide some space
-                    .background(heartRateViewModel.therapyType.color.opacity(0.2)) // Different background for therapy days
-                    .cornerRadius(15) // Adds rounded corners
+//                    .background(heartRateViewModel.therapyType.color.opacity(0.2)) // Different background for therapy days
+//                    .cornerRadius(15) // Adds rounded corners
                     
                     HStack {
                         Text("Off Days")
@@ -286,7 +287,7 @@ struct AvgHeartRateComparisonView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-            .background(Color(.darkGray).opacity(0.7))
+            //.background(Color(.darkGray).opacity(0.7))
             .cornerRadius(16)
             .padding(.horizontal)
             .transition(.opacity) // The view will fade in when it appears

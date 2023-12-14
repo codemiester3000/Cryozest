@@ -106,27 +106,26 @@ struct RecoveryAnalysisView: View {
         if viewModel.isLoading {
             LoadingView()
         } else {
-            VStack {
-                HStack {
-                    Text("Recovery")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .underline()
-                    
-                    Spacer()
-                    
-                    Text(viewModel.timeFrame.displayString())
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(viewModel.therapyType.color)
-                        .cornerRadius(8)
-                }
-                .padding(.bottom, 10)
+            VStack(alignment: .leading, spacing: 16) {
                 
+                Text("Recovery")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+                
+                Text(viewModel.timeFrame.displayString())
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(viewModel.therapyType.color)
+                    .cornerRadius(8)
+                    .padding(.bottom, 10)
+                
+                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 10)
+                    
                 // Sleep data
                 VStack {
                     HStack {
@@ -148,8 +147,8 @@ struct RecoveryAnalysisView: View {
                             .padding(.trailing, 10)
                     }
                     .padding(.vertical, 5) // Provide some space
-                    .background(viewModel.therapyType.color.opacity(0.2))
-                    .cornerRadius(15) // Adds rounded corners
+//                    .background(viewModel.therapyType.color.opacity(0.2))
+//                    .cornerRadius(15) // Adds rounded corners
                     HStack {
                         Text("Off Days")
                             .font(.headline)
@@ -163,6 +162,8 @@ struct RecoveryAnalysisView: View {
                             .padding(.trailing, 10)
                     }
                 }
+                
+                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 10)
                 
                 // Heart Rate Data
                 VStack {
@@ -185,8 +186,8 @@ struct RecoveryAnalysisView: View {
                             .padding(.trailing, 10)
                     }
                     .padding(.vertical, 5) // Provide some space
-                    .background(viewModel.therapyType.color.opacity(0.2))
-                    .cornerRadius(15) // Adds rounded corners
+//                    .background(viewModel.therapyType.color.opacity(0.2))
+//                    .cornerRadius(15) // Adds rounded corners
                     HStack {
                         Text("Off Days")
                             .font(.headline)
@@ -203,7 +204,7 @@ struct RecoveryAnalysisView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-            .background(Color(.darkGray).opacity(0.95))
+//            .background(Color(.darkGray).opacity(0.95))
             .cornerRadius(16)
             .padding(.horizontal)
             .transition(.opacity) // The view will fade in when it appears

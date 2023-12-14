@@ -45,19 +45,20 @@ struct AnalysisView: View {
     
     var body: some View {
         VStack {
-            HStack {
-                Text("Analysis")
-                    .font(.system(size: 24, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .bold()
-                    .padding(.top, 36)
-                    .padding(.leading, 24)
-                
-                Spacer()
-            }
-            
             ScrollView {
+                HStack {
+                    Text("Analysis")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .bold()
+                        .padding(.top, 36)
+                        .padding(.leading, 24)
+                    
+                    Spacer()
+                }
+                
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+                    .padding(.bottom, 16)
                 
                 Picker("Time frame", selection: $selectedTimeFrame) {
                     Text("Last 7 days")
@@ -71,12 +72,18 @@ struct AnalysisView: View {
                         .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding(.bottom, 8)
+                .padding(.bottom, 16)
                 .padding(.horizontal)
+                
+                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
                 
                 DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
                 
+                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
+                
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                
+                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
                 
                 RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
             }

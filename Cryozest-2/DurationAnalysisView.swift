@@ -156,7 +156,7 @@ struct DurationAnalysisView: View {
                 Spacer()
             }
             
-            Divider().background(Color.white.opacity(0.8))
+            Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
                 Text("Completed: ")
@@ -174,7 +174,7 @@ struct DurationAnalysisView: View {
                     .cornerRadius(8)
             }
             
-            Divider().background(Color.white.opacity(0.8))
+            Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
                 Text("Time Spent: ")
@@ -192,7 +192,7 @@ struct DurationAnalysisView: View {
                     .cornerRadius(15)
             }
             
-            Divider().background(Color.white.opacity(0.8))
+            Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
                 Text("Current Streak: ")
@@ -210,7 +210,7 @@ struct DurationAnalysisView: View {
                     .cornerRadius(15)
             }
             
-            Divider().background(Color.white.opacity(0.8))
+            Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
                 Text("Longest Streak: ")
@@ -229,7 +229,7 @@ struct DurationAnalysisView: View {
             }
         }
         .padding()
-        .background(Color(.darkGray).opacity(0.95))
+        .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
         .shadow(radius: 5)
         .transition(.opacity)
