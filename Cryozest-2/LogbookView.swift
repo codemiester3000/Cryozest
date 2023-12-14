@@ -3,6 +3,8 @@ import JTAppleCalendar
 
 struct LogbookView: View {
     
+    @State private var showAddSession = false
+    
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     
     @Environment(\.managedObjectContext) private var viewContext
@@ -49,12 +51,30 @@ struct LogbookView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
-                Text("History")
-                    .font(.system(size: 24, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .bold()
-                    .padding(.top, 36)
-                    .padding(.leading, 24)
+                
+                NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
+                    EmptyView()
+                }
+
+                
+                HStack {
+                    Text("History")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .bold()
+                        .padding(.leading, 24)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .padding(.trailing, 24)
+                        .onTapGesture {
+                            showAddSession = true
+                        }
+                }
+                .padding(.top, 36)
+                
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                 

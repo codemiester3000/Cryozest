@@ -31,7 +31,7 @@ struct CalendarView: UIViewRepresentable {
         // calendar.weekdayHeight = 0.1
         // Set todayColor to clear
         // calendar.appearance.todayColor = .clear
-        calendar.appearance.weekdayTextColor = .magenta
+        calendar.appearance.weekdayTextColor = .orange
         
         // Hide out-of-month dates
         calendar.placeholderType = .none
