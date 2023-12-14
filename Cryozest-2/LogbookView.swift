@@ -67,6 +67,7 @@ struct LogbookView: View {
                     Spacer()
                     
                     Image(systemName: "plus")
+                        .font(.system(size: 30))
                         .foregroundColor(.white)
                         .padding(.trailing, 24)
                         .onTapGesture {
