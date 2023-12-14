@@ -71,22 +71,32 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("CryoZest")
-                    .font(.system(size: 40, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color.white)
-                    .padding(.top, 35)
+                //                Text("CryoZest")
+                //                    .font(.system(size: 40, weight: .bold, design: .monospaced))
+                //                    .foregroundColor(Color.white)
+                //                    .padding(.top, 25)
+                
+                HStack {
+                    Text("CryoZest")
+                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .bold()
+                        .padding(.leading, 24)
+
+                    Spacer() // This pushes the title and icon to opposite ends
+
+                    NavigationLink(destination: TherapyTypeSelectionView()) {
+                        SettingsIconView() // Use the SettingsIconView here
+                            .padding(.trailing, 25)
+                    }
+                }
+                .padding(.vertical, 28)
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    .padding(.bottom, 18)
-                
-                Text(timerLabel)
-                    .font(.system(size: 72, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-                    .background(self.therapyTypeSelection.selectedTherapyType.color)
-                    .cornerRadius(16)
                     .padding(.bottom, 28)
-                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                
+                TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
+                    .padding(.bottom, 18)
                 
                 HStack(spacing: 10) {
                     ForEach(customTimers, id: \.self) { timer in
@@ -122,28 +132,15 @@ struct MainView: View {
                     .opacity(self.timer != nil ? 0.3 : 1)
                     
                 }
-                .padding(.bottom, 28)
+                .padding(.bottom, 56)
                 
-                Button(action: startStopButtonPressed) {
-                    Text(timer == nil ? "Start" : "Stop")
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 80)
-                        .padding(.vertical, 28)
-                        .background(self.therapyTypeSelection.selectedTherapyType.color)
-                        .cornerRadius(40)
-                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                }
                 
+                StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
                 
                 Spacer()
                 
-                Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for Cyrozest to give you the full health tracking experience. Visit Settings --> Privacy --> Health to grant access.")
-                    .foregroundColor(.white)
-                    .font(.system(size: 12))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 26)
+                HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
+                    .padding(.bottom, 28)
                 
                 NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
@@ -203,9 +200,9 @@ struct MainView: View {
                 CreateTimerView()
                     .environment(\.managedObjectContext, self.viewContext)
             }
-            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
-                SettingsIconView().id(UUID())
-            })
+//            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
+//                SettingsIconView().id(UUID())
+//            })
         }
         .onChange(of: scenePhase) { newScenePhase in
             switch newScenePhase {
@@ -304,7 +301,7 @@ struct MainView: View {
     func pullHealthData() {
         guard let startDate = timerStartDate else { return }
         let endDate = Date()
-
+        
         HealthKitManager.shared.fetchHealthData(from: startDate, to: endDate) { healthData in
             if let healthData = healthData {
                 averageHeartRate = healthData.avgHeartRate  // This line was changed
@@ -334,3 +331,78 @@ extension Color {
     static let customBlue = Color(red: 30 / 255, green: 144 / 255, blue: 255 / 255)
 }
 
+struct TimerDisplayView: View {
+    @Binding var timerLabel: String
+    var selectedColor: Color
+    
+    var body: some View {
+        Text(timerLabel)
+            .font(.system(size: 72, weight: .bold, design: .monospaced)) // Changed font design to rounded
+            .foregroundColor(.white)
+            .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
+            .background(selectedColor)
+            .cornerRadius(20) // Slightly more rounded corners
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1) // Adding an overlay stroke for depth
+            )
+            .shadow(color: selectedColor.opacity(0.3), radius: 10, x: 0, y: 8) // Enhanced shadow effect
+            .animation(.easeInOut, value: selectedColor) // Smooth transition for color changes
+    }
+}
+
+struct StartStopButtonView: View {
+    var isRunning: Bool
+    var action: () -> Void
+    var selectedColor: Color
+    
+    var body: some View {
+        Button(action: action) {
+            Text(isRunning ? "Stop" : "Start")
+                .font(.system(size: 28, weight: .bold, design: .monospaced))
+                .foregroundColor(.white)
+                .padding(.horizontal, 80)
+                .padding(.vertical, 28)
+                .background(selectedColor)
+                .cornerRadius(40)
+                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+        }
+    }
+}
+
+struct HealthDataStatusView: View {
+    var isHealthDataAvailable: Bool
+    
+    var body: some View {
+        Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for CryoZest to give you the full health tracking experience. Visit Settings --> Privacy --> Health to grant access.")
+            .foregroundColor(.white)
+            .font(.system(size: 12))
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 20)
+    }
+}
+
+extension MainView {
+    func setupView() {
+        // Add default timers if no custom ones are saved
+        if customTimers.isEmpty {
+            let defaultDurations = [5, 10, 15]
+            for duration in defaultDurations {
+                let newTimer = CustomTimer(context: viewContext)
+                newTimer.duration = Int32(duration)
+            }
+            try? viewContext.save()
+        }
+        
+        // Request authorization for HealthKit
+        HealthKitManager.shared.requestAuthorization { success, _ in
+            if success {
+                HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                    isHealthDataAvailable = isAuthorized
+                }
+            } else {
+                showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+            }
+        }
+    }
+}

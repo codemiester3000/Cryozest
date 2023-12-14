@@ -20,7 +20,7 @@ struct SettingsIconView: View {
 
     var body: some View {
         HStack {
-            Spacer()
+//            Spacer()
             ZStack {
                 Circle()
                     .fill(Color.gray.opacity(0.2))
@@ -32,10 +32,8 @@ struct SettingsIconView: View {
                     .frame(width: 30, height: 30)
                     .rotationEffect(.degrees(viewModel.rotationDegrees))
             }
-            Spacer()
+//            Spacer()
         }
-        //.padding()
-        //.background(Color.white) // Gray, slightly transparent background
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
         .animation(.easeInOut(duration: 1), value: viewModel.rotationDegrees)
