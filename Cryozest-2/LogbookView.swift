@@ -75,10 +75,9 @@ struct LogbookView: View {
                 }
                 .padding(.top, 36)
                 
-                
-                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                
                 ScrollView {
+                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+                    
                     LazyVStack(alignment: .leading, spacing: 16) {
                         HStack {
                             HStack() {

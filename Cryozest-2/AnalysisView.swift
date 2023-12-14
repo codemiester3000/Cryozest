@@ -56,24 +56,24 @@ struct AnalysisView: View {
                 Spacer()
             }
             
-            TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-            
-            Picker("Time frame", selection: $selectedTimeFrame) {
-                Text("Last 7 days")
-                    .tag(TimeFrame.week)
-                    .foregroundColor(selectedTimeFrame == .week ? .orange : .primary)
-                Text("Last Month")
-                    .tag(TimeFrame.month)
-                    .foregroundColor(selectedTimeFrame == .month ? .orange : .primary)
-                Text("Last Year")
-                    .tag(TimeFrame.allTime)
-                    .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.bottom, 8)
-            .padding(.horizontal)
-            
             ScrollView {
+                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+                
+                Picker("Time frame", selection: $selectedTimeFrame) {
+                    Text("Last 7 days")
+                        .tag(TimeFrame.week)
+                        .foregroundColor(selectedTimeFrame == .week ? .orange : .primary)
+                    Text("Last Month")
+                        .tag(TimeFrame.month)
+                        .foregroundColor(selectedTimeFrame == .month ? .orange : .primary)
+                    Text("Last Year")
+                        .tag(TimeFrame.allTime)
+                        .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.bottom, 8)
+                .padding(.horizontal)
+                
                 DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
                 
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
