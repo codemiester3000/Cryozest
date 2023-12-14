@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Color {
+    static let customOrange = Color(red: 255 / 255, green: 140 / 255, blue: 0 / 255)
+}
+
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
     @StateObject private var therapyTypeSelection = TherapyTypeSelection()
@@ -30,7 +34,8 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(Color.red).opacity(0.85)
+        .accentColor(Color.customOrange) // Use the custom orange color
+        .opacity(0.85)
         .background(Color.clear)
     }
 }

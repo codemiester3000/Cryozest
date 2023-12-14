@@ -71,10 +71,6 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
-                //                Text("CryoZest")
-                //                    .font(.system(size: 40, weight: .bold, design: .monospaced))
-                //                    .foregroundColor(Color.white)
-                //                    .padding(.top, 25)
                 
                 HStack {
                     Text("CryoZest")
@@ -93,10 +89,10 @@ struct MainView: View {
                 .padding(.vertical, 28)
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    .padding(.bottom, 28)
+                    .padding(.bottom, 42)
                 
                 TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                    .padding(.bottom, 18)
+                    .padding(.bottom, 42)
                 
                 HStack(spacing: 10) {
                     ForEach(customTimers, id: \.self) { timer in
@@ -132,7 +128,7 @@ struct MainView: View {
                     .opacity(self.timer != nil ? 0.3 : 1)
                     
                 }
-                .padding(.bottom, 56)
+                .padding(.bottom, 18)
                 
                 
                 StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
@@ -346,7 +342,7 @@ struct TimerDisplayView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(Color.white.opacity(0.2), lineWidth: 1) // Adding an overlay stroke for depth
             )
-            .shadow(color: selectedColor.opacity(0.3), radius: 10, x: 0, y: 8) // Enhanced shadow effect
+            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 8) // Enhanced shadow effect
             .animation(.easeInOut, value: selectedColor) // Smooth transition for color changes
     }
 }
