@@ -86,7 +86,8 @@ struct MainView: View {
                             .padding(.trailing, 25)
                     }
                 }
-                .padding(.vertical, 28)
+                .padding(.top, 33)
+                //.padding(.vertical, 28)
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom, 42)

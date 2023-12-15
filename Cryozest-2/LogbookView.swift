@@ -55,28 +55,28 @@ struct LogbookView: View {
                 NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
                     EmptyView()
                 }
-
-                
-                HStack {
-                    Text("History")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .bold()
-                        .padding(.leading, 24)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "plus")
-                        .font(.system(size: 30))
-                        .foregroundColor(.white)
-                        .padding(.trailing, 24)
-                        .onTapGesture {
-                            showAddSession = true
-                        }
-                }
-                .padding(.top, 36)
                 
                 ScrollView {
+                    
+                    HStack {
+                        Text("History")
+                            .font(.system(size: 24, weight: .bold, design: .monospaced))
+                            .foregroundColor(.white)
+                            .bold()
+                            .padding(.leading, 24)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "plus")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                            .padding(.trailing, 24)
+                            .onTapGesture {
+                                showAddSession = true
+                            }
+                    }
+                    .padding(.top, 36)
+                    
                     TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     
                     LazyVStack(alignment: .leading, spacing: 16) {
