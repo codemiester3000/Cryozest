@@ -25,13 +25,13 @@ struct TherapyTypeSelectionView: View {
             .edgesIgnoringSafeArea(.all)
             
             VStack {
-                Text("Select up to 4 therapy types")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .scaleEffect(1.3)
-                    .padding(.vertical, 12)
-                
                 ScrollView {
+                    Text("Select up to 4 therapy types")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .scaleEffect(1.3)
+                        .padding(.vertical, 12)
+                    
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
                             if selectedTypes.contains(therapyType) {
@@ -47,49 +47,67 @@ struct TherapyTypeSelectionView: View {
                         }) {
                             HStack {
                                 Image(systemName: therapyType.icon)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(therapyType.color) // Dynamic icon color
+                                    .imageScale(.large) // Larger icon for better visibility
                                 Text(therapyType.rawValue)
-                                    .foregroundColor(.white)
+                                    .fontWeight(.medium) // Slightly bolder text for better readability
+                                    .foregroundColor(.primary) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
                                 if selectedTypes.contains(therapyType) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.white)
+                                    Image(systemName: "checkmark.circle.fill") // More prominent checkmark
+                                        .foregroundColor(therapyType.color) // Checkmark in therapyType color
+                                        .imageScale(.medium) // Slightly larger checkmark
                                 }
                             }
-                            .padding()
-                            .background(therapyType.color.opacity(0.8))
-                            .cornerRadius(8)
+                            .padding(.horizontal)
+                            .padding(.vertical, 8) // Balanced padding
+                            .background(.white.opacity(0.6)) // Light gray background
+                            .cornerRadius(8) // Rounded corners
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(therapyType.color, lineWidth: 2) // Colored border
+                            )
+                            .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2) // Subtle shadow for depth
+                            .animation(.easeInOut, value: selectedTypes.contains(therapyType)) // Smooth animation for selection changes
+                            .accessibility(label: Text("Therapy type: \(therapyType.rawValue)")) // Accessibility label for better UI/UX
+                            
                         }
-                        //.padding(.horizontal)
+                        .padding(.vertical, 2)
                     }
                 }
                 
                 Spacer()
                 Button(action: {
-                    // Check for fewer than 2 types
+                    // Action handling logic
                     if selectedTypes.count < 2 {
                         alertTitle = "Too Few Types"
                         alertMessage = "Please select at least two types."
                         showAlert = true
                     } else {
-                        // Save the selected types and dismiss the view.
                         saveSelectedTherapies(therapyTypes: selectedTypes, context: managedObjectContext)
                         appState.hasSelectedTherapyTypes = true
                         presentationMode.wrappedValue.dismiss()
                     }
                 }) {
                     Text("Done")
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
+                        .font(.system(size: 20, weight: .semibold, design: .rounded)) // Updated font for better readability
                         .foregroundColor(.white)
-                        .padding(.horizontal, 80)
-                        .padding(.vertical, 28)
+                        .frame(minWidth: 0, maxWidth: .infinity) // Make the button width responsive
+                        .padding(.vertical, 15)
                         .background(Color.blue)
                         .cornerRadius(40)
-                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                        .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4) // Refined shadow for depth
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 40)
+                                .stroke(Color.white.opacity(0.4), lineWidth: 1) // Subtle border for added detail
+                        )
                 }
-                .padding(.vertical, 12)
-                .foregroundColor(.white)
-                .cornerRadius(8)
+                .padding(.horizontal, 20) // Padding to ensure the button does not touch the screen edges
+                .padding(.bottom, 10) // Bottom padding for spacing from other elements
+                .alert(isPresented: $showAlert) { // Alert for validation
+                    Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                }
+
             }
             .onAppear {
                 selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
