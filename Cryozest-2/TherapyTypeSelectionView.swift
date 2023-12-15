@@ -54,21 +54,25 @@ struct TherapyTypeSelectionView: View {
                         }) {
                             HStack {
                                 Image(systemName: therapyType.icon)
-                                    .foregroundColor(therapyType.color) // Dynamic icon color
+                                    .foregroundColor(selectedTypes.contains(therapyType) ? .white : therapyType.color) // Dynamic icon color
                                     .imageScale(.large) // Larger icon for better visibility
                                 Text(therapyType.rawValue)
                                     .fontWeight(.medium) // Slightly bolder text for better readability
                                     .foregroundColor(.primary) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
-                                if selectedTypes.contains(therapyType) {
-                                    Image(systemName: "checkmark.circle.fill") // More prominent checkmark
-                                        .foregroundColor(therapyType.color) // Checkmark in therapyType color
-                                        .imageScale(.medium) // Slightly larger checkmark
-                                }
+//                                if selectedTypes.contains(therapyType) {
+//                                    Image(systemName: "checkmark.circle.fill") // More prominent checkmark
+//                                        .foregroundColor(.white) // Checkmark circle in white
+//                                        .overlay(
+//                                            Image(systemName: "checkmark")
+//                                                .foregroundColor(therapyType.color) // Checkmark in therapyType color
+//                                        )
+//                                        .imageScale(.medium) // Slightly larger checkmark
+//                                }
                             }
                             .padding(.horizontal)
                             .padding(.vertical, 8) // Balanced padding
-                            .background(.white.opacity(0.6)) // Light gray background
+                            .background(selectedTypes.contains(therapyType) ? therapyType.color : Color.white.opacity(0.6)) // Conditional background color
                             .cornerRadius(8) // Rounded corners
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
@@ -77,6 +81,8 @@ struct TherapyTypeSelectionView: View {
                             .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2) // Subtle shadow for depth
                             .animation(.easeInOut, value: selectedTypes.contains(therapyType)) // Smooth animation for selection changes
                             .accessibility(label: Text("Therapy type: \(therapyType.rawValue)")) // Accessibility label for better UI/UX
+
+
                             
                         }
                         .padding(.vertical, 2)
