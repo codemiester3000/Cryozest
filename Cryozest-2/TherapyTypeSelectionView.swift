@@ -27,10 +27,17 @@ struct TherapyTypeSelectionView: View {
             VStack {
                 ScrollView {
                     Text("Select up to 4 therapy types")
-                        .font(.headline)
+                        .font(.title3) // More prominent font size
+                        .fontWeight(.semibold) // Slightly heavier font weight for emphasis
                         .foregroundColor(.white)
-                        .scaleEffect(1.3)
                         .padding(.vertical, 12)
+                        .padding(.horizontal, 20) // Add horizontal padding for better spacing
+                        .cornerRadius(10) // Rounded corners for a smoother look
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Subtle shadow for depth
+                        .multilineTextAlignment(.center) // Center align for better readability in multiple lines
+                        .frame(maxWidth: .infinity) // Ensure it spans the width of the container
+                        .lineLimit(2) // Limit to 2 lines to maintain layout consistency
+
                     
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
