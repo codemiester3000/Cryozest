@@ -82,7 +82,7 @@ struct MainView: View {
                     Spacer() // This pushes the title and icon to opposite ends
                     
                     NavigationLink(destination: TherapyTypeSelectionView()) {
-                        SettingsIconView() // Use the SettingsIconView here
+                        SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
                             .padding(.trailing, 25)
                     }
                 }

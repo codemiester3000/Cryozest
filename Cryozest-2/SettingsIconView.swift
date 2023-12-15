@@ -14,9 +14,14 @@ class SettingsIconViewModel: ObservableObject {
 }
 
 struct SettingsIconView: View {
+    
+    var settingsColor: Color
+    
     @ObservedObject var viewModel = SettingsIconViewModel()
-    private var colors: [Color] = [.orange, .blue, .green]
-    @State private var currentColorIndex = 0
+    
+//    private var colors: [Color] = [.orange, .blue, .green]
+    
+//    @State private var currentColorIndex = 0
 
     var body: some View {
         HStack {
@@ -28,7 +33,7 @@ struct SettingsIconView: View {
                 Image(systemName: "gearshape.fill")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundColor(colors[currentColorIndex])
+                    .foregroundColor(self.settingsColor)
                     .frame(width: 30, height: 30)
                     .rotationEffect(.degrees(viewModel.rotationDegrees))
             }
@@ -42,10 +47,10 @@ struct SettingsIconView: View {
 //        }
     }
 
-    private func updateColor() {
-        let newIndex = (currentColorIndex + 1) % colors.count
-        withAnimation {
-            currentColorIndex = newIndex
-        }
-    }
+//    private func updateColor() {
+//        let newIndex = (currentColorIndex + 1) % colors.count
+//        withAnimation {
+//            currentColorIndex = newIndex
+//        }
+//    }
 }
