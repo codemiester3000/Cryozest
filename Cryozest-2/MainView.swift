@@ -78,9 +78,9 @@ struct MainView: View {
                         .foregroundColor(.white)
                         .bold()
                         .padding(.leading, 24)
-
+                    
                     Spacer() // This pushes the title and icon to opposite ends
-
+                    
                     NavigationLink(destination: TherapyTypeSelectionView()) {
                         SettingsIconView() // Use the SettingsIconView here
                             .padding(.trailing, 25)
@@ -91,8 +91,12 @@ struct MainView: View {
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom, 42)
                 
+                Spacer()
+                
                 TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
                     .padding(.bottom, 42)
+                
+                Spacer()
                 
                 HStack(spacing: 10) {
                     ForEach(customTimers, id: \.self) { timer in
@@ -107,9 +111,11 @@ struct MainView: View {
                                 .background(self.therapyTypeSelection.selectedTherapyType.color)
                                 .cornerRadius(40)
                                 .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                                .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
                         }
                         .disabled(self.timer != nil)
                         .opacity(self.timer != nil ? 0.3 : 1)
+                        
                     }
                     Button(action: {
                         // Navigate to a view for creating a new custom timer
@@ -117,15 +123,20 @@ struct MainView: View {
                     }) {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
+                            .foregroundColor(.white) // Change icon color to match the border
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                            .background(self.therapyTypeSelection.selectedTherapyType.color)
-                            .cornerRadius(40)
+                            .background(Color.clear) // Set background to transparent
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 40)
+                                    .stroke(self.therapyTypeSelection.selectedTherapyType.color, lineWidth: 3) // Create a border with the selected color
+                            )
                             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                            .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
                     }
                     .disabled(self.timer != nil)
                     .opacity(self.timer != nil ? 0.3 : 1)
+                    
                     
                 }
                 .padding(.bottom, 18)
@@ -196,9 +207,9 @@ struct MainView: View {
                 CreateTimerView()
                     .environment(\.managedObjectContext, self.viewContext)
             }
-//            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
-//                SettingsIconView().id(UUID())
-//            })
+            //            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
+            //                SettingsIconView().id(UUID())
+            //            })
         }
         .onChange(of: scenePhase) { newScenePhase in
             switch newScenePhase {
@@ -333,19 +344,19 @@ struct TimerDisplayView: View {
     
     var body: some View {
         Text(timerLabel)
-            .font(.system(size: 72, weight: .bold, design: .monospaced)) // Changed font design to rounded
-            .foregroundColor(.white)
+            .font(.system(size: 72, weight: .bold, design: .monospaced)) // Keep the font design as monospaced
+            .foregroundColor(.white) // Change text color to match the border
             .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
-            .background(selectedColor)
-            .cornerRadius(20) // Slightly more rounded corners
+            .background(Color.clear) // Set background to transparent
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.white.opacity(0.2), lineWidth: 1) // Adding an overlay stroke for depth
+                    .stroke(selectedColor, lineWidth: 3) // Create a border with the selected color
             )
-            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 8) // Enhanced shadow effect
+            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 8) // Keep the enhanced shadow effect
             .animation(.easeInOut, value: selectedColor) // Smooth transition for color changes
     }
 }
+
 
 struct StartStopButtonView: View {
     var isRunning: Bool
@@ -355,15 +366,17 @@ struct StartStopButtonView: View {
     var body: some View {
         Button(action: action) {
             Text(isRunning ? "Stop" : "Start")
-                .font(.system(size: 28, weight: .bold, design: .monospaced))
+                .font(.system(size: 24, weight: .bold, design: .monospaced)) // Slightly smaller font
                 .foregroundColor(.white)
-                .padding(.horizontal, 80)
-                .padding(.vertical, 28)
+                .padding(.horizontal, 60) // Reduced horizontal padding
+                .padding(.vertical, 20)   // Reduced vertical padding
                 .background(selectedColor)
-                .cornerRadius(40)
-                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                .cornerRadius(30)         // Slightly smaller corner radius
+                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 8) // Adjusted shadow
+                .animation(.easeInOut, value: selectedColor)
         }
     }
+    
 }
 
 struct HealthDataStatusView: View {

@@ -464,6 +464,8 @@ class HealthKitManager {
         for date in days {
             let dayComponent = calendar.component(.day, from: date)
             includedDays.append(dayComponent)
+            
+            print("Fetching HRV for date: \(date)")
         }
         let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
         let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
