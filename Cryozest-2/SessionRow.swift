@@ -43,9 +43,13 @@ struct SessionRow: View {
 
                 // Daily Metrics
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Daily Metrics")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                    if averageHeartRateForDay != nil || averageHRVForDay != nil {
+                        Text("Daily Metrics")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+
+                    
 
                     if let avgHeartRate = averageHeartRateForDay {
                         Text("Average Heart Rate for the Day: \(Int(avgHeartRate)) bpm")
@@ -84,18 +88,21 @@ struct SessionRow: View {
 
     private func HeartRateView(title: String, value: Double, maxValue: Double = 0) -> some View {
         let roundedValue = Int((value * 10).rounded() / 10)
-        return HStack {
+        return Group {
             if Double(roundedValue) != maxValue {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
-                Text("\(title): \(roundedValue) bpm")
-                    .font(.system(size: 16, design: .monospaced))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                HStack {
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                        .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                    Text("\(title): \(roundedValue) bpm")
+                        .font(.system(size: 16, design: .monospaced))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                }
             }
         }
     }
+
 
     private func loadAverageHeartRate() {
         guard let sessionDate = session.date else { return }
