@@ -19,40 +19,67 @@ struct WelcomeView: View {
                     .frame(width: 250) // adjust this to change the logo size
                     .padding(.vertical, 20)
                 
-                Text("Welcome to Cryozest!")
-                    .font(.largeTitle)
-                    .fontWeight(.heavy)
-                    .foregroundColor(.white)
+                Text("Welcome to CryoZest")
+                    .font(.system(size: 40, weight: .bold, design: .default)) // Custom larger font size
+                    .foregroundColor(.white) // Retaining the white color
+                    .shadow(color: .gray.opacity(0.5), radius: 2, x: 0, y: 2) // Keeping the subtle shadow for depth
+                    .padding(.top, 20) // Retaining the top padding
+                    .multilineTextAlignment(.center) // Center alignment
                     
                 Spacer()
                 
                 HStack {
+                    Spacer() // For center alignment
+                    
                     Image(systemName: "heart.text.square.fill")
                         .foregroundColor(.red)
-                        .imageScale(.large) // 20% larger
-                    Text("See your health metrics evolve as you develop new habits.")
-                        .font(.system(size: 20, weight: .bold, design: .default))
+                        .imageScale(.medium) // Slightly reduced size for balance
+                        .padding(.trailing, 8) // Spacing between icon and text
+                    
+                    Text("See your health metrics evolve as you develop new habits")
+                        .font(.system(size: 18, weight: .medium, design: .rounded)) // Adjusted for better readability
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
+                        .lineLimit(2) // To prevent text overflow
+                    
                     Image(systemName: "heart.text.square.fill")
                         .foregroundColor(.red)
-                        .imageScale(.large) // 20% larger
+                        .imageScale(.medium) // Synchronized with left icon
+                        .padding(.leading, 8) // Consistent spacing
+
+                    Spacer() // For center alignment
                 }
-                .padding()
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.2)) // Subtle background for emphasis
+                .cornerRadius(10) // Rounded corners for a softer look
+                .padding(.horizontal) // Ensures padding from screen edges
+
                 
                 HStack {
+                    Spacer() // For center alignment
+                    
                     Image(systemName: "lock.fill")
                         .foregroundColor(.black)
-                        .imageScale(.large) // 20% larger
-                    Text("No data collected, ever.")
-                        .font(.system(size: 20, weight: .bold, design: .default))
+                        .imageScale(.medium) // Slightly reduced size for balance
+                        .padding(.trailing, 8) // Spacing between icon and text
+                    
+                    Text("No data collected, ever")
+                        .font(.system(size: 18, weight: .medium, design: .rounded)) // Adjusted for better readability
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
+                        .lineLimit(2) // To prevent text overflow
+                    
                     Image(systemName: "lock.fill")
                         .foregroundColor(.black)
-                        .imageScale(.large) // 20% larger
+                        .imageScale(.medium) // Synchronized with left icon
+                        .padding(.leading, 8) // Consistent spacing
+
+                    Spacer() // For center alignment
                 }
-                .padding()
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.2)) // Subtle background for emphasis
+                .cornerRadius(10) // Rounded corners for a softer look
+                .padding(.horizontal) // Ensures padding from screen edges
                 
                 Spacer()
                 

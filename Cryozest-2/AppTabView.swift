@@ -33,8 +33,14 @@ struct AppTabView: View {
                 }
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
+            
+//            DailyView()
+//                .tabItem {
+//                    Image(systemName: "chart.bar")
+//                    Text("Daily")
+//                }
         }
-        .accentColor(Color.customOrange) // Use the custom orange color
+        .accentColor(Color.customOrange)
         .opacity(0.85)
         .background(Color.clear)
     }
