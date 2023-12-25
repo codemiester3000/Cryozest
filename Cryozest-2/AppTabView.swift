@@ -40,7 +40,7 @@ struct AppTabView: View {
 //                    Text("Daily")
 //                }
         }
-        .accentColor(Color.customOrange)
+        .accentColor(Color.black)
         .opacity(0.85)
         .background(Color.clear)
     }
