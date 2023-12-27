@@ -52,8 +52,8 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             case .coldPlunge, .coldShower, .iceBath, .coldYoga:
                 return Color.blue
             case .meditation, .stretching, .deepBreathing, .sleep:
-                return Color.green
-            }
+                return Color(red: 0.0, green: 0.5, blue: 0.0)
+          }
         }
 }
 

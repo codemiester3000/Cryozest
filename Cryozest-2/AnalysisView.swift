@@ -65,7 +65,7 @@ struct AnalysisView: View {
                     .padding(.bottom, 8)
                 
                 Picker("Time frame", selection: $selectedTimeFrame) {
-                    Text("Last 7 days")
+                    Text("Last Week")
                         .tag(TimeFrame.week)
                         .foregroundColor(selectedTimeFrame == .week ? .orange : .primary)
                     Text("Last Month")
@@ -78,6 +78,12 @@ struct AnalysisView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 //.padding(.bottom, 16)
                 .padding(.horizontal)
+                
+                Divider()
+                    .background(Color.black.opacity(0.8))
+                    .padding(.vertical, 8)
+                
+                MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
                 Divider()
                     .background(Color.black.opacity(0.8))
@@ -192,7 +198,7 @@ enum TimeFrame {
     func displayString() -> String {
         switch self {
         case .week:
-            return "Last 7 Days"
+            return "Last Week"
         case .month:
             return "Last Month"
         case .allTime:
