@@ -107,11 +107,12 @@ struct RecoveryAnalysisView: View {
             LoadingView()
         } else {
             VStack(alignment: .leading, spacing: 16) {
-                
-                Text("Recovery")
+                        
+                Text("Recovery Analysis")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
+                    .padding(.bottom, 10)
                 
                 Text(viewModel.timeFrame.displayString())
                     .font(.subheadline)
@@ -128,21 +129,21 @@ struct RecoveryAnalysisView: View {
                 VStack {
                     HStack {
                         Text("Avg Sleep Duration")
-                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.darkBackground)
+                            .foregroundColor(.black)
                         Spacer()
+                        
+                        Image(systemName: "moon.fill")
+                            .foregroundColor(viewModel.therapyType.color)
+                            .padding(.trailing, 10)
                     }
                     HStack {
                         HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
-                            
-                            Text("On \(viewModel.therapyType.rawValue) Days")
+                            Text("\(viewModel.therapyType.rawValue) days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
+                  
                         }
                         Spacer()
                         Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
@@ -150,19 +151,13 @@ struct RecoveryAnalysisView: View {
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
-                    .padding(.vertical, 5) // Provide some space
-//                    .background(viewModel.therapyType.color.opacity(0.2))
-//                    .cornerRadius(15) // Adds rounded corners
+                    .padding(.vertical, 5)
                     HStack {
                         HStack {
-                            Image(systemName: "heart")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
                             
-                            Text("Off Days")
+                            Text("off days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
                         }
                         Spacer()
                         Text((viewModel.avgSleepDurationNonTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationNonTherapyDays) + " Hrs" : "N/A"))
@@ -179,21 +174,23 @@ struct RecoveryAnalysisView: View {
                 VStack {
                     HStack {
                         Text("Avg Sleeping HR")
-                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.darkBackground)
+                            .foregroundColor(.black)
                         Spacer()
+                        
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(viewModel.therapyType.color)
+                            .padding(.trailing, 10)
                     }
                     HStack {
                         HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
+                      
                             
-                            Text("On \(viewModel.therapyType.rawValue) Days")
+                            Text("\(viewModel.therapyType.rawValue) days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
+       
                         }
                         Spacer()
                         Text((viewModel.sleepingHeartRateTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateTherapyDays) + " BPM" : "N/A"))
@@ -206,14 +203,12 @@ struct RecoveryAnalysisView: View {
 //                    .cornerRadius(15) // Adds rounded corners
                     HStack {
                         HStack {
-                            Image(systemName: "heart")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
+                         
                             
-                            Text("Off Days")
+                            Text("off days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
+                                
                         }
                         Spacer()
                         Text((viewModel.sleepingHeartRateNonTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateNonTherapyDays) + " BPM" : "N/A"))

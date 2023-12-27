@@ -60,6 +60,10 @@ struct AnalysisView: View {
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom, 16)
                 
+                Divider()
+                    .background(Color.black.opacity(0.8))
+                    .padding(.bottom, 8)
+                
                 Picker("Time frame", selection: $selectedTimeFrame) {
                     Text("Last 7 days")
                         .tag(TimeFrame.week)
@@ -72,7 +76,7 @@ struct AnalysisView: View {
                         .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding(.bottom, 16)
+                //.padding(.bottom, 16)
                 .padding(.horizontal)
                 
                 Divider()

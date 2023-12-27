@@ -91,7 +91,6 @@ class HeartRateViewModel: ObservableObject {
                 self.restingHeartRateTherapyDays = avgHeartRateExcluding
                 self.calculateRestingHRDifference()
             } else {
-                // print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
@@ -130,7 +129,6 @@ class HeartRateViewModel: ObservableObject {
                 self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
                 self.calculateAvgHRDifference()
             } else {
-                // print("Owen here. Failed to fetch average heart rate excluding specific days.")
             }
             group.leave()
         }
@@ -154,10 +152,10 @@ struct AvgHeartRateComparisonView: View {
         else {
             VStack(alignment: .leading) {
                 
-                Text("Heart Rate")
+                Text("Heart Rate Analysis")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .padding(.bottom, 10)
                 
                 Text(heartRateViewModel.timeFrame.displayString())
@@ -177,7 +175,7 @@ struct AvgHeartRateComparisonView: View {
                     if heartRateViewModel.restingHeartRateDifference != 0 || heartRateViewModel.avgHeartRateDifference != 0 {
                         HStack {
                             Text("On \(heartRateViewModel.therapyType.rawValue) days")
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                                 .font(.system(size: 16, weight: .bold, design: .default))
                             Spacer()
                         }
@@ -205,45 +203,42 @@ struct AvgHeartRateComparisonView: View {
                     // Resting Heart Rate View.
                     HStack {
                         Text("Resting Heart Rate")
-                        // .font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.darkBackground)
+                            .foregroundColor(.black)
                         Spacer()
+                        
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(heartRateViewModel.therapyType.color)
+                            .padding(.trailing, 10)
+                        
                     }
+                    
+                    
                     
                     HStack {
                         HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
-                            
-                            Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                            Text("\(heartRateViewModel.therapyType.rawValue) days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
                         }
-                       
+                        
                         Spacer()
                         Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
-                    .padding(.vertical, 5) // Provide some space
-//                    .background(heartRateViewModel.therapyType.color.opacity(0.2))
-//                    .cornerRadius(15) // Adds rounded corners
+                    .padding(.vertical, 5)
                     
                     HStack {
                         HStack {
-                            Image(systemName: "heart")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
                             
-                            Text("Off Days")
+                            
+                            Text("off days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
+                            // .padding(.leading, 10)
                         }
                         Spacer()
                         Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
@@ -261,23 +256,22 @@ struct AvgHeartRateComparisonView: View {
                 VStack {
                     HStack {
                         Text("Avg Heart Rate")
-                        //.font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .font(.system(size: 18, weight: .bold, design: .default))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.bold)
-                            .foregroundColor(.darkBackground)
+                            .foregroundColor(.black)
                         Spacer()
+                        
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(heartRateViewModel.therapyType.color)
+                            .padding(.trailing, 10)
                     }
                     
                     HStack {
                         HStack {
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
                             
-                            Text("On \(heartRateViewModel.therapyType.rawValue) Days")
+                            Text("\(heartRateViewModel.therapyType.rawValue) days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
                         }
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
@@ -285,22 +279,15 @@ struct AvgHeartRateComparisonView: View {
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
-                    .padding(.vertical, 5) // Provide some space
-//                    .background(heartRateViewModel.therapyType.color.opacity(0.2)) // Different background for therapy days
-//                    .cornerRadius(15) // Adds rounded corners
+                    .padding(.vertical, 5)
                     
                     HStack {
                         HStack {
-                            Image(systemName: "heart")
-                                .foregroundColor(.red)
-                                .padding(.leading, 10)
-                            
-                            Text("Off Days")
+                            Text("off days")
                                 .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.leading, 10)
+                                .foregroundColor(.black)
                         }
-
+                        
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
@@ -313,10 +300,8 @@ struct AvgHeartRateComparisonView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
-            //.background(Color(.darkGray).opacity(0.7))
             .cornerRadius(16)
-//            .padding(.horizontal)
-            .transition(.opacity) // The view will fade in when it appears
+            .transition(.opacity)
             .animation(.easeIn)
         }
     }

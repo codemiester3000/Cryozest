@@ -137,12 +137,13 @@ struct DurationAnalysisView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+        
             
-            Text("Summary")
+            Text("Overall Analysis")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
-            
+                .foregroundColor(.black)
+                .padding(.bottom, 10)
             
             HStack {
                 Text(viewModel.timeFrame.displayString())
@@ -159,16 +160,16 @@ struct DurationAnalysisView: View {
             Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
-                Text("Completed: ")
+                Text("Completed")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 Spacer()
                 Text("\(viewModel.totalSessions) sessions")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    //.padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     //.background(viewModel.therapyType.color.opacity(0.7))
                     .cornerRadius(8)
@@ -177,16 +178,16 @@ struct DurationAnalysisView: View {
             Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
-                Text("Time Spent: ")
+                Text("Time")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 Spacer()
                 Text("\(Int(viewModel.totalTime / 60)) mins")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    //.padding(.horizontal, 20)
                     .padding(.vertical, 4)
 //                    .background(viewModel.therapyType.color.opacity(0.7))
                     .cornerRadius(15)
@@ -195,16 +196,16 @@ struct DurationAnalysisView: View {
             Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
-                Text("Current Streak: ")
+                Text("Current streak")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 Spacer()
                 Text("\(viewModel.currentStreak) days")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    //.padding(.horizontal, 20)
                     .padding(.vertical, 4)
 //                    .background(viewModel.therapyType.color.opacity(0.7))
                     .cornerRadius(15)
@@ -213,16 +214,16 @@ struct DurationAnalysisView: View {
             Divider().background(Color.darkBackground.opacity(0.8))
             
             HStack {
-                Text("Longest Streak: ")
+                Text("Longest streak")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 Spacer()
                 Text("\(viewModel.longestStreak) days")
                     .font(.system(size: 18, weight: .bold, design: .default))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    //.padding(.horizontal, 20)
                     .padding(.vertical, 4)
 //                    .background(viewModel.therapyType.color.opacity(0.7))
                     .cornerRadius(15)
@@ -231,7 +232,7 @@ struct DurationAnalysisView: View {
         .padding()
         .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
-        .shadow(radius: 5)
+//        .shadow(radius: 5)
         .transition(.opacity)
         .animation(.easeIn)
         .onAppear {

@@ -351,13 +351,12 @@ struct TimerDisplayView: View {
             .background(Color.clear) // Set background to transparent
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(selectedColor, lineWidth: 3) // Create a border with the selected color
+                    .stroke(selectedColor, lineWidth: 4) // Create a border with the selected color
             )
             .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 8) // Keep the enhanced shadow effect
             .animation(.easeInOut, value: selectedColor) // Smooth transition for color changes
     }
 }
-
 
 struct StartStopButtonView: View {
     var isRunning: Bool
