@@ -182,23 +182,23 @@ struct AvgHeartRateComparisonView: View {
                     }
                     
                     // Heart Rate differences views.
-                    if heartRateViewModel.restingHeartRateDifference != 0 {
-                        let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
-                        let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
-                        HeartRateDifferenceView(differencePercentage: differencePercentage,
-                                                therapyType: heartRateViewModel.therapyType.rawValue,
-                                                isIncreased: isIncreased,
-                                                heartRateType: "RHR")
-                    }
-                    
-                    if heartRateViewModel.avgHeartRateDifference != 0 {
-                        let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
-                        let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
-                        HeartRateDifferenceView(differencePercentage: differencePercentage,
-                                                therapyType: heartRateViewModel.therapyType.rawValue,
-                                                isIncreased: isIncreased,
-                                                heartRateType: "Avg HR")
-                    }
+//                    if heartRateViewModel.restingHeartRateDifference != 0 {
+//                        let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
+//                        let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
+//                        HeartRateDifferenceView(differencePercentage: differencePercentage,
+//                                                therapyType: heartRateViewModel.therapyType.rawValue,
+//                                                isIncreased: isIncreased,
+//                                                heartRateType: "RHR")
+//                    }
+//                    
+//                    if heartRateViewModel.avgHeartRateDifference != 0 {
+//                        let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
+//                        let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
+//                        HeartRateDifferenceView(differencePercentage: differencePercentage,
+//                                                therapyType: heartRateViewModel.therapyType.rawValue,
+//                                                isIncreased: isIncreased,
+//                                                heartRateType: "Avg HR")
+//                    }
                     
                     // Resting Heart Rate View.
                     HStack {
