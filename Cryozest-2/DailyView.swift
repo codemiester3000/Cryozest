@@ -81,9 +81,6 @@ class RecoveryGraphModel: ObservableObject {
                 
                 print("owen here: ", date)
                 
-                // Continue with your logic
-                let avgHrv10day = self.avgHrvLast10days
-                
                 var avgHrvForDate: Int? = nil
                 HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { avgHrv in
                     if let avgHrv = avgHrv {
@@ -120,6 +117,13 @@ class RecoveryGraphModel: ObservableObject {
                     recoveryScores.append(0)
                     continue
                 }
+                
+                print("\n")
+                print("avgHrvLast10days: ", avgHrvLast10days)
+                print("avgHeartRate30day: ", avgHeartRate30day)
+                print("avgRestingHeartRateForDay: ", avgRestingHeartRateForDay)
+                print("avgHrvForDate: ", avgHrvForDate)
+                print("\n")
                 
                 // TODO: Use the values above to calculate a score here.
                 var score = 0
