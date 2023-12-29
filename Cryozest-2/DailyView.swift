@@ -20,16 +20,7 @@ struct DailyView: View {
 }
 
 struct RecoveryGraphView: View {
-    
-    let recoveryData = [
-        (day: "THU", percentage: 82, color: Color.green),
-        (day: "FRI", percentage: 37, color: Color.yellow),
-        (day: "SAT", percentage: 100, color: Color.green),
-        (day: "SUN", percentage: 100, color: Color.green),
-        (day: "MON", percentage: 82, color: Color.green),
-        (day: "TUE", percentage: 28, color: Color.red),
-        (day: "WED", percentage: 99, color: Color.green)
-    ]
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.8) // Card background color
@@ -45,7 +36,7 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack(alignment: .bottom) {
-                    ForEach(recoveryData, id: \.day) { data in
+                    ForEach(recoveryData(), id: \.day) { data in
                         VStack {
                             Text("\(data.percentage)%")
                                 .font(.caption)
@@ -62,7 +53,7 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack {
-                    Text("Weekly Average: 75%")
+                    Text("Weekly Average: 75%") // Update this value based on actual data if needed
                         .font(.caption)
                         .foregroundColor(.green)
                         .padding(.leading)
@@ -73,7 +64,29 @@ struct RecoveryGraphView: View {
         }
         .frame(height: 300) // Adjust the height as needed
     }
+
+    // Function to generate recovery data array
+    func recoveryData() -> [(day: String, percentage: Int, color: Color)] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE"
+        
+        var data = [(day: String, percentage: Int, color: Color)]()
+        
+        for i in 0..<7 {
+            let date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
+            let day = dateFormatter.string(from: date).uppercased()
+            
+            // Dummy data - replace with actual recovery data
+            let percentage = Int.random(in: 30...100)
+            let color: Color = percentage > 50 ? .green : percentage > 30 ? .yellow : .red
+            
+            data.insert((day: day, percentage: percentage, color: color), at: 0)
+        }
+        
+        return data
+    }
 }
+
 
 class RecoveryCardModel: ObservableObject {
     
@@ -105,7 +118,7 @@ class RecoveryCardModel: ObservableObject {
             calculateRecoveryScore()
         }
     }
-    @Published var restingHeartRatePercentage: Int? 
+    @Published var restingHeartRatePercentage: Int?
     
     @Published var recoveryScore: Int?
     
@@ -153,23 +166,23 @@ class RecoveryCardModel: ObservableObject {
     
     private func calculateRecoveryScore() {
         var score = 0
-
+        
         // HRV component (assuming higher HRV is better)
         if let hrvPercentage = hrvSleepPercentage {
             score += max(0, hrvPercentage) // Add positive changes, ignore negative
         }
-
+        
         // Resting Heart Rate component (assuming lower rate is better)
         if let restingHRPercentage = restingHeartRatePercentage {
             score += max(0, -restingHRPercentage) // Add negative changes as positive score, ignore increases
         }
-
+        
         // Normalize the score to a range of 0-100
         let normalizedScore = min(max(score, 0), 100)
-
+        
         recoveryScore = normalizedScore
     }
-
+    
     
     private func calculateHrvPercentage() {
         if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
@@ -227,15 +240,15 @@ struct RecoveryCardView: View {
                         MetricView(
                             label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
                             symbolName: "heart.fill",
-                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)) \(model.hrvSleepPercentage ?? -1 < 0 ? "↑" : "↓")"
+                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)) \(model.hrvSleepPercentage ?? -1 >= 0 ? "↑" : "↓")"
                         )
                         Spacer()
                         
                         MetricView(
                             label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
                             symbolName: "waveform.path.ecg",
-                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0)) \(model.restingHeartRatePercentage ?? -1 < 0 ? "↑" : "↓")"
-                            )
+                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0)) \(model.restingHeartRatePercentage ?? -1 >= 0 ? "↑" : "↓")"
+                        )
                     }
                     .padding(.horizontal)
                     
