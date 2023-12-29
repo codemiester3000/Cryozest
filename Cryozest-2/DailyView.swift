@@ -81,11 +81,13 @@ class RecoveryCardModel: ObservableObject {
     @Published var avgHrvDuringSleep: Int? {
         didSet {
             calculateHrvPercentage()
+            calculateRecoveryScore()
         }
     }
     @Published var avgHrvDuringSleep60Days: Int? {
         didSet {
             calculateHrvPercentage()
+            calculateRecoveryScore()
         }
     }
     @Published var hrvSleepPercentage: Int?
@@ -94,14 +96,18 @@ class RecoveryCardModel: ObservableObject {
     @Published var mostRecentRestingHeartRate: Int? {
         didSet {
             calculateRestingHeartRatePercentage()
+            calculateRecoveryScore()
         }
     }
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
             calculateRestingHeartRatePercentage()
+            calculateRecoveryScore()
         }
     }
     @Published var restingHeartRatePercentage: Int? 
+    
+    @Published var recoveryScore: Int?
     
     init() {
         HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
@@ -145,6 +151,26 @@ class RecoveryCardModel: ObservableObject {
         }
     }
     
+    private func calculateRecoveryScore() {
+        var score = 0
+
+        // HRV component (assuming higher HRV is better)
+        if let hrvPercentage = hrvSleepPercentage {
+            score += max(0, hrvPercentage) // Add positive changes, ignore negative
+        }
+
+        // Resting Heart Rate component (assuming lower rate is better)
+        if let restingHRPercentage = restingHeartRatePercentage {
+            score += max(0, -restingHRPercentage) // Add negative changes as positive score, ignore increases
+        }
+
+        // Normalize the score to a range of 0-100
+        let normalizedScore = min(max(score, 0), 100)
+
+        recoveryScore = normalizedScore
+    }
+
+    
     private func calculateHrvPercentage() {
         if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
             let percentage = Double(avgSleep - avg60Days) / Double(avg60Days) * 100
@@ -187,7 +213,7 @@ struct RecoveryCardView: View {
                         .foregroundColor(.green)
                         .rotationEffect(.degrees(-90)) // Start from the top
                     
-                    Text("Ready to Train\n99%")
+                    Text("Ready to Train\n\(model.recoveryScore ?? 0)%")
                         .font(.footnote)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
