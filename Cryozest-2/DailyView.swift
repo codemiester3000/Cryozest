@@ -3,10 +3,9 @@ import SwiftUI
 struct DailyView: View {
     var body: some View {
         ScrollView {
-            
             RecoveryCardView(model: RecoveryCardModel())
             
-            RecoveryGraphView()
+            RecoveryGraphView(model: RecoveryGraphModel())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -19,7 +18,73 @@ struct DailyView: View {
     }
 }
 
+class RecoveryGraphModel: ObservableObject {
+    
+    func getLastSevenDays() -> [String] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE" // Format for day of the week
+        
+        var daysArray = [String]()
+        
+        // Generate days from today to the past six days
+        for i in 0..<7 {
+            if let date = Calendar.current.date(byAdding: .day, value: -i, to: Date()) {
+                let day = dateFormatter.string(from: date).uppercased()
+                daysArray.insert(day, at: 0) // Insert at the beginning to reverse the order
+            }
+        }
+        return daysArray
+    }
+    
+    func calculateRecoveryScore(hrvPercentage: Int, restingHRPercentage: Int) -> Int {
+        var score = 0
+        
+        score += max(0, hrvPercentage)
+        
+        score += max(0, -restingHRPercentage)
+        
+        let normalizedScore = min(max(score, 0), 100)
+        
+        return normalizedScore
+    }
+    
+    func getLastSevenDaysOfRecoveryScores() -> [Int] {
+        let last7Days = getLastSevenDays()
+        var recoveryScores = [Int]()
+        
+        for day in last7Days {
+            // Retrieve or calculate the recovery score for each day.
+            // This is a placeholder. Replace with your actual data retrieval logic.
+            
+            // TODO: Make healthkit requests
+            
+            let hrvPercentage = getHRVPercentage(forDay: day)
+            let restingHRPercentage = getRestingHRPercentage(forDay: day)
+            
+            let score = calculateRecoveryScore(hrvPercentage: hrvPercentage, restingHRPercentage: restingHRPercentage)
+            recoveryScores.append(score)
+        }
+        
+        return recoveryScores
+    }
+    
+    // Placeholder function for HRV percentage retrieval
+    private func getHRVPercentage(forDay day: String) -> Int {
+        // Logic to retrieve HRV percentage for the given day.
+        // Return a dummy value for now
+        return Int.random(in: 30...100)
+    }
+    
+    // Placeholder function for Resting Heart Rate percentage retrieval
+    private func getRestingHRPercentage(forDay day: String) -> Int {
+        // Logic to retrieve resting heart rate percentage for the given day.
+        // Return a dummy value for now
+        return Int.random(in: -50...50)
+    }
+}
+
 struct RecoveryGraphView: View {
+    @ObservedObject var model: RecoveryGraphModel
 
     var body: some View {
         ZStack {
@@ -36,16 +101,16 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack(alignment: .bottom) {
-                    ForEach(recoveryData(), id: \.day) { data in
+                    ForEach(Array(zip(model.getLastSevenDays(), model.getLastSevenDaysOfRecoveryScores())), id: \.0) { (day, percentage) in
                         VStack {
-                            Text("\(data.percentage)%")
+                            Text("\(percentage)%")
                                 .font(.caption)
                                 .foregroundColor(.white)
                             Rectangle()
-                                .fill(data.color)
-                                .frame(width: 40, height: CGFloat(data.percentage))
+                                .fill(getColor(forPercentage: percentage))
+                                .frame(width: 40, height: CGFloat(percentage))
                                 .cornerRadius(5)
-                            Text(data.day)
+                            Text(day)
                                 .font(.caption)
                                 .foregroundColor(.white)
                         }
@@ -53,7 +118,7 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack {
-                    Text("Weekly Average: 75%") // Update this value based on actual data if needed
+                    Text("Weekly Average: \(calculateWeeklyAverage())%") // Update this value based on actual data if needed
                         .font(.caption)
                         .foregroundColor(.green)
                         .padding(.leading)
@@ -64,26 +129,24 @@ struct RecoveryGraphView: View {
         }
         .frame(height: 300) // Adjust the height as needed
     }
-
-    // Function to generate recovery data array
-    func recoveryData() -> [(day: String, percentage: Int, color: Color)] {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEE"
-        
-        var data = [(day: String, percentage: Int, color: Color)]()
-        
-        for i in 0..<7 {
-            let date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
-            let day = dateFormatter.string(from: date).uppercased()
-            
-            // Dummy data - replace with actual recovery data
-            let percentage = Int.random(in: 30...100)
-            let color: Color = percentage > 50 ? .green : percentage > 30 ? .yellow : .red
-            
-            data.insert((day: day, percentage: percentage, color: color), at: 0)
+    
+    // Function to get color based on percentage
+    func getColor(forPercentage percentage: Int) -> Color {
+        switch percentage {
+        case let x where x > 50:
+            return .green
+        case let x where x > 30:
+            return .yellow
+        default:
+            return .red
         }
-        
-        return data
+    }
+    
+    // Function to calculate weekly average
+    func calculateWeeklyAverage() -> Int {
+        let scores = model.getLastSevenDaysOfRecoveryScores()
+        let total = scores.reduce(0, +)
+        return total / scores.count
     }
 }
 
@@ -167,22 +230,18 @@ class RecoveryCardModel: ObservableObject {
     private func calculateRecoveryScore() {
         var score = 0
         
-        // HRV component (assuming higher HRV is better)
         if let hrvPercentage = hrvSleepPercentage {
-            score += max(0, hrvPercentage) // Add positive changes, ignore negative
+            score += max(0, hrvPercentage)
         }
         
-        // Resting Heart Rate component (assuming lower rate is better)
         if let restingHRPercentage = restingHeartRatePercentage {
-            score += max(0, -restingHRPercentage) // Add negative changes as positive score, ignore increases
+            score += max(0, -restingHRPercentage)
         }
         
-        // Normalize the score to a range of 0-100
         let normalizedScore = min(max(score, 0), 100)
         
         recoveryScore = normalizedScore
     }
-    
     
     private func calculateHrvPercentage() {
         if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
@@ -209,7 +268,7 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ZStack {
-            Color.black.opacity(0.8) // Card background color
+            Color.black.opacity(0.8)
                 .cornerRadius(10)
             
             VStack(spacing: 10) {
