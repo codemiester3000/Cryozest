@@ -171,35 +171,6 @@ struct AvgHeartRateComparisonView: View {
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
                 VStack {
-                    
-                    if heartRateViewModel.restingHeartRateDifference != 0 || heartRateViewModel.avgHeartRateDifference != 0 {
-                        HStack {
-                            Text("On \(heartRateViewModel.therapyType.rawValue) days")
-                                .foregroundColor(.black)
-                                .font(.system(size: 16, weight: .bold, design: .default))
-                            Spacer()
-                        }
-                    }
-                    
-                    // Heart Rate differences views.
-//                    if heartRateViewModel.restingHeartRateDifference != 0 {
-//                        let differencePercentage = abs(heartRateViewModel.restingHeartRateDifference)
-//                        let isIncreased = heartRateViewModel.restingHeartRateDifference >= 0
-//                        HeartRateDifferenceView(differencePercentage: differencePercentage,
-//                                                therapyType: heartRateViewModel.therapyType.rawValue,
-//                                                isIncreased: isIncreased,
-//                                                heartRateType: "RHR")
-//                    }
-//                    
-//                    if heartRateViewModel.avgHeartRateDifference != 0 {
-//                        let differencePercentage = abs(heartRateViewModel.avgHeartRateDifference)
-//                        let isIncreased = heartRateViewModel.avgHeartRateDifference >= 0
-//                        HeartRateDifferenceView(differencePercentage: differencePercentage,
-//                                                therapyType: heartRateViewModel.therapyType.rawValue,
-//                                                isIncreased: isIncreased,
-//                                                heartRateType: "Avg HR")
-//                    }
-                    
                     // Resting Heart Rate View.
                     HStack {
                         Text("Resting Heart Rate")

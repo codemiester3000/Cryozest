@@ -20,8 +20,8 @@ struct AppTabView: View {
             
             LogbookView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
-                    Image(systemName: "book.fill")
-                    Text("Logbook")
+                    Image(systemName: "calendar")
+                    Text("Calendar")
                 }
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
@@ -34,11 +34,11 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-//            DailyView()
-//                .tabItem {
-//                    Image(systemName: "chart.bar")
-//                    Text("Daily")
-//                }
+            DailyView()
+                .tabItem {
+                    Image(systemName: "moon")
+                    Text("Daily")
+                }
         }
         .accentColor(Color.black)
         .opacity(0.85)
