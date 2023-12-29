@@ -191,12 +191,12 @@ class HealthKitManager {
         return query
     }
     
-    func fetch60DayAvgRestingHeartRate(completion: @escaping (Int?) -> Void) {
+    func fetchNDayAvgRestingHeartRate(numDays: Int, completion: @escaping (Int?) -> Void) {
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         let calendar = Calendar.current
 
         // Set the start date to 60 days before today
-        guard let startDate = calendar.date(byAdding: .day, value: -60, to: Date()) else {
+        guard let startDate = calendar.date(byAdding: .day, value: -numDays, to: Date()) else {
             completion(nil)
             return
         }
@@ -221,6 +221,7 @@ class HealthKitManager {
             // Complete with the calculated average
             DispatchQueue.main.async {
                 completion(Int(averageHeartRate))
+                
             }
         }
         
@@ -520,6 +521,37 @@ class HealthKitManager {
         
         healthStore.execute(sleepQuery)
     }
+    
+    func fetchAvgHRVForLastDays(numberOfDays: Int, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let endDate = Date() // Today
+        guard let startDate = calendar.date(byAdding: .day, value: -numberOfDays, to: endDate) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample], !samples.isEmpty else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            let totalHRV = samples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: HKUnit(from: "ms")) }
+            let avgHRV = totalHRV / Double(samples.count)
+
+            DispatchQueue.main.async {
+                completion(avgHRV)
+            }
+        }
+
+        healthStore.execute(hrvQuery)
+    }
+
+
 
     func fetchAvgHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
@@ -562,6 +594,55 @@ class HealthKitManager {
     
     // MARK -- HRV METHODS
     
+    // TODO: UPDATE THIS TO GET THE LAST HRV READING FOR THE NIGHT.
+    func fetchAvgHRVDuringSleepForNightEndingOn(date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+
+        var endOfNightComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        endOfNightComponents.hour = 14 // 2 PM, assuming this is the end of the sleep period
+
+        // Creating endOfNight for 2 PM of the passed-in date
+        let endOfNight = calendar.date(from: endOfNightComponents)!
+
+        let previousDay = calendar.date(byAdding: .day, value: -1, to: endOfNight)!
+        let startOfPreviousDay = calendar.startOfDay(for: previousDay)
+        let startOfNight = calendar.date(byAdding: .hour, value: 21, to: startOfPreviousDay)! // Assuming 9 PM is the start of the sleep period
+
+        // Create a predicate for sleep analysis in the time range
+        let sleepPredicate = HKQuery.predicateForSamples(withStart: startOfNight, end: endOfNight, options: .strictStartDate)
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        
+        // Query sleep analysis data
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, sleepSamples, error in
+            guard let sleepSamples = sleepSamples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                completion(nil)
+                return
+            }
+            
+            // Assuming sleepSamples are sorted by start date, get the first and last sample to determine the sleep period
+            let sleepStart = sleepSamples.first!.startDate
+            let sleepEnd = sleepSamples.last!.endDate
+            
+            // Create a predicate for HRV data during the sleep period
+            let hrvPredicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictStartDate)
+            
+            // Query HRV data
+            let hrvQuery = HKSampleQuery(sampleType: self.hrvType, predicate: hrvPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, hrvSamples, error in
+                guard let hrvSamples = hrvSamples as? [HKQuantitySample], !hrvSamples.isEmpty else {
+                    completion(nil)
+                    return
+                }
+                // Calculate average HRV
+                let totalHRV = hrvSamples.reduce(0) { $0 + $1.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli)) }
+                let averageHRV = totalHRV / Double(hrvSamples.count)
+                
+                completion(averageHRV)
+            }
+            self.healthStore.execute(hrvQuery)
+        }
+        self.healthStore.execute(sleepQuery)
+    }
+   
     func fetchAvgHRVDuringSleepForPreviousNight(completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let now = Date()
