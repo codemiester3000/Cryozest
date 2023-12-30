@@ -121,6 +121,21 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     
+    func getLastSevenDaysDates() -> [Date] {
+        var dates = [Date]()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date()) // Ensure the time is set to midnight
+
+        // Generate dates for the last seven days
+        for i in 0..<7 {
+            if let date = calendar.date(byAdding: .day, value: -i, to: today) {
+                dates.insert(date, at: 0) // Insert at the beginning to reverse the order
+            }
+        }
+        return dates
+    }
+
+    
     func getLastSevenDays() -> [String] {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEE" // Format for day of the week
@@ -204,21 +219,29 @@ class RecoveryGraphModel: ObservableObject {
         
         self.recoveryScores = []
         
+        var temporaryScores: [Date: Int] = [:]
+        let group = DispatchGroup()
+        
         for (index, dayOfWeek) in last7Days.enumerated() {
             if let date = calendar.date(byAdding: .day, value: -index, to: today) {
+                group.enter()
                 
                 performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
-                    print("\n")
-                    print("avgHrvLast10days: ", avgHrvLast10days)
-                    print("avgHeartRate30day: ", avgHeartRate30day)
-                    print("avgRestingHeartRateForDay: ", avgRestingHeartRateForDay)
-                    print("avgHrvForDate: ", avgHrvForDate)
-                    print("\n")
-                    
-                    self.recoveryScores.append(self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay))
-                }
+                                
+                                let score = self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay)
+                                
+                                DispatchQueue.main.async {
+                                    temporaryScores[date] = score
+                                    group.leave()
+                                }
+                            }
             }
         }
+        
+        group.notify(queue: .main) {
+                let sortedDates = self.getLastSevenDaysDates().sorted()
+                self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
+            }
     }
     
     func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
