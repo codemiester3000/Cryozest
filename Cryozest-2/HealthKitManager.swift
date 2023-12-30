@@ -191,6 +191,41 @@ class HealthKitManager {
         return query
     }
     
+    func fetchNDayAvgOverallHeartRate(numDays: Int, completion: @escaping (Int?) -> Void) {
+        let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+        let calendar = Calendar.current
+
+        // Set the start date to 'numDays' days before today
+        guard let startDate = calendar.date(byAdding: .day, value: -numDays, to: Date()) else {
+            completion(nil)
+            return
+        }
+
+        // Create a predicate to fetch heart rate samples from the last 'numDays' days
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: Date(), options: .strictStartDate)
+
+        // Query for overall heart rate samples
+        let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample], !samples.isEmpty else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            // Calculate the total heart rate and count the number of samples
+            let totalHeartRate = samples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: HKUnit(from: "count/min")) }
+            let averageHeartRate = totalHeartRate / Double(samples.count)
+
+            // Complete with the calculated average
+            DispatchQueue.main.async {
+                completion(Int(averageHeartRate))
+            }
+        }
+        healthStore.execute(heartRateQuery)
+    }
+
+    
     func fetchNDayAvgRestingHeartRate(numDays: Int, completion: @escaping (Int?) -> Void) {
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         let calendar = Calendar.current
@@ -224,7 +259,6 @@ class HealthKitManager {
                 
             }
         }
-        
         healthStore.execute(heartRateQuery)
     }
     

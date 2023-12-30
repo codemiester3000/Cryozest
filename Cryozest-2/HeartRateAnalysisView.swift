@@ -10,6 +10,10 @@ class HeartRateViewModel: ObservableObject {
     @Published var restingHeartRateTherapyDays: Double = 0.0
     @Published var restingHeartRateNonTherapyDays: Double = 0.0
     
+    // Baseline heart rate values
+    @Published var baselineRestingHeartRate: Double = 0.0
+    @Published var baselineHeartRate: Double = 0.0
+    
     // Average Heart Rate during sleep Values
     @Published var avgHeartRateSleepTherapyDays: Double = 0.0
     @Published var avgHeartRateSleepNonTherapyDays: Double = 0.0
@@ -73,7 +77,24 @@ class HeartRateViewModel: ObservableObject {
         let group = DispatchGroup()
         
         fetchrestingHeartRateTherapyDays(group: group)
-        fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        // fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: timeFrame.numberOfDays()) { restingHeartRate in
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate {
+                    self.baselineRestingHeartRate = Double(restingHeartRate)
+                }
+            }
+        }
+        
+        HealthKitManager.shared.fetchNDayAvgOverallHeartRate(numDays: timeFrame.numberOfDays()) { heartRate in
+            DispatchQueue.main.async {
+                if let heartRate = heartRate {
+                    self.baselineHeartRate = Double(heartRate)
+                }
+            }
+        }
         
         group.notify(queue: .main) {
             self.isLoading = false
@@ -204,15 +225,12 @@ struct AvgHeartRateComparisonView: View {
                     
                     HStack {
                         HStack {
-                            
-                            
-                            Text("off days")
+                            Text("baseline")
                                 .font(.headline)
                                 .foregroundColor(.black)
-                            // .padding(.leading, 10)
                         }
                         Spacer()
-                        Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
+                        Text(heartRateViewModel.baselineRestingHeartRate.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -254,13 +272,13 @@ struct AvgHeartRateComparisonView: View {
                     
                     HStack {
                         HStack {
-                            Text("off days")
+                            Text("baseline")
                                 .font(.headline)
                                 .foregroundColor(.black)
                         }
                         
                         Spacer()
-                        Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
+                        Text(heartRateViewModel.baselineHeartRate.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
