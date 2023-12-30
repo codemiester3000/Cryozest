@@ -22,8 +22,10 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var recoveryScores = [Int]()
     
+    @Published var weeklyAverage: Int = 0
+    
     init() {
-        getLastSevenDaysOfRecoveryScores()
+        self.getLastSevenDaysOfRecoveryScores()
     }
     
     func getLastSevenDays() -> [String] {
@@ -121,45 +123,37 @@ class RecoveryGraphModel: ObservableObject {
                     print("\n")
                     
                     self.recoveryScores.append(self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay))
+                    
+                    if index == last7Days.count - 1 {
+                        if !self.recoveryScores.isEmpty {
+                            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
+                            self.weeklyAverage = sum / self.recoveryScores.count // Computes the average
+                        } else {
+                            self.weeklyAverage = 0 // Handle the case where recoveryScores is empty
+                        }
+                    }
                 }
             }
         }
-        
-//        print("new recovery scores: ", newRecoveryScores)
-//        self.recoveryScores = newRecoveryScores
     }
     
     func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
-            // Ensure all required data is available
-            guard let avgHrvForDate = avgHrvForDate, let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
-                  let avgRestingHeartRateForDay = avgRestingHeartRateForDay, let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
-                return 0
-            }
-    
-            // Apply the new formula
-            let hrvRatio = Double(avgHrvForDate) / Double(avgHrvLast10days)
-            let heartRateRatio = Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)
-    
-            let recoveryScore = 0.8 * hrvRatio + 0.2 * heartRateRatio
-    
-            // Normalize the score to be between 0 and 100
-            let normalizedScore = min(max(Int(recoveryScore * 100), 0), 100)
-    
-            return normalizedScore
+        // Ensure all required data is available
+        guard let avgHrvForDate = avgHrvForDate, let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
+              let avgRestingHeartRateForDay = avgRestingHeartRateForDay, let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
+            return 0
         }
-    
-    // Placeholder function for HRV percentage retrieval
-    private func getHRVPercentage(forDay day: String) -> Int {
-        // Logic to retrieve HRV percentage for the given day.
-        // Return a dummy value for now
-        return Int.random(in: 30...100)
-    }
-    
-    // Placeholder function for Resting Heart Rate percentage retrieval
-    private func getRestingHRPercentage(forDay day: String) -> Int {
-        // Logic to retrieve resting heart rate percentage for the given day.
-        // Return a dummy value for now
-        return Int.random(in: -50...50)
+        
+        // Apply the new formula
+        let hrvRatio = Double(avgHrvForDate) / Double(avgHrvLast10days)
+        let heartRateRatio = Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)
+        
+        let recoveryScore = 0.8 * hrvRatio + 0.2 * heartRateRatio
+        
+        // Normalize the score to be between 0 and 100
+        let normalizedScore = min(max(Int(recoveryScore * 100), 0), 100)
+        
+        return normalizedScore
     }
 }
 
@@ -198,7 +192,7 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack {
-                    Text("Weekly Average: \(calculateWeeklyAverage())%") // Update this value based on actual data if needed
+                    Text("Weekly Average: \(model.weeklyAverage)%") // Update this value based on actual data if needed
                         .font(.caption)
                         .foregroundColor(.green)
                         .padding(.leading)
@@ -224,9 +218,9 @@ struct RecoveryGraphView: View {
     
     // Function to calculate weekly average
     func calculateWeeklyAverage() -> Int {
-//        let scores = model.getLastSevenDaysOfRecoveryScores()
-//        let total = scores.reduce(0, +)
-//        //return total / scores.count
+        //        let scores = model.getLastSevenDaysOfRecoveryScores()
+        //        let total = scores.reduce(0, +)
+        //        //return total / scores.count
         
         return 5
     }
