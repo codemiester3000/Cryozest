@@ -413,6 +413,73 @@ class HealthKitManager {
         healthStore.execute(heartRateQuery)
     }
     
+    func fetchAvgHeartRateDuringSleepForLastNDays(numDays: Int, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let endDate = Date() // Today
+        guard let startDate = calendar.date(byAdding: .day, value: -numDays, to: endDate) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        
+        // Query the sleep analysis samples
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            
+            guard let sleepSamples = samples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            var totalHeartRate = 0.0
+            var count = 0.0
+            let dispatchGroup = DispatchGroup()
+            
+            // For each sleep sample
+            for sleepSample in sleepSamples {
+                let sleepStartDate = sleepSample.startDate
+                let sleepEndDate = sleepSample.endDate
+                
+                // Create a predicate to fetch heart rate samples that fall within the sleep period
+                let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartDate, end: sleepEndDate, options: .strictStartDate)
+                
+                // Query the heart rate samples
+                dispatchGroup.enter()
+                let heartRateQuery = HKSampleQuery(sampleType: self.heartRateType, predicate: heartRatePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, heartRateSamples, error) in
+                    
+                    guard let heartRateSamples = heartRateSamples as? [HKQuantitySample] else {
+                        dispatchGroup.leave()
+                        return
+                    }
+                    
+                    // For each heart rate sample, add the heart rate to the total and increment the count
+                    for sample in heartRateSamples {
+                        totalHeartRate += sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                        count += 1
+                    }
+                    dispatchGroup.leave()
+                }
+                self.healthStore.execute(heartRateQuery)
+            }
+            
+            // Wait for all heart rate queries to complete
+            dispatchGroup.notify(queue: DispatchQueue.main) {
+                if count != 0 {
+                    let avgHeartRate = totalHeartRate / count
+                    completion(avgHeartRate)
+                } else {
+                    completion(nil)
+                }
+            }
+        }
+        
+        healthStore.execute(sleepQuery)
+    }
+
+    
     func fetchAvgHeartRateDuringSleepForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         
@@ -497,7 +564,54 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
-    
+    func fetchAvgSleepDurationForLastNDays(numDays: Int, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let endDate = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -numDays, to: endDate) else {
+            completion(nil)
+            return
+        }
+
+        // Create a predicate to fetch heart rate samples within the range of the last N days
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+
+            guard let sleepSamples = samples as? [HKCategorySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+
+            // Sum up all of the time the user spent asleep during the time frame.
+            var totalDuration = 0.0
+            var sampleDays = Set<Date>()
+            for sleepSample in sleepSamples {
+                if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                    let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                    totalDuration += duration
+                    let sampleDayStart = calendar.startOfDay(for: sleepSample.startDate)
+                    sampleDays.insert(sampleDayStart)
+                }
+            }
+
+            DispatchQueue.main.async {
+                if !sampleDays.isEmpty {
+                    let avgDuration = totalDuration / Double(sampleDays.count)
+                    completion(avgDuration)
+                } else {
+                    completion(nil)
+                }
+            }
+        }
+
+        healthStore.execute(sleepQuery)
+    }
+
+
     
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
