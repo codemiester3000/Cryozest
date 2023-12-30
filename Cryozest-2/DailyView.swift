@@ -25,13 +25,11 @@ class RecoveryGraphModel: ObservableObject {
     @Published var avgHrvDuringSleep: Int? {
         didSet {
             calculateHrvPercentage()
-            calculateRecoveryScore()
         }
     }
     @Published var avgHrvDuringSleep60Days: Int? {
         didSet {
             calculateHrvPercentage()
-            calculateRecoveryScore()
         }
     }
     @Published var hrvSleepPercentage: Int?
@@ -40,13 +38,11 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentRestingHeartRate: Int? {
         didSet {
             calculateRestingHeartRatePercentage()
-            calculateRecoveryScore()
         }
     }
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
             calculateRestingHeartRatePercentage()
-            calculateRecoveryScore()
         }
     }
     @Published var restingHeartRatePercentage: Int?
@@ -105,22 +101,6 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
-    }
-    
-    private func calculateRecoveryScore() {
-        var score = 0
-        
-        if let hrvPercentage = hrvSleepPercentage {
-            score += max(0, hrvPercentage)
-        }
-        
-        if let restingHRPercentage = restingHeartRatePercentage {
-            score += max(0, -restingHRPercentage)
-        }
-        
-        let normalizedScore = min(max(score, 0), 100)
-        
-        recoveryScore = normalizedScore
     }
     
     private func calculateHrvPercentage() {
