@@ -53,7 +53,13 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var recoveryScore: Int?
     
-    @Published var recoveryScores = [Int]()
+    @Published var recoveryScores = [Int]() {
+        didSet {
+            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
+            self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
+        }
+    }
+
     
     @Published var weeklyAverage: Int = 0
     
@@ -230,15 +236,6 @@ class RecoveryGraphModel: ObservableObject {
                     print("\n")
                     
                     self.recoveryScores.append(self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay))
-                    
-                    if index == last7Days.count - 1 {
-                        if !self.recoveryScores.isEmpty {
-                            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
-                            self.weeklyAverage = sum / self.recoveryScores.count // Computes the average
-                        } else {
-                            self.weeklyAverage = 0 // Handle the case where recoveryScores is empty
-                        }
-                    }
                 }
             }
         }
@@ -322,129 +319,7 @@ struct RecoveryGraphView: View {
             return .red
         }
     }
-    
-    // Function to calculate weekly average
-    func calculateWeeklyAverage() -> Int {
-        //        let scores = model.getLastSevenDaysOfRecoveryScores()
-        //        let total = scores.reduce(0, +)
-        //        //return total / scores.count
-        
-        return 5
-    }
 }
-
-
-class RecoveryCardModel: ObservableObject {
-    
-    // MARK -- HRV variables
-    @Published var avgHrvDuringSleep: Int? {
-        didSet {
-            calculateHrvPercentage()
-            calculateRecoveryScore()
-        }
-    }
-    @Published var avgHrvDuringSleep60Days: Int? {
-        didSet {
-            calculateHrvPercentage()
-            calculateRecoveryScore()
-        }
-    }
-    @Published var hrvSleepPercentage: Int?
-    
-    // MARK -- Heart Rate variables
-    @Published var mostRecentRestingHeartRate: Int? {
-        didSet {
-            calculateRestingHeartRatePercentage()
-            calculateRecoveryScore()
-        }
-    }
-    @Published var avgRestingHeartRate60Days: Int? {
-        didSet {
-            calculateRestingHeartRatePercentage()
-            calculateRecoveryScore()
-        }
-    }
-    @Published var restingHeartRatePercentage: Int?
-    
-    @Published var recoveryScore: Int?
-    
-    init() {
-        HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
-            DispatchQueue.main.async {
-                if let hrv = hrv {
-                    self.avgHrvDuringSleep = Int(hrv)
-                } else {
-                    self.avgHrvDuringSleep = nil
-                }
-            }
-        }
-        
-        HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
-            DispatchQueue.main.async {
-                if let hrv = hrv {
-                    self.avgHrvDuringSleep60Days = Int(hrv)
-                } else {
-                    self.avgHrvDuringSleep60Days = nil
-                }
-            }
-        }
-        
-        HealthKitManager.shared.fetchMostRecentRestingHeartRate() { restingHeartRate in
-            DispatchQueue.main.async {
-                if let restingHeartRate = restingHeartRate {
-                    self.mostRecentRestingHeartRate = restingHeartRate
-                } else {
-                    self.mostRecentRestingHeartRate = nil
-                }
-            }
-        }
-        
-        HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
-            DispatchQueue.main.async {
-                if let restingHeartRate = restingHeartRate60days {
-                    self.avgRestingHeartRate60Days = restingHeartRate
-                } else {
-                    self.avgRestingHeartRate60Days = nil
-                }
-            }
-        }
-    }
-    
-    private func calculateRecoveryScore() {
-        var score = 0
-        
-        if let hrvPercentage = hrvSleepPercentage {
-            score += max(0, hrvPercentage)
-        }
-        
-        if let restingHRPercentage = restingHeartRatePercentage {
-            score += max(0, -restingHRPercentage)
-        }
-        
-        let normalizedScore = min(max(score, 0), 100)
-        
-        recoveryScore = normalizedScore
-    }
-    
-    private func calculateHrvPercentage() {
-        if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
-            let percentage = Double(avgSleep - avg60Days) / Double(avg60Days) * 100
-            hrvSleepPercentage = Int(percentage.rounded())
-        } else {
-            hrvSleepPercentage = nil
-        }
-    }
-    
-    private func calculateRestingHeartRatePercentage() {
-        if let mostRecentHr = mostRecentRestingHeartRate, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
-            let percentage = Double(mostRecentHr - avg60Days) / Double(avg60Days) * 100
-            restingHeartRatePercentage = Int(percentage.rounded())
-        } else {
-            restingHeartRatePercentage = nil
-        }
-    }
-}
-
 
 struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
