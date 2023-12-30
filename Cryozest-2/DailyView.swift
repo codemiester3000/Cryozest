@@ -359,41 +359,44 @@ struct RecoveryCardView: View {
     var body: some View {
         ScrollView {
             VStack {
-                        Text("Daily Summary")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                Text("Daily Summary")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.top, 20)
+                
+                // Ready to Train Circle
+                ZStack {
+                    Circle()
+                        .stroke(lineWidth: 10)
+                        .foregroundColor(Color(.systemGreen).opacity(0.5)) // Lighter shade of green
+
+                    Circle()
+                        .trim(from: 0, to: 0.99) // Adjust for actual percentage
+                        .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .foregroundColor(Color(.systemGreen)) // Striking shade of green
+                        .rotationEffect(.degrees(-90)) // Start from the top
+
+                    VStack {
+                        Text("Ready to Train")
+                            .font(.headline) // Increase the font size for "Ready to Train"
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
                             .foregroundColor(.white)
-                            .padding(.top, 20)
 
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                    GridItemView(
-                        title: "Recovery",
-                        value: "\(model.recoveryScores.last ?? 0)", // Pass only the number
-                        unit: "%" // Pass the unit separately
-                    )
-                    GridItemView(
-                        title: "HRV",
-                        value: "\(model.lastKnownHRV)", // Pass only the number
-                        unit: "ms" // Pass the unit separately
-                    )
-                    GridItemView(
-                        title: "RHR",
-                        value: "\(model.mostRecentRestingHeartRate ?? 0)", // Pass only the number
-                        unit: "bpm" // Pass the unit separately
-                    )
-                    // ... Add more grid items if needed
+                        Text("\(model.recoveryScores.last ?? 0)%")
+                            .font(.largeTitle) // Increase the font size for the percentage number
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                    }
+                    .padding(10) // Add some padding for spacing between the two lines
                 }
-                .padding(.all, 10)
+                .frame(width: 150, height: 150)
 
-                }
-                .padding(.horizontal)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.8))
-            .cornerRadius(10)
-            .padding(.horizontal)
-
-
+                
+                
+                
                 // Metrics and paragraph
                 VStack {
                     HStack {
@@ -418,10 +421,37 @@ struct RecoveryCardView: View {
                         .foregroundColor(.white)
                         .padding()
                 }
+                
+                // Horizontal Stack for Grid Items
+                HStack(spacing: 10) {
+                    GridItemView(
+                        title: "Recovery",
+                        value: "\(model.recoveryScores.last ?? 0)",
+                        unit: "%"
+                    )
+                    GridItemView(
+                        title: "HRV",
+                        value: "\(model.lastKnownHRV)",
+                        unit: "ms"
+                    )
+                    GridItemView(
+                        title: "RHR",
+                        value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                        unit: "bpm"
+                    )
+                    // ... Add more grid items if needed
+                }
+                .padding(.all, 10)
+                
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(10)
+            .padding(.horizontal)
         }
-
-
+    }
+    
+}
 
 struct MetricView: View {
     let label: String
