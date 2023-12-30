@@ -3,7 +3,7 @@ import SwiftUI
 struct DailyView: View {
     var body: some View {
         ScrollView {
-            RecoveryCardView(model: RecoveryCardModel())
+            RecoveryCardView(model: RecoveryGraphModel())
             
             RecoveryGraphView(model: RecoveryGraphModel())
         }
@@ -20,12 +20,119 @@ struct DailyView: View {
 
 class RecoveryGraphModel: ObservableObject {
     
+    
+    // MARK -- HRV variables
+    @Published var avgHrvDuringSleep: Int? {
+        didSet {
+            calculateHrvPercentage()
+            calculateRecoveryScore()
+        }
+    }
+    @Published var avgHrvDuringSleep60Days: Int? {
+        didSet {
+            calculateHrvPercentage()
+            calculateRecoveryScore()
+        }
+    }
+    @Published var hrvSleepPercentage: Int?
+    
+    // MARK -- Heart Rate variables
+    @Published var mostRecentRestingHeartRate: Int? {
+        didSet {
+            calculateRestingHeartRatePercentage()
+            calculateRecoveryScore()
+        }
+    }
+    @Published var avgRestingHeartRate60Days: Int? {
+        didSet {
+            calculateRestingHeartRatePercentage()
+            calculateRecoveryScore()
+        }
+    }
+    @Published var restingHeartRatePercentage: Int?
+    
+    @Published var recoveryScore: Int?
+    
     @Published var recoveryScores = [Int]()
     
     @Published var weeklyAverage: Int = 0
     
     init() {
         self.getLastSevenDaysOfRecoveryScores()
+        
+        HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
+            DispatchQueue.main.async {
+                if let hrv = hrv {
+                    self.avgHrvDuringSleep = Int(hrv)
+                } else {
+                    self.avgHrvDuringSleep = nil
+                }
+            }
+        }
+        
+        HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
+            DispatchQueue.main.async {
+                if let hrv = hrv {
+                    self.avgHrvDuringSleep60Days = Int(hrv)
+                } else {
+                    self.avgHrvDuringSleep60Days = nil
+                }
+            }
+        }
+        
+        HealthKitManager.shared.fetchMostRecentRestingHeartRate() { restingHeartRate in
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate {
+                    self.mostRecentRestingHeartRate = restingHeartRate
+                } else {
+                    self.mostRecentRestingHeartRate = nil
+                }
+            }
+        }
+        
+        HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate60days {
+                    self.avgRestingHeartRate60Days = restingHeartRate
+                } else {
+                    self.avgRestingHeartRate60Days = nil
+                }
+            }
+        }
+    }
+    
+    private func calculateRecoveryScore() {
+        var score = 0
+        
+        if let hrvPercentage = hrvSleepPercentage {
+            score += max(0, hrvPercentage)
+        }
+        
+        if let restingHRPercentage = restingHeartRatePercentage {
+            score += max(0, -restingHRPercentage)
+        }
+        
+        let normalizedScore = min(max(score, 0), 100)
+        
+        recoveryScore = normalizedScore
+    }
+    
+    private func calculateHrvPercentage() {
+        if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
+            let percentage = Double(avgSleep - avg60Days) / Double(avg60Days) * 100
+            hrvSleepPercentage = Int(percentage.rounded())
+        } else {
+            hrvSleepPercentage = nil
+        }
+    }
+    
+    private func calculateRestingHeartRatePercentage() {
+        if let mostRecentHr = mostRecentRestingHeartRate, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
+            let percentage = Double(mostRecentHr - avg60Days) / Double(avg60Days) * 100
+            restingHeartRatePercentage = Int(percentage.rounded())
+        } else {
+            restingHeartRatePercentage = nil
+        }
     }
     
     func getLastSevenDays() -> [String] {
@@ -340,7 +447,7 @@ class RecoveryCardModel: ObservableObject {
 
 
 struct RecoveryCardView: View {
-    @ObservedObject var model: RecoveryCardModel
+    @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
         ZStack {
@@ -361,7 +468,7 @@ struct RecoveryCardView: View {
                         .foregroundColor(.green)
                         .rotationEffect(.degrees(-90)) // Start from the top
                     
-                    Text("Ready to Train\n\(model.recoveryScore ?? 0)%")
+                    Text("Ready to Train\n\(model.recoveryScores.last ?? 0)%")
                         .font(.footnote)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.center)
