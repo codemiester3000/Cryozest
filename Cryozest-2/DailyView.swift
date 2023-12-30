@@ -357,32 +357,43 @@ struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.8)
-                .cornerRadius(10)
-            
-            VStack(spacing: 10) {
-                // Ready to Train Circle
-                ZStack {
-                    Circle()
-                        .stroke(lineWidth: 10)
-                        .foregroundColor(.green)
-                        .opacity(0.2)
-                    
-                    Circle()
-                        .trim(from: 0, to: 0.99) // Adjust for actual percentage
-                        .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                        .foregroundColor(.green)
-                        .rotationEffect(.degrees(-90)) // Start from the top
-                    
-                    Text("Ready to Train\n\(model.recoveryScores.last ?? 0)%")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.white)
+        ScrollView {
+            VStack {
+                        Text("Daily Summary")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
+
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    GridItemView(
+                        title: "Recovery",
+                        value: "\(model.recoveryScores.last ?? 0)", // Pass only the number
+                        unit: "%" // Pass the unit separately
+                    )
+                    GridItemView(
+                        title: "HRV",
+                        value: "\(model.lastKnownHRV)", // Pass only the number
+                        unit: "ms" // Pass the unit separately
+                    )
+                    GridItemView(
+                        title: "RHR",
+                        value: "\(model.mostRecentRestingHeartRate ?? 0)", // Pass only the number
+                        unit: "bpm" // Pass the unit separately
+                    )
+                    // ... Add more grid items if needed
                 }
-                .frame(width: 150, height: 150)
-                
+                .padding(.all, 10)
+
+                }
+                .padding(.horizontal)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(10)
+            .padding(.horizontal)
+
+
                 // Metrics and paragraph
                 VStack {
                     HStack {
@@ -409,9 +420,8 @@ struct RecoveryCardView: View {
                 }
             }
         }
-        .frame(height: 400)
-    }
-}
+
+
 
 struct MetricView: View {
     let label: String
@@ -434,3 +444,45 @@ struct MetricView: View {
         }
     }
 }
+
+
+struct GridItemView: View {
+    var title: String
+    var value: String
+    var unit: String
+
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.headline) // You can adjust the font size as needed
+                .foregroundColor(.white)
+                .padding(.bottom, 2) // Reduce the bottom padding to bring title closer to the number
+
+            HStack(alignment: .lastTextBaseline) { // Align the baseline of the text
+                Text(value)
+                    .font(.largeTitle) // You can adjust the font size as needed
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Text(unit)
+                    .font(.footnote) // Smaller font size for the unit
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.leading, 2) // Space between the number and the unit
+            }
+
+            // Eliminate excess space by removing Spacers
+        }
+        .padding(.all, 8) // Reduced padding within each grid item
+        .frame(width: 100, height: 100) // Smaller frame for the grid item
+        .background(Color.black)
+        .cornerRadius(8)
+        .shadow(radius: 3)
+    }
+}
+
+
+
+
+
+
+                
