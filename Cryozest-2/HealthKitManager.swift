@@ -643,6 +643,23 @@ class HealthKitManager {
         self.healthStore.execute(sleepQuery)
     }
    
+    //ROB: New func to get last known HRV
+    
+    func fetchLastKnownHRV(before date: Date, completion: @escaping (Double?) -> Void) {
+        let hrvPredicate = HKQuery.predicateForSamples(withStart: nil, end: date, options: .strictEndDate)
+
+        let hrvQuery = HKSampleQuery(sampleType: self.hrvType, predicate: hrvPredicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { _, hrvSamples, error in
+            guard let lastHrvSample = hrvSamples?.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let lastHrvValue = lastHrvSample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+            completion(lastHrvValue)
+        }
+        self.healthStore.execute(hrvQuery)
+    }
+
+    
     func fetchAvgHRVDuringSleepForPreviousNight(completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let now = Date()

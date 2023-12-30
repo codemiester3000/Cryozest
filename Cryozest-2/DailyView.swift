@@ -20,6 +20,8 @@ struct DailyView: View {
 
 class RecoveryGraphModel: ObservableObject {
     
+
+
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -55,9 +57,11 @@ class RecoveryGraphModel: ObservableObject {
             self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
         }
     }
-
+    
     
     @Published var weeklyAverage: Int = 0
+    @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
+    
     
     init() {
         self.getLastSevenDaysOfRecoveryScores()
@@ -71,6 +75,20 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
+        
+        HealthKitManager.shared.fetchLastKnownHRV(before: Date()) { lastHrv in
+            DispatchQueue.main.async {
+                if let lastHrv = lastHrv {
+                    self.lastKnownHRV = Int(lastHrv)
+                } else {
+                    // Handle the case where the last known HRV is not available
+                    self.lastKnownHRV = 0  // or handle it differently
+                }
+            }
+        }
+
+        
+        
         
         HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
             DispatchQueue.main.async {
@@ -121,11 +139,13 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     
+    
+    
     func getLastSevenDaysDates() -> [Date] {
         var dates = [Date]()
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date()) // Ensure the time is set to midnight
-
+        
         // Generate dates for the last seven days
         for i in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: -i, to: today) {
@@ -134,7 +154,7 @@ class RecoveryGraphModel: ObservableObject {
         }
         return dates
     }
-
+    
     
     func getLastSevenDays() -> [String] {
         let dateFormatter = DateFormatter()
@@ -227,35 +247,45 @@ class RecoveryGraphModel: ObservableObject {
                 group.enter()
                 
                 performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
-                                
-                                let score = self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay)
-                                
-                                DispatchQueue.main.async {
-                                    temporaryScores[date] = score
-                                    group.leave()
-                                }
-                            }
+                                    
+                    let score = self.calculateRecoveryScore(
+                        avgHrvLast10days: avgHrvLast10days,
+                        avgHrvForDate: avgHrvForDate,
+                        lastKnownHrv: self.lastKnownHRV,  // Pass the last known HRV here
+                        avgHeartRate30day: avgHeartRate30day,
+                        avgRestingHeartRateForDay: avgRestingHeartRateForDay
+                    )
+                    
+                    DispatchQueue.main.async {
+                        temporaryScores[date] = score
+                        group.leave()
+                    }
+                }
             }
         }
         
         group.notify(queue: .main) {
-                let sortedDates = self.getLastSevenDaysDates().sorted()
-                self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
-            }
+            let sortedDates = self.getLastSevenDaysDates().sorted()
+            self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
+        }
     }
     
-    func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
-        // Ensure all required data is available
-        guard let avgHrvForDate = avgHrvForDate, let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
-              let avgRestingHeartRateForDay = avgRestingHeartRateForDay, let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
+    func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, lastKnownHrv: Int, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
+        // Ensure that some of the required data is available and valid
+        guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
+              let avgRestingHeartRateForDay = avgRestingHeartRateForDay,
+              let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
             return 0
         }
         
-        // Apply the new formula
-        let hrvRatio = Double(avgHrvForDate) / Double(avgHrvLast10days)
-        let heartRateRatio = Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)
+        // Use the last known HRV as a fallback for avgHrvForDate if it's nil
+        let safeAvgHrvForDate = avgHrvForDate ?? lastKnownHrv
         
-        let recoveryScore = 0.8 * hrvRatio + 0.2 * heartRateRatio
+        // Apply the adjusted formula
+        let scaledHrvRatio = (Double(safeAvgHrvForDate) / Double(avgHrvLast10days)) / 1.33
+        let scaledHeartRateRatio = (Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)) / 1.25
+        
+        let recoveryScore = 0.8 * scaledHrvRatio + 0.2 * scaledHeartRateRatio
         
         // Normalize the score to be between 0 and 100
         let normalizedScore = min(max(Int(recoveryScore * 100), 0), 100)
@@ -263,7 +293,6 @@ class RecoveryGraphModel: ObservableObject {
         return normalizedScore
     }
 }
-
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
     
