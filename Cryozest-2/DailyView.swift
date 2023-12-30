@@ -20,16 +20,10 @@ struct DailyView: View {
 
 class RecoveryGraphModel: ObservableObject {
     
-    var avgHrvLast10days: Int?
+    @Published var recoveryScores = [Int]()
     
     init() {
-        HealthKitManager.shared.fetchAvgHRVForLastDays(numberOfDays: 10) { avgHrv in
-            if let avgHrv = avgHrv {
-                self.avgHrvLast10days = Int(avgHrv)
-            } else {
-                self.avgHrvLast10days = nil
-            }
-        }
+        getLastSevenDaysOfRecoveryScores()
     }
     
     func getLastSevenDays() -> [String] {
@@ -60,80 +54,99 @@ class RecoveryGraphModel: ObservableObject {
         return normalizedScore
     }
     
-    func getLastSevenDaysOfRecoveryScores() -> [Int] {
+    func performMultipleHealthKitOperations(date: Date, completion: @escaping (Int?, Int?, Int?, Int?) -> Void) {
+        let group = DispatchGroup()
+        
+        var avgHrvLast10days: Int? = nil
+        var avgHrvForDate: Int? = nil
+        var avgHeartRate30day: Int? = nil
+        var avgRestingHeartRateForDay: Int? = nil
+        
+        group.enter()
+        HealthKitManager.shared.fetchAvgHRVForLastDays(numberOfDays: 10) { avgHrv in
+            if let avgHrv = avgHrv {
+                avgHrvLast10days = Int(avgHrv)
+            }
+            group.leave()
+        }
+        
+        group.enter()
+        HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { avgHrv in
+            if let avgHrv = avgHrv {
+                avgHrvForDate = Int(avgHrv)
+            }
+            group.leave()
+        }
+        
+        group.enter()
+        HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 30) { restingHeartRate in
+            if let restingHeartRate = restingHeartRate {
+                avgHeartRate30day = restingHeartRate
+            }
+            group.leave()
+        }
+        
+        group.enter()
+        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: [date]) { restingHeartRate in
+            if let heartRate = restingHeartRate {
+                avgRestingHeartRateForDay = Int(heartRate)
+            }
+            group.leave()
+        }
+        
+        group.notify(queue: .main) {
+            // All tasks are complete, call completion with the fetched data
+            completion(avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay)
+        }
+    }
+    
+    func getLastSevenDaysOfRecoveryScores() {
         let last7Days = getLastSevenDays() // ["SUN", "SAT", "FRI", "THU", "WED", "TUE", "MON"]
-        var recoveryScores = [Int]()
+        //var newRecoveryScores = [Int]()
         
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
+        self.recoveryScores = []
+        
         for (index, dayOfWeek) in last7Days.enumerated() {
             if let date = calendar.date(byAdding: .day, value: -index, to: today) {
-                /**
-                    Values we use in our equation:
-    
-                    - AVG 10 day HRV // DONE
-                    - Final sleeping HRV avg for the day // TODO
-    
-                    - 30 day AVG resting heart rate // TODO
-                    - Average resting heart rate for the day // TODO
-                 */
                 
-                print("owen here: ", date)
-                
-                var avgHrvForDate: Int? = nil
-                HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { avgHrv in
-                    if let avgHrv = avgHrv {
-                        avgHrvForDate = Int(avgHrv)
-                    }
+                performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
+                    print("\n")
+                    print("avgHrvLast10days: ", avgHrvLast10days)
+                    print("avgHeartRate30day: ", avgHeartRate30day)
+                    print("avgRestingHeartRateForDay: ", avgRestingHeartRateForDay)
+                    print("avgHrvForDate: ", avgHrvForDate)
+                    print("\n")
+                    
+                    self.recoveryScores.append(self.calculateRecoveryScore(avgHrvLast10days: avgHrvLast10days, avgHrvForDate: avgHrvForDate, avgHeartRate30day: avgHeartRate30day, avgRestingHeartRateForDay: avgRestingHeartRateForDay))
                 }
-                // TODO: Have backup hrv values to use if this one is nil
-                // Currently break and return 0 if no average HRV was found
-                if avgHrvForDate == nil {
-                    recoveryScores.append(0)
-                    continue
-                }
-                
-                var avgHeartRate30day: Int? = nil
-                HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 30) { restingHeartRate in
-                    if let restingHeartRate = restingHeartRate {
-                        avgHeartRate30day = restingHeartRate
-                    }
-                }
-                // If this value is not availabe then set recovery score to 0 and move on.
-                if avgHeartRate30day == nil {
-                    recoveryScores.append(0)
-                    continue
-                }
-                
-                var avgRestingHeartRateForDay: Int? = nil
-                HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: [date]) { restingHeartRate in
-                    if let heartRate = restingHeartRate {
-                        avgRestingHeartRateForDay = Int(heartRate)
-                    }
-                }
-                // If this value is not availabe then set recovery score to 0 and move on.
-                if avgRestingHeartRateForDay == nil {
-                    recoveryScores.append(0)
-                    continue
-                }
-                
-                print("\n")
-                print("avgHrvLast10days: ", avgHrvLast10days)
-                print("avgHeartRate30day: ", avgHeartRate30day)
-                print("avgRestingHeartRateForDay: ", avgRestingHeartRateForDay)
-                print("avgHrvForDate: ", avgHrvForDate)
-                print("\n")
-                
-                // TODO: Use the values above to calculate a score here.
-                var score = 0
-                
-                recoveryScores.append(score)
             }
         }
         
-        return recoveryScores
+//        print("new recovery scores: ", newRecoveryScores)
+//        self.recoveryScores = newRecoveryScores
     }
+    
+    func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
+            // Ensure all required data is available
+            guard let avgHrvForDate = avgHrvForDate, let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
+                  let avgRestingHeartRateForDay = avgRestingHeartRateForDay, let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
+                return 0
+            }
+    
+            // Apply the new formula
+            let hrvRatio = Double(avgHrvForDate) / Double(avgHrvLast10days)
+            let heartRateRatio = Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)
+    
+            let recoveryScore = 0.8 * hrvRatio + 0.2 * heartRateRatio
+    
+            // Normalize the score to be between 0 and 100
+            let normalizedScore = min(max(Int(recoveryScore * 100), 0), 100)
+    
+            return normalizedScore
+        }
     
     // Placeholder function for HRV percentage retrieval
     private func getHRVPercentage(forDay day: String) -> Int {
@@ -168,7 +181,7 @@ struct RecoveryGraphView: View {
                 }
                 
                 HStack(alignment: .bottom) {
-                    ForEach(Array(zip(model.getLastSevenDays(), model.getLastSevenDaysOfRecoveryScores())), id: \.0) { (day, percentage) in
+                    ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
                         VStack {
                             Text("\(percentage)%")
                                 .font(.caption)
@@ -211,9 +224,11 @@ struct RecoveryGraphView: View {
     
     // Function to calculate weekly average
     func calculateWeeklyAverage() -> Int {
-        let scores = model.getLastSevenDaysOfRecoveryScores()
-        let total = scores.reduce(0, +)
-        return total / scores.count
+//        let scores = model.getLastSevenDaysOfRecoveryScores()
+//        let total = scores.reduce(0, +)
+//        //return total / scores.count
+        
+        return 5
     }
 }
 
