@@ -190,7 +190,6 @@ struct AvgHeartRateComparisonView: View {
                         Spacer()
                         Text(heartRateViewModel.baselineRestingHeartRate.formatBPM())
                             .font(.footnote)
-                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -217,12 +216,12 @@ struct AvgHeartRateComparisonView: View {
                         HStack {
                             
                             Text("\(heartRateViewModel.therapyType.rawValue) days")
-                                .font(.system(size: 16, weight: .regular, design: .default))
+                                .font(.footnote)
                                 .foregroundColor(.white)
                         }
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
-                            .font(.system(size: 16, weight: .regular, design: .default))
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -231,14 +230,13 @@ struct AvgHeartRateComparisonView: View {
                     HStack {
                         HStack {
                             Text("baseline")
-                                .font(.system(size: 16, weight: .regular, design: .default))
+                                .font(.footnote)
                                 .foregroundColor(.white)
                         }
                         
                         Spacer()
                         Text(heartRateViewModel.baselineHeartRate.formatBPM())
-                            .font(.system(size: 16, weight: .regular, design: .default))
-                            .fontWeight(.bold)
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }

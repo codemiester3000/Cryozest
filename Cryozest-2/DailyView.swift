@@ -557,7 +557,6 @@ struct MetricView: View {
     }
 }
 
-
 struct GridItemView: View {
     var title: String
     var value: String
@@ -590,12 +589,7 @@ struct GridItemView: View {
         .shadow(radius: 3)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.orange, lineWidth: 1)
+                .stroke(Color.red, lineWidth: 1)
         )
     }
 }
-
-
-
-
-

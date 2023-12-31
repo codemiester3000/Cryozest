@@ -164,7 +164,6 @@ struct RecoveryAnalysisView: View {
                         Spacer()
                         Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
                             .font(.footnote)
-                            .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
