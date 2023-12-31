@@ -21,7 +21,7 @@ struct TherapyTypeGrid: View {
                             .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
                             .font(.system(size: 20))
                         Text(therapyType.rawValue)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: 16, weight: .medium, design: .default))
                             .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
                     }
                     .padding()

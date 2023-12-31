@@ -8,13 +8,7 @@ struct DailyView: View {
             RecoveryGraphView(model: RecoveryGraphModel())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.black
-//            LinearGradient(
-//                gradient: Gradient(colors: [Color.black, Color.black.opacity(0.8)]),
-//                startPoint: .top,
-//                endPoint: .bottom
-//            )
-        )
+        .background(.black)
     }
 }
 
@@ -338,6 +332,7 @@ struct RecoveryGraphView: View {
                         .padding(.horizontal)
                     Spacer()
                 }
+                .padding(.horizontal)
                 
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
@@ -491,11 +486,7 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
-                    //                    GridItemView(
-                    //                        title: "Recovery",
-                    //                        value: "\(model.recoveryScores.last ?? 0)",
-                    //                        unit: "%"
-                    //                    )
+                    
                     
                     GridItemView(
                         title: "Sleep",

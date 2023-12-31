@@ -91,8 +91,6 @@ class HeartRateViewModel: ObservableObject {
     private func fetchrestingHeartRateTherapyDays(group: DispatchGroup) {
         let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         
-        print("fetchrestingHeartRateTherapyDays ", completedSessionDates)
-        
         group.enter()
         HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: completedSessionDates) { avgHeartRateExcluding in
             if let avgHeartRateExcluding = avgHeartRateExcluding {
@@ -114,33 +112,6 @@ class HeartRateViewModel: ObservableObject {
             group.leave()
         }
     }
-    
-//    private func fetchrestingHeartRateNonTherapyDays(group: DispatchGroup) {
-//        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-//        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
-//        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
-//        
-//        group.enter()
-//        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: nonTherapyDates) { fetchedAvgHeartRateExcluding in
-//            if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
-//                self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
-//                self.calculateRestingHRDifference()
-//            } else {
-//                // print("Failed to fetch average heart rate excluding specific days.")
-//            }
-//            group.leave()
-//        }
-//        
-//        group.enter()
-//        HealthKitManager.shared.fetchAvgHeartRateForDays(days: nonTherapyDates) { avgHeartRateExcluding in
-//            if let avgHeartRateExcluding = avgHeartRateExcluding {
-//                self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
-//                self.calculateAvgHRDifference()
-//            } else {
-//            }
-//            group.leave()
-//        }
-//    }
 }
 
 extension Double {
@@ -158,23 +129,26 @@ struct AvgHeartRateComparisonView: View {
             LoadingView()
         }
         else {
-            VStack(alignment: .leading) {
-                
-                Text("Heart Rate Analysis")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(.bottom, 10)
-                
-                Text(heartRateViewModel.timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(heartRateViewModel.therapyType.color)
-                    .cornerRadius(8)
-                    .padding(.bottom, 10)
+            VStack() {
+                HStack {
+                    Text("Heart Rate Analysis")
+                        .font(.system(size: 24, weight: .regular, design: .default))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.bottom, 10)
+                    
+                    Spacer()
+                    
+                    Text(heartRateViewModel.timeFrame.displayString())
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(heartRateViewModel.therapyType.color)
+                        .cornerRadius(8)
+                        .padding(.bottom, 10)
+                }
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
@@ -182,9 +156,9 @@ struct AvgHeartRateComparisonView: View {
                     // Resting Heart Rate View.
                     HStack {
                         Text("Resting Heart Rate")
-                            .font(.system(size: 20, weight: .bold, design: .default))
+                            .font(.footnote)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                         Spacer()
                         
                         Image(systemName: "heart.fill")
@@ -192,19 +166,16 @@ struct AvgHeartRateComparisonView: View {
                             .padding(.trailing, 10)
                         
                     }
-                    
-                    
-                    
                     HStack {
                         HStack {
                             Text("\(heartRateViewModel.therapyType.rawValue) days")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                         }
                         
                         Spacer()
                         Text(heartRateViewModel.restingHeartRateTherapyDays.formatBPM())
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -213,12 +184,12 @@ struct AvgHeartRateComparisonView: View {
                     HStack {
                         HStack {
                             Text("baseline")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                         }
                         Spacer()
                         Text(heartRateViewModel.baselineRestingHeartRate.formatBPM())
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
@@ -232,9 +203,9 @@ struct AvgHeartRateComparisonView: View {
                 VStack {
                     HStack {
                         Text("Avg Heart Rate")
-                            .font(.system(size: 20, weight: .bold, design: .default))
+                            .font(.footnote)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                         Spacer()
                         
                         Image(systemName: "heart.fill")
@@ -246,12 +217,12 @@ struct AvgHeartRateComparisonView: View {
                         HStack {
                             
                             Text("\(heartRateViewModel.therapyType.rawValue) days")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.system(size: 16, weight: .regular, design: .default))
+                                .foregroundColor(.white)
                         }
                         Spacer()
                         Text(heartRateViewModel.avgHeartRateTherapyDays.formatBPM())
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.system(size: 16, weight: .regular, design: .default))
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -260,13 +231,13 @@ struct AvgHeartRateComparisonView: View {
                     HStack {
                         HStack {
                             Text("baseline")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.system(size: 16, weight: .regular, design: .default))
+                                .foregroundColor(.white)
                         }
                         
                         Spacer()
                         Text(heartRateViewModel.baselineHeartRate.formatBPM())
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.system(size: 16, weight: .regular, design: .default))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
@@ -274,8 +245,7 @@ struct AvgHeartRateComparisonView: View {
                 }
                 .padding(.top, 10)
             }
-            .frame(maxWidth: .infinity)
-            .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+            .padding(.horizontal)
             .cornerRadius(16)
             .transition(.opacity)
             .animation(.easeIn)
@@ -295,12 +265,12 @@ struct HeartRateDifferenceView: View {
                 .foregroundColor(isIncreased ? .red : .green)
             
             Text("\(heartRateType)")
-                .font(.headline)
+                .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.white)
                 .padding(8)
             
             Text("\(isIncreased ? "Up" : "Down") \(differencePercentage, specifier: "%.1f")%")
-                .font(.headline)
+                .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.white)
                 .padding(8)
                 .background(isIncreased ? Color.red : Color.green)

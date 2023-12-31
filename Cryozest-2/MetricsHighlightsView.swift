@@ -129,6 +129,25 @@ struct MetricsHighlightsView: View {
     
     var body: some View {
         VStack {
+            
+            HStack(alignment: .center) {
+                Text("Highlights")
+                    .font(.system(size: 24, weight: .regular, design: .default))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+                Spacer()
+                Text(model.timeFrame.displayString())
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(model.therapyType.color)
+                    .cornerRadius(8)
+            }
+            .padding(.top)
+            
             HighlightBullet(type: "resting heart rate",
                             percentage: $model.restingHeartRateDifference,
                             therapyType: $model.therapyType, timeFrame: $model.timeFrame)
@@ -150,40 +169,50 @@ struct HighlightBullet: View {
     
     var body: some View {
         HStack {
-            HStack {
-                Text("•")
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                
-                (Text("You saw a ")
-                    //.fontWeight(.bold)
-                    .foregroundColor(.black) +
-                 Text("\(percentage, specifier: "%.1f")%")
-                    .fontWeight(.bold)
-                    .foregroundColor(.black) +
-                    //.foregroundColor(isGreen ? Color(red: 0.2, green: 0.5, blue: 0.2) : Color(red: 0.7, green: 0.0, blue: 0.0)) +
-                 Text(" \(percentage >= 0.0 ? "increase" : "decrease") ")
-                    .fontWeight(.bold)
-                    .foregroundColor(.black) +
-                 Text("in ")
-                    //.fontWeight(.bold)
-                    .foregroundColor(.black) +
-                 Text("\(type) ")
-                    .fontWeight(.bold)
-                    .foregroundColor(.black) +
-                 
-                 Text("the \(timeFrame.displayString().lowercased()) on ")
-                    //.fontWeight(.bold)
-                    .foregroundColor(.black) +
-                 
-                 Text("\(therapyType.rawValue.lowercased()) ")
-                    .fontWeight(.bold)
-                    .foregroundColor(therapyType.color) +
-                 Text("days")
-                    //.fontWeight(.bold)
-                    .foregroundColor(.black))
+            Text("•")
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            VStack(alignment: .leading) {
+                percentageText
+                additionalText
             }
         }
         .padding(.vertical, 12)
     }
+
+    private var percentageText: Text {
+        Text("You saw a ")
+            .font(.footnote)
+            .foregroundColor(.white) +
+        Text("\(percentage, specifier: "%.1f")%")
+            .fontWeight(.bold)
+            .font(.footnote)
+            .foregroundColor(.white) +
+        Text(" \(percentage >= 0.0 ? "increase" : "decrease") ")
+            .fontWeight(.bold)
+            .font(.footnote)
+            .foregroundColor(.white)
+    }
+
+    private var additionalText: Text {
+        Text("in ")
+            .font(.footnote)
+            .foregroundColor(.white) +
+        Text("\(type) ")
+            .fontWeight(.bold)
+            .font(.footnote)
+            .foregroundColor(.white) +
+        Text("the \(timeFrame.displayString().lowercased()) on ")
+            .font(.footnote)
+            .foregroundColor(.white) +
+        Text("\(therapyType.rawValue.lowercased()) ")
+            .fontWeight(.bold)
+            .font(.footnote)
+            .foregroundColor(therapyType.color) +
+        Text("days")
+            .font(.footnote)
+            .foregroundColor(.white)
+    }
 }
+

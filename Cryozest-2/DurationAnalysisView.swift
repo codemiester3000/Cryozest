@@ -136,103 +136,93 @@ struct DurationAnalysisView: View {
     @ObservedObject var viewModel: DurationAnalysisViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-        
-            
-            Text("Overall Analysis")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.black)
-                .padding(.bottom, 10)
-            
-            HStack {
+        VStack() {
+            HStack(alignment: .center) {
+                Text("Overall Analysis")
+                    .font(.system(size: 24, weight: .regular, design: .default))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+                Spacer()
                 Text(viewModel.timeFrame.displayString())
-                    .font(.subheadline)
+                    .font(.footnote)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(viewModel.therapyType.color)
                     .cornerRadius(8)
-                Spacer()
             }
             
             Divider().background(Color.darkBackground.opacity(0.8))
             
-            HStack {
-                Text("Completed")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                Spacer()
-                Text("\(viewModel.totalSessions) sessions")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    //.padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    //.background(viewModel.therapyType.color.opacity(0.7))
-                    .cornerRadius(8)
+            VStack {
+                HStack {
+                    Text("Completed")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(viewModel.totalSessions) sessions")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .cornerRadius(8)
+                }
+                
+                Divider().background(Color.darkBackground.opacity(0.8))
+                
+                HStack {
+                    Text("Time")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(Int(viewModel.totalTime / 60)) mins")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .cornerRadius(15)
+                }
+                
+                Divider().background(Color.darkBackground.opacity(0.8))
+                
+                HStack {
+                    Text("Current streak")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(viewModel.currentStreak) days")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .cornerRadius(15)
+                }
+                
+                Divider().background(Color.darkBackground.opacity(0.8))
+                
+                HStack {
+                    Text("Longest streak")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(viewModel.longestStreak) days")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 4)
+                        .cornerRadius(15)
+                }
             }
-            
-            Divider().background(Color.darkBackground.opacity(0.8))
-            
-            HStack {
-                Text("Time")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                Spacer()
-                Text("\(Int(viewModel.totalTime / 60)) mins")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    //.padding(.horizontal, 20)
-                    .padding(.vertical, 4)
-//                    .background(viewModel.therapyType.color.opacity(0.7))
-                    .cornerRadius(15)
-            }
-            
-            Divider().background(Color.darkBackground.opacity(0.8))
-            
-            HStack {
-                Text("Current streak")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                Spacer()
-                Text("\(viewModel.currentStreak) days")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    //.padding(.horizontal, 20)
-                    .padding(.vertical, 4)
-//                    .background(viewModel.therapyType.color.opacity(0.7))
-                    .cornerRadius(15)
-            }
-            
-            Divider().background(Color.darkBackground.opacity(0.8))
-            
-            HStack {
-                Text("Longest streak")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                Spacer()
-                Text("\(viewModel.longestStreak) days")
-                    .font(.system(size: 18, weight: .bold, design: .default))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    //.padding(.horizontal, 20)
-                    .padding(.vertical, 4)
-//                    .background(viewModel.therapyType.color.opacity(0.7))
-                    .cornerRadius(15)
-            }
+            ///.padding(.horizontal)
         }
-        .padding()
         .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
-//        .shadow(radius: 5)
         .transition(.opacity)
         .animation(.easeIn)
         .onAppear {

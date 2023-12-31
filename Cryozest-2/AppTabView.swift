@@ -7,40 +7,45 @@ extension Color {
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
     @StateObject private var therapyTypeSelection = TherapyTypeSelection()
+    
+    @State private var selectedTab: Int = 0
 
     var body: some View {
-        TabView {
-            MainView(therapyTypeSelection: therapyTypeSelection)
+        TabView(selection: $selectedTab) {
+            DailyView()
                 .tabItem {
-                    Image(systemName: "stopwatch")
-                    Text("Stopwatch")
+                    Image(systemName: "moon")
+                    Text("Daily")
                 }
+                .tag(0)
                 .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
-            
-            LogbookView(therapyTypeSelection: therapyTypeSelection)
-                .tabItem {
-                    Image(systemName: "calendar")
-                    Text("Calendar")
-                }
-                .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
             
             AnalysisView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Analysis")
                 }
-                .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
+                .tag(1)
+                .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-            DailyView()
+            MainView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
-                    Image(systemName: "moon")
-                    Text("Daily")
+                    Image(systemName: "stopwatch")
+                    Text("Stopwatch")
                 }
+                .tag(2)
+            
+            LogbookView(therapyTypeSelection: therapyTypeSelection)
+                .tabItem {
+                    Image(systemName: "calendar")
+                    Text("Calendar")
+                }
+                .tag(3)
+                .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(Color.black)
+        .accentColor(selectedTab == 0 || selectedTab == 1 ? Color.white : Color.black)
         .opacity(0.85)
         .background(Color.clear)
     }

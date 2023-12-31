@@ -48,7 +48,7 @@ struct AnalysisView: View {
             ScrollView {
                 HStack {
                     Text("Analysis")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .font(.system(size: 24, weight: .regular, design: .default))
                         .foregroundColor(.white)
                         .bold()
                         .padding(.top, 36)
@@ -60,54 +60,50 @@ struct AnalysisView: View {
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom, 16)
                 
-                Divider()
-                    .background(Color.black.opacity(0.8))
-                    .padding(.bottom, 8)
+//                Divider()
+//                    .background(Color.white.opacity(0.8))
+//                    .padding(.bottom, 8)
                 
                 Picker("Time frame", selection: $selectedTimeFrame) {
                     Text("Last Week")
                         .tag(TimeFrame.week)
-                        .foregroundColor(selectedTimeFrame == .week ? .orange : .primary)
+                        .foregroundColor(selectedTimeFrame == .week ? .orange : .white)
                     Text("Last Month")
                         .tag(TimeFrame.month)
-                        .foregroundColor(selectedTimeFrame == .month ? .orange : .primary)
+                        .foregroundColor(selectedTimeFrame == .month ? .orange : .white)
                     Text("Last Year")
                         .tag(TimeFrame.allTime)
-                        .foregroundColor(selectedTimeFrame == .allTime ? .orange : .blue)
+                        .foregroundColor(selectedTimeFrame == .allTime ? .orange : .white)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                //.padding(.bottom, 16)
+                .background(Color.black) // This sets the background color of the picker to black
                 .padding(.horizontal)
+
                 
-                Divider()
-                    .background(Color.black.opacity(0.8))
-                    .padding(.vertical, 8)
+//                Divider()
+//                    .background(Color.white.opacity(0.8))
+//                    .padding(.vertical, 8)
                 
                 MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
-                Divider()
-                    .background(Color.black.opacity(0.8))
-                    .padding(.vertical, 8)
+//                Divider()
+//                    .background(Color.white.opacity(0.8))
+//                    .padding(.vertical, 8)
                 
                 DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
                 
-                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
+                Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                 
                 AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                 
-                Divider().background(Color.black.opacity(0.8)).padding(.vertical, 8)
+                Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                 
                 RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    .padding(.bottom)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
+        .background(.black)
         .navigationTitle("Analysis")
     }
     

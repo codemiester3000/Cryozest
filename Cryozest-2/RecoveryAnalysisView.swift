@@ -106,30 +106,34 @@ struct RecoveryAnalysisView: View {
         } else {
             VStack(alignment: .leading, spacing: 16) {
                 
-                Text("Recovery Analysis")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(.bottom, 10)
+                HStack {
+                    Text("Recovery Analysis")
+                        .font(.system(size: 24, weight: .regular, design: .default))
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.bottom, 10)
+                    
+                    Spacer()
+                    
+                    Text(viewModel.timeFrame.displayString())
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(viewModel.therapyType.color)
+                        .cornerRadius(8)
+                }
                 
-                Text(viewModel.timeFrame.displayString())
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(viewModel.therapyType.color)
-                    .cornerRadius(8)
-                
-                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 10)
+                Divider().background(Color.darkBackground.opacity(0.8))
                 
                 // Sleep data
                 VStack {
                     HStack {
                         Text("Avg Sleep Duration")
-                            .font(.system(size: 20, weight: .bold, design: .default))
+                            .font(.footnote)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                         Spacer()
                         
                         Image(systemName: "moon.fill")
@@ -139,13 +143,13 @@ struct RecoveryAnalysisView: View {
                     HStack {
                         HStack {
                             Text("\(viewModel.therapyType.rawValue) days")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                             
                         }
                         Spacer()
                         Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -154,27 +158,27 @@ struct RecoveryAnalysisView: View {
                         HStack {
                             
                             Text("baseline")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                         }
                         Spacer()
                         Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
                 }
                 
-                Divider().background(Color.darkBackground.opacity(0.8)).padding(.vertical, 4)
+                Divider().background(Color.darkBackground.opacity(0.8))
                 
                 // Heart Rate Data
                 VStack {
                     HStack {
                         Text("Avg Sleeping HR")
-                            .font(.system(size: 20, weight: .bold, design: .default))
+                            .font(.footnote)
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                         Spacer()
                         
                         Image(systemName: "heart.fill")
@@ -186,13 +190,13 @@ struct RecoveryAnalysisView: View {
                             
                             
                             Text("\(viewModel.therapyType.rawValue) days")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                             
                         }
                         Spacer()
                         Text((viewModel.sleepingHeartRateTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateTherapyDays) + " BPM" : "N/A"))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
@@ -200,21 +204,20 @@ struct RecoveryAnalysisView: View {
                     HStack {
                         HStack {
                             Text("baseline")
-                                .font(.headline)
-                                .foregroundColor(.black)
+                                .font(.footnote)
+                                .foregroundColor(.white)
                             
                         }
                         Spacer()
                         Text((viewModel.baselineSleepingHeartRate != 0 ? String(format: "%.1f", viewModel.baselineSleepingHeartRate) + " BPM" : "N/A"))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                            .font(.footnote)
                             .foregroundColor(.white)
                             .padding(.trailing, 10)
                     }
                 }
                 .padding(.top, 10)
             }
-            .frame(maxWidth: .infinity)
-            .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+            .padding(.horizontal)
             .cornerRadius(16)
             .transition(.opacity)
             .animation(.easeIn)
