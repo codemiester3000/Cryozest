@@ -17,43 +17,43 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     var id: String { self.rawValue }
     
     var icon: String {
-            switch self {
-            case .drySauna:
-                return "flame.fill"
-            case .hotYoga:
-                return "bolt.fill"
-            case .running:
-                return "figure.walk"
-            case .weightTraining:
-                return "dumbbell.fill"
-            case .coldPlunge:
-                return "snow"
-            case .coldShower:
-                return "drop.fill"
-            case .iceBath:
-                return "snowflake"
-            case .coldYoga:
-                return "leaf.arrow.circlepath"
-            case .meditation:
-                return "heart.fill"
-            case .stretching:
-                return "person.fill"
-            case .deepBreathing:
-                return "wind"
-            case .sleep:
-                return "moon.fill"
-            }
+        switch self {
+        case .drySauna:
+            return "flame.fill"
+        case .hotYoga:
+            return "bolt.fill"
+        case .running:
+            return "figure.walk"
+        case .weightTraining:
+            return "dumbbell.fill"
+        case .coldPlunge:
+            return "snow"
+        case .coldShower:
+            return "drop.fill"
+        case .iceBath:
+            return "snowflake"
+        case .coldYoga:
+            return "leaf.arrow.circlepath"
+        case .meditation:
+            return "heart.fill"
+        case .stretching:
+            return "person.fill"
+        case .deepBreathing:
+            return "wind"
+        case .sleep:
+            return "moon.fill"
         }
+    }
     
     var color: Color {
-            switch self {
-            case .drySauna, .hotYoga, .running, .weightTraining:
-                return Color.orange
-            case .coldPlunge, .coldShower, .iceBath, .coldYoga:
-                return Color.blue
-            case .meditation, .stretching, .deepBreathing, .sleep:
-                return Color(red: 0.0, green: 0.5, blue: 0.0)
-          }
+        switch self {
+        case .drySauna, .hotYoga, .running, .weightTraining:
+            return Color.orange
+        case .coldPlunge, .coldShower, .iceBath, .coldYoga:
+            return Color.blue
+        case .meditation, .stretching, .deepBreathing, .sleep:
+            return Color(red: 0.0, green: 0.5, blue: 0.0)
         }
+    }
 }
 

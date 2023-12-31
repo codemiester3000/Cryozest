@@ -92,28 +92,6 @@ class SleepViewModel: ObservableObject {
             group.leave()
         }
     }
-    
-//    private func fetchDataNonTherapyDays(group: DispatchGroup) {
-//        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-//        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
-//        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
-//        
-////        group.enter()
-////        healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: nonTherapyDates) { avgHeartRate in
-////            if let avgHeartRate = avgHeartRate {
-////                self.sleepingHeartRateNonTherapyDays = avgHeartRate
-////            }
-////            group.leave()
-////        }
-//        
-//        group.enter()
-//        healthKitManager.fetchAvgSleepDurationForDays(days: nonTherapyDates) { avgSleep in
-//            if let avgSleep = avgSleep {
-//                self.avgSleepDurationNonTherapyDays =  Double(String(format: "%.1f", avgSleep/3600)) ?? 0.0
-//            }
-//            group.leave()
-//        }
-//    }
 }
 
 

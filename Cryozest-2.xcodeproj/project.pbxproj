@@ -10,7 +10,6 @@
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
-		C53190592A491F7C0029653B /* HRVAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53190582A491F7C0029653B /* HRVAnalysisView.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
@@ -32,6 +31,7 @@
 		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
+		C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C598129F2B41007100C13C15 /* TherapyTypeClass.swift */; };
 		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
 		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
 		C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */; };
@@ -70,7 +70,6 @@
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
-		C53190582A491F7C0029653B /* HRVAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVAnalysisView.swift; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
@@ -95,6 +94,7 @@
 		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
+		C598129F2B41007100C13C15 /* TherapyTypeClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeClass.swift; sourceTree = "<group>"; };
 		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
 		C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsHighlightsView.swift; sourceTree = "<group>"; };
@@ -179,7 +179,6 @@
 				C576E6C12A510B880042C8A7 /* RecoveryAnalysisView.swift */,
 				C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
-				C53190582A491F7C0029653B /* HRVAnalysisView.swift */,
 				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
 				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
 				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
@@ -193,6 +192,7 @@
 				C57EE33229CA8E34002A4875 /* Preview Content */,
 				C549EAC62B2FCEC200F583C7 /* DailyView.swift */,
 				C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */,
+				C598129F2B41007100C13C15 /* TherapyTypeClass.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -366,6 +366,7 @@
 				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
+				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
@@ -390,7 +391,6 @@
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
-				C53190592A491F7C0029653B /* HRVAnalysisView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
