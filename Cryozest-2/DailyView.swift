@@ -16,8 +16,8 @@ struct DailyView: View {
 class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil
-
-
+    
+    
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -109,23 +109,23 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         HealthKitManager.shared.fetchMostRecentSPO2 { spo2 in
-              DispatchQueue.main.async {
-                  self.mostRecentSPO2 = spo2
-              }
-          }
-
-          HealthKitManager.shared.fetchMostRecentRespiratoryRate { respRate in
-              DispatchQueue.main.async {
-                  self.mostRecentRespiratoryRate = respRate
-              }
-          }
+            DispatchQueue.main.async {
+                self.mostRecentSPO2 = spo2
+            }
+        }
+        
+        HealthKitManager.shared.fetchMostRecentRespiratoryRate { respRate in
+            DispatchQueue.main.async {
+                self.mostRecentRespiratoryRate = respRate
+            }
+        }
         
         HealthKitManager.shared.fetchMostRecentActiveEnergy { activeCalories in
-                    DispatchQueue.main.async {
-                        self.mostRecentActiveCalories = activeCalories
-                    }
-                }
-
+            DispatchQueue.main.async {
+                self.mostRecentActiveCalories = activeCalories
+            }
+        }
+        
         HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
                 if let sleepDuration = sleepDuration {
@@ -473,26 +473,26 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
-                                  GridItemView(
-                                      title: "Sleep",
-                                      value: model.previousNightSleepDuration ?? "N/A",
-                                      unit: "hrs"
-                                  )
-                                  
-                                  GridItemView(
-                                      title: "HRV",
-                                      value: "\(model.lastKnownHRV)",
-                                      unit: "ms"
-                                  )
-                                  
-                                  GridItemView(
-                                      title: "RHR",
-                                      value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                                      unit: "bpm"
-                                  )
-                              }
+                    GridItemView(
+                        title: "Sleep",
+                        value: model.previousNightSleepDuration ?? "N/A",
+                        unit: "hrs"
+                    )
+                    
+                    GridItemView(
+                        title: "HRV",
+                        value: "\(model.lastKnownHRV)",
+                        unit: "ms"
+                    )
+                    
+                    GridItemView(
+                        title: "RHR",
+                        value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                        unit: "bpm"
+                    )
+                }
                 .padding(.bottom, 1) // Reduced bottom padding
-
+                
                 // Second row of grid items
                 HStack(spacing: 10) {
                     GridItemView(
@@ -513,26 +513,26 @@ struct RecoveryCardView: View {
                     )
                 }
                 .padding(.top, 5) // Reduced top padding
-                           }
-                           .frame(maxWidth: .infinity, maxHeight: .infinity)
-                           .padding(.horizontal)
-                       }
-                   }
-
-                   private func formatSPO2Value(_ spo2: Double?) -> String {
-                       guard let spo2 = spo2 else { return "N/A" }
-                       return String(format: "%.0f", spo2 * 100) // Convert to percentage
-                   }
-                    private func formatActiveCaloriesValue(_ calories: Double?) -> String {
-                        guard let calories = calories else { return "N/A" }
-                        return String(format: "%.0f", calories) // Rounded to the nearest integer
-                        }
-
-                   private func formatRespRateValue(_ respRate: Double?) -> String {
-                       guard let respRate = respRate else { return "N/A" }
-                       return String(format: "%.1f", respRate) // One decimal place
-                   }
-               }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.horizontal)
+        }
+    }
+    
+    private func formatSPO2Value(_ spo2: Double?) -> String {
+        guard let spo2 = spo2 else { return "N/A" }
+        return String(format: "%.0f", spo2 * 100) // Convert to percentage
+    }
+    private func formatActiveCaloriesValue(_ calories: Double?) -> String {
+        guard let calories = calories else { return "N/A" }
+        return String(format: "%.0f", calories) // Rounded to the nearest integer
+    }
+    
+    private func formatRespRateValue(_ respRate: Double?) -> String {
+        guard let respRate = respRate else { return "N/A" }
+        return String(format: "%.1f", respRate) // One decimal place
+    }
+}
 
 
 struct MetricView: View {
@@ -569,7 +569,7 @@ struct GridItemView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.bottom, 1) // Reduced bottom padding
-
+            
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
                     .font(.system(size: 20)) // Slightly smaller font size
