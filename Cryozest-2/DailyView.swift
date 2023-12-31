@@ -10,7 +10,7 @@ struct DailyView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                gradient: Gradient(colors: [Color.black, Color.black.opacity(0.8)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -20,8 +20,8 @@ struct DailyView: View {
 
 class RecoveryGraphModel: ObservableObject {
     
-
-
+    @Published var previousNightSleepDuration: String? = nil
+    
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -61,8 +61,32 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
+    @Published var lastKnownHRVTime: String? = nil // Add this property
+
     
     
+    
+    var hrvReadings: [Date: Int] = [:]
+    
+    func getClosestHRVReading(for date: Date) -> Int? {
+        let calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: date) // Start of the given date
+        let endDate = calendar.date(byAdding: .day, value: 1, to: startDate)! // Start of the next day
+
+        let sortedDates = hrvReadings.keys.filter { $0 >= startDate && $0 < endDate }.sorted().reversed()
+        for readingDate in sortedDates {
+            return hrvReadings[readingDate]
+        }
+        return nil
+    }
+
+
+    private func formatSleepDuration(_ duration: TimeInterval) -> String {
+        let hours = duration / 3600  // Convert seconds to hours
+        return String(format: "%.1f", hours)
+    }
+
+
     init() {
         self.getLastSevenDaysOfRecoveryScores()
         
@@ -77,17 +101,26 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         HealthKitManager.shared.fetchLastKnownHRV(before: Date()) { lastHrv in
+                 DispatchQueue.main.async {
+                     if let lastHrv = lastHrv {
+                         self.lastKnownHRV = Int(lastHrv)
+                     } else {
+                         // Handle the case where the last known HRV is not available
+                         self.lastKnownHRV = 0  // or handle it differently
+                     }
+                 }
+             }
+        
+        HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
-                if let lastHrv = lastHrv {
-                    self.lastKnownHRV = Int(lastHrv)
+                if let sleepDuration = sleepDuration {
+                    self.previousNightSleepDuration = self.formatSleepDuration(sleepDuration)
                 } else {
-                    // Handle the case where the last known HRV is not available
-                    self.lastKnownHRV = 0  // or handle it differently
+                    self.previousNightSleepDuration = nil
                 }
             }
         }
 
-        
         
         
         HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
@@ -144,16 +177,19 @@ class RecoveryGraphModel: ObservableObject {
     func getLastSevenDaysDates() -> [Date] {
         var dates = [Date]()
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date()) // Ensure the time is set to midnight
-        
-        // Generate dates for the last seven days
+        let today = calendar.startOfDay(for: Date()) // Normalize 'today' to start at midnight
+
+        // Generate dates for the last seven days, including today
         for i in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: -i, to: today) {
                 dates.insert(date, at: 0) // Insert at the beginning to reverse the order
             }
         }
+        // At this point, 'dates' contains the last seven days including today,
+        // each normalized to start at midnight
         return dates
     }
+
     
     
     func getLastSevenDays() -> [String] {
@@ -202,10 +238,12 @@ class RecoveryGraphModel: ObservableObject {
         
         group.enter()
         HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { avgHrv in
-            if let avgHrv = avgHrv {
-                avgHrvForDate = Int(avgHrv)
+            DispatchQueue.main.async {
+                if let avgHrv = avgHrv {
+                    self.hrvReadings[date] = Int(avgHrv)
+                }
+                group.leave()
             }
-            group.leave()
         }
         
         group.enter()
@@ -231,68 +269,63 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func getLastSevenDaysOfRecoveryScores() {
-        let last7Days = getLastSevenDays() // ["SUN", "SAT", "FRI", "THU", "WED", "TUE", "MON"]
-        //var newRecoveryScores = [Int]()
-        
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
-        self.recoveryScores = []
-        
+        let last7Days = getLastSevenDaysDates()  // Assuming this returns [Date]
         var temporaryScores: [Date: Int] = [:]
         let group = DispatchGroup()
         
-        for (index, dayOfWeek) in last7Days.enumerated() {
-            if let date = calendar.date(byAdding: .day, value: -index, to: today) {
-                group.enter()
+        for date in last7Days {
+            group.enter()
+            
+            performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
                 
-                performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
-                                    
-                    let score = self.calculateRecoveryScore(
-                        avgHrvLast10days: avgHrvLast10days,
-                        avgHrvForDate: avgHrvForDate,
-                        lastKnownHrv: self.lastKnownHRV,  // Pass the last known HRV here
-                        avgHeartRate30day: avgHeartRate30day,
-                        avgRestingHeartRateForDay: avgRestingHeartRateForDay
-                    )
-                    
-                    DispatchQueue.main.async {
-                        temporaryScores[date] = score
-                        group.leave()
-                    }
+                // Now calling calculateRecoveryScore with the correct parameters
+                let score = self.calculateRecoveryScore(
+                    date: date,
+                    avgHrvLast10days: avgHrvLast10days,
+                    avgHrvForDate: avgHrvForDate,
+                    avgHeartRate30day: avgHeartRate30day,
+                    avgRestingHeartRateForDay: avgRestingHeartRateForDay
+                )
+                
+                DispatchQueue.main.async {
+                    temporaryScores[date] = score
+                    group.leave()
                 }
             }
         }
         
         group.notify(queue: .main) {
-            let sortedDates = self.getLastSevenDaysDates().sorted()
-            self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
+            // Once all data is fetched and processed, update recoveryScores
+            self.recoveryScores = last7Days.compactMap { temporaryScores[$0] }
         }
     }
+
     
-    func calculateRecoveryScore(avgHrvLast10days: Int?, avgHrvForDate: Int?, lastKnownHrv: Int, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
-        // Ensure that some of the required data is available and valid
+    func calculateRecoveryScore(date: Date, avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
         guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
-              let avgRestingHeartRateForDay = avgRestingHeartRateForDay,
-              let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0 else {
+              let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0,
+              let avgRestingHeartRateForDay = avgRestingHeartRateForDay else {
             return 0
         }
         
-        // Use the last known HRV as a fallback for avgHrvForDate if it's nil
-        let safeAvgHrvForDate = avgHrvForDate ?? lastKnownHrv
+        // Use avgHrvForDate if available; otherwise, use the closest available HRV reading
+        let effectiveAvgHrv = avgHrvForDate ?? getClosestHRVReading(for: date)
         
-        // Apply the adjusted formula
+        guard let safeAvgHrvForDate = effectiveAvgHrv else {
+            return 0
+        }
+        
         let scaledHrvRatio = (Double(safeAvgHrvForDate) / Double(avgHrvLast10days)) / 1.33
         let scaledHeartRateRatio = (Double(avgRestingHeartRateForDay) / Double(avgHeartRate30day)) / 1.25
         
         let recoveryScore = 0.8 * scaledHrvRatio + 0.2 * scaledHeartRateRatio
-        
-        // Normalize the score to be between 0 and 100
         let normalizedScore = min(max(Int(recoveryScore * 100), 0), 100)
         
         return normalizedScore
     }
 }
+    
+    
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
     
@@ -424,11 +457,18 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
+//                    GridItemView(
+//                        title: "Recovery",
+//                        value: "\(model.recoveryScores.last ?? 0)",
+//                        unit: "%"
+//                    )
+                    
                     GridItemView(
-                        title: "Recovery",
-                        value: "\(model.recoveryScores.last ?? 0)",
-                        unit: "%"
+                        title: "Sleep",
+                        value: model.previousNightSleepDuration ?? "N/A",
+                        unit: "hrs"
                     )
+                    
                     GridItemView(
                         title: "HRV",
                         value: "\(model.lastKnownHRV)",
@@ -439,13 +479,18 @@ struct RecoveryCardView: View {
                         value: "\(model.mostRecentRestingHeartRate ?? 0)",
                         unit: "bpm"
                     )
+//                    GridItemView(
+//                        title: "Sleep",
+//                        value: model.previousNightSleepDuration ?? "N/A",
+//                        unit: "hrs"
+//                    )
                     // ... Add more grid items if needed
                 }
                 .padding(.all, 10)
                 
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.8))
+            .background(Color.black.opacity(0.0))
             .cornerRadius(10)
             .padding(.horizontal)
         }
@@ -484,34 +529,33 @@ struct GridItemView: View {
     var body: some View {
         VStack {
             Text(title)
-                .font(.headline) // You can adjust the font size as needed
+                .font(.headline)
                 .foregroundColor(.white)
-                .padding(.bottom, 2) // Reduce the bottom padding to bring title closer to the number
+                .padding(.bottom, 2)
 
-            HStack(alignment: .lastTextBaseline) { // Align the baseline of the text
+            HStack(alignment: .lastTextBaseline) {
                 Text(value)
-                    .font(.largeTitle) // You can adjust the font size as needed
+                    .font(.system(size: 22)) // Custom font size
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
                 Text(unit)
-                    .font(.footnote) // Smaller font size for the unit
+                    .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 2) // Space between the number and the unit
+                    .padding(.leading, 1) // Reduced padding, adjust as needed
             }
-
-            // Eliminate excess space by removing Spacers
         }
-        .padding(.all, 8) // Reduced padding within each grid item
-        .frame(width: 100, height: 100) // Smaller frame for the grid item
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
-    }
-}
-
-
-
+        .padding(.all, 8)
+                .frame(width: 100, height: 100)
+                .background(Color.black)
+                .cornerRadius(8)
+                .shadow(radius: 3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.red, lineWidth: 1) // Red ring with 1-point line width
+                )
+            }
+        }
 
 
 
