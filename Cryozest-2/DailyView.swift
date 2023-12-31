@@ -8,12 +8,12 @@ struct DailyView: View {
             RecoveryGraphView(model: RecoveryGraphModel())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.black, Color.black.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
+        .background(.black
+//            LinearGradient(
+//                gradient: Gradient(colors: [Color.black, Color.black.opacity(0.8)]),
+//                startPoint: .top,
+//                endPoint: .bottom
+//            )
         )
     }
 }
@@ -366,7 +366,7 @@ struct RecoveryGraphView: View {
                 .padding(.top)
             }
         }
-        .frame(height: 300) // Adjust the height as needed
+        .frame(height: 200) // Adjust the height as needed
     }
     
     // Function to get color based on percentage
@@ -388,43 +388,81 @@ struct RecoveryCardView: View {
     var body: some View {
         ScrollView {
             VStack {
-                Text("Daily Summary")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.vertical, 20)
+                //                Text("Daily Summary")
+                //                    .font(.title2)
+                //                    .fontWeight(.semibold)
+                //                    .foregroundColor(.white)
+                //                    .padding(.vertical, 20)
+                //
+                //                // Ready to Train Circle
+                //                ZStack {
+                //                    Circle()
+                //                        .stroke(lineWidth: 10)
+                //                        .foregroundColor(Color(.systemGreen).opacity(0.5)) // Lighter shade of green
+                //
+                //                    Circle()
+                //                        .trim(from: 0, to: 0.99) // Adjust for actual percentage
+                //                        .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                //                        .foregroundColor(Color(.systemGreen)) // Striking shade of green
+                //                        .rotationEffect(.degrees(-90)) // Start from the top
+                //
+                //                    VStack {
+                //                        Text("Ready to Train")
+                //                            .font(.headline) // Increase the font size for "Ready to Train"
+                //                            .fontWeight(.bold)
+                //                            .multilineTextAlignment(.center)
+                //                            .foregroundColor(.white)
+                //
+                //                        Text("\(model.recoveryScores.last ?? 0)%")
+                //                            .font(.largeTitle) // Increase the font size for the percentage number
+                //                            .fontWeight(.bold)
+                //                            .multilineTextAlignment(.center)
+                //                            .foregroundColor(.white)
+                //                    }
+                //                    .padding(10) // Add some padding for spacing between the two lines
+                //                }
+                //                .frame(width: 150, height: 150)
                 
-                // Ready to Train Circle
-                ZStack {
-                    Circle()
-                        .stroke(lineWidth: 10)
-                        .foregroundColor(Color(.systemGreen).opacity(0.5)) // Lighter shade of green
+                HStack {
+                    Text("Daily Summary")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.top, -30)
                     
-                    Circle()
-                        .trim(from: 0, to: 0.99) // Adjust for actual percentage
-                        .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                        .foregroundColor(Color(.systemGreen)) // Striking shade of green
-                        .rotationEffect(.degrees(-90)) // Start from the top
+                    Spacer() // Adding a spacer for separation
                     
-                    VStack {
-                        Text("Ready to Train")
-                            .font(.headline) // Increase the font size for "Ready to Train"
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white)
+                    // Ready to Train Circle - Made smaller
+                    ZStack {
+                        Circle()
+                            .stroke(lineWidth: 8) // Slightly thinner stroke
+                            .foregroundColor(Color(.systemGreen).opacity(0.5))
                         
-                        Text("\(model.recoveryScores.last ?? 0)%")
-                            .font(.largeTitle) // Increase the font size for the percentage number
-                            .fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white)
+                        Circle()
+                            .trim(from: 0, to: 0.99)
+                            .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                            .foregroundColor(Color(.systemGreen))
+                            .rotationEffect(.degrees(-90))
+                        
+                        VStack {
+                            Text("Ready to Train")
+                                .font(.system(size: 10))
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                            
+                            Text("\(model.recoveryScores.last ?? 0)%")
+                                .font(.title3) // Smaller font size
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                        }
+                        .padding(8) // Reduced padding
                     }
-                    .padding(10) // Add some padding for spacing between the two lines
+                    .frame(width: 120, height: 120) // Smaller frame size
                 }
-                .frame(width: 150, height: 150)
-                
-                
-                
+                .padding(.horizontal)
+                .padding(.vertical, 20)
                 
                 // Metrics and paragraph
                 VStack {
