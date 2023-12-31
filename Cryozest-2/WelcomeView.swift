@@ -7,24 +7,28 @@ struct WelcomeView: View {
     var body: some View {
         ZStack {
             // Gradient background
-            LinearGradient(gradient: Gradient(colors: [Color.gray, Color.orange]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
                 .edgesIgnoringSafeArea(.all)
             
             // Content overlay
             VStack(spacing: 30) { // Increased spacing
                 
-                Image("TestLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 250) // adjust this to change the logo size
-                    .padding(.vertical, 20)
+//                Image("TestLogo")
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(width: 250) // adjust this to change the logo size
+//                    .padding(.vertical, 20)
+                
+                HardcodedGraph()
                 
                 Text("Welcome to CryoZest")
-                    .font(.system(size: 40, weight: .bold, design: .default)) // Custom larger font size
+                    .font(.system(size: 30, weight: .bold, design: .default)) // Custom larger font size
                     .foregroundColor(.white) // Retaining the white color
                     .shadow(color: .gray.opacity(0.5), radius: 2, x: 0, y: 2) // Keeping the subtle shadow for depth
                     .padding(.top, 20) // Retaining the top padding
                     .multilineTextAlignment(.center) // Center alignment
+                
+                Divider().background(Color.darkBackground.opacity(0.8))
                     
                 Spacer()
                 
@@ -37,7 +41,7 @@ struct WelcomeView: View {
                         .padding(.trailing, 8) // Spacing between icon and text
                     
                     Text("See your health metrics evolve as you develop new habits")
-                        .font(.system(size: 18, weight: .medium, design: .rounded)) // Adjusted for better readability
+                        .font(.system(size: 16, weight: .bold, design: .default))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2) // To prevent text overflow
@@ -59,18 +63,18 @@ struct WelcomeView: View {
                     Spacer() // For center alignment
                     
                     Image(systemName: "lock.fill")
-                        .foregroundColor(.black)
+                        .foregroundColor(.red)
                         .imageScale(.medium) // Slightly reduced size for balance
                         .padding(.trailing, 8) // Spacing between icon and text
                     
                     Text("No data collected, ever")
-                        .font(.system(size: 18, weight: .medium, design: .rounded)) // Adjusted for better readability
+                        .font(.system(size: 16, weight: .bold, design: .default))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2) // To prevent text overflow
                     
                     Image(systemName: "lock.fill")
-                        .foregroundColor(.black)
+                        .foregroundColor(.red)
                         .imageScale(.medium) // Synchronized with left icon
                         .padding(.leading, 8) // Consistent spacing
 
@@ -90,7 +94,7 @@ struct WelcomeView: View {
                     }
                 }) {
                     Text("Get Started")
-                        .font(.headline)
+                        .font(.footnote)
                         .fontWeight(.medium)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -111,3 +115,54 @@ struct WelcomeView: View {
     }
 }
 
+struct HardcodedGraph: View {
+    // Hardcoded data for the last seven days and their recovery scores
+    let lastSevenDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    let recoveryScores = [70, 50, 30, 80, 60, 90, 40]
+
+    var body: some View {
+        ZStack {
+            VStack {
+//                HStack {
+//                    Text("Recovery Per Day")
+//                        .font(.headline)
+//                        .foregroundColor(.white)
+//                        .padding(.horizontal)
+//                    Spacer()
+//                }
+//                .padding(.horizontal)
+//                .padding(.vertical)
+                
+                HStack(alignment: .bottom) {
+                    ForEach(Array(zip(lastSevenDays, recoveryScores)), id: \.0) { (day, percentage) in
+                        VStack {
+//                            Text("\(percentage)%")
+//                                .font(.caption)
+//                                .foregroundColor(.white)
+                            Rectangle()
+                                .fill(getColor(forPercentage: percentage))
+                                .frame(width: 40, height: CGFloat(percentage))
+                                .cornerRadius(5)
+//                            Text(day)
+//                                .font(.caption)
+//                                .foregroundColor(.white)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(height: 200) // Adjust the height as needed
+    }
+    
+    // Function to get color based on percentage
+    func getColor(forPercentage percentage: Int) -> Color {
+        switch percentage {
+        case let x where x > 50:
+            return .green
+        case let x where x > 30:
+            return .yellow
+        default:
+            return .red
+        }
+    }
+}

@@ -136,8 +136,6 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
         
-        
-        
         HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
             DispatchQueue.main.async {
                 if let hrv = hrv {
@@ -354,7 +352,7 @@ struct RecoveryGraphView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.top)
+                .padding(.vertical)
                 
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
@@ -406,40 +404,6 @@ struct RecoveryCardView: View {
     var body: some View {
         ScrollView {
             VStack {
-                //                Text("Daily Summary")
-                //                    .font(.title2)
-                //                    .fontWeight(.semibold)
-                //                    .foregroundColor(.white)
-                //                    .padding(.vertical, 20)
-                //
-                //                // Ready to Train Circle
-                //                ZStack {
-                //                    Circle()
-                //                        .stroke(lineWidth: 10)
-                //                        .foregroundColor(Color(.systemGreen).opacity(0.5)) // Lighter shade of green
-                //
-                //                    Circle()
-                //                        .trim(from: 0, to: 0.99) // Adjust for actual percentage
-                //                        .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                //                        .foregroundColor(Color(.systemGreen)) // Striking shade of green
-                //                        .rotationEffect(.degrees(-90)) // Start from the top
-                //
-                //                    VStack {
-                //                        Text("Ready to Train")
-                //                            .font(.headline) // Increase the font size for "Ready to Train"
-                //                            .fontWeight(.bold)
-                //                            .multilineTextAlignment(.center)
-                //                            .foregroundColor(.white)
-                //
-                //                        Text("\(model.recoveryScores.last ?? 0)%")
-                //                            .font(.largeTitle) // Increase the font size for the percentage number
-                //                            .fontWeight(.bold)
-                //                            .multilineTextAlignment(.center)
-                //                            .foregroundColor(.white)
-                //                    }
-                //                    .padding(10) // Add some padding for spacing between the two lines
-                //                }
-                //                .frame(width: 150, height: 150)
                 
                 HStack {
                     Text("Daily Summary")
