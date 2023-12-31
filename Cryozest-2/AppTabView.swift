@@ -18,7 +18,8 @@ struct AppTabView: View {
                     Text("Daily")
                 }
                 .tag(0)
-                .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
+                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
             
             AnalysisView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
@@ -35,6 +36,8 @@ struct AppTabView: View {
                     Text("Stopwatch")
                 }
                 .tag(2)
+                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
             
             LogbookView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
