@@ -6,24 +6,40 @@ class HealthKitManager {
     
     private let healthStore = HKHealthStore()
     private let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-    // private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-    // private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+    private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+    private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
-    
     private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+    private let activeEnergyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+    private let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
     
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
-        // Define the types
+        // Define the types for heart rate, body mass, sleep analysis, HRV, respiration rate, SpO2, Active Energy, and Resting Energy
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         let restingHeartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
-        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
         let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
-        
-        let typesToRead: Set<HKObjectType> = [heartRateType, restingHeartRateType, bodyMassType, sleepAnalysisType, hrvType]
-        
+        let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+        let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+        let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+        let restingEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
+
+        // Add new types to the typesToRead set
+        let typesToRead: Set<HKObjectType> = [
+            heartRateType,
+            restingHeartRateType,
+            bodyMassType,
+            sleepAnalysisType,
+            hrvType,
+            respirationRateType,
+            spo2Type,
+            activeEnergyType,
+            restingEnergyType
+        ]
+
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             completion(success, error)
         }
@@ -76,6 +92,42 @@ class HealthKitManager {
         healthStore.execute(bodyMassQuery)
     }
     
+    func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
+           let now = Date()
+           let startOfDay = Calendar.current.startOfDay(for: now)
+           let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
+
+           let query = HKSampleQuery(sampleType: restingEnergyType, predicate: predicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
+               guard let sample = samples?.first as? HKQuantitySample else {
+                   completion(nil)
+                   return
+               }
+               let restingEnergyValue = sample.quantity.doubleValue(for: HKUnit.kilocalorie())
+               completion(restingEnergyValue)
+           }
+           healthStore.execute(query)
+       }
+    
+    func fetchMostRecentActiveEnergy(completion: @escaping (Double?) -> Void) {
+        let now = Date()
+           let startOfDay = Calendar.current.startOfDay(for: now)
+           let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
+
+           let query = HKStatisticsQuery(quantityType: activeEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
+               guard let statistics = statistics, let sum = statistics.sumQuantity() else {
+                   completion(nil)
+                   return
+               }
+               let totalActiveEnergy = sum.doubleValue(for: HKUnit.kilocalorie())
+               completion(totalActiveEnergy)
+           }
+           healthStore.execute(query)
+       }
+
+
+    
+    
+
     func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double)?) -> Void) {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
@@ -289,6 +341,35 @@ class HealthKitManager {
         
         healthStore.execute(heartRateQuery)
     }
+    
+    
+    func fetchMostRecentRespiratoryRate(completion: @escaping (Double?) -> Void) {
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(sampleType: respirationRateType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let respiratoryRate = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+            completion(respiratoryRate)
+        }
+        healthStore.execute(query)
+    }
+
+    
+    func fetchMostRecentSPO2(completion: @escaping (Double?) -> Void) {
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(sampleType: spo2Type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let spo2 = sample.quantity.doubleValue(for: HKUnit.percent())
+            completion(spo2)
+        }
+        healthStore.execute(query)
+    }
+
     
     
     func fetchAvgRestingHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {
@@ -744,12 +825,20 @@ class HealthKitManager {
     func fetchSleepDurationForPreviousNight(completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        guard let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: today) else {
+
+        // Calculate 7 PM yesterday
+        guard let yesterday7PM = calendar.date(byAdding: .hour, value: -5, to: today) else {
             completion(nil)
             return
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: yesterdayStart, end: today, options: .strictStartDate)
+        // Calculate 2 PM today
+        guard let today2PM = calendar.date(byAdding: .hour, value: 14, to: today) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: yesterday7PM, end: today2PM, options: .strictStartDate)
 
         guard let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis) else {
             completion(nil)
@@ -765,13 +854,16 @@ class HealthKitManager {
             }
 
             var totalSleepTime: TimeInterval = 0
-            var lastEndDate: Date? = nil
+            var lastEndDate: Date? = yesterday7PM
 
             for sample in sleepSamples {
-                // Ensure there's no overlap in sleep samples
-                if sample.startDate > (lastEndDate ?? yesterdayStart) {
-                    totalSleepTime += sample.endDate.timeIntervalSince(sample.startDate)
-                    lastEndDate = sample.endDate
+                print("Sleep Sample: \(sample.startDate) to \(sample.endDate)") // Debugging line
+
+                // If there's an overlap, adjust the start date
+                let adjustedStartDate = max(sample.startDate, lastEndDate ?? sample.startDate)
+                if adjustedStartDate < sample.endDate {
+                    totalSleepTime += sample.endDate.timeIntervalSince(adjustedStartDate)
+                    lastEndDate = max(lastEndDate ?? sample.startDate, sample.endDate)
                 }
             }
 
@@ -782,6 +874,7 @@ class HealthKitManager {
 
         healthStore.execute(sleepQuery)
     }
+
 
     
     

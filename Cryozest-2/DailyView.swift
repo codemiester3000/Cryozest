@@ -6,6 +6,7 @@ struct DailyView: View {
             RecoveryCardView(model: RecoveryGraphModel())
             
             RecoveryGraphView(model: RecoveryGraphModel())
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
@@ -15,7 +16,8 @@ struct DailyView: View {
 class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil
-    
+
+
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -56,8 +58,9 @@ class RecoveryGraphModel: ObservableObject {
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
     @Published var lastKnownHRVTime: String? = nil // Add this property
-    
-    
+    @Published var mostRecentSPO2: Double? = nil
+    @Published var mostRecentRespiratoryRate: Double? = nil
+    @Published var mostRecentActiveCalories: Double? = nil
     
     
     var hrvReadings: [Date: Int] = [:]
@@ -105,6 +108,24 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
         
+        HealthKitManager.shared.fetchMostRecentSPO2 { spo2 in
+              DispatchQueue.main.async {
+                  self.mostRecentSPO2 = spo2
+              }
+          }
+
+          HealthKitManager.shared.fetchMostRecentRespiratoryRate { respRate in
+              DispatchQueue.main.async {
+                  self.mostRecentRespiratoryRate = respRate
+              }
+          }
+        
+        HealthKitManager.shared.fetchMostRecentActiveEnergy { activeCalories in
+                    DispatchQueue.main.async {
+                        self.mostRecentActiveCalories = activeCalories
+                    }
+                }
+
         HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
                 if let sleepDuration = sleepDuration {
@@ -452,34 +473,67 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
+                                  GridItemView(
+                                      title: "Sleep",
+                                      value: model.previousNightSleepDuration ?? "N/A",
+                                      unit: "hrs"
+                                  )
+                                  
+                                  GridItemView(
+                                      title: "HRV",
+                                      value: "\(model.lastKnownHRV)",
+                                      unit: "ms"
+                                  )
+                                  
+                                  GridItemView(
+                                      title: "RHR",
+                                      value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                                      unit: "bpm"
+                                  )
+                              }
+                .padding(.bottom, 1) // Reduced bottom padding
+
+                // Second row of grid items
+                HStack(spacing: 10) {
                     GridItemView(
-                        title: "Sleep",
-                        value: model.previousNightSleepDuration ?? "N/A",
-                        unit: "hrs"
+                        title: "SPO2",
+                        value: formatSPO2Value(model.mostRecentSPO2),
+                        unit: "%"
+                    )
+                    GridItemView(
+                        title: "Resp Rate",
+                        value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                        unit: "BrPM"
                     )
                     
                     GridItemView(
-                        title: "HRV",
-                        value: "\(model.lastKnownHRV)",
-                        unit: "ms"
-                    )
-                    GridItemView(
-                        title: "RHR",
-                        value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                        unit: "bpm"
+                        title: "Cals Burned",
+                        value: formatActiveCaloriesValue(model.mostRecentActiveCalories),
+                        unit: "kcal"
                     )
                 }
-                .padding(.all, 10)
-                
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            //.background(Color.black.opacity(0.0))
-            //.cornerRadius(10)
-            .padding(.horizontal)
-        }
-    }
-    
-}
+                .padding(.top, 5) // Reduced top padding
+                           }
+                           .frame(maxWidth: .infinity, maxHeight: .infinity)
+                           .padding(.horizontal)
+                       }
+                   }
+
+                   private func formatSPO2Value(_ spo2: Double?) -> String {
+                       guard let spo2 = spo2 else { return "N/A" }
+                       return String(format: "%.0f", spo2 * 100) // Convert to percentage
+                   }
+                    private func formatActiveCaloriesValue(_ calories: Double?) -> String {
+                        guard let calories = calories else { return "N/A" }
+                        return String(format: "%.0f", calories) // Rounded to the nearest integer
+                        }
+
+                   private func formatRespRateValue(_ respRate: Double?) -> String {
+                       guard let respRate = respRate else { return "N/A" }
+                       return String(format: "%.1f", respRate) // One decimal place
+                   }
+               }
+
 
 struct MetricView: View {
     let label: String
@@ -512,33 +566,35 @@ struct GridItemView: View {
     var body: some View {
         VStack {
             Text(title)
-                .font(.headline)
+                .font(.system(size: 14)) // Slightly smaller font size
+                .fontWeight(.bold)
                 .foregroundColor(.white)
-                .padding(.bottom, 2)
-            
+                .padding(.bottom, 1) // Reduced bottom padding
+
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
-                    .font(.system(size: 22)) // Custom font size
+                    .font(.system(size: 20)) // Slightly smaller font size
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text(unit)
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 1) // Reduced padding, adjust as needed
+                    .padding(.leading, 1) // Keep existing padding
             }
         }
-        .padding(.all, 8)
-        .frame(width: 100, height: 100)
+        .padding(.all, 6) // Slightly reduced overall padding
+        .frame(width: 110, height: 70) // Reduced height
         .background(Color.black)
         .cornerRadius(8)
         .shadow(radius: 3)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red, lineWidth: 1) // Red ring with 1-point line width
+                .stroke(Color.orange, lineWidth: 1)
         )
     }
 }
+
 
 
 
