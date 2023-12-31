@@ -80,33 +80,6 @@ struct LogbookView: View {
                     TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     
                     LazyVStack(alignment: .leading, spacing: 16) {
-//                        HStack {
-//                            HStack() {
-//                                Text("Completed = ")
-//                                    .foregroundColor(.white)
-//                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-//                                
-//                                Circle()
-//                                    .fill(self.therapyTypeSelection.selectedTherapyType.color)
-//                                    .frame(width: 25, height: 25)
-//                            }
-//                            .padding(.leading, 8)
-//                            .cornerRadius(12)
-//                            
-//                            HStack() {
-//                                Text("Today = ")
-//                                    .foregroundColor(.white)
-//                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-//                                
-//                                Circle()
-//                                    .fill(Color.red)
-//                                    .frame(width: 25, height: 25)
-//                            }
-//                            .padding(.leading, 8)
-//                            .cornerRadius(8)
-//                        }
-                        
-                        
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                             .background(Color(UIColor.darkGray))
                             .frame(height: 300) // Set a fixed height for the calendar
@@ -137,12 +110,12 @@ struct LogbookView: View {
                     updateSessionDates()
                 }
             }
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+            .background(.black
+//                LinearGradient(
+//                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+//                    startPoint: .top,
+//                    endPoint: .bottom
+//                )
             )
         }
     }

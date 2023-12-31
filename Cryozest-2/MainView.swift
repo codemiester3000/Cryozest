@@ -169,12 +169,12 @@ struct MainView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+            .background(.black
+//                LinearGradient(
+//                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+//                    startPoint: .top,
+//                    endPoint: .bottom
+//                )
             )
             .onAppear() {
                 

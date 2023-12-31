@@ -333,6 +333,7 @@ struct RecoveryGraphView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
+                .padding(.top)
                 
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
@@ -359,6 +360,7 @@ struct RecoveryGraphView: View {
                     Spacer()
                 }
                 .padding(.top)
+                .padding(.horizontal)
             }
         }
         .frame(height: 200) // Adjust the height as needed

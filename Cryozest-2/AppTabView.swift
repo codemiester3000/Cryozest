@@ -42,10 +42,10 @@ struct AppTabView: View {
                     Text("Calendar")
                 }
                 .tag(3)
-                .toolbarBackground(Color(red: 0.675, green: 0.675, blue: 0.675), for: .tabBar)
+                .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(selectedTab == 0 || selectedTab == 1 ? Color.white : Color.black)
+        .accentColor(Color.white)
         .opacity(0.85)
         .background(Color.clear)
     }
