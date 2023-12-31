@@ -53,7 +53,6 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     
-    
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
     @Published var lastKnownHRVTime: String? = nil // Add this property

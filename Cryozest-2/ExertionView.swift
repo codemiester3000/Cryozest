@@ -9,6 +9,8 @@ class ExertionModel: ObservableObject {
     init() {
         // Make HealthKitManager method calls to populate @Published variables
         exertionScore = 10.0
+        
+       // HealthKitManager.shared.fetchMostRecentActiveEnergy(completion: <#T##(Double?) -> Void#>)
     }
     
     // Add functions to pull data here
