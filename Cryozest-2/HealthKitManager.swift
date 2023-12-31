@@ -10,7 +10,8 @@ class HealthKitManager {
     private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
     private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
-    
+    private let activeEnergyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+    private let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
     
     private init() {}
     
@@ -90,6 +91,41 @@ class HealthKitManager {
         }
         healthStore.execute(bodyMassQuery)
     }
+    
+    func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
+           let now = Date()
+           let startOfDay = Calendar.current.startOfDay(for: now)
+           let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
+
+           let query = HKSampleQuery(sampleType: restingEnergyType, predicate: predicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
+               guard let sample = samples?.first as? HKQuantitySample else {
+                   completion(nil)
+                   return
+               }
+               let restingEnergyValue = sample.quantity.doubleValue(for: HKUnit.kilocalorie())
+               completion(restingEnergyValue)
+           }
+           healthStore.execute(query)
+       }
+    
+    func fetchMostRecentActiveEnergy(completion: @escaping (Double?) -> Void) {
+        let now = Date()
+           let startOfDay = Calendar.current.startOfDay(for: now)
+           let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
+
+           let query = HKStatisticsQuery(quantityType: activeEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
+               guard let statistics = statistics, let sum = statistics.sumQuantity() else {
+                   completion(nil)
+                   return
+               }
+               let totalActiveEnergy = sum.doubleValue(for: HKUnit.kilocalorie())
+               completion(totalActiveEnergy)
+           }
+           healthStore.execute(query)
+       }
+
+
+    
     
 
     func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double)?) -> Void) {
