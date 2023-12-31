@@ -7,6 +7,7 @@ struct DailyView: View {
             
             RecoveryGraphView(model: RecoveryGraphModel())
             
+            ExertionView(model: ExertionModel())
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
@@ -16,8 +17,6 @@ struct DailyView: View {
 class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil
-    
-    
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -336,7 +335,6 @@ class RecoveryGraphModel: ObservableObject {
         return normalizedScore
     }
 }
-
 
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
