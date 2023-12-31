@@ -62,7 +62,7 @@ class RecoveryGraphModel: ObservableObject {
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
     @Published var lastKnownHRVTime: String? = nil // Add this property
-
+    
     
     
     
@@ -72,21 +72,21 @@ class RecoveryGraphModel: ObservableObject {
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date) // Start of the given date
         let endDate = calendar.date(byAdding: .day, value: 1, to: startDate)! // Start of the next day
-
+        
         let sortedDates = hrvReadings.keys.filter { $0 >= startDate && $0 < endDate }.sorted().reversed()
         for readingDate in sortedDates {
             return hrvReadings[readingDate]
         }
         return nil
     }
-
-
+    
+    
     private func formatSleepDuration(_ duration: TimeInterval) -> String {
         let hours = duration / 3600  // Convert seconds to hours
         return String(format: "%.1f", hours)
     }
-
-
+    
+    
     init() {
         self.getLastSevenDaysOfRecoveryScores()
         
@@ -101,15 +101,15 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         HealthKitManager.shared.fetchLastKnownHRV(before: Date()) { lastHrv in
-                 DispatchQueue.main.async {
-                     if let lastHrv = lastHrv {
-                         self.lastKnownHRV = Int(lastHrv)
-                     } else {
-                         // Handle the case where the last known HRV is not available
-                         self.lastKnownHRV = 0  // or handle it differently
-                     }
-                 }
-             }
+            DispatchQueue.main.async {
+                if let lastHrv = lastHrv {
+                    self.lastKnownHRV = Int(lastHrv)
+                } else {
+                    // Handle the case where the last known HRV is not available
+                    self.lastKnownHRV = 0  // or handle it differently
+                }
+            }
+        }
         
         HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
@@ -120,7 +120,7 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
-
+        
         
         
         HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
@@ -299,7 +299,7 @@ class RecoveryGraphModel: ObservableObject {
             self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
         }
     }
-
+    
     func calculateRecoveryScore(date: Date, avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
         guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
               let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0,
@@ -323,16 +323,13 @@ class RecoveryGraphModel: ObservableObject {
         return normalizedScore
     }
 }
-    
-    
+
+
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
-        ZStack {
-            Color.black.opacity(0.8) // Card background color
-                .cornerRadius(10)
-            
+        ZStack {            
             VStack {
                 HStack {
                     Text("Recovery Per Day")
@@ -402,20 +399,20 @@ struct RecoveryCardView: View {
                     Circle()
                         .stroke(lineWidth: 10)
                         .foregroundColor(Color(.systemGreen).opacity(0.5)) // Lighter shade of green
-
+                    
                     Circle()
                         .trim(from: 0, to: 0.99) // Adjust for actual percentage
                         .stroke(style: StrokeStyle(lineWidth: 10, lineCap: .round))
                         .foregroundColor(Color(.systemGreen)) // Striking shade of green
                         .rotationEffect(.degrees(-90)) // Start from the top
-
+                    
                     VStack {
                         Text("Ready to Train")
                             .font(.headline) // Increase the font size for "Ready to Train"
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
                             .foregroundColor(.white)
-
+                        
                         Text("\(model.recoveryScores.last ?? 0)%")
                             .font(.largeTitle) // Increase the font size for the percentage number
                             .fontWeight(.bold)
@@ -425,7 +422,7 @@ struct RecoveryCardView: View {
                     .padding(10) // Add some padding for spacing between the two lines
                 }
                 .frame(width: 150, height: 150)
-
+                
                 
                 
                 
@@ -456,11 +453,11 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
-//                    GridItemView(
-//                        title: "Recovery",
-//                        value: "\(model.recoveryScores.last ?? 0)",
-//                        unit: "%"
-//                    )
+                    //                    GridItemView(
+                    //                        title: "Recovery",
+                    //                        value: "\(model.recoveryScores.last ?? 0)",
+                    //                        unit: "%"
+                    //                    )
                     
                     GridItemView(
                         title: "Sleep",
@@ -478,19 +475,19 @@ struct RecoveryCardView: View {
                         value: "\(model.mostRecentRestingHeartRate ?? 0)",
                         unit: "bpm"
                     )
-//                    GridItemView(
-//                        title: "Sleep",
-//                        value: model.previousNightSleepDuration ?? "N/A",
-//                        unit: "hrs"
-//                    )
+                    //                    GridItemView(
+                    //                        title: "Sleep",
+                    //                        value: model.previousNightSleepDuration ?? "N/A",
+                    //                        unit: "hrs"
+                    //                    )
                     // ... Add more grid items if needed
                 }
                 .padding(.all, 10)
                 
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.0))
-            .cornerRadius(10)
+            //.background(Color.black.opacity(0.0))
+            //.cornerRadius(10)
             .padding(.horizontal)
         }
     }
@@ -524,20 +521,20 @@ struct GridItemView: View {
     var title: String
     var value: String
     var unit: String
-
+    
     var body: some View {
         VStack {
             Text(title)
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding(.bottom, 2)
-
+            
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
                     .font(.system(size: 22)) // Custom font size
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-
+                
                 Text(unit)
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
@@ -545,17 +542,17 @@ struct GridItemView: View {
             }
         }
         .padding(.all, 8)
-                .frame(width: 100, height: 100)
-                .background(Color.black)
-                .cornerRadius(8)
-                .shadow(radius: 3)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.red, lineWidth: 1) // Red ring with 1-point line width
-                )
-            }
-        }
+        .frame(width: 100, height: 100)
+        .background(Color.black)
+        .cornerRadius(8)
+        .shadow(radius: 3)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.red, lineWidth: 1) // Red ring with 1-point line width
+        )
+    }
+}
 
 
 
-                
+
