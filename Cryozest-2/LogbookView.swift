@@ -85,7 +85,7 @@ struct LogbookView: View {
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
                             .frame(maxWidth: .infinity)
-                            .padding(.top, 8)
+                            .padding(.vertical, 8)
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
@@ -111,11 +111,6 @@ struct LogbookView: View {
                 }
             }
             .background(.black
-//                LinearGradient(
-//                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-//                    startPoint: .top,
-//                    endPoint: .bottom
-//                )
             )
         }
     }

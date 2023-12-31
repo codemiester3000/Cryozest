@@ -65,7 +65,7 @@ struct SessionRow: View {
                 }
             }
             .padding()
-            .background(Color(.darkGray))
+            //.background(Color(.darkGray))
             .cornerRadius(16)
             .shadow(radius: 5)
             .onAppear {

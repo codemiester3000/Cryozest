@@ -35,12 +35,15 @@ struct ManuallyAddSession: View {
                 Button("Save Session") {
                     saveSession()
                 }
+                .foregroundColor(.red)
             }
+            .background(Color.black)
             .navigationBarTitle("Add Session", displayMode: .inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
         }
+        .background(Color.black.edgesIgnoringSafeArea(.all))
     }
 
     private func saveSession() {
