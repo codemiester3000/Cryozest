@@ -825,12 +825,20 @@ class HealthKitManager {
     func fetchSleepDurationForPreviousNight(completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        guard let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: today) else {
+
+        // Calculate 7 PM yesterday
+        guard let yesterday7PM = calendar.date(byAdding: .hour, value: -5, to: today) else {
             completion(nil)
             return
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: yesterdayStart, end: today, options: .strictStartDate)
+        // Calculate 2 PM today
+        guard let today2PM = calendar.date(byAdding: .hour, value: 14, to: today) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: yesterday7PM, end: today2PM, options: .strictStartDate)
 
         guard let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis) else {
             completion(nil)
@@ -846,13 +854,16 @@ class HealthKitManager {
             }
 
             var totalSleepTime: TimeInterval = 0
-            var lastEndDate: Date? = nil
+            var lastEndDate: Date? = yesterday7PM
 
             for sample in sleepSamples {
-                // Ensure there's no overlap in sleep samples
-                if sample.startDate > (lastEndDate ?? yesterdayStart) {
-                    totalSleepTime += sample.endDate.timeIntervalSince(sample.startDate)
-                    lastEndDate = sample.endDate
+                print("Sleep Sample: \(sample.startDate) to \(sample.endDate)") // Debugging line
+
+                // If there's an overlap, adjust the start date
+                let adjustedStartDate = max(sample.startDate, lastEndDate ?? sample.startDate)
+                if adjustedStartDate < sample.endDate {
+                    totalSleepTime += sample.endDate.timeIntervalSince(adjustedStartDate)
+                    lastEndDate = max(lastEndDate ?? sample.startDate, sample.endDate)
                 }
             }
 
@@ -863,6 +874,7 @@ class HealthKitManager {
 
         healthStore.execute(sleepQuery)
     }
+
 
     
     
