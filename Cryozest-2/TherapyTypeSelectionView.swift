@@ -18,7 +18,7 @@ struct TherapyTypeSelectionView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                gradient: Gradient(colors: [.black, .black]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -27,7 +27,7 @@ struct TherapyTypeSelectionView: View {
             VStack {
                 ScrollView {
                     Text("Select up to 4 therapy types")
-                        .font(.title3) // More prominent font size
+                        .font(.system(size: 24, weight: .bold, design: .default))
                         .fontWeight(.semibold) // Slightly heavier font weight for emphasis
                         .foregroundColor(.white)
                         .padding(.vertical, 12)
@@ -63,7 +63,7 @@ struct TherapyTypeSelectionView: View {
                             }
                             .padding(.horizontal)
                             .padding(.vertical, 8) // Balanced padding
-                            .background(selectedTypes.contains(therapyType) ? therapyType.color : Color.white.opacity(0.6)) //
+                            .background(selectedTypes.contains(therapyType) ? therapyType.color : .clear) //
                             .cornerRadius(8) // Rounded corners
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
@@ -94,11 +94,11 @@ struct TherapyTypeSelectionView: View {
                     }
                 }) {
                     Text("Done")
-                        .font(.system(size: 20, weight: .semibold, design: .rounded)) // Updated font for better readability
-                        .foregroundColor(.white)
+                        .font(.footnote) // Updated font for better readability
+                        .foregroundColor(.black)
                         .frame(minWidth: 0, maxWidth: .infinity) // Make the button width responsive
                         .padding(.vertical, 15)
-                        .background(Color.blue)
+                        .background(Color.white)
                         .cornerRadius(40)
                         .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4) // Refined shadow for depth
                         .overlay(
