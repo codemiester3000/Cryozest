@@ -195,6 +195,7 @@ struct AnalysisView: View {
 
 enum TimeFrame {
     case week, month, allTime
+
     func displayString() -> String {
         switch self {
         case .week:
@@ -205,4 +206,16 @@ enum TimeFrame {
             return "Last Year"
         }
     }
+
+    func numberOfDays() -> Int {
+        switch self {
+        case .week:
+            return 7
+        case .month:
+            return 30
+        case .allTime:
+            return 365
+        }
+    }
 }
+

@@ -60,19 +60,10 @@ struct TherapyTypeSelectionView: View {
                                     .fontWeight(.medium) // Slightly bolder text for better readability
                                     .foregroundColor(.primary) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
-//                                if selectedTypes.contains(therapyType) {
-//                                    Image(systemName: "checkmark.circle.fill") // More prominent checkmark
-//                                        .foregroundColor(.white) // Checkmark circle in white
-//                                        .overlay(
-//                                            Image(systemName: "checkmark")
-//                                                .foregroundColor(therapyType.color) // Checkmark in therapyType color
-//                                        )
-//                                        .imageScale(.medium) // Slightly larger checkmark
-//                                }
                             }
                             .padding(.horizontal)
                             .padding(.vertical, 8) // Balanced padding
-                            .background(selectedTypes.contains(therapyType) ? therapyType.color : Color.white.opacity(0.6)) // Conditional background color
+                            .background(selectedTypes.contains(therapyType) ? therapyType.color : Color.white.opacity(0.6)) //
                             .cornerRadius(8) // Rounded corners
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)

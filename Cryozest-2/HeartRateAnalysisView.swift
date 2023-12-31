@@ -4,15 +4,13 @@ class HeartRateViewModel: ObservableObject {
     
     // Average Heart Rate Values
     @Published var avgHeartRateTherapyDays: Double = 0.0
-    @Published var avgHeartRateNonTherapyDays: Double = 0.0
     
     // Resting Heart Rate Values
     @Published var restingHeartRateTherapyDays: Double = 0.0
-    @Published var restingHeartRateNonTherapyDays: Double = 0.0
     
-    // Average Heart Rate during sleep Values
-    @Published var avgHeartRateSleepTherapyDays: Double = 0.0
-    @Published var avgHeartRateSleepNonTherapyDays: Double = 0.0
+    // Baseline heart rate values
+    @Published var baselineRestingHeartRate: Double = 0.0
+    @Published var baselineHeartRate: Double = 0.0
     
     // Difference values.
     @Published var restingHeartRateDifference: Double = 0.0
@@ -49,22 +47,15 @@ class HeartRateViewModel: ObservableObject {
     
     private func calculateRestingHRDifference() {
         if restingHeartRateTherapyDays != 0 {
-            let differenceValue = (restingHeartRateTherapyDays - restingHeartRateNonTherapyDays) / restingHeartRateNonTherapyDays * 100
+            let differenceValue = (restingHeartRateTherapyDays - baselineRestingHeartRate) / baselineRestingHeartRate * 100
             restingHeartRateDifference = differenceValue
         }
     }
     
     private func calculateAvgHRDifference() {
         if avgHeartRateTherapyDays != 0 {
-            let differenceValue = (avgHeartRateTherapyDays - avgHeartRateNonTherapyDays) / avgHeartRateNonTherapyDays * 100
+            let differenceValue = (avgHeartRateTherapyDays - baselineHeartRate) / baselineHeartRate * 100
             avgHeartRateDifference = differenceValue
-        }
-    }
-    
-    private func calculateAvgHRSleepDifference() {
-        if avgHeartRateSleepTherapyDays != 0 {
-            let differenceValue = (avgHeartRateSleepTherapyDays - avgHeartRateSleepNonTherapyDays) / avgHeartRateSleepNonTherapyDays * 100
-            avgHeartRateSleepDifference = differenceValue
         }
     }
     
@@ -73,7 +64,24 @@ class HeartRateViewModel: ObservableObject {
         let group = DispatchGroup()
         
         fetchrestingHeartRateTherapyDays(group: group)
-        fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        // fetchrestingHeartRateNonTherapyDays(group: group)
+        
+        HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: timeFrame.numberOfDays()) { restingHeartRate in
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate {
+                    self.baselineRestingHeartRate = Double(restingHeartRate)
+                }
+            }
+        }
+        
+        HealthKitManager.shared.fetchNDayAvgOverallHeartRate(numDays: timeFrame.numberOfDays()) { heartRate in
+            DispatchQueue.main.async {
+                if let heartRate = heartRate {
+                    self.baselineHeartRate = Double(heartRate)
+                }
+            }
+        }
         
         group.notify(queue: .main) {
             self.isLoading = false
@@ -107,32 +115,32 @@ class HeartRateViewModel: ObservableObject {
         }
     }
     
-    private func fetchrestingHeartRateNonTherapyDays(group: DispatchGroup) {
-        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
-        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
-        
-        group.enter()
-        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: nonTherapyDates) { fetchedAvgHeartRateExcluding in
-            if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
-                self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
-                self.calculateRestingHRDifference()
-            } else {
-                // print("Failed to fetch average heart rate excluding specific days.")
-            }
-            group.leave()
-        }
-        
-        group.enter()
-        HealthKitManager.shared.fetchAvgHeartRateForDays(days: nonTherapyDates) { avgHeartRateExcluding in
-            if let avgHeartRateExcluding = avgHeartRateExcluding {
-                self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
-                self.calculateAvgHRDifference()
-            } else {
-            }
-            group.leave()
-        }
-    }
+//    private func fetchrestingHeartRateNonTherapyDays(group: DispatchGroup) {
+//        let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
+//        let timeFrameDates = DateUtils.shared.getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
+//        let nonTherapyDates = DateUtils.shared.getDatesExcluding(excludeDates: completedSessionDates, inDates: timeFrameDates)
+//        
+//        group.enter()
+//        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: nonTherapyDates) { fetchedAvgHeartRateExcluding in
+//            if let fetchedAvgHeartRateExcluding = fetchedAvgHeartRateExcluding {
+//                self.restingHeartRateNonTherapyDays = fetchedAvgHeartRateExcluding
+//                self.calculateRestingHRDifference()
+//            } else {
+//                // print("Failed to fetch average heart rate excluding specific days.")
+//            }
+//            group.leave()
+//        }
+//        
+//        group.enter()
+//        HealthKitManager.shared.fetchAvgHeartRateForDays(days: nonTherapyDates) { avgHeartRateExcluding in
+//            if let avgHeartRateExcluding = avgHeartRateExcluding {
+//                self.avgHeartRateNonTherapyDays = avgHeartRateExcluding
+//                self.calculateAvgHRDifference()
+//            } else {
+//            }
+//            group.leave()
+//        }
+//    }
 }
 
 extension Double {
@@ -204,15 +212,12 @@ struct AvgHeartRateComparisonView: View {
                     
                     HStack {
                         HStack {
-                            
-                            
-                            Text("off days")
+                            Text("baseline")
                                 .font(.headline)
                                 .foregroundColor(.black)
-                            // .padding(.leading, 10)
                         }
                         Spacer()
-                        Text(heartRateViewModel.restingHeartRateNonTherapyDays.formatBPM())
+                        Text(heartRateViewModel.baselineRestingHeartRate.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -254,13 +259,13 @@ struct AvgHeartRateComparisonView: View {
                     
                     HStack {
                         HStack {
-                            Text("off days")
+                            Text("baseline")
                                 .font(.headline)
                                 .foregroundColor(.black)
                         }
                         
                         Spacer()
-                        Text(heartRateViewModel.avgHeartRateNonTherapyDays.formatBPM())
+                        Text(heartRateViewModel.baselineHeartRate.formatBPM())
                             .font(.system(size: 18, weight: .bold, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.white)

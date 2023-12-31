@@ -177,9 +177,7 @@ class RecoveryGraphModel: ObservableObject {
     func getLastSevenDaysDates() -> [Date] {
         var dates = [Date]()
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date()) // Normalize 'today' to start at midnight
-
-        // Generate dates for the last seven days, including today
+        let today = calendar.startOfDay(for: Date())
         for i in 0..<7 {
             if let date = calendar.date(byAdding: .day, value: -i, to: today) {
                 dates.insert(date, at: 0) // Insert at the beginning to reverse the order
@@ -189,7 +187,7 @@ class RecoveryGraphModel: ObservableObject {
         // each normalized to start at midnight
         return dates
     }
-
+    
     
     
     func getLastSevenDays() -> [String] {
@@ -297,10 +295,11 @@ class RecoveryGraphModel: ObservableObject {
         group.notify(queue: .main) {
             // Once all data is fetched and processed, update recoveryScores
             self.recoveryScores = last7Days.compactMap { temporaryScores[$0] }
+            let sortedDates = self.getLastSevenDaysDates().sorted()
+            self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
         }
     }
 
-    
     func calculateRecoveryScore(date: Date, avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
         guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
               let avgHeartRate30day = avgHeartRate30day, avgHeartRate30day > 0,
