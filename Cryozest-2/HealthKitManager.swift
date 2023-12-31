@@ -740,6 +740,52 @@ class HealthKitManager {
         healthStore.execute(hrvQuery)
     }
     
+    // Rob -- Fetches the total sleep duration for the previous night
+    func fetchSleepDurationForPreviousNight(completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        guard let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: today) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: yesterdayStart, end: today, options: .strictStartDate)
+
+        guard let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis) else {
+            completion(nil)
+            return
+        }
+
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)]) { (query, samples, error) in
+            guard error == nil, let sleepSamples = samples as? [HKCategorySample] else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+
+            var totalSleepTime: TimeInterval = 0
+            var lastEndDate: Date? = nil
+
+            for sample in sleepSamples {
+                // Ensure there's no overlap in sleep samples
+                if sample.startDate > (lastEndDate ?? yesterdayStart) {
+                    totalSleepTime += sample.endDate.timeIntervalSince(sample.startDate)
+                    lastEndDate = sample.endDate
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(totalSleepTime)
+            }
+        }
+
+        healthStore.execute(sleepQuery)
+    }
+
+    
+    
+    
     // MARK -- HRV METHODS
     
     // TODO: UPDATE THIS TO GET THE LAST HRV READING FOR THE NIGHT.
@@ -789,6 +835,20 @@ class HealthKitManager {
             self.healthStore.execute(hrvQuery)
         }
         self.healthStore.execute(sleepQuery)
+    }
+
+    func fetchLastKnownHRV(before date: Date, completion: @escaping (Double?) -> Void) {
+        let hrvPredicate = HKQuery.predicateForSamples(withStart: nil, end: date, options: .strictEndDate)
+
+        let hrvQuery = HKSampleQuery(sampleType: self.hrvType, predicate: hrvPredicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { _, hrvSamples, error in
+            guard let lastHrvSample = hrvSamples?.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let lastHrvValue = lastHrvSample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+            completion(lastHrvValue)
+        }
+        self.healthStore.execute(hrvQuery)
     }
     
     func fetchAvgHRVDuringSleepForPreviousNight(completion: @escaping (Double?) -> Void) {
