@@ -22,7 +22,7 @@ struct TherapyTypeGrid: View {
                             .font(.system(size: 20))
                         Text(therapyType.rawValue)
                             .font(.system(size: 16, weight: .medium, design: .default))
-                            .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
+                            .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : .black)
                     }
                     .padding()
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
