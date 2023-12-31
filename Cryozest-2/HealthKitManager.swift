@@ -6,24 +6,39 @@ class HealthKitManager {
     
     private let healthStore = HKHealthStore()
     private let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate)!
-    // private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
-    // private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+    private let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+    private let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
     private let bodyMassType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
-    
     private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+    
     
     private init() {}
     
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
-        // Define the types
+        // Define the types for heart rate, body mass, sleep analysis, HRV, respiration rate, SpO2, Active Energy, and Resting Energy
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         let restingHeartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass)!
-        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
         let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
-        
-        let typesToRead: Set<HKObjectType> = [heartRateType, restingHeartRateType, bodyMassType, sleepAnalysisType, hrvType]
-        
+        let respirationRateType = HKObjectType.quantityType(forIdentifier: .respiratoryRate)!
+        let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
+        let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+        let restingEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
+
+        // Add new types to the typesToRead set
+        let typesToRead: Set<HKObjectType> = [
+            heartRateType,
+            restingHeartRateType,
+            bodyMassType,
+            sleepAnalysisType,
+            hrvType,
+            respirationRateType,
+            spo2Type,
+            activeEnergyType,
+            restingEnergyType
+        ]
+
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
             completion(success, error)
         }
@@ -76,6 +91,7 @@ class HealthKitManager {
         healthStore.execute(bodyMassQuery)
     }
     
+
     func fetchHealthData(from startDate: Date, to endDate: Date, completion: @escaping ((avgHeartRate: Double, mostRecentHeartRate: Double, avgSpo2: Double, avgRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double)?) -> Void) {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
@@ -289,6 +305,35 @@ class HealthKitManager {
         
         healthStore.execute(heartRateQuery)
     }
+    
+    
+    func fetchMostRecentRespiratoryRate(completion: @escaping (Double?) -> Void) {
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(sampleType: respirationRateType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let respiratoryRate = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+            completion(respiratoryRate)
+        }
+        healthStore.execute(query)
+    }
+
+    
+    func fetchMostRecentSPO2(completion: @escaping (Double?) -> Void) {
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(sampleType: spo2Type, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard let samples = samples, let sample = samples.first as? HKQuantitySample else {
+                completion(nil)
+                return
+            }
+            let spo2 = sample.quantity.doubleValue(for: HKUnit.percent())
+            completion(spo2)
+        }
+        healthStore.execute(query)
+    }
+
     
     
     func fetchAvgRestingHeartRateForDays(days: [Date], completion: @escaping (Double?) -> Void) {

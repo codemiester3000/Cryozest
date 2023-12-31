@@ -15,7 +15,8 @@ struct DailyView: View {
 class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil
-    
+
+
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -56,7 +57,8 @@ class RecoveryGraphModel: ObservableObject {
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
     @Published var lastKnownHRVTime: String? = nil // Add this property
-    
+    @Published var mostRecentSPO2: Double? = nil
+    @Published var mostRecentRespiratoryRate: Double? = nil
     
     
     
@@ -104,6 +106,18 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
+        
+        HealthKitManager.shared.fetchMostRecentSPO2 { spo2 in
+              DispatchQueue.main.async {
+                  self.mostRecentSPO2 = spo2
+              }
+          }
+
+          HealthKitManager.shared.fetchMostRecentRespiratoryRate { respRate in
+              DispatchQueue.main.async {
+                  self.mostRecentRespiratoryRate = respRate
+              }
+          }
         
         HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
@@ -488,42 +502,58 @@ struct RecoveryCardView: View {
                 
                 // Horizontal Stack for Grid Items
                 HStack(spacing: 10) {
-                    
-                    
-                    GridItemView(
-                        title: "Sleep",
-                        value: model.previousNightSleepDuration ?? "N/A",
-                        unit: "hrs"
-                    )
-                    
-                    GridItemView(
-                        title: "HRV",
-                        value: "\(model.lastKnownHRV)",
-                        unit: "ms"
-                    )
-                    GridItemView(
-                        title: "RHR",
-                        value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                        unit: "bpm"
-                    )
-                    //                    GridItemView(
-                    //                        title: "Sleep",
-                    //                        value: model.previousNightSleepDuration ?? "N/A",
-                    //                        unit: "hrs"
-                    //                    )
-                    // ... Add more grid items if needed
-                }
-                .padding(.all, 10)
-                
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            //.background(Color.black.opacity(0.0))
-            //.cornerRadius(10)
-            .padding(.horizontal)
-        }
-    }
-    
-}
+                                  GridItemView(
+                                      title: "Sleep",
+                                      value: model.previousNightSleepDuration ?? "N/A",
+                                      unit: "hrs"
+                                  )
+                                  
+                                  GridItemView(
+                                      title: "HRV",
+                                      value: "\(model.lastKnownHRV)",
+                                      unit: "ms"
+                                  )
+                                  
+                                  GridItemView(
+                                      title: "RHR",
+                                      value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                                      unit: "bpm"
+                                  )
+                              }
+                              .padding(.all, 10)
+
+                              // Second row of grid items
+                // Second row of grid items
+                               HStack(spacing: 10) {
+                                   GridItemView(
+                                       title: "SPO2",
+                                       value: formatSPO2Value(model.mostRecentSPO2),
+                                       unit: "%"
+                                   )
+                                   GridItemView(
+                                       title: "Resp Rate",
+                                       value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                                       unit: "BrPM"
+                                   )
+                               }
+                               .padding(.all, 10)
+                           }
+                           .frame(maxWidth: .infinity, maxHeight: .infinity)
+                           .padding(.horizontal)
+                       }
+                   }
+
+                   private func formatSPO2Value(_ spo2: Double?) -> String {
+                       guard let spo2 = spo2 else { return "N/A" }
+                       return String(format: "%.0f", spo2 * 100) // Convert to percentage
+                   }
+
+                   private func formatRespRateValue(_ respRate: Double?) -> String {
+                       guard let respRate = respRate else { return "N/A" }
+                       return String(format: "%.1f", respRate) // One decimal place
+                   }
+               }
+
 
 struct MetricView: View {
     let label: String
@@ -573,13 +603,13 @@ struct GridItemView: View {
             }
         }
         .padding(.all, 8)
-        .frame(width: 100, height: 100)
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red, lineWidth: 1) // Red ring with 1-point line width
+               .frame(width: 110, height: 100) // Increased width
+               .background(Color.black)
+               .cornerRadius(8)
+               .shadow(radius: 3)
+               .overlay(
+                   RoundedRectangle(cornerRadius: 8)
+                       .stroke(Color.red, lineWidth: 1)
         )
     }
 }
