@@ -74,7 +74,7 @@ struct MainView: View {
                 
                 HStack {
                     Text("CryoZest")
-                        .font(.system(size: 24, weight: .bold, design: .monospaced))
+                        .font(.system(size: 24, weight: .regular, design: .default))
                         .foregroundColor(.white)
                         .bold()
                         .padding(.leading, 24)
