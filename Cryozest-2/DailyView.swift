@@ -329,13 +329,13 @@ struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
-        ZStack {            
+        ZStack {
             VStack {
                 HStack {
                     Text("Recovery Per Day")
                         .font(.headline)
                         .foregroundColor(.white)
-                        .padding()
+                        .padding(.horizontal)
                     Spacer()
                 }
                 
@@ -392,7 +392,7 @@ struct RecoveryCardView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.top, 20)
+                    .padding(.vertical, 20)
                 
                 // Ready to Train Circle
                 ZStack {
