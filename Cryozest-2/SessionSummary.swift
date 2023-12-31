@@ -74,7 +74,7 @@ struct SessionSummary: View {
                     HStack {
                         Text("Summary")
                             .foregroundColor(.white)
-                            .font(.system(size: 30, weight: .bold, design: .monospaced))
+                            .font(.system(size: 24, weight: .regular, design: .default))
                             .padding(.top, 26)
                         
                     }
@@ -114,9 +114,9 @@ struct SessionSummary: View {
                                 .padding()
                                 .frame(maxWidth: .infinity)
                                 .background(Color.red)
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                                 .cornerRadius(8)
-                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                .font(.footnote)
                         }
                         .padding([.leading, .bottom, .trailing])
                         
@@ -125,16 +125,16 @@ struct SessionSummary: View {
                                 .padding()
                                 .frame(maxWidth: .infinity)
                                 .background(Color.orange)
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                                 .cornerRadius(8)
-                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                .font(.footnote)
                         }
                         .padding([.leading, .bottom, .trailing])
                     }
                 }
                 
             }
-            .padding(.horizontal)
+            
             .padding(.bottom, 26)
         }
         .onAppear {
@@ -207,13 +207,13 @@ struct SessionSummary: View {
                     .foregroundColor(.red)
                 Text("Wear Apple watch to get heartrate metrics. Min duration of ~3 min required.")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -227,13 +227,13 @@ struct SessionSummary: View {
                     .foregroundColor(.red)
                 Text("\(label): \(heartRate != 0 && heartRate != 1000 ? "\(heartRate) bpm" : "No Data Available")")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -249,12 +249,12 @@ struct SessionSummary: View {
                     .foregroundColor(.orange)
                 Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
                 Button(action: { showDurationPicker.toggle() }) {
                     Text("Edit")
                         .foregroundColor(.orange)
-                        .font(.system(size: 16, design: .monospaced))
+                        .font(.system(size: 16))
                         .bold()
                 }
                 .sheet(isPresented: $showDurationPicker) {
@@ -298,9 +298,9 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -316,7 +316,7 @@ struct SessionSummary: View {
                     .foregroundColor(.orange)
                 Text("Body Weight: \(Int(bodyWeight)) lbs")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
                 Button(action: {
                     bodyWeightInt = Int(bodyWeight)
@@ -324,7 +324,7 @@ struct SessionSummary: View {
                 }) {
                     Text("Edit")
                         .foregroundColor(.orange)
-                        .font(.system(size: 16, design: .monospaced))
+                        .font(.system(size: 16))
                         .bold()
                 }
                 .sheet(isPresented: $showWeightPicker) {
@@ -351,9 +351,9 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -397,12 +397,12 @@ struct SessionSummary: View {
                     .foregroundColor(.orange)
                 Text("Temperature: \(temperature)°F")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
                 Button(action: { showTemperaturePicker.toggle() }) {
                     Text("Edit")
                         .foregroundColor(.orange)
-                        .font(.system(size: 16, design: .monospaced))
+                        .font(.system(size: 16))
                         .bold()
                 }
                 .sheet(isPresented: $showTemperaturePicker) {
@@ -426,9 +426,9 @@ struct SessionSummary: View {
                 }
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -442,14 +442,14 @@ struct SessionSummary: View {
                     .foregroundColor(.white)
                 Text("Therapy Type: ")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 
                 Spacer()
                 
                 Picker(selection: $therapyType, label: HStack {
                     Text("Therapy Type")
                         .foregroundColor(.orange)
-                        .font(.system(size: 16, design: .monospaced))
+                        .font(.system(size: 16))
                         .bold()
                     Image(systemName: "chevron.down")
                         .foregroundColor(.orange)
@@ -477,10 +477,10 @@ struct SessionSummary: View {
                     }
                 })
             }
-            .padding()
-            .background(Color(.darkGray))
-            .cornerRadius(10)
             .padding(.horizontal)
+            
+            .cornerRadius(10)
+            
         }
     }
     
@@ -516,13 +516,13 @@ struct SessionSummary: View {
                     .foregroundColor(.blue)
                 Text("Suggested H20: \(roundedUpWaterLoss) oz")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     
@@ -588,13 +588,13 @@ struct SessionSummary: View {
                     .foregroundColor(.red)
                 Text("Calories Lost: ~ \(roundedCalorieLoss) cal")
                     .foregroundColor(.white)
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 16))
                 Spacer()
             }
             .padding()
-            .background(Color(.darkGray))
+            
             .cornerRadius(10)
-            .padding(.horizontal)
+            
         }
     }
     

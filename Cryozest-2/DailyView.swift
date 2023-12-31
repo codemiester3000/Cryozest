@@ -291,6 +291,8 @@ class RecoveryGraphModel: ObservableObject {
             self.recoveryScores = last7Days.compactMap { temporaryScores[$0] }
             let sortedDates = self.getLastSevenDaysDates().sorted()
             self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
+            
+            self.recoveryScores = [30, 70, 100, 45, 83, 62, 100]
         }
     }
     
@@ -333,7 +335,7 @@ struct RecoveryGraphView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
-                .padding(.top)
+                .padding(.vertical)
                 
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
@@ -492,18 +494,18 @@ struct RecoveryCardView: View {
                     
                     GridItemView(
                         title: "Sleep",
-                        value: model.previousNightSleepDuration ?? "N/A",
+                        value: "8.1" ?? "N/A",
                         unit: "hrs"
                     )
                     
                     GridItemView(
                         title: "HRV",
-                        value: "\(model.lastKnownHRV)",
+                        value: "32",
                         unit: "ms"
                     )
                     GridItemView(
                         title: "RHR",
-                        value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                        value: "60",
                         unit: "bpm"
                     )
                     //                    GridItemView(
