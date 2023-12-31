@@ -36,7 +36,7 @@ struct CalendarView: UIViewRepresentable {
         // Hide out-of-month dates
         calendar.placeholderType = .none
         
-        calendar.backgroundColor = UIColor.lightGray
+        calendar.backgroundColor = UIColor.black
 
         
         return calendar

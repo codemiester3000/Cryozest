@@ -85,7 +85,7 @@ struct LogbookView: View {
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical)
                         
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
