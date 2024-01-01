@@ -12,6 +12,7 @@ class HealthKitManager {
     private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     private let activeEnergyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
     private let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
+    private let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
     
     private init() {}
     
@@ -26,6 +27,7 @@ class HealthKitManager {
         let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
         let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
         let restingEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
+        let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
 
         // Add new types to the typesToRead set
         let typesToRead: Set<HKObjectType> = [
@@ -37,7 +39,8 @@ class HealthKitManager {
             respirationRateType,
             spo2Type,
             activeEnergyType,
-            restingEnergyType
+            restingEnergyType,
+            dateOfBirthType
         ]
 
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
@@ -91,6 +94,23 @@ class HealthKitManager {
         }
         healthStore.execute(bodyMassQuery)
     }
+    
+    func fetchUserAge(completion: @escaping (Int?, Error?) -> Void) {
+          do {
+              let dateOfBirthComponents = try healthStore.dateOfBirthComponents()
+              guard let dateOfBirth = dateOfBirthComponents.date else {
+                  // Date of birth is not available
+                  completion(nil, nil)
+                  return
+              }
+              
+              let age = Calendar.current.dateComponents([.year], from: dateOfBirth, to: Date()).year
+              completion(age, nil)
+          } catch {
+              completion(nil, error)
+          }
+      }
+    
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
            let now = Date()
@@ -313,6 +333,33 @@ class HealthKitManager {
         }
         healthStore.execute(heartRateQuery)
     }
+    
+    public func fetchHeartRateData(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+        
+        // Create a predicate to fetch heart rate data within the specified date range
+        let datePredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        // Sort descriptor to fetch the samples in ascending order
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+        
+        // Create a query to fetch heart rate samples
+        let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: datePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    print("Error or no samples found: \(String(describing: error))")
+                    completion(nil, error)
+                }
+                return
+            }
+            
+            print("Fetched \(samples.count) heart rate samples.")
+            completion(samples, nil)
+        }
+        healthStore.execute(heartRateQuery)
+    }
+
+
     
     func fetchMostRecentRestingHeartRate(completion: @escaping (Int?) -> Void) {
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!

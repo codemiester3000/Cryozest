@@ -337,51 +337,46 @@ class RecoveryGraphModel: ObservableObject {
 
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
-    
+
     var body: some View {
-        ZStack {
-            VStack {
-                HStack {
-                    Text("Recovery Per Day")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.vertical)
-                
-                HStack(alignment: .bottom) {
-                    ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
-                        VStack {
-                            Text("\(percentage)%")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                            Rectangle()
-                                .fill(getColor(forPercentage: percentage))
-                                .frame(width: 40, height: CGFloat(percentage))
-                                .cornerRadius(5)
-                            Text(day)
-                                .font(.caption)
-                                .foregroundColor(.white)
-                        }
+        VStack(spacing: 20) {  // Added spacing between elements in VStack
+            HStack {
+                Text("Recovery Per Day")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+            }
+            .padding([.horizontal, .top])
+
+            HStack(alignment: .bottom, spacing: 10) {
+                ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
+                    VStack {
+                        Text("\(percentage)%")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Rectangle()
+                            .fill(getColor(forPercentage: percentage))
+                            .frame(width: 40, height: CGFloat(percentage))
+                            .cornerRadius(5)
+                        Text(day)
+                            .font(.caption)
+                            .foregroundColor(.white)
                     }
                 }
-                
-                HStack {
-                    Text("Weekly Average: \(model.weeklyAverage)%") // Update this value based on actual data if needed
-                        .font(.caption)
-                        .foregroundColor(.green)
-                        .padding(.leading)
-                    Spacer()
-                }
-                .padding(.top)
-                .padding(.horizontal)
+            }
+            .padding(.bottom)
+
+            HStack {
+                Text("Weekly Average: \(model.weeklyAverage)%")
+                    .font(.caption)
+                    .foregroundColor(.green)
+                Spacer()
             }
         }
-        .frame(height: 200) // Adjust the height as needed
+        .padding(.horizontal)
+        .padding(.top, 20) // Increased top padding for the whole view
     }
-    
+
     // Function to get color based on percentage
     func getColor(forPercentage percentage: Int) -> Color {
         switch percentage {
@@ -394,6 +389,22 @@ struct RecoveryGraphView: View {
         }
     }
 }
+
+    
+
+    
+    // Function to get color based on percentage
+    func getColor(forPercentage percentage: Int) -> Color {
+        switch percentage {
+        case let x where x > 50:
+            return .green
+        case let x where x > 30:
+            return .yellow
+        default:
+            return .red
+        }
+    }
+
 
 struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
