@@ -11,32 +11,36 @@ class ExertionModel: ObservableObject {
     }
     
     func fetchExertionScore() {
-        let userAge = 30 // Replace with actual user age
-        
-        // Set startDate to the beginning of the current day
-        let startDate = Calendar.current.startOfDay(for: Date())
-        let endDate = Date()
-        
-        HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { [weak self] (results, error) in
-            // ... existing implementation ...
-            if let error = error {
-                print("Error fetching heart rate data: \(error)")
-                return
-            }
-            guard let results = results else { return }
-            
-            DispatchQueue.global().async {
-                do {
-                    let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
-                    DispatchQueue.main.async {
-                        self?.exertionScore = score ?? 0.0
+        // Fetch the user's age from HealthKit or default to 30 if unavailable
+        HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
+            let userAge = age ?? 30 // Use the fetched age or default to 30
+
+            // Set startDate to the beginning of the current day
+            let startDate = Calendar.current.startOfDay(for: Date())
+            let endDate = Date()
+
+            HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
+                // ... existing implementation ...
+                if let error = error {
+                    print("Error fetching heart rate data: \(error)")
+                    return
+                }
+                guard let results = results else { return }
+
+                DispatchQueue.global().async {
+                    do {
+                        let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
+                        DispatchQueue.main.async {
+                            self?.exertionScore = score ?? 0.0
+                        }
+                    } catch {
+                        print("Error calculating exertion score: \(error)")
                     }
-                } catch {
-                    print("Error calculating exertion score: \(error)")
                 }
             }
         }
     }
+
     
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample]) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
@@ -86,17 +90,64 @@ class ExertionModel: ObservableObject {
 }
 
 
+func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
+    return min(max(range.lowerBound, value), range.upperBound)
+}
+
+
 struct ExertionView: View {
     @ObservedObject var model: ExertionModel
-    
+ 
     var body: some View {
         VStack {
             Text("Exertion Score")
                 .font(.headline)
                 .padding()
 
-            Text("\(model.exertionScore, specifier: "%.2f")")
-                .font(.title)
+            ExertionRingView(exertionScore: model.exertionScore)
+                .frame(width: 120, height: 120)
         }
     }
 }
+
+struct ExertionRingView: View {
+    var exertionScore: Double
+    let maxExertionScore = 12.0  // Adjust this maximum score as needed
+
+    var body: some View {
+        let progress = clamp(exertionScore / maxExertionScore, to: 0...1)
+
+        ZStack {
+                  Circle()
+                      .stroke(lineWidth: 8)
+                      .foregroundColor(Color.gray.opacity(0.5))
+                      .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
+
+                  Circle()
+                      .trim(from: 0, to: CGFloat(progress))
+                      .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                      .foregroundColor(Color.orange)
+                      .rotationEffect(.degrees(-90))
+                      .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
+
+                  Text("\(exertionScore, specifier: "%.2f")")
+                      .font(.title3)
+                      .fontWeight(.bold)
+                      .multilineTextAlignment(.center)
+                      .foregroundColor(.white)
+              }
+          }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+

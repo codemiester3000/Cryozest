@@ -12,6 +12,7 @@ class HealthKitManager {
     private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     private let activeEnergyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
     private let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
+    private let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
     
     private init() {}
     
@@ -26,6 +27,7 @@ class HealthKitManager {
         let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation)!
         let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
         let restingEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
+        let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
 
         // Add new types to the typesToRead set
         let typesToRead: Set<HKObjectType> = [
@@ -37,7 +39,8 @@ class HealthKitManager {
             respirationRateType,
             spo2Type,
             activeEnergyType,
-            restingEnergyType
+            restingEnergyType,
+            dateOfBirthType
         ]
 
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
@@ -91,6 +94,23 @@ class HealthKitManager {
         }
         healthStore.execute(bodyMassQuery)
     }
+    
+    func fetchUserAge(completion: @escaping (Int?, Error?) -> Void) {
+          do {
+              let dateOfBirthComponents = try healthStore.dateOfBirthComponents()
+              guard let dateOfBirth = dateOfBirthComponents.date else {
+                  // Date of birth is not available
+                  completion(nil, nil)
+                  return
+              }
+              
+              let age = Calendar.current.dateComponents([.year], from: dateOfBirth, to: Date()).year
+              completion(age, nil)
+          } catch {
+              completion(nil, error)
+          }
+      }
+    
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
            let now = Date()
