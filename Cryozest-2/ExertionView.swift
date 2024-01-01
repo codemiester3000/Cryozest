@@ -109,7 +109,7 @@ func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
 
 struct ExertionView: View {
     @ObservedObject var model: ExertionModel
-
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -118,15 +118,15 @@ struct ExertionView: View {
                         .font(.title2) // Adjusted font size
                         .fontWeight(.semibold) // Adjusted font weight
                         .foregroundColor(.white)
-                        .padding(.leading)
-
+                    
                     Spacer()
-
+                    
                     ExertionRingView(exertionScore: model.exertionScore)
                         .frame(width: 120, height: 120)
                 }
                 .padding(.vertical, 20)
-
+                .padding(.horizontal)
+                
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = model.zoneTimes.max() ?? 1
                 let zoneInfos = model.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
@@ -141,7 +141,7 @@ struct ExertionView: View {
                         timeInMinutes: timeInMinutes
                     )
                 }
-
+                
                 ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
                     ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
                 }
@@ -166,31 +166,31 @@ struct ExertionView: View {
 struct ExertionRingView: View {
     var exertionScore: Double
     let maxExertionScore = 12.0  // Adjust this maximum score as needed
-
+    
     var body: some View {
         let progress = clamp(exertionScore / maxExertionScore, to: 0...1)
-
+        
         ZStack {
-                  Circle()
-                      .stroke(lineWidth: 8)
-                      .foregroundColor(Color.gray.opacity(0.5))
-                      .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
-
-                  Circle()
-                      .trim(from: 0, to: CGFloat(progress))
-                      .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                      .foregroundColor(Color.orange)
-                      .rotationEffect(.degrees(-90))
-                      .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
-
-                  Text("\(exertionScore, specifier: "%.2f")")
-                      .font(.title3)
-                      .fontWeight(.bold)
-                      .multilineTextAlignment(.center)
-                      .foregroundColor(.white)
-              }
-          }
-      }
+            Circle()
+                .stroke(lineWidth: 8)
+                .foregroundColor(Color.gray.opacity(0.5))
+                .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
+            
+            Circle()
+                .trim(from: 0, to: CGFloat(progress))
+                .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .foregroundColor(Color.orange)
+                .rotationEffect(.degrees(-90))
+                .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
+            
+            Text("\(exertionScore, specifier: "%.2f")")
+                .font(.title3)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.white)
+        }
+    }
+}
 
 struct ZoneInfo {
     var zoneNumber: Int
@@ -203,7 +203,7 @@ struct ZoneInfo {
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var maxTime: Double
-
+    
     var body: some View {
         HStack {
             Circle()
@@ -214,7 +214,7 @@ struct ZoneItemView: View {
                 .padding(.leading, 5)
             
             Spacer()
-
+            
             // Foreground of the progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
@@ -222,7 +222,7 @@ struct ZoneItemView: View {
                         .frame(width: geometry.size.width, height: 5)
                         .foregroundColor(Color.gray.opacity(0.3))
                         .cornerRadius(2.5)
-
+                    
                     if zoneInfo.timeInMinutes > 0 {
                         Rectangle()
                             .frame(width: geometry.size.width * CGFloat(zoneInfo.timeInMinutes / maxTime), height: 5)
@@ -232,7 +232,7 @@ struct ZoneItemView: View {
                 }
             }
             .frame(height: 5)
-
+            
             Text(zoneInfo.timeSpent)
                 .foregroundColor(.white)
                 .padding(.leading, 5)
