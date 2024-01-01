@@ -1,7 +1,6 @@
 import SwiftUI
 
-struct DailyView: View {
-    
+struct DailyView: View {    
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
@@ -10,7 +9,7 @@ struct DailyView: View {
             
             RecoveryGraphView(model: model)
             
-            ExertionView(model: ExertionModel())
+            ExertionView(model: ExertionModel(), recoveryModel: model)
         }
         .refreshable {
             model.pullAllData()
@@ -27,6 +26,7 @@ struct DailyView: View {
         }
     }
 }
+
 
 class RecoveryGraphModel: ObservableObject {
     
