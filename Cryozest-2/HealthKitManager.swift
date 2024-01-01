@@ -314,6 +314,33 @@ class HealthKitManager {
         healthStore.execute(heartRateQuery)
     }
     
+    public func fetchHeartRateData(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+        
+        // Create a predicate to fetch heart rate data within the specified date range
+        let datePredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        
+        // Sort descriptor to fetch the samples in ascending order
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+        
+        // Create a query to fetch heart rate samples
+        let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: datePredicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    print("Error or no samples found: \(String(describing: error))")
+                    completion(nil, error)
+                }
+                return
+            }
+            
+            print("Fetched \(samples.count) heart rate samples.")
+            completion(samples, nil)
+        }
+        healthStore.execute(heartRateQuery)
+    }
+
+
+    
     func fetchMostRecentRestingHeartRate(completion: @escaping (Int?) -> Void) {
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate)!
         
