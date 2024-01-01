@@ -1,18 +1,19 @@
 import SwiftUI
 
 struct DailyView: View {
+    @StateObject var recoveryModel = RecoveryGraphModel() // Create a single instance of RecoveryGraphModel
+
     var body: some View {
         ScrollView {
-            RecoveryCardView(model: RecoveryGraphModel())
-            
-            RecoveryGraphView(model: RecoveryGraphModel())
-            
-            ExertionView(model: ExertionModel())
+            RecoveryCardView(model: recoveryModel)
+            RecoveryGraphView(model: recoveryModel)
+            ExertionView(model: ExertionModel(), recoveryModel: recoveryModel) // Pass the same model instance
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
     }
 }
+
 
 class RecoveryGraphModel: ObservableObject {
     

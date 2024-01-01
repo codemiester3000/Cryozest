@@ -109,24 +109,46 @@ func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
 
 struct ExertionView: View {
     @ObservedObject var model: ExertionModel
-
+    @ObservedObject var recoveryModel: RecoveryGraphModel
+    @State private var isPopoverVisible = false // Declare the state variable here
+    
     var body: some View {
         ScrollView {
-            VStack {
-                HStack {
-                    Text("Daily Exertion")
-                        .font(.title2) // Adjusted font size
-                        .fontWeight(.semibold) // Adjusted font weight
-                        .foregroundColor(.white)
-                        .padding(.leading)
+                    VStack {
+                        HStack {
+                            Text("Daily Exertion")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.leading)
+                                .alignmentGuide(.leading) { _ in 0 } // Keep the text left-aligned
 
-                    Spacer()
+                            Button(action: {
+                                // Show the popover when the button is pressed
+                                isPopoverVisible.toggle()
+                            }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.blue)
+                                        .frame(width: 30, height: 30)
+                                    Text("?")
+                                        .foregroundColor(.white)
+                                        .font(.headline)
+                                }
+                            }
+                            .popover(isPresented: $isPopoverVisible) {
+                                ExertionInfoPopoverView()
+                            }
 
-                    ExertionRingView(exertionScore: model.exertionScore)
-                        .frame(width: 120, height: 120)
-                }
-                .padding(.vertical, 20)
+                            Spacer() // Add Spacer to push the button to the right
 
+                            ExertionRingView(exertionScore: model.exertionScore)
+                                .frame(width: 120, height: 120)
+                                .padding(.trailing, 20) // Adjust the padding here
+                        }
+                        .padding(.vertical, 20)
+                
+                
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = model.zoneTimes.max() ?? 1
                 let zoneInfos = model.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
@@ -152,20 +174,57 @@ struct ExertionView: View {
     }
     
     // Helper function to format the time from minutes to a string
-    func formatTime(timeInMinutes: Double) -> String {
-        let totalSeconds = Int(timeInMinutes * 60)
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-}
+        func formatTime(timeInMinutes: Double) -> String {
+            let totalSeconds = Int(timeInMinutes * 60)
+            let minutes = totalSeconds / 60
+            let seconds = totalSeconds % 60
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
 
+        // Computed property for target exertion zone
+        var targetExertionZone: String {
+            let recoveryScore = recoveryModel.recoveryScore ?? 0
+               print("Current Recovery Score: \(recoveryScore)") // Debugging
+            switch recoveryScore {
+                case 90...100:
+                    return "9.0-10.0"
+                case 80..<90:
+                    return "8.0-9.0"
+                case 70..<80:
+                    return "7.0-8.0"
+                case 60..<70:
+                    return "6.0-7.0"
+                case 50..<60:
+                    return "5.0-6.0"
+                case 40..<50:
+                    return "4.0-5.0"
+                case 30..<40:
+                    return "3.0-4.0"
+                case 20..<30:
+                    return "2.0-3.0"
+                case 10..<20:
+                    return "1.0-2.0"
+                case 0..<10:
+                    return "0.0-1.0"
+                default:
+                    return "Not available"
+            }
+        }
+    }
+
+
+func formatTime(timeInMinutes: Double) -> String {
+       let totalSeconds = Int(timeInMinutes * 60)
+       let minutes = totalSeconds / 60
+       let seconds = totalSeconds % 60
+       return String(format: "%02d:%02d", minutes, seconds)
+   }
 
 
 
 struct ExertionRingView: View {
     var exertionScore: Double
-    let maxExertionScore = 12.0  // Adjust this maximum score as needed
+    let maxExertionScore = 10.0  // Adjust this maximum score as needed
 
     var body: some View {
         let progress = clamp(exertionScore / maxExertionScore, to: 0...1)
@@ -240,5 +299,21 @@ struct ZoneItemView: View {
         .padding()
         .background(Color.black.opacity(0.8))
         .cornerRadius(5)
+    }
+}
+struct ExertionInfoPopoverView: View {
+    var body: some View {
+        VStack {
+            Text("Exertion serves as a valuable indicator of your daily cardiovascular fitness load over the course of the day. This rating, measured on a scale of 0-10, is derived from your heart rate zones, where specific zones (such as Zone 1, Zone 2, Zone 3) correspond to different workout intensities. Exertion scores increase with higher workout intensity levels. To determine your maximum heart rate, a simple calculation (220 minus your age) is used to define these heart rate zones.")
+                .font(.system(size: 18))  // Adjust the font size here
+                .padding()
+
+            Text("The concept of exertion revolves around the duration spent exercising above your heart rate reserve, with higher scores allocated to more intense efforts. Your recommended exertion target zone depends on your current state of recovery and is presented as a suggestion. Always maintain a vigilant awareness of how your body responds. It's often wiser to stay below the recommended exertion target to prevent overtraining and protect your recovery process. Stay connected to your body, adjusting your training regimen based on your sensations and overall well-being.")
+                .font(.system(size: 18))  // Adjust the font size here
+                .padding()
+
+            Spacer()
+        }
+        .padding()
     }
 }
