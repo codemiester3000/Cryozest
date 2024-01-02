@@ -13,6 +13,8 @@ struct TherapyTypeSelectionView: View {
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
     
+    @State private var allTherapyTypes: [TherapyType] = TherapyType.allCases
+    
     @FetchRequest(
         entity: SelectedTherapy.entity(),
         sortDescriptors: []
@@ -42,12 +44,32 @@ struct TherapyTypeSelectionView: View {
                         .lineLimit(2) // Limit to 2 lines to maintain layout consistency
                     
                     
-                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                    ForEach(allTherapyTypes, id: \.self) { therapyType in
                         Button(action: {
-//                            if case .custom1 = therapyType {
-//                                selectedCustomType = therapyType
-//                                isCustomTypeViewPresented = true
-//                            }
+                            switch therapyType {
+                            case .custom1:
+                                if !selectedTypes.contains(therapyType) {
+                                    selectedCustomType = therapyType
+                                    isCustomTypeViewPresented = true
+                                }
+                            case .custom2:
+                                if !selectedTypes.contains(therapyType) {
+                                    selectedCustomType = therapyType
+                                    isCustomTypeViewPresented = true
+                                }
+                            case .custom3:
+                                if !selectedTypes.contains(therapyType) {
+                                    selectedCustomType = therapyType
+                                    isCustomTypeViewPresented = true
+                                }
+                            case .custom4:
+                                if !selectedTypes.contains(therapyType) {
+                                    selectedCustomType = therapyType
+                                    isCustomTypeViewPresented = true
+                                }
+                            default:
+                                print()
+                            }
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
                             } else if selectedTypes.count < 4 {
@@ -63,7 +85,7 @@ struct TherapyTypeSelectionView: View {
                                 Image(systemName: therapyType.icon)
                                     .foregroundColor(selectedTypes.contains(therapyType) ? .white : therapyType.color) // Dynamic icon color
                                     .imageScale(.large) // Larger icon for better visibility
-                                Text(therapyType.rawValue)
+                                Text(therapyType.displayName(managedObjectContext))
                                     .fontWeight(.medium) // Slightly bolder text for better readability
                                     .foregroundColor(.white) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
@@ -78,10 +100,7 @@ struct TherapyTypeSelectionView: View {
                             )
                             .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2) // Subtle shadow for depth
                             .animation(.easeInOut, value: selectedTypes.contains(therapyType)) // Smooth animation for selection changes
-                            .accessibility(label: Text("Therapy type: \(therapyType.rawValue)")) // Accessibility label for better UI/UX
-                            
-                            
-                            
+                            .accessibility(label: Text("Therapy type: \(therapyType.displayName(managedObjectContext))")) // Accessibility label for better UI/UX
                         }
                         .padding(.vertical, 2)
                     }
@@ -130,9 +149,16 @@ struct TherapyTypeSelectionView: View {
         }
         .sheet(isPresented: $isCustomTypeViewPresented) {
             if let selectedCustomType = selectedCustomType {
-                CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType))
+                CustomTherapyTypeNameView(allTherapyTypes: self.allTherapyTypes, therapyType: Binding.constant(selectedCustomType), onSave: refreshUI)
             }
         }
+    }
+    
+    func refreshUI() {
+        // Trigger some state change that causes the view to redraw
+        // For instance, you could toggle a boolean State variable
+        self.showAlert = false // As an example
+        // Add any other logic to refresh data if needed
     }
     
     // Saves a therapy type to Core Data.
@@ -175,28 +201,95 @@ struct TherapyTypeSelectionView: View {
     }
 }
 
+import CoreData
 
 struct CustomTherapyTypeNameView: View {
+    @State  var allTherapyTypes: [TherapyType]
     @Binding var therapyType: TherapyType
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.managedObjectContext) private var managedObjectContext
     @State private var customName: String = ""
+    
+    var onSave: () -> Void
     
     var body: some View {
         Form {
             TextField("Enter Custom Name", text: $customName)
             Button("Save") {
-                // Update the name of the custom therapy type
-//                if case .custom(_, let icon, let color) = therapyType {
-//                    therapyType = .custom(name: customName, icon: icon, color: color)
-//                }
+                saveCustomTherapy()
                 presentationMode.wrappedValue.dismiss()
             }
         }
         .navigationBarTitle("Set Custom Name", displayMode: .inline)
-        .onAppear {
-//            if case .custom(let name, _, _) = therapyType {
-//                customName = name
-//            }
+        .onAppear() {
+            loadCustomTherapyName()
+        }
+    }
+    
+    private func loadCustomTherapyName() {
+        let therapyID = therapyTypeToID(therapyType)
+        
+        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+        
+        do {
+            let results = try managedObjectContext.fetch(fetchRequest)
+            if let existingTherapy = results.first {
+                self.customName = existingTherapy.name ?? ""
+            }
+        } catch {
+            // Handle error
+            print("Error loading custom therapy: \(error)")
+        }
+    }
+    
+    private func saveCustomTherapy() {
+        let therapyID = therapyTypeToID(therapyType)
+        
+        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+        
+        do {
+            let results = try managedObjectContext.fetch(fetchRequest)
+            let therapy: CustomTherapy
+            
+            print("therapyId, ", therapyID)
+            
+            print("results: ", results)
+            
+            if let existingTherapy = results.first {
+                // Update existing therapy
+                therapy = existingTherapy
+            } else {
+                // Create new therapy
+                therapy = CustomTherapy(context: managedObjectContext)
+                therapy.id = therapyID
+            }
+            
+            therapy.name = customName
+            try managedObjectContext.save()
+            
+            allTherapyTypes = []
+            allTherapyTypes = TherapyType.allCases
+        } catch {
+            // Handle error
+            print("Error saving custom therapy: \(error)")
+        }
+    }
+    
+    private func therapyTypeToID(_ therapyType: TherapyType) -> Int16 {
+        switch therapyType {
+        case .custom1:
+            return 1
+        case .custom2:
+            return 2
+        case .custom3:
+            return 3
+        case .custom4:
+            return 4
+        default:
+            return 0 // Or handle other cases as needed
         }
     }
 }
+

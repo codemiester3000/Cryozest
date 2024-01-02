@@ -1,10 +1,11 @@
 import SwiftUI
+import CoreData
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
-//    case custom1 = "Custom 1"
-//    case custom2 = "Custom 2"
-//    case custom3 = "Custom 3"
-//    case custom4 = "Custom 4"
+    case custom1 = "Custom 1"
+    case custom2 = "Custom 2"
+    case custom3 = "Custom 3"
+    case custom4 = "Custom 4"
     case drySauna = "Sauna"
     case hotYoga = "Hot Yoga"
     case running = "Running"
@@ -46,14 +47,14 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "wind"
         case .sleep:
             return "moon.fill"
-//        case .custom1:
-//            return "person.fill"
-//        case .custom2:
-//            return "person.fill"
-//        case .custom3:
-//            return "person.fill"
-//        case .custom4:
-//            return "person.fill"
+        case .custom1:
+            return "person.fill"
+        case .custom2:
+            return "person.fill"
+        case .custom3:
+            return "person.fill"
+        case .custom4:
+            return "person.fill"
         }
     }
     
@@ -65,8 +66,45 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.blue
         case .meditation, .stretching, .deepBreathing, .sleep:
             return Color(red: 0.0, green: 0.5, blue: 0.0)
-//        case .custom1, .custom2, .custom3, .custom4:
-//            return Color.purple
+        case .custom1, .custom2, .custom3, .custom4:
+            return Color.purple
+        }
+    }
+    
+    func displayName(_ managedObjectContext: NSManagedObjectContext) -> String {
+        switch self {
+        case .custom1, .custom2, .custom3, .custom4:
+            let therapyID = therapyTypeToID()
+            let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+            
+            do {
+                let results = try managedObjectContext.fetch(fetchRequest)
+                if let customTherapy = results.first, let customName = customTherapy.name, !customName.isEmpty {
+                    return customName
+                }
+            } catch {
+                // Handle or log error
+                print("Error fetching custom therapy: \(error)")
+            }
+            return self.rawValue
+        default:
+            return self.rawValue
+        }
+    }
+    
+    func therapyTypeToID() -> Int16 {
+        switch self {
+        case .custom1:
+            return 1
+        case .custom2:
+            return 2
+        case .custom3:
+            return 3
+        case .custom4:
+            return 4
+        default:
+            return 0 // Or handle other cases as needed
         }
     }
 }

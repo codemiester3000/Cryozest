@@ -51,13 +51,10 @@ struct LogbookView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
-                
                 NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
                     EmptyView()
                 }
-                
                 ScrollView {
-                    
                     HStack {
                         Text("History")
                             .font(.system(size: 24, weight: .regular, design: .default))
@@ -95,7 +92,7 @@ struct LogbookView: View {
                         } else {
                             // Iterate over the sorted sessions
                             ForEach(sortedSessions, id: \.self) { session in
-                                SessionRow(session: session, therapyTypeSelection: therapyTypeSelection)
+                                SessionRow(session: session, therapyTypeSelection: therapyTypeSelection, therapyTypeName: therapyTypeSelection.selectedTherapyType.displayName(viewContext))
                                     .foregroundColor(.white)
                             }
                         }

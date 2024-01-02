@@ -162,6 +162,8 @@ struct MetricsHighlightsView: View {
 
 
 struct HighlightBullet: View {
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     var type: String
     @Binding var percentage: Double
     @Binding var therapyType: TherapyType
@@ -206,7 +208,7 @@ struct HighlightBullet: View {
         Text("the \(timeFrame.displayString().lowercased()) on ")
             .font(.footnote)
             .foregroundColor(.white) +
-        Text("\(therapyType.rawValue.lowercased()) ")
+        Text("\(therapyType.displayName(managedObjectContext).lowercased()) ")
             .fontWeight(.bold)
             .font(.footnote)
             .foregroundColor(therapyType.color) +

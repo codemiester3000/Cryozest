@@ -4,6 +4,7 @@ import HealthKit
 struct SessionRow: View {
     var session: TherapySessionEntity
     var therapyTypeSelection: TherapyTypeSelection
+    var therapyTypeName: String
 
     @State private var averageHeartRateForDay: Double? = nil
     @State private var averageHRVForDay: Double? = nil
@@ -16,7 +17,7 @@ struct SessionRow: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     Spacer()
-                    Text(session.therapyType ?? "")
+                    Text(therapyTypeName)
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
@@ -48,8 +49,6 @@ struct SessionRow: View {
                             .font(.headline)
                             .foregroundColor(.white)
                     }
-
-                    
 
                     if let avgHeartRate = averageHeartRateForDay {
                         Text("Average Heart Rate for the Day: \(Int(avgHeartRate)) bpm")
@@ -114,7 +113,6 @@ struct SessionRow: View {
     private func loadAverageHRV() {
         guard let sessionDate = session.date else { return }
         
-        print("session row: ", session.date)
         HealthKitManager.shared.fetchAvgHRVForDays(days: [sessionDate]) { averageHRV in
             self.averageHRVForDay = averageHRV
         }

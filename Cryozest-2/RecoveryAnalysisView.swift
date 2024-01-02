@@ -97,6 +97,8 @@ class SleepViewModel: ObservableObject {
 
 struct RecoveryAnalysisView: View {
     
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     @ObservedObject var viewModel: SleepViewModel
     
     var body: some View {
@@ -142,7 +144,7 @@ struct RecoveryAnalysisView: View {
                     }
                     HStack {
                         HStack {
-                            Text("\(viewModel.therapyType.rawValue) days")
+                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
                                 .font(.footnote)
                                 .foregroundColor(.white)
                             
@@ -186,9 +188,7 @@ struct RecoveryAnalysisView: View {
                     }
                     HStack {
                         HStack {
-                            
-                            
-                            Text("\(viewModel.therapyType.rawValue) days")
+                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
                                 .font(.footnote)
                                 .foregroundColor(.white)
                             

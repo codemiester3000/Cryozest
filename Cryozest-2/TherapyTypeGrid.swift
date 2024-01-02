@@ -5,6 +5,8 @@ class TherapyTypeSelection: ObservableObject {
 }
 
 struct TherapyTypeGrid: View {
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     
     let selectedTherapyTypes: [TherapyType]
@@ -20,7 +22,7 @@ struct TherapyTypeGrid: View {
                         Image(systemName: therapyType.icon)
                             .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
                             .font(.system(size: 20))
-                        Text(therapyType.rawValue)
+                        Text(therapyType.displayName(managedObjectContext))
                             .font(.system(size: 16, weight: .medium, design: .default))
                             .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : .black)
                     }

@@ -121,6 +121,8 @@ extension Double {
 }
 
 struct AvgHeartRateComparisonView: View {
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     @ObservedObject var heartRateViewModel: HeartRateViewModel
     
     var body: some View {
@@ -168,7 +170,7 @@ struct AvgHeartRateComparisonView: View {
                     }
                     HStack {
                         HStack {
-                            Text("\(heartRateViewModel.therapyType.rawValue) days")
+                            Text("\(heartRateViewModel.therapyType.displayName(managedObjectContext)) days")
                                 .font(.footnote)
                                 .foregroundColor(.white)
                         }
@@ -215,7 +217,7 @@ struct AvgHeartRateComparisonView: View {
                     HStack {
                         HStack {
                             
-                            Text("\(heartRateViewModel.therapyType.rawValue) days")
+                            Text("\(heartRateViewModel.therapyType.displayName(managedObjectContext)) days")
                                 .font(.footnote)
                                 .foregroundColor(.white)
                         }
