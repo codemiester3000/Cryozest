@@ -141,6 +141,7 @@ struct TherapyTypeSelectionView: View {
             }
             .onAppear {
                 selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
+                fetchCustomTherapyNames()
             }
             .padding(.horizontal, 12)
         }
@@ -153,6 +154,21 @@ struct TherapyTypeSelectionView: View {
             }
         }
     }
+    
+    func fetchCustomTherapyNames() {
+        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+        do {
+            let therapies = try managedObjectContext.fetch(fetchRequest)
+            for therapy in therapies {
+                if let name = therapy.name, therapy.id > 0, therapy.id <= customTherapyNames.count {
+                    customTherapyNames[Int(therapy.id) - 1] = name
+                }
+            }
+        } catch {
+            print("Error fetching custom therapies: \(error)")
+        }
+    }
+
     
     func getDisplayName(therapyType: TherapyType) -> String {
         if therapyType == .custom1 {
@@ -172,13 +188,6 @@ struct TherapyTypeSelectionView: View {
         }
         
         return therapyType.displayName(managedObjectContext)
-    }
-    
-    func refreshUI() {
-        // Trigger some state change that causes the view to redraw
-        // For instance, you could toggle a boolean State variable
-        self.showAlert = false // As an example
-        // Add any other logic to refresh data if needed
     }
     
     // Saves a therapy type to Core Data.
@@ -270,10 +279,6 @@ struct CustomTherapyTypeNameView: View {
         do {
             let results = try managedObjectContext.fetch(fetchRequest)
             let therapy: CustomTherapy
-            
-            print("therapyId, ", therapyID)
-            
-            print("results: ", results)
             
             if let existingTherapy = results.first {
                 // Update existing therapy
