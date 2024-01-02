@@ -510,10 +510,28 @@ struct RecoveryCardView: View {
                     .padding(.horizontal)
                     
                     // TODO: COMPLETELY HARDCODED
-                    Text("Recovery is based on your average HRV during sleep of \(model.avgHrvDuringSleep ?? 0) ms which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of \(model.mostRecentRestingHeartRate ?? 0) bpm which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding()
+                    VStack {
+                        Text("Recovery is based on your average HRV during sleep of ")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white) +
+                        Text("\(model.avgHrvDuringSleep ?? 0) ms ")
+                            .font(.system(size: 17))
+                            .foregroundColor(.green)
+                            .fontWeight(.bold) +
+                        Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white) +
+                        Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
+                            .font(.system(size: 17))
+                            .foregroundColor(.green)
+                            .fontWeight(.bold) +
+                        Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.white)
+                        
+                    }
+                    .padding(.vertical)
+                        
                 }
                 
                 // Horizontal Stack for Grid Items
@@ -583,7 +601,6 @@ struct RecoveryCardView: View {
         return String(format: "%.1f", respRate) // One decimal place
     }
 }
-
 
 struct MetricView: View {
     let label: String
