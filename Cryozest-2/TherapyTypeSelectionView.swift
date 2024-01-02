@@ -13,7 +13,7 @@ struct TherapyTypeSelectionView: View {
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
     
-    @State private var allTherapyTypes: [TherapyType] = TherapyType.allCases
+    @State private var customTherapyNames: [String] = ["custom 1", "custom 2", "custom 3", "custom 4"]
     
     @FetchRequest(
         entity: SelectedTherapy.entity(),
@@ -44,7 +44,7 @@ struct TherapyTypeSelectionView: View {
                         .lineLimit(2) // Limit to 2 lines to maintain layout consistency
                     
                     
-                    ForEach(allTherapyTypes, id: \.self) { therapyType in
+                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
                             switch therapyType {
                             case .custom1:
@@ -85,7 +85,7 @@ struct TherapyTypeSelectionView: View {
                                 Image(systemName: therapyType.icon)
                                     .foregroundColor(selectedTypes.contains(therapyType) ? .white : therapyType.color) // Dynamic icon color
                                     .imageScale(.large) // Larger icon for better visibility
-                                Text(therapyType.displayName(managedObjectContext))
+                                Text(getDisplayName(therapyType: therapyType))
                                     .fontWeight(.medium) // Slightly bolder text for better readability
                                     .foregroundColor(.white) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
@@ -149,9 +149,29 @@ struct TherapyTypeSelectionView: View {
         }
         .sheet(isPresented: $isCustomTypeViewPresented) {
             if let selectedCustomType = selectedCustomType {
-                CustomTherapyTypeNameView(allTherapyTypes: self.allTherapyTypes, therapyType: Binding.constant(selectedCustomType), onSave: refreshUI)
+                CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType), customTherapyNames: $customTherapyNames)
             }
         }
+    }
+    
+    func getDisplayName(therapyType: TherapyType) -> String {
+        if therapyType == .custom1 {
+            return customTherapyNames[0]
+        }
+        
+        if therapyType == .custom2 {
+            return customTherapyNames[1]
+        }
+        
+        if therapyType == .custom3 {
+            return customTherapyNames[2]
+        }
+        
+        if therapyType == .custom4 {
+            return customTherapyNames[3]
+        }
+        
+        return therapyType.displayName(managedObjectContext)
     }
     
     func refreshUI() {
@@ -204,13 +224,11 @@ struct TherapyTypeSelectionView: View {
 import CoreData
 
 struct CustomTherapyTypeNameView: View {
-    @State  var allTherapyTypes: [TherapyType]
     @Binding var therapyType: TherapyType
+    @Binding var customTherapyNames: [String]
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.managedObjectContext) private var managedObjectContext
     @State private var customName: String = ""
-    
-    var onSave: () -> Void
     
     var body: some View {
         Form {
@@ -266,11 +284,9 @@ struct CustomTherapyTypeNameView: View {
                 therapy.id = therapyID
             }
             
+            customTherapyNames[Int(therapyID) - 1] = customName
             therapy.name = customName
             try managedObjectContext.save()
-            
-            allTherapyTypes = []
-            allTherapyTypes = TherapyType.allCases
         } catch {
             // Handle error
             print("Error saving custom therapy: \(error)")
