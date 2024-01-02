@@ -6,11 +6,66 @@ class ExertionModel: ObservableObject {
     
     @Published var exertionScore: Double = 0.0
     @Published var zoneTimes: [Double] = []
+    @Published var recoveryMinutes: Double = 0
+    @Published var conditioningMinutes: Double = 0
+    @Published var overloadMinutes: Double = 0
     
     
     init() {
         fetchExertionScore()
     }
+    
+    func updateExertionCategories() {
+           // This function will be called once the zoneTimes are updated
+           // Ensure that your zoneTimes array has enough elements to prevent out of range errors
+           if zoneTimes.count >= 3 {
+               let recoveryTime = zoneTimes[0] // Assuming zone 1 is recovery
+               let conditioningTime = zoneTimes[1] + zoneTimes[2] // Assuming zones 2 and 3 are conditioning
+               let overloadTime = zoneTimes.count > 3 ? zoneTimes.dropFirst(3).reduce(0, +) : 0 // Zones 4 and above are overload
+               
+               DispatchQueue.main.async {
+                   // Update your published properties
+                   self.recoveryMinutes = recoveryTime
+                   self.conditioningMinutes = conditioningTime
+                   self.overloadMinutes = overloadTime
+               }
+           }
+       }
+    
+    func fetchExertionScoreAndTimes() {
+           // Fetch the user's age from HealthKit or default to 30 if unavailable
+           HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
+               let userAge = age ?? 30 // Use the fetched age or default to 30
+               
+               // Set startDate to the beginning of the current day
+               let startDate = Calendar.current.startOfDay(for: Date())
+               let endDate = Date()
+               
+               HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
+                   if let error = error {
+                       print("Error fetching heart rate data: \(error)")
+                       return
+                   }
+                   guard let results = results else { return }
+                   
+                   DispatchQueue.global().async {
+                       do {
+                           let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
+                           DispatchQueue.main.async {
+                               self?.exertionScore = score ?? 0.0
+                               // After calculating zoneTimes, update the category times
+                               self?.updateExertionCategories()
+                           }
+                       } catch {
+                           print("Error calculating exertion score: \(error)")
+                       }
+                   }
+               }
+           }
+       }
+    
+    
+    
     
     func fetchExertionScore() {
         // Fetch the user's age from HealthKit or default to 30 if unavailable
@@ -42,7 +97,7 @@ class ExertionModel: ObservableObject {
             }
         }
     }
-    
+
     
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample]) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
@@ -106,6 +161,13 @@ func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
     return min(max(range.lowerBound, value), range.upperBound)
 }
 
+extension ExertionModel {
+    var maxExertionTime: Double {
+        let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
+        return maxTime == 0 ? 1 : maxTime // Return 1 to avoid division by zero
+    }
+}
+
 
 struct ExertionView: View {
     @ObservedObject var model: ExertionModel
@@ -147,9 +209,27 @@ struct ExertionView: View {
                 }
             }
             .padding(.horizontal)
-        }
-        .background(Color.black.edgesIgnoringSafeArea(.all))
-    }
+            VStack(alignment: .leading, spacing: 8) {
+                 Text("Training Zones")
+                     .font(.title2)
+                     .fontWeight(.semibold)
+                     .foregroundColor(.white)
+                     .padding(.vertical)
+
+                ExertionBarView(label: "RECOVERY", minutes: model.recoveryMinutes, color: .teal, maxTime: model.maxExertionTime)
+                       .frame(height: 20)
+                   ExertionBarView(label: "CONDITIONING", minutes: model.conditioningMinutes, color: .green, maxTime: model.maxExertionTime)
+                       .frame(height: 20)
+                   ExertionBarView(label: "OVERLOAD", minutes: model.overloadMinutes, color: .red, maxTime: model.maxExertionTime)
+                       .frame(height: 20)
+             }
+             .padding()
+             .background(Color.black.opacity(0.8))
+             .cornerRadius(8)
+         }
+         .padding(.horizontal)
+     }
+ }
     
     // Helper function to format the time from minutes to a string
     func formatTime(timeInMinutes: Double) -> String {
@@ -158,7 +238,7 @@ struct ExertionView: View {
         let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-}
+
 
 
 
@@ -240,5 +320,46 @@ struct ZoneItemView: View {
         .padding()
         .background(Color.black.opacity(0.8))
         .cornerRadius(5)
+    }
+}
+
+struct ExertionBarView: View {
+    var label: String
+    var minutes: Double
+    var color: Color
+    var maxTime: Double
+    
+    var body: some View {
+        GeometryReader { geometry in
+            VStack(alignment: .leading) {
+                ZStack {
+                    // Background for the progress bar
+                    Rectangle()
+                        .frame(width: geometry.size.width, height: 20)
+                        .opacity(0.3)
+                        .foregroundColor(color)
+                        .cornerRadius(0) // Make corners square
+                    
+                    // Foreground of the progress bar
+                    Rectangle()
+                        .frame(width: maxTime > 0 ? geometry.size.width * CGFloat(minutes / maxTime) : 0, height: 20)
+                        .foregroundColor(color)
+                        .cornerRadius(0) // Make corners square
+                    
+                    // Label and minute text overlay
+                    HStack {
+                        Text(label)
+                            .foregroundColor(.white)
+                            .bold()
+                        Spacer()
+                        Text("\(Int(minutes)) min")
+                            .foregroundColor(.white)
+                            .bold()
+                    }
+                    .padding(.horizontal, 8)
+                }
+            }
+        }
+        .frame(height: 35) // Set the height of each bar
     }
 }
