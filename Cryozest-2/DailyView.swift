@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DailyView: View {
+    
     var body: some View {
         ScrollView {
             RecoveryCardView(model: RecoveryGraphModel())
@@ -59,7 +60,8 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentSPO2: Double? = nil
     @Published var mostRecentRespiratoryRate: Double? = nil
     @Published var mostRecentActiveCalories: Double? = nil
-    
+    @Published var mostRecentRestingCalories: Double? = nil
+
     
     var hrvReadings: [Date: Int] = [:]
     
@@ -85,6 +87,8 @@ class RecoveryGraphModel: ObservableObject {
     init() {
         self.getLastSevenDaysOfRecoveryScores()
         
+        
+        
         HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
             DispatchQueue.main.async {
                 if let hrv = hrv {
@@ -105,6 +109,9 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
+        
+        
+        
         
         HealthKitManager.shared.fetchMostRecentSPO2 { spo2 in
             DispatchQueue.main.async {
@@ -154,6 +161,15 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
         
+        HealthKitManager.shared.fetchMostRecentRestingEnergy { restingCalories in
+              DispatchQueue.main.async {
+                  self.mostRecentRestingCalories = restingCalories
+                  print("Fetched Resting Calories: \(restingCalories ?? 0)") // Debugging print statement
+              }
+          }
+
+        
+        
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
             DispatchQueue.main.async {
                 if let restingHeartRate = restingHeartRate60days {
@@ -182,6 +198,8 @@ class RecoveryGraphModel: ObservableObject {
             restingHeartRatePercentage = nil
         }
     }
+    
+    
     
     
     
@@ -310,6 +328,9 @@ class RecoveryGraphModel: ObservableObject {
             self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
         }
     }
+    
+    
+    
     
     func calculateRecoveryScore(date: Date, avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
         guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
@@ -527,7 +548,7 @@ struct RecoveryCardView: View {
                     
                     GridItemView(
                         title: "Cals Burned",
-                        value: formatActiveCaloriesValue(model.mostRecentActiveCalories),
+                        value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
                         unit: "kcal"
                     )
                 }
@@ -537,6 +558,11 @@ struct RecoveryCardView: View {
             .padding(.horizontal)
         }
     }
+    
+    private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
+            let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
+            return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
+        }
     
     private func formatSPO2Value(_ spo2: Double?) -> String {
         guard let spo2 = spo2 else { return "N/A" }

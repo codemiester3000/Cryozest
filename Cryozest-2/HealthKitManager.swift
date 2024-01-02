@@ -113,20 +113,39 @@ class HealthKitManager {
     
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
-           let now = Date()
-           let startOfDay = Calendar.current.startOfDay(for: now)
-           let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
+        print("fetchMostRecentRestingEnergy called")
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
 
-           let query = HKSampleQuery(sampleType: restingEnergyType, predicate: predicate, limit: 1, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { _, samples, error in
-               guard let sample = samples?.first as? HKQuantitySample else {
-                   completion(nil)
-                   return
-               }
-               let restingEnergyValue = sample.quantity.doubleValue(for: HKUnit.kilocalorie())
-               completion(restingEnergyValue)
-           }
-           healthStore.execute(query)
-       }
+        guard let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned) else {
+            print("Could not find basal energy burned type")
+            completion(nil)
+            return
+        }
+
+        let query = HKStatisticsQuery(quantityType: restingEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
+            if let error = error {
+                print("Error fetching resting energy: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let sum = statistics?.sumQuantity() else {
+                print("No resting energy data available")
+                completion(nil)
+                return
+            }
+
+            let totalRestingEnergy = sum.doubleValue(for: HKUnit.kilocalorie())
+            print("Total resting energy: \(totalRestingEnergy) kilocalories")
+            completion(totalRestingEnergy)
+        }
+        print("Executing resting energy query")
+        healthStore.execute(query)
+    }
+
+
     
     func fetchMostRecentActiveEnergy(completion: @escaping (Double?) -> Void) {
         let now = Date()
