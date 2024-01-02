@@ -217,15 +217,12 @@ struct ExertionView: View {
                      .padding(.vertical)
 
                 ExertionBarView(label: "RECOVERY", minutes: model.recoveryMinutes, color: .teal, maxTime: model.maxExertionTime)
-                       .frame(height: 20)
-                   ExertionBarView(label: "CONDITIONING", minutes: model.conditioningMinutes, color: .green, maxTime: model.maxExertionTime)
-                       .frame(height: 20)
-                   ExertionBarView(label: "OVERLOAD", minutes: model.overloadMinutes, color: .red, maxTime: model.maxExertionTime)
-                       .frame(height: 20)
-             }
-             .padding()
-             .background(Color.black.opacity(0.8))
-             .cornerRadius(8)
+                                    ExertionBarView(label: "CONDITIONING", minutes: model.conditioningMinutes, color: .green, maxTime: model.maxExertionTime)
+                                    ExertionBarView(label: "OVERLOAD", minutes: model.overloadMinutes, color: .red, maxTime: model.maxExertionTime)
+                                }
+                                .padding()
+                                .background(Color.black.opacity(0.8))
+                                .cornerRadius(8)
          }
          .padding(.horizontal)
      }
@@ -330,36 +327,35 @@ struct ExertionBarView: View {
     var maxTime: Double
     
     var body: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .leading) {
-                ZStack {
-                    // Background for the progress bar
+        VStack(alignment: .leading, spacing: 10) { // Add spacing between bars
+            ZStack {
+                // Background for the progress bar
+                Rectangle()
+                    .opacity(0.3)
+                    .foregroundColor(color)
+                    .cornerRadius(0) // Make corners square
+                
+                // Foreground of the progress bar
+                GeometryReader { geometry in
                     Rectangle()
-                        .frame(width: geometry.size.width, height: 20)
-                        .opacity(0.3)
+                        .frame(width: maxTime > 0 ? geometry.size.width * CGFloat(minutes / maxTime) : 0)
                         .foregroundColor(color)
                         .cornerRadius(0) // Make corners square
-                    
-                    // Foreground of the progress bar
-                    Rectangle()
-                        .frame(width: maxTime > 0 ? geometry.size.width * CGFloat(minutes / maxTime) : 0, height: 20)
-                        .foregroundColor(color)
-                        .cornerRadius(0) // Make corners square
-                    
-                    // Label and minute text overlay
-                    HStack {
-                        Text(label)
-                            .foregroundColor(.white)
-                            .bold()
-                        Spacer()
-                        Text("\(Int(minutes)) min")
-                            .foregroundColor(.white)
-                            .bold()
-                    }
-                    .padding(.horizontal, 8)
                 }
+                
+                // Label and minute text overlay
+                HStack {
+                    Text(label)
+                        .foregroundColor(.white)
+                        .bold()
+                    Spacer()
+                    Text("\(Int(minutes)) min")
+                        .foregroundColor(.white)
+                        .bold()
+                }
+                .padding(.horizontal, 8)
             }
+            .frame(height: 50) // Increase the thickness of the bars
         }
-        .frame(height: 35) // Set the height of each bar
     }
 }
