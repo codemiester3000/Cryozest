@@ -44,10 +44,10 @@ struct TherapyTypeSelectionView: View {
                     
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
-                            if case .custom1 = therapyType {
-                                selectedCustomType = therapyType
-                                isCustomTypeViewPresented = true
-                            }
+//                            if case .custom1 = therapyType {
+//                                selectedCustomType = therapyType
+//                                isCustomTypeViewPresented = true
+//                            }
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
                             } else if selectedTypes.count < 4 {
@@ -65,7 +65,7 @@ struct TherapyTypeSelectionView: View {
                                     .imageScale(.large) // Larger icon for better visibility
                                 Text(therapyType.rawValue)
                                     .fontWeight(.medium) // Slightly bolder text for better readability
-                                    .foregroundColor(.primary) // Use primary color for better adaptability to dark/light mode
+                                    .foregroundColor(.white) // Use primary color for better adaptability to dark/light mode
                                 Spacer()
                             }
                             .padding(.horizontal)

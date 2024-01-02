@@ -388,8 +388,8 @@ struct SessionSummary: View {
                 return 0..<100
             case .sleep:
                 return 0..<100
-            case .custom1, .custom2, .custom3, .custom4:
-                return 0..<100
+//            case .custom1, .custom2, .custom3, .custom4:
+//                return 0..<100
             }
             
         }
@@ -567,8 +567,8 @@ struct SessionSummary: View {
                 burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             case .sleep:
                 burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .custom1, .custom2, .custom3, .custom4:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+//            case .custom1, .custom2, .custom3, .custom4:
+//                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             }
             
             let tempAdjustmentFactor: Double
