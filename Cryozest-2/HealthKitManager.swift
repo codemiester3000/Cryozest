@@ -904,13 +904,16 @@ class HealthKitManager {
             var lastEndDate: Date? = yesterday7PM
 
             for sample in sleepSamples {
-                print("Sleep Sample: \(sample.startDate) to \(sample.endDate)") // Debugging line
+                // Check if the sample represents actual sleep (using the updated enumeration case)
+                if sample.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue {
+                    print("Sleep Sample: \(sample.startDate) to \(sample.endDate)") // Debugging line
 
-                // If there's an overlap, adjust the start date
-                let adjustedStartDate = max(sample.startDate, lastEndDate ?? sample.startDate)
-                if adjustedStartDate < sample.endDate {
-                    totalSleepTime += sample.endDate.timeIntervalSince(adjustedStartDate)
-                    lastEndDate = max(lastEndDate ?? sample.startDate, sample.endDate)
+                    // If there's an overlap, adjust the start date
+                    let adjustedStartDate = max(sample.startDate, lastEndDate ?? sample.startDate)
+                    if adjustedStartDate < sample.endDate {
+                        totalSleepTime += sample.endDate.timeIntervalSince(adjustedStartDate)
+                        lastEndDate = max(lastEndDate ?? sample.startDate, sample.endDate)
+                    }
                 }
             }
 
@@ -918,6 +921,8 @@ class HealthKitManager {
                 completion(totalSleepTime)
             }
         }
+
+
 
         healthStore.execute(sleepQuery)
     }
