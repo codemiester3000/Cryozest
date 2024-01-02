@@ -530,6 +530,7 @@ struct RecoveryCardView: View {
                             .foregroundColor(.white)
                         
                     }
+                    .padding(.horizontal, 6)
                     .padding(.vertical)
                         
                 }
