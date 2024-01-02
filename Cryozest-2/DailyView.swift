@@ -414,11 +414,18 @@ struct RecoveryCardView: View {
             VStack {
                 
                 HStack {
-                    Text("Daily Summary")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.top, -30)
+                    VStack(alignment: .leading) {
+                        Text("Health Kit")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.top, -45)
+                        Text("Daily Summary")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.top, -30)
+                    }
                     
                     Spacer() // Adding a spacer for separation
                     
