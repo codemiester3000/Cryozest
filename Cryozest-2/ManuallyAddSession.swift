@@ -20,7 +20,7 @@ struct ManuallyAddSession: View {
             Form {
                 Picker("Therapy Type", selection: $therapyType) {
                     ForEach(TherapyType.allCases, id: \.self) { type in
-                        Text(type.rawValue).tag(type)
+                        Text(type.displayName(viewContext)).tag(type)
                     }
                 }
 
