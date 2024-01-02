@@ -10,6 +10,9 @@ struct TherapyTypeSelectionView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     
+    @State private var isCustomTypeViewPresented = false
+    @State private var selectedCustomType: TherapyType?
+    
     @FetchRequest(
         entity: SelectedTherapy.entity(),
         sortDescriptors: []
@@ -37,10 +40,14 @@ struct TherapyTypeSelectionView: View {
                         .multilineTextAlignment(.center) // Center align for better readability in multiple lines
                         .frame(maxWidth: .infinity) // Ensure it spans the width of the container
                         .lineLimit(2) // Limit to 2 lines to maintain layout consistency
-
+                    
                     
                     ForEach(TherapyType.allCases, id: \.self) { therapyType in
                         Button(action: {
+                            if case .custom1 = therapyType {
+                                selectedCustomType = therapyType
+                                isCustomTypeViewPresented = true
+                            }
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
                             } else if selectedTypes.count < 4 {
@@ -72,8 +79,8 @@ struct TherapyTypeSelectionView: View {
                             .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2) // Subtle shadow for depth
                             .animation(.easeInOut, value: selectedTypes.contains(therapyType)) // Smooth animation for selection changes
                             .accessibility(label: Text("Therapy type: \(therapyType.rawValue)")) // Accessibility label for better UI/UX
-
-
+                            
+                            
                             
                         }
                         .padding(.vertical, 2)
@@ -111,7 +118,7 @@ struct TherapyTypeSelectionView: View {
                 .alert(isPresented: $showAlert) { // Alert for validation
                     Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 }
-
+                
             }
             .onAppear {
                 selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
@@ -120,6 +127,11 @@ struct TherapyTypeSelectionView: View {
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+        .sheet(isPresented: $isCustomTypeViewPresented) {
+            if let selectedCustomType = selectedCustomType {
+                CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType))
+            }
         }
     }
     
@@ -159,6 +171,32 @@ struct TherapyTypeSelectionView: View {
         // Save new selections.
         for type in therapyTypes {
             saveTherapyType(type: type, context: context)
+        }
+    }
+}
+
+
+struct CustomTherapyTypeNameView: View {
+    @Binding var therapyType: TherapyType
+    @Environment(\.presentationMode) var presentationMode
+    @State private var customName: String = ""
+    
+    var body: some View {
+        Form {
+            TextField("Enter Custom Name", text: $customName)
+            Button("Save") {
+                // Update the name of the custom therapy type
+//                if case .custom(_, let icon, let color) = therapyType {
+//                    therapyType = .custom(name: customName, icon: icon, color: color)
+//                }
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
+        .navigationBarTitle("Set Custom Name", displayMode: .inline)
+        .onAppear {
+//            if case .custom(let name, _, _) = therapyType {
+//                customName = name
+//            }
         }
     }
 }
