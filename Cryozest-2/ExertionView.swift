@@ -109,41 +109,54 @@ struct ExertionView: View {
     @State private var isPopoverVisible = false // Declare the state variable here
     
     var body: some View {
-        ScrollView {
-                    VStack {
-                        HStack {
-                            Text("Daily Exertion")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding(.leading)
-                                .alignmentGuide(.leading) { _ in 0 } // Keep the text left-aligned
+        VStack {
+            HStack {
+                // VStack for the title and the target exertion zone text
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Daily Exertion")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
 
-                            Button(action: {
-                                // Show the popover when the button is pressed
-                                isPopoverVisible.toggle()
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.blue)
-                                        .frame(width: 30, height: 30)
-                                    Text("?")
-                                        .foregroundColor(.white)
-                                        .font(.headline)
-                                }
+                        Button(action: {
+                            // Toggle the visibility of the popover
+                            isPopoverVisible.toggle()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue)
+                                    .frame(width: 30, height: 30)
+                                Text("?")
+                                    .foregroundColor(.white)
+                                    .font(.headline)
                             }
-                            .popover(isPresented: $isPopoverVisible) {
-                                ExertionInfoPopoverView()
-                            }
-
-                            Spacer() // Add Spacer to push the button to the right
-
-                            ExertionRingView(exertionScore: model.exertionScore)
-                                .frame(width: 120, height: 120)
-                                .padding(.trailing, 20) // Adjust the padding here
                         }
+<<<<<<< HEAD
                         .padding(.vertical, 20)
                 
+=======
+                        .padding(.leading, 5) // Control space between the title and the button
+                    }
+
+                    // Target Exertion Zone text below the title
+                    Text("Today's Exertion Target: \(targetExertionZone)")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+                }
+                .padding(.leading)
+
+                Spacer() // Pushes everything to the left and the ExertionRingView to the right
+
+                ExertionRingView(exertionScore: model.exertionScore)
+                    .frame(width: 120, height: 120)
+                    .padding(.trailing, 20)
+            }
+            .padding(.vertical, 20)
+        }
+        
+        
+>>>>>>> e6fcd63 (Exertion Target added)
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = model.zoneTimes.max() ?? 1
                 let zoneInfos = model.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
@@ -162,11 +175,11 @@ struct ExertionView: View {
                 ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
                     ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
                 }
-            }
-            .padding(.horizontal)
-        }
+            
+
+        
         .background(Color.black.edgesIgnoringSafeArea(.all))
-    }
+}
     
     // Helper function to format the time from minutes to a string
         func formatTime(timeInMinutes: Double) -> String {
