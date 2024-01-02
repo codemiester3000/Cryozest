@@ -435,8 +435,11 @@ struct RecoveryCardView: View {
                             .stroke(lineWidth: 8) // Slightly thinner stroke
                             .foregroundColor(Color(.systemGreen).opacity(0.5))
                         
+                        // Calculate the progress as a fraction of 100
+                        let progress = Double(model.recoveryScores.last ?? 0) / 100.0
+
                         Circle()
-                            .trim(from: 0, to: 0.99)
+                            .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
                             .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
                             .foregroundColor(Color(.systemGreen))
                             .rotationEffect(.degrees(-90))
@@ -457,6 +460,7 @@ struct RecoveryCardView: View {
                         .padding(8) // Reduced padding
                     }
                     .frame(width: 120, height: 120) // Smaller frame size
+
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 20)
