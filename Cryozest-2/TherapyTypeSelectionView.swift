@@ -168,7 +168,7 @@ struct TherapyTypeSelectionView: View {
             print("Error fetching custom therapies: \(error)")
         }
     }
-
+    
     
     func getDisplayName(therapyType: TherapyType) -> String {
         if therapyType == .custom1 {
@@ -240,11 +240,42 @@ struct CustomTherapyTypeNameView: View {
     @State private var customName: String = ""
     
     var body: some View {
-        Form {
-            TextField("Enter Custom Name", text: $customName)
-            Button("Save") {
-                saveCustomTherapy()
-                presentationMode.wrappedValue.dismiss()
+        VStack {
+            // Title Section
+            Text("Custom")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.top, 20)
+            
+            Text("Enter a name for your custom therapy type.")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            
+            // Form Section
+            Form {
+                Section() {
+                    TextField("Enter Custom Name", text: $customName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                }
+                
+                Section {
+                    Button(action: {
+                        saveCustomTherapy()
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("Save")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                    }
+                }
             }
         }
         .navigationBarTitle("Set Custom Name", displayMode: .inline)
@@ -252,6 +283,7 @@ struct CustomTherapyTypeNameView: View {
             loadCustomTherapyName()
         }
     }
+    
     
     private func loadCustomTherapyName() {
         let therapyID = therapyTypeToID(therapyType)
