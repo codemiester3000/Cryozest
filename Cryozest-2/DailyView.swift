@@ -492,14 +492,19 @@ struct RecoveryCardView: View {
                         MetricView(
                             label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
                             symbolName: "heart.fill",
-                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)) \(model.hrvSleepPercentage ?? -1 >= 0 ? "↑" : "↓")"
+                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)))",
+                            arrowUp: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1,
+                            isGreen: model.hrvSleepPercentage ?? -1 < model.avgHrvDuringSleep60Days ?? -1
+                            
                         )
                         Spacer()
                         
                         MetricView(
                             label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
                             symbolName: "waveform.path.ecg",
-                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0)) \(model.restingHeartRatePercentage ?? -1 >= 0 ? "↑" : "↓")"
+                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0)))",
+                            arrowUp: model.restingHeartRatePercentage ?? -1 > model.avgRestingHeartRate60Days ?? -1,
+                            isGreen: model.restingHeartRatePercentage ?? -1 < model.avgRestingHeartRate60Days ?? -1
                         )
                     }
                     .padding(.horizontal)
@@ -584,6 +589,8 @@ struct MetricView: View {
     let label: String
     let symbolName: String
     let change: String
+    let arrowUp: Bool
+    let isGreen: Bool
     
     var body: some View {
         VStack {
@@ -594,10 +601,15 @@ struct MetricView: View {
                     .font(.headline)
                     .foregroundColor(.white)
             }
-            Text(change)
-                .font(.caption)
-                .foregroundColor(.white)
-                .opacity(0.7)
+            HStack {
+                Text(change)
+                    .font(.caption)
+                    .foregroundColor(.white)
+                    .opacity(0.7)
+                Text(arrowUp ? "↑" : "↓")
+                    .font(.footnote)
+                    .foregroundColor(isGreen ? .green : .red)
+            }
         }
     }
 }
