@@ -62,9 +62,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "795"
-            endingLineNumber = "795"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "789"
+            endingLineNumber = "789"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -78,9 +78,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "814"
-            endingLineNumber = "814"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "808"
+            endingLineNumber = "808"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -94,9 +94,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "820"
-            endingLineNumber = "820"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "814"
+            endingLineNumber = "814"
+            landmarkName = "fetchAvgHRVForLastDays(numberOfDays:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -110,9 +110,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "828"
-            endingLineNumber = "828"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "822"
+            endingLineNumber = "822"
+            landmarkName = "fetchAvgHRVForLastDays(numberOfDays:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -126,9 +126,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "808"
-            endingLineNumber = "808"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "802"
+            endingLineNumber = "802"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -174,9 +174,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "809"
-            endingLineNumber = "809"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "803"
+            endingLineNumber = "803"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -190,9 +190,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "816"
-            endingLineNumber = "816"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "810"
+            endingLineNumber = "810"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -206,9 +206,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "813"
-            endingLineNumber = "813"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "807"
+            endingLineNumber = "807"
+            landmarkName = "fetchAvgSleepDurationForDays(days:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -222,9 +222,9 @@
             filePath = "Cryozest-2/HealthKitManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "836"
-            endingLineNumber = "836"
-            landmarkName = "fetchAvgHRVDuringSleepForNightEndingOn(date:completion:)"
+            startingLineNumber = "830"
+            endingLineNumber = "830"
+            landmarkName = "fetchAvgHRVForLastDays(numberOfDays:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

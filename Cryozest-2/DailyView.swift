@@ -30,6 +30,8 @@ struct DailyView: View {
 
 class RecoveryGraphModel: ObservableObject {
     
+    @Published var lastDataRefresh: Date?
+    
     @Published var previousNightSleepDuration: String? = nil
     
     // MARK -- HRV variables
@@ -101,6 +103,8 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func pullAllData() {
+        lastDataRefresh = Date()
+        
         self.getLastSevenDaysOfRecoveryScores()
         
         HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
@@ -175,7 +179,6 @@ class RecoveryGraphModel: ObservableObject {
         HealthKitManager.shared.fetchMostRecentRestingEnergy { restingCalories in
             DispatchQueue.main.async {
                 self.mostRecentRestingCalories = restingCalories
-                print("Fetched Resting Calories: \(restingCalories ?? 0)") // Debugging print statement
             }
         }
         
@@ -430,6 +433,13 @@ func getColor(forPercentage percentage: Int) -> Color {
 struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
     
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter
+    }
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -440,12 +450,17 @@ struct RecoveryCardView: View {
                             .font(.footnote)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                            .padding(.top, -45)
                         Text("Daily Summary")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                            .padding(.top, -30)
+                        
+                        if let lastRefreshDate = model.lastDataRefresh {
+                            Text("Last updated: \(lastRefreshDate, formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .padding(.top, 2)
+                        }
                     }
                     
                     Spacer() // Adding a spacer for separation
