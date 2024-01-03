@@ -12,6 +12,14 @@ struct DailyView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
+        .onAppear() {
+            HealthKitManager.shared.requestAuthorization { success, error in
+                if success {
+                    HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                    }
+                } 
+            }
+        }
     }
 }
 
@@ -87,8 +95,6 @@ class RecoveryGraphModel: ObservableObject {
     init() {
         self.getLastSevenDaysOfRecoveryScores()
         
-        
-        
         HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
             DispatchQueue.main.async {
                 if let hrv = hrv {
@@ -109,9 +115,6 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
-        
-        
-        
         
         HealthKitManager.shared.fetchMostRecentSPO2 { spo2 in
             DispatchQueue.main.async {
@@ -168,8 +171,6 @@ class RecoveryGraphModel: ObservableObject {
               }
           }
 
-        
-        
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
             DispatchQueue.main.async {
                 if let restingHeartRate = restingHeartRate60days {
@@ -199,10 +200,6 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     
-    
-    
-    
-    
     func getLastSevenDaysDates() -> [Date] {
         var dates = [Date]()
         let calendar = Calendar.current
@@ -216,8 +213,6 @@ class RecoveryGraphModel: ObservableObject {
         // each normalized to start at midnight
         return dates
     }
-    
-    
     
     func getLastSevenDays() -> [String] {
         let dateFormatter = DateFormatter()
@@ -328,9 +323,6 @@ class RecoveryGraphModel: ObservableObject {
             self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
         }
     }
-    
-    
-    
     
     func calculateRecoveryScore(date: Date, avgHrvLast10days: Int?, avgHrvForDate: Int?, avgHeartRate30day: Int?, avgRestingHeartRateForDay: Int?) -> Int {
         guard let avgHrvLast10days = avgHrvLast10days, avgHrvLast10days > 0,
