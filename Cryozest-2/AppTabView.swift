@@ -12,7 +12,7 @@ struct AppTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            DailyView()
+            DailyView(model: RecoveryGraphModel())
                 .tabItem {
                     Image(systemName: "moon")
                     Text("Daily")

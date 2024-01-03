@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DailyView: View {
     
+    @ObservedObject var model: RecoveryGraphModel
+    
     var body: some View {
         ScrollView {
             RecoveryCardView(model: RecoveryGraphModel())
@@ -10,6 +12,9 @@ struct DailyView: View {
             
             ExertionView(model: ExertionModel())
         }
+        .refreshable {
+            model.pullAllData()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .onAppear() {
@@ -17,7 +22,7 @@ struct DailyView: View {
                 if success {
                     HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
                     }
-                } 
+                }
             }
         }
     }
@@ -69,7 +74,6 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentRespiratoryRate: Double? = nil
     @Published var mostRecentActiveCalories: Double? = nil
     @Published var mostRecentRestingCalories: Double? = nil
-
     
     var hrvReadings: [Date: Int] = [:]
     
@@ -93,6 +97,10 @@ class RecoveryGraphModel: ObservableObject {
     
     
     init() {
+        pullAllData()
+    }
+    
+    func pullAllData() {
         self.getLastSevenDaysOfRecoveryScores()
         
         HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
@@ -165,12 +173,12 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         HealthKitManager.shared.fetchMostRecentRestingEnergy { restingCalories in
-              DispatchQueue.main.async {
-                  self.mostRecentRestingCalories = restingCalories
-                  print("Fetched Resting Calories: \(restingCalories ?? 0)") // Debugging print statement
-              }
-          }
-
+            DispatchQueue.main.async {
+                self.mostRecentRestingCalories = restingCalories
+                print("Fetched Resting Calories: \(restingCalories ?? 0)") // Debugging print statement
+            }
+        }
+        
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
             DispatchQueue.main.async {
                 if let restingHeartRate = restingHeartRate60days {
@@ -350,7 +358,7 @@ class RecoveryGraphModel: ObservableObject {
 
 struct RecoveryGraphView: View {
     @ObservedObject var model: RecoveryGraphModel
-
+    
     var body: some View {
         VStack(spacing: 20) {  // Added spacing between elements in VStack
             HStack {
@@ -360,7 +368,7 @@ struct RecoveryGraphView: View {
                 Spacer()
             }
             .padding([.horizontal, .top])
-
+            
             HStack(alignment: .bottom, spacing: 10) {
                 ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
                     VStack {
@@ -378,7 +386,7 @@ struct RecoveryGraphView: View {
                 }
             }
             .padding(.bottom)
-
+            
             HStack {
                 Text("Weekly Average: \(model.weeklyAverage)%")
                     .font(.caption)
@@ -389,7 +397,7 @@ struct RecoveryGraphView: View {
         .padding(.horizontal)
         .padding(.top, 20) // Increased top padding for the whole view
     }
-
+    
     // Function to get color based on percentage
     func getColor(forPercentage percentage: Int) -> Color {
         switch percentage {
@@ -403,20 +411,20 @@ struct RecoveryGraphView: View {
     }
 }
 
-    
 
-    
-    // Function to get color based on percentage
-    func getColor(forPercentage percentage: Int) -> Color {
-        switch percentage {
-        case let x where x > 50:
-            return .green
-        case let x where x > 30:
-            return .yellow
-        default:
-            return .red
-        }
+
+
+// Function to get color based on percentage
+func getColor(forPercentage percentage: Int) -> Color {
+    switch percentage {
+    case let x where x > 50:
+        return .green
+    case let x where x > 30:
+        return .yellow
+    default:
+        return .red
     }
+}
 
 
 struct RecoveryCardView: View {
@@ -450,7 +458,7 @@ struct RecoveryCardView: View {
                         
                         // Calculate the progress as a fraction of 100
                         let progress = Double(model.recoveryScores.last ?? 0) / 100.0
-
+                        
                         Circle()
                             .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
                             .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
@@ -473,7 +481,7 @@ struct RecoveryCardView: View {
                         .padding(8) // Reduced padding
                     }
                     .frame(width: 120, height: 120) // Smaller frame size
-
+                    
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 20)
@@ -524,7 +532,7 @@ struct RecoveryCardView: View {
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical)
-                        
+                    
                 }
                 
                 // Horizontal Stack for Grid Items
@@ -576,9 +584,9 @@ struct RecoveryCardView: View {
     }
     
     private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
-            let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
-            return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
-        }
+        let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
+        return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
+    }
     
     private func formatSPO2Value(_ spo2: Double?) -> String {
         guard let spo2 = spo2 else { return "N/A" }
