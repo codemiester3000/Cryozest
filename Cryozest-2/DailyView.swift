@@ -21,9 +21,9 @@ struct DailyView: View {
             HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
                     HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
-                        DispatchQueue.main.async {
-                            model.pullAllData()
-                        }
+//                        DispatchQueue.main.async {
+//                            model.pullAllData()
+//                        }
                     }
                 }
             }
