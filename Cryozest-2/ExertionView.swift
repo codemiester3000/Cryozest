@@ -191,7 +191,8 @@ struct ExertionView: View {
     
     // Computed property for target exertion zone
     var targetExertionZone: String {
-        let recoveryScore = recoveryModel.recoveryScore ?? 0
+        let recoveryScore = recoveryModel.recoveryScores.last ?? 0
+
         print("Current Recovery Score: \(recoveryScore)") // Debugging
         switch recoveryScore {
         case 90...100:
@@ -220,15 +221,12 @@ struct ExertionView: View {
     }
 }
 
-
 func formatTime(timeInMinutes: Double) -> String {
     let totalSeconds = Int(timeInMinutes * 60)
     let minutes = totalSeconds / 60
     let seconds = totalSeconds % 60
     return String(format: "%02d:%02d", minutes, seconds)
 }
-
-
 
 struct ExertionRingView: View {
     var exertionScore: Double
@@ -265,7 +263,6 @@ struct ZoneInfo {
     var color: Color
     var timeInMinutes: Double  // Add this property to store the time in minutes
 }
-
 
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo

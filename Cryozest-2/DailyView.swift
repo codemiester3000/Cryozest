@@ -27,7 +27,6 @@ struct DailyView: View {
     }
 }
 
-
 class RecoveryGraphModel: ObservableObject {
     
     @Published var lastDataRefresh: Date?
@@ -59,8 +58,6 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     @Published var restingHeartRatePercentage: Int?
-    
-    @Published var recoveryScore: Int?
     
     @Published var recoveryScores = [Int]() {
         didSet {
