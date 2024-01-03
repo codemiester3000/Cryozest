@@ -6,9 +6,9 @@ struct DailyView: View {
     
     var body: some View {
         ScrollView {
-            RecoveryCardView(model: RecoveryGraphModel())
+            RecoveryCardView(model: model)
             
-            RecoveryGraphView(model: RecoveryGraphModel())
+            RecoveryGraphView(model: model)
             
             ExertionView(model: ExertionModel())
         }
@@ -21,9 +21,6 @@ struct DailyView: View {
             HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
                     HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
-//                        DispatchQueue.main.async {
-//                            model.pullAllData()
-//                        }
                     }
                 }
             }
