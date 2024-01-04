@@ -93,10 +93,6 @@ class ExertionModel: ObservableObject {
         }
         
         let minutesInZone = zoneTime / 60
-        // Make sure to print on the main thread if you're updating the UI
-        DispatchQueue.main.async {
-            print("Time in Zone [\(lowerBoundHeartRate)-\(upperBoundHeartRate)]: \(minutesInZone) minutes")
-        }
         return minutesInZone
     }
 }
