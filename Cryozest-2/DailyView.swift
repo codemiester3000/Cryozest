@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct DailyView: View {    
+struct DailyView: View {
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
@@ -388,11 +388,11 @@ struct RecoveryGraphView: View {
             .padding(.bottom)
             
             HStack {
-                      Text("Weekly Average: \(model.weeklyAverage)%")
-                             .font(.caption)
-                             .foregroundColor(.green)
-                             .padding(.leading, 18)
-                      Spacer()
+                Text("Weekly Average: \(model.weeklyAverage)%")
+                    .font(.caption)
+                    .foregroundColor(.green)
+                    .padding(.leading, 18)
+                Spacer()
             }
         }
         .padding(.horizontal)
@@ -449,19 +449,17 @@ struct RecoveryCardView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                         
-//                        Text("Health Kit")
-//                            .font(.footnote)
-//                            .fontWeight(.semibold)
-//                            .foregroundColor(.white)
-//                            .padding(.top, 2)
-                        
                         if let lastRefreshDate = model.lastDataRefresh {
-                            Text("Updated HealthKit data:\nToday, \(lastRefreshDate, formatter: dateFormatter)")
+                            Text("Updated HealthKit data:")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .padding(.top, 2)
+                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                .padding(.top, 0.5)
                         }
-    
+                        
                     }
                     
                     Spacer() // Adding a spacer for separation
@@ -477,26 +475,26 @@ struct RecoveryCardView: View {
                         let progressColor = Color(red: 1.0 - progress, green: progress, blue: 0)
                         
                         Circle()
-                                                       .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
-                                                       .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                                                       .foregroundColor(progressColor)
-                                                       .rotationEffect(.degrees(-90))
-                                                   
-                                                   VStack {
-                                                       Text("Ready to Train")
-                                                           .font(.system(size: 10))
-                                                           .fontWeight(.bold)
-                                                           .multilineTextAlignment(.center)
-                                                           .foregroundColor(.white)
-                                                       
-                                                       Text("\(model.recoveryScores.last ?? 0)%")
-                                                           .font(.title3) // Smaller font size
-                                                           .fontWeight(.bold)
-                                                           .multilineTextAlignment(.center)
-                                                           .foregroundColor(.white)
-                                                }
-                                                .padding(8) // Reduced padding
-                                            }
+                            .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
+                            .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                            .foregroundColor(progressColor)
+                            .rotationEffect(.degrees(-90))
+                        
+                        VStack {
+                            Text("Ready to Train")
+                                .font(.system(size: 10))
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                            
+                            Text("\(model.recoveryScores.last ?? 0)%")
+                                .font(.title3) // Smaller font size
+                                .fontWeight(.bold)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                        }
+                        .padding(8) // Reduced padding
+                    }
                     
                     .frame(width: 120, height: 120) // Smaller frame size
                     

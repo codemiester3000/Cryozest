@@ -71,7 +71,6 @@ struct MainView: View {
     var body: some View {
         NavigationView {
             VStack {
-                
                 HStack {
                     Text("CryoZest")
                         .font(.system(size: 24, weight: .regular, design: .default))

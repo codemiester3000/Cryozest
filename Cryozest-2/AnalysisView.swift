@@ -44,67 +44,74 @@ struct AnalysisView: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollView {
-                HStack {
-                    Text("Analysis")
-                        .font(.system(size: 24, weight: .regular, design: .default))
-                        .foregroundColor(.white)
-                        .bold()
-                        .padding(.top, 36)
-                        .padding(.leading, 24)
+        NavigationView {
+            VStack {
+                ScrollView {
+                    HStack {
+                        Text("Analysis")
+                            .font(.system(size: 24, weight: .regular, design: .default))
+                            .foregroundColor(.white)
+                            .bold()
+                            .padding(.leading, 24)
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: TherapyTypeSelectionView()) {
+                            SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
+                                .padding(.trailing, 25)
+                        }
+                    }
+                    .padding(.top, 36)
                     
-                    Spacer()
+                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+                        .padding(.bottom, 16)
+                    
+                    //                Divider()
+                    //                    .background(Color.white.opacity(0.8))
+                    //                    .padding(.bottom, 8)
+                    
+                    Picker("Time frame", selection: $selectedTimeFrame) {
+                        Text("Last Week")
+                            .tag(TimeFrame.week)
+                            .foregroundColor(selectedTimeFrame == .week ? .orange : .white)
+                        Text("Last Month")
+                            .tag(TimeFrame.month)
+                            .foregroundColor(selectedTimeFrame == .month ? .orange : .white)
+                        Text("Last Year")
+                            .tag(TimeFrame.allTime)
+                            .foregroundColor(selectedTimeFrame == .allTime ? .orange : .white)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .background(Color.black) // This sets the background color of the picker to black
+                    .padding(.horizontal)
+                    
+                    
+                    //                Divider()
+                    //                    .background(Color.white.opacity(0.8))
+                    //                    .padding(.vertical, 8)
+                    
+                    MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    
+                    //                Divider()
+                    //                    .background(Color.white.opacity(0.8))
+                    //                    .padding(.vertical, 8)
+                    
+                    DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
+                    
+                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+                    
+                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    
+                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+                    
+                    RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                        .padding(.bottom)
                 }
-                
-                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    .padding(.bottom, 16)
-                
-//                Divider()
-//                    .background(Color.white.opacity(0.8))
-//                    .padding(.bottom, 8)
-                
-                Picker("Time frame", selection: $selectedTimeFrame) {
-                    Text("Last Week")
-                        .tag(TimeFrame.week)
-                        .foregroundColor(selectedTimeFrame == .week ? .orange : .white)
-                    Text("Last Month")
-                        .tag(TimeFrame.month)
-                        .foregroundColor(selectedTimeFrame == .month ? .orange : .white)
-                    Text("Last Year")
-                        .tag(TimeFrame.allTime)
-                        .foregroundColor(selectedTimeFrame == .allTime ? .orange : .white)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .background(Color.black) // This sets the background color of the picker to black
-                .padding(.horizontal)
-
-                
-//                Divider()
-//                    .background(Color.white.opacity(0.8))
-//                    .padding(.vertical, 8)
-                
-                MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                
-//                Divider()
-//                    .background(Color.white.opacity(0.8))
-//                    .padding(.vertical, 8)
-                
-                DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
-                
-                Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                
-                AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                
-                Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                
-                RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                    .padding(.bottom)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.black)
+            //.navigationTitle("Analysis")
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.black)
-        .navigationTitle("Analysis")
     }
     
     func getCurrentStreak(for therapyType: TherapyType) -> Int {
