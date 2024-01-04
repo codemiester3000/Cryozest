@@ -82,7 +82,7 @@ class ExertionModel: ObservableObject {
             HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
                 // ... existing implementation ...
                 if let error = error {
-                    print("Error fetching heart rate data: \(error)")
+                    
                     return
                 }
                 guard let results = results else { return }
@@ -94,7 +94,7 @@ class ExertionModel: ObservableObject {
                             self?.exertionScore = score ?? 0.0
                         }
                     } catch {
-                        print("Error calculating exertion score: \(error)")
+                  
                     }
                 }
             }
@@ -231,7 +231,6 @@ struct ExertionView: View {
     // Computed property for target exertion zone
     var targetExertionZone: String {
         let recoveryScore = recoveryModel.recoveryScores.last ?? 0
-        print("Current Recovery Score: \(recoveryScore)") // Debugging
         switch recoveryScore {
         case 90...100:
             return "9.0-10.0"
