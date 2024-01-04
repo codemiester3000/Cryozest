@@ -91,7 +91,7 @@ class ExertionModel: ObservableObject {
         var zoneTime: TimeInterval = 0
         var previousSample: HKQuantitySample?
         
-        let maxHeartRate = Double(185 - userAge)
+        let maxHeartRate = Double(220 - userAge)
         let lowerBoundHeartRate = lowerBoundMultiplier * maxHeartRate
         let upperBoundHeartRate = upperBoundMultiplier * maxHeartRate
         
