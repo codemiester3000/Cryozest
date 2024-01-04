@@ -79,6 +79,7 @@ struct TherapyTypeSelectionView: View {
                                 alertTitle = "Too Many Types"
                                 alertMessage = "Please remove a type before adding another."
                                 showAlert = true
+                                isCustomTypeViewPresented = false
                             }
                         }) {
                             HStack {
@@ -148,7 +149,9 @@ struct TherapyTypeSelectionView: View {
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
-        .sheet(isPresented: $isCustomTypeViewPresented) {
+        .sheet(isPresented: $isCustomTypeViewPresented, onDismiss: {
+            isCustomTypeViewPresented = false
+        }) {
             if let selectedCustomType = selectedCustomType {
                 CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType), customTherapyNames: $customTherapyNames)
             }
