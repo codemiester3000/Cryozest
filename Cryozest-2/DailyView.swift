@@ -389,8 +389,9 @@ struct RecoveryGraphView: View {
             
             HStack {
                 Text("Weekly Average: \(model.weeklyAverage)%")
-                    .font(.caption)
-                    .foregroundColor(.green)
+                       .font(.caption)
+                       .foregroundColor(.green)
+                       .padding(.leading, 18)
                 Spacer()
             }
         }

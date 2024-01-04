@@ -16,7 +16,7 @@ class ExertionModel: ObservableObject {
     }
     
     init() {
-        fetchExertionScore()
+        //        fetchExertionScore()
         fetchExertionScoreAndTimes()
     }
     
@@ -70,37 +70,37 @@ class ExertionModel: ObservableObject {
     }
     
     
-    func fetchExertionScore() {
-        // Fetch the user's age from HealthKit or default to 30 if unavailable
-        HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
-            let userAge = age ?? 30 // Use the fetched age or default to 30
-            
-            // Set startDate to the beginning of the current day
-            let startDate = Calendar.current.startOfDay(for: Date())
-            let endDate = Date()
-            
-            HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
-                // ... existing implementation ...
-                if let error = error {
-                    
-                    return
-                }
-                guard let results = results else { return }
-                
-                DispatchQueue.global().async {
-                    do {
-                        let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
-                        DispatchQueue.main.async {
-                            self?.exertionScore = score ?? 0.0
-                        }
-                    } catch {
-                  
-                    }
-                }
-            }
-        }
-    }
-    
+    //    func fetchExertionScore() {
+    //        // Fetch the user's age from HealthKit or default to 30 if unavailable
+    //        HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
+    //            let userAge = age ?? 30 // Use the fetched age or default to 30
+    //
+    //            // Set startDate to the beginning of the current day
+    //            let startDate = Calendar.current.startOfDay(for: Date())
+    //            let endDate = Date()
+    //
+    //            HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
+    //                // ... existing implementation ...
+    //                if let error = error {
+    //
+    //                    return
+    //                }
+    //                guard let results = results else { return }
+    //
+    //                DispatchQueue.global().async {
+    //                    do {
+    //                        let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
+    //                        DispatchQueue.main.async {
+    //                            self?.exertionScore = score ?? 0.0
+    //                        }
+    //                    } catch {
+    //
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //
     
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample]) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
@@ -168,18 +168,45 @@ struct ExertionView: View {
         ScrollView {
             VStack {
                 HStack {
-                    Text("Daily Exertion")
-                        .font(.title2) // Adjusted font size
-                        .fontWeight(.semibold) // Adjusted font weight
-                        .foregroundColor(.white)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 0) { // Set spacing to 0 if not needed
+                            Text("Daily Exertion")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                isPopoverVisible.toggle()
+                            }) {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(Color.blue)
+                            }
+                            .padding(.leading, 8)
+                            .popover(isPresented: $isPopoverVisible) {
+                                ExertionInfoPopoverView()
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            }
+                        }
+                        
+                        Text("Today's Exertion Target: \(targetExertionZone)")
+                            .font(.caption)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    // Removed padding for the leading edge
+                    .padding([.top, .bottom, .trailing])
                     
                     Spacer()
                     
                     ExertionRingView(exertionScore: exertionModel.exertionScore)
                         .frame(width: 120, height: 120)
                 }
+                // Significantly reduce horizontal padding
+                .padding(.horizontal, 8)
                 .padding(.vertical, 20)
-                .padding(.horizontal)
+                
+                
                 
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = exertionModel.zoneTimes.max() ?? 1
@@ -347,17 +374,24 @@ struct ZoneItemView: View {
 struct ExertionInfoPopoverView: View {
     var body: some View {
         VStack {
-            Text("Exertion serves as a valuable indicator of your daily cardiovascular fitness load over the course of the day. This rating, measured on a scale of 0-10, is derived from your heart rate zones, where specific zones (such as Zone 1, Zone 2, Zone 3) correspond to different workout intensities. Exertion scores increase with higher workout intensity levels. To determine your maximum heart rate, a simple calculation (220 minus your age) is used to define these heart rate zones.")
-                .font(.system(size: 18))  // Adjust the font size here
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Exertion serves as a valuable indicator of your daily cardiovascular fitness load over the course of the day. This rating, measured on a scale of 0-10, is derived from your heart rate zones, where specific zones (such as Zone 1, Zone 2, Zone 3) correspond to different workout intensities. Exertion scores increase with higher workout intensity levels. To determine your maximum heart rate, a simple calculation (220 minus your age) is used to define these heart rate zones.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                    
+                    Text("The concept of exertion revolves around the duration spent exercising above your heart rate reserve, with higher scores allocated to more intense efforts. Your recommended exertion target zone depends on your current state of recovery and is presented as a suggestion. Always maintain a vigilant awareness of how your body responds. It's often wiser to stay below the recommended exertion target to prevent overtraining and protect your recovery process. Stay connected to your body, adjusting your training regimen based on your sensations and overall well-being.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                }
                 .padding()
-            
-            Text("The concept of exertion revolves around the duration spent exercising above your heart rate reserve, with higher scores allocated to more intense efforts. Your recommended exertion target zone depends on your current state of recovery and is presented as a suggestion. Always maintain a vigilant awareness of how your body responds. It's often wiser to stay below the recommended exertion target to prevent overtraining and protect your recovery process. Stay connected to your body, adjusting your training regimen based on your sensations and overall well-being.")
-                .font(.system(size: 18))  // Adjust the font size here
-                .padding()
-            
-            Spacer()
+                .padding(.top, 8)
+            }
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.opacity(0.8))
+        .cornerRadius(20)
+        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
     }
 }
 
