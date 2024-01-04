@@ -432,7 +432,7 @@ struct RecoveryCardView: View {
     
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateStyle = .none
         formatter.timeStyle = .medium
         return formatter
     }
@@ -443,21 +443,24 @@ struct RecoveryCardView: View {
                 
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Health Kit")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
                         Text("Daily Summary")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                         
+//                        Text("Health Kit")
+//                            .font(.footnote)
+//                            .fontWeight(.semibold)
+//                            .foregroundColor(.white)
+//                            .padding(.top, 2)
+                        
                         if let lastRefreshDate = model.lastDataRefresh {
-                            Text("Last updated: \(lastRefreshDate, formatter: dateFormatter)")
+                            Text("Updated HealthKit data:\nToday, \(lastRefreshDate, formatter: dateFormatter)")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .padding(.top, 2)
                         }
+    
                     }
                     
                     Spacer() // Adding a spacer for separation
