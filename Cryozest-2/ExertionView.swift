@@ -199,10 +199,9 @@ struct ExertionView: View {
                     
                     Spacer()
                     
-                    ExertionRingView(exertionScore: exertionModel.exertionScore)
+                    ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
                         .frame(width: 120, height: 120)
                 }
-                // Significantly reduce horizontal padding
                 .padding(.horizontal, 8)
                 .padding(.vertical, 20)
                 
@@ -284,6 +283,12 @@ struct ExertionView: View {
         }
     }
     
+    var calculatedUpperBound: Double {
+        let bounds = targetExertionZone.split(separator: "-").compactMap { Double($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        return bounds.last ?? 10.0 // Fallback to 10 if parsing fails or no upper bound is found
+    }
+    
+    
     // Helper function to format the time from minutes to a string
     func formatTime(timeInMinutes: Double) -> String {
         let totalSeconds = Int(timeInMinutes * 60)
@@ -295,29 +300,39 @@ struct ExertionView: View {
 
 struct ExertionRingView: View {
     var exertionScore: Double
-    let maxExertionScore = 10.0
+    var targetExertionUpperBound: Double
     
     var body: some View {
-        let progress = clamp(exertionScore / maxExertionScore, to: 0...1)
+        let progress = min(exertionScore / targetExertionUpperBound, 1.0)
+        let percentage = Int(progress * 100)
+        let exertionDisplay = String(format: "%.1f/%.1f", exertionScore, targetExertionUpperBound)
+        let progressColor = Color(red: 1.0 - progress, green: progress, blue: 0)
         
         ZStack {
-            Circle()
-                .stroke(lineWidth: 8)
-                .foregroundColor(Color.gray.opacity(0.5))
-                .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
-            
-            Circle()
-                .trim(from: 0, to: CGFloat(progress))
-                .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                .foregroundColor(Color.orange)
-                .rotationEffect(.degrees(-90))
-                .frame(width: 120, height: 120) // Set frame size to match Ready to Train circle
-            
-            Text("\(exertionScore, specifier: "%.2f")")
-                .font(.title3)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
+                   Circle()
+                       .stroke(lineWidth: 8)
+                       .foregroundColor(Color.gray.opacity(0.5))
+                       .frame(width: 120, height: 120)
+
+                   Circle()
+                       .trim(from: 0, to: CGFloat(progress))
+                       .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                       .foregroundColor(progressColor)
+                       .rotationEffect(.degrees(-90))
+                       .frame(width: 120, height: 120)
+
+                   VStack(spacing: 2) {
+                       Text("\(percentage)%")
+                           .font(.title3)
+                           .fontWeight(.bold)
+                           .multilineTextAlignment(.center)
+                           .foregroundColor(.white)
+                       
+                       Text(exertionDisplay)
+                           .font(.caption)
+                           .fontWeight(.regular)
+                           .foregroundColor(.white)
+            }
         }
     }
 }
