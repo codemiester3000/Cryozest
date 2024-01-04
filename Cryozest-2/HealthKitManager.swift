@@ -849,7 +849,6 @@ class HealthKitManager {
             let dayComponent = calendar.component(.day, from: date)
             includedDays.append(dayComponent)
             
-            print("Fetching HRV for date: \(date)")
         }
         let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
         let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
@@ -919,7 +918,6 @@ class HealthKitManager {
             for sample in sleepSamples {
                 // Check if the sample represents actual sleep (using the updated enumeration case)
                 if sample.value == HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue {
-                    print("Sleep Sample: \(sample.startDate) to \(sample.endDate)") // Debugging line
 
                     // If there's an overlap, adjust the start date
                     let adjustedStartDate = max(sample.startDate, lastEndDate ?? sample.startDate)
