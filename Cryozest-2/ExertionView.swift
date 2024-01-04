@@ -10,6 +10,11 @@ class ExertionModel: ObservableObject {
     @Published var conditioningMinutes: Double = 0
     @Published var overloadMinutes: Double = 0
     
+    var maxExertionTime: Double {
+        let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
+        return maxTime == 0 ? 1 : maxTime // Return 1 to avoid division by zero
+    }
+    
     init() {
         fetchExertionScore()
         fetchExertionScoreAndTimes()
@@ -150,20 +155,9 @@ class ExertionModel: ObservableObject {
     }
 }
 
-
 func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
     return min(max(range.lowerBound, value), range.upperBound)
 }
-
-extension ExertionModel {
-    var maxExertionTime: Double {
-        let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
-        return maxTime == 0 ? 1 : maxTime // Return 1 to avoid division by zero
-    }
-}
-
-
-
 
 struct ExertionView: View {
     @ObservedObject var model: ExertionModel
@@ -233,8 +227,37 @@ struct ExertionView: View {
         }
         .padding(.horizontal)
     }
-}
-
+    
+    // Computed property for target exertion zone
+    var targetExertionZone: String {
+        let recoveryScore = recoveryModel.recoveryScores.last ?? 0
+        print("Current Recovery Score: \(recoveryScore)") // Debugging
+        switch recoveryScore {
+        case 90...100:
+            return "9.0-10.0"
+        case 80..<90:
+            return "8.0-9.0"
+        case 70..<80:
+            return "7.0-8.0"
+        case 60..<70:
+            return "6.0-7.0"
+        case 50..<60:
+            return "5.0-6.0"
+        case 40..<50:
+            return "4.0-5.0"
+        case 30..<40:
+            return "3.0-4.0"
+        case 20..<30:
+            return "2.0-3.0"
+        case 10..<20:
+            return "1.0-2.0"
+        case 0..<10:
+            return "0.0-1.0"
+        default:
+            return "Not available"
+        }
+    }
+    
     // Helper function to format the time from minutes to a string
     func formatTime(timeInMinutes: Double) -> String {
         let totalSeconds = Int(timeInMinutes * 60)
@@ -242,37 +265,7 @@ struct ExertionView: View {
         let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-    
-    // Computed property for target exertion zone
-var targetExertionZone: String {
-    let recoveryScore = recoveryModel.recoveryScores.last ?? 0
-    print("Current Recovery Score: \(recoveryScore)") // Debugging
-    switch recoveryScore {
-    case 90...100:
-        return "9.0-10.0"
-    case 80..<90:
-        return "8.0-9.0"
-    case 70..<80:
-        return "7.0-8.0"
-    case 60..<70:
-        return "6.0-7.0"
-    case 50..<60:
-        return "5.0-6.0"
-    case 40..<50:
-        return "4.0-5.0"
-    case 30..<40:
-        return "3.0-4.0"
-    case 20..<30:
-        return "2.0-3.0"
-    case 10..<20:
-        return "1.0-2.0"
-    case 0..<10:
-        return "0.0-1.0"
-    default:
-        return "Not available"
-    }
 }
-
 
 struct ExertionRingView: View {
     var exertionScore: Double
