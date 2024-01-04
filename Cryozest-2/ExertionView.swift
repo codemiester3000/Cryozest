@@ -181,7 +181,25 @@ struct ExertionView: View {
     
                                    }
                 
-  
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                
+                    Text("Training Zones")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical)
+                    
+                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                    ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                    ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+
+                }
+                .padding([.horizontal], 5)  // Adjust horizontal padding here
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(8)
+                
+                Divider()
                 
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = exertionModel.zoneTimes.max() ?? 1
@@ -199,35 +217,11 @@ struct ExertionView: View {
                 
                 ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
                     ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
-                        .padding(.vertical, 0) // Reduced vertical padding
+//                        .padding(.vertical, 0)  // Reduce vertical padding
                 }
+
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    
-                
-                    Text("Training Zones")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical)
-                    
-                    ExertionBarView(label: "RECOVERY",
-                                    minutes: exertionModel.recoveryMinutes,
-                                    color: .teal,
-                                    maxTime: exertionModel.maxExertionTime)
-                    ExertionBarView(label: "CONDITIONING",
-                                    minutes: exertionModel.conditioningMinutes,
-                                    color: .green,
-                                    maxTime: exertionModel.maxExertionTime)
-                    ExertionBarView(label: "OVERLOAD",
-                                    minutes: exertionModel.overloadMinutes,
-                                    color: .red,
-                                    maxTime: exertionModel.maxExertionTime)
-                }
-                .padding()
-                .background(Color.black.opacity(0.8))
-                .cornerRadius(8)
-                
+ 
 
 
             }
@@ -329,7 +323,7 @@ struct ZoneInfo {
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var maxTime: Double
-    
+
     var body: some View {
         HStack {
             Circle()
@@ -362,11 +356,13 @@ struct ZoneItemView: View {
                 .foregroundColor(.white)
                 .padding(.leading, 5)
         }
-        .padding()
+        // Reduce the overall padding around each ZoneItemView
+        .padding(EdgeInsets(top: 2, leading: 5, bottom: 2, trailing: 5))
         .background(Color.black.opacity(0.8))
         .cornerRadius(5)
     }
 }
+
 
 
 struct ExertionInfoPopoverView: View {
@@ -398,7 +394,7 @@ struct ExertionBarView: View {
     var label: String
     var minutes: Double
     var color: Color
-    var maxTime: Double
+    var fullScaleTime: Double  // Renamed parameter
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -409,7 +405,7 @@ struct ExertionBarView: View {
                     .cornerRadius(0)
                 GeometryReader { geometry in
                     Rectangle()
-                        .frame(width: maxTime > 0 ? geometry.size.width * CGFloat(minutes / maxTime) : 0)
+                        .frame(width: geometry.size.width * CGFloat(minutes / fullScaleTime))
                         .foregroundColor(color)
                         .cornerRadius(0)
                 }
@@ -429,3 +425,4 @@ struct ExertionBarView: View {
         }
     }
 }
+
