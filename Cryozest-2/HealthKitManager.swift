@@ -365,8 +365,6 @@ class HealthKitManager {
                 }
                 return
             }
-            
-            print("Fetched \(samples.count) heart rate samples.")
             completion(samples, nil)
         }
         healthStore.execute(heartRateQuery)

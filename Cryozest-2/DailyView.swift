@@ -9,7 +9,7 @@ struct DailyView: View {
             
             RecoveryGraphView(model: model)
             
-            ExertionView(model: ExertionModel(), recoveryModel: model)
+            ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
         }
         .refreshable {
             model.pullAllData()
@@ -388,10 +388,11 @@ struct RecoveryGraphView: View {
             .padding(.bottom)
             
             HStack {
-                Text("Weekly Average: \(model.weeklyAverage)%")
-                    .font(.caption)
-                    .foregroundColor(.green)
-                Spacer()
+                      Text("Weekly Average: \(model.weeklyAverage)%")
+                             .font(.caption)
+                             .foregroundColor(.green)
+                             .padding(.leading, 18)
+                      Spacer()
             }
         }
         .padding(.horizontal)
@@ -468,33 +469,35 @@ struct RecoveryCardView: View {
                     // Ready to Train Circle - Made smaller
                     ZStack {
                         Circle()
-                            .stroke(lineWidth: 8) // Slightly thinner stroke
+                            .stroke(lineWidth: 8)
                             .foregroundColor(Color(.systemGreen).opacity(0.5))
                         
                         // Calculate the progress as a fraction of 100
                         let progress = Double(model.recoveryScores.last ?? 0) / 100.0
+                        let progressColor = Color(red: 1.0 - progress, green: progress, blue: 0)
                         
                         Circle()
-                            .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
-                            .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                            .foregroundColor(Color(.systemGreen))
-                            .rotationEffect(.degrees(-90))
-                        
-                        VStack {
-                            Text("Ready to Train")
-                                .font(.system(size: 10))
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(.white)
-                            
-                            Text("\(model.recoveryScores.last ?? 0)%")
-                                .font(.title3) // Smaller font size
-                                .fontWeight(.bold)
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(.white)
-                        }
-                        .padding(8) // Reduced padding
-                    }
+                                                       .trim(from: 0, to: CGFloat(progress)) // Use the progress value here
+                                                       .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                                                       .foregroundColor(progressColor)
+                                                       .rotationEffect(.degrees(-90))
+                                                   
+                                                   VStack {
+                                                       Text("Ready to Train")
+                                                           .font(.system(size: 10))
+                                                           .fontWeight(.bold)
+                                                           .multilineTextAlignment(.center)
+                                                           .foregroundColor(.white)
+                                                       
+                                                       Text("\(model.recoveryScores.last ?? 0)%")
+                                                           .font(.title3) // Smaller font size
+                                                           .fontWeight(.bold)
+                                                           .multilineTextAlignment(.center)
+                                                           .foregroundColor(.white)
+                                                }
+                                                .padding(8) // Reduced padding
+                                            }
+                    
                     .frame(width: 120, height: 120) // Smaller frame size
                     
                 }
