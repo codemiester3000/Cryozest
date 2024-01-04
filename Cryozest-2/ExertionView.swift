@@ -10,62 +10,59 @@ class ExertionModel: ObservableObject {
     @Published var conditioningMinutes: Double = 0
     @Published var overloadMinutes: Double = 0
     
-    
     init() {
         fetchExertionScore()
+        fetchExertionScoreAndTimes()
     }
     
     func updateExertionCategories() {
-           // This function will be called once the zoneTimes are updated
-           // Ensure that your zoneTimes array has enough elements to prevent out of range errors
-           if zoneTimes.count >= 3 {
-               let recoveryTime = zoneTimes[0] // Assuming zone 1 is recovery
-               let conditioningTime = zoneTimes[1] + zoneTimes[2] // Assuming zones 2 and 3 are conditioning
-               let overloadTime = zoneTimes.count > 3 ? zoneTimes.dropFirst(3).reduce(0, +) : 0 // Zones 4 and above are overload
-               
-               DispatchQueue.main.async {
-                   // Update your published properties
-                   self.recoveryMinutes = recoveryTime
-                   self.conditioningMinutes = conditioningTime
-                   self.overloadMinutes = overloadTime
-               }
-           }
-       }
+        // This function will be called once the zoneTimes are updated
+        // Ensure that your zoneTimes array has enough elements to prevent out of range errors
+        if zoneTimes.count >= 3 {
+            let recoveryTime = zoneTimes[0] // Assuming zone 1 is recovery
+            let conditioningTime = zoneTimes[1] + zoneTimes[2] // Assuming zones 2 and 3 are conditioning
+            let overloadTime = zoneTimes.count > 3 ? zoneTimes.dropFirst(3).reduce(0, +) : 0 // Zones 4 and above are overload
+            
+            DispatchQueue.main.async {
+                // Update your published properties
+                self.recoveryMinutes = recoveryTime
+                self.conditioningMinutes = conditioningTime
+                self.overloadMinutes = overloadTime
+            }
+        }
+    }
     
     func fetchExertionScoreAndTimes() {
-           // Fetch the user's age from HealthKit or default to 30 if unavailable
-           HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
-               let userAge = age ?? 30 // Use the fetched age or default to 30
-               
-               // Set startDate to the beginning of the current day
-               let startDate = Calendar.current.startOfDay(for: Date())
-               let endDate = Date()
-               
-               HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
-                   if let error = error {
-                       print("Error fetching heart rate data: \(error)")
-                       return
-                   }
-                   guard let results = results else { return }
-                   
-                   DispatchQueue.global().async {
-                       do {
-                           let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
-                           DispatchQueue.main.async {
-                               self?.exertionScore = score ?? 0.0
-                               // After calculating zoneTimes, update the category times
-                               self?.updateExertionCategories()
-                           }
-                       } catch {
-                           print("Error calculating exertion score: \(error)")
-                       }
-                   }
-               }
-           }
-       }
-    
-    
-    
+        // Fetch the user's age from HealthKit or default to 30 if unavailable
+        HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
+            let userAge = age ?? 30 // Use the fetched age or default to 30
+            
+            // Set startDate to the beginning of the current day
+            let startDate = Calendar.current.startOfDay(for: Date())
+            let endDate = Date()
+            
+            HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
+                if let error = error {
+                    print("Error fetching heart rate data: \(error)")
+                    return
+                }
+                guard let results = results else { return }
+                
+                DispatchQueue.global().async {
+                    do {
+                        let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
+                        DispatchQueue.main.async {
+                            self?.exertionScore = score ?? 0.0
+                            // After calculating zoneTimes, update the category times
+                            self?.updateExertionCategories()
+                        }
+                    } catch {
+                        print("Error calculating exertion score: \(error)")
+                    }
+                }
+            }
+        }
+    }
     
     func fetchExertionScore() {
         // Fetch the user's age from HealthKit or default to 30 if unavailable
@@ -97,7 +94,6 @@ class ExertionModel: ObservableObject {
             }
         }
     }
-
     
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample]) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
@@ -210,31 +206,40 @@ struct ExertionView: View {
             }
             .padding(.horizontal)
             VStack(alignment: .leading, spacing: 8) {
-                 Text("Training Zones")
-                     .font(.title2)
-                     .fontWeight(.semibold)
-                     .foregroundColor(.white)
-                     .padding(.vertical)
-
-                ExertionBarView(label: "RECOVERY", minutes: model.recoveryMinutes, color: .teal, maxTime: model.maxExertionTime)
-                                    ExertionBarView(label: "CONDITIONING", minutes: model.conditioningMinutes, color: .green, maxTime: model.maxExertionTime)
-                                    ExertionBarView(label: "OVERLOAD", minutes: model.overloadMinutes, color: .red, maxTime: model.maxExertionTime)
-                                }
-                                .padding()
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(8)
-         }
-         .padding(.horizontal)
-     }
- }
-    
-    // Helper function to format the time from minutes to a string
-    func formatTime(timeInMinutes: Double) -> String {
-        let totalSeconds = Int(timeInMinutes * 60)
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+                Text("Training Zones")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.vertical)
+                
+                ExertionBarView(label: "RECOVERY",
+                                minutes: model.recoveryMinutes,
+                                color: .teal,
+                                maxTime: model.maxExertionTime)
+                ExertionBarView(label: "CONDITIONING", 
+                                minutes: model.conditioningMinutes,
+                                color: .green,
+                                maxTime: model.maxExertionTime)
+                ExertionBarView(label: "OVERLOAD", 
+                                minutes: model.overloadMinutes,
+                                color: .red,
+                                maxTime: model.maxExertionTime)
+            }
+            .padding()
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(8)
+        }
+        .padding(.horizontal)
     }
+}
+
+// Helper function to format the time from minutes to a string
+func formatTime(timeInMinutes: Double) -> String {
+    let totalSeconds = Int(timeInMinutes * 60)
+    let minutes = totalSeconds / 60
+    let seconds = totalSeconds % 60
+    return String(format: "%02d:%02d", minutes, seconds)
+}
 
 
 
