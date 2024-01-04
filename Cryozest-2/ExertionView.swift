@@ -160,7 +160,7 @@ func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
 }
 
 struct ExertionView: View {
-    @ObservedObject var model: ExertionModel
+    @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false // Declare the state variable here
     
@@ -175,15 +175,15 @@ struct ExertionView: View {
                     
                     Spacer()
                     
-                    ExertionRingView(exertionScore: model.exertionScore)
+                    ExertionRingView(exertionScore: exertionModel.exertionScore)
                         .frame(width: 120, height: 120)
                 }
                 .padding(.vertical, 20)
                 .padding(.horizontal)
                 
                 // Dynamically create zoneInfos from model.zoneTimes
-                let maxTime = model.zoneTimes.max() ?? 1
-                let zoneInfos = model.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
+                let maxTime = exertionModel.zoneTimes.max() ?? 1
+                let zoneInfos = exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
                     // Define your color array matching the zones
                     let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
                     let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
@@ -209,17 +209,17 @@ struct ExertionView: View {
                     .padding(.vertical)
                 
                 ExertionBarView(label: "RECOVERY",
-                                minutes: model.recoveryMinutes,
+                                minutes: exertionModel.recoveryMinutes,
                                 color: .teal,
-                                maxTime: model.maxExertionTime)
+                                maxTime: exertionModel.maxExertionTime)
                 ExertionBarView(label: "CONDITIONING",
-                                minutes: model.conditioningMinutes,
+                                minutes: exertionModel.conditioningMinutes,
                                 color: .green,
-                                maxTime: model.maxExertionTime)
+                                maxTime: exertionModel.maxExertionTime)
                 ExertionBarView(label: "OVERLOAD",
-                                minutes: model.overloadMinutes,
+                                minutes: exertionModel.overloadMinutes,
                                 color: .red,
-                                maxTime: model.maxExertionTime)
+                                maxTime: exertionModel.maxExertionTime)
             }
             .padding()
             .background(Color.black.opacity(0.8))
