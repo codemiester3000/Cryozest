@@ -6,11 +6,69 @@ class ExertionModel: ObservableObject {
     
     @Published var exertionScore: Double = 0.0
     @Published var zoneTimes: [Double] = []
+    @Published var recoveryMinutes: Double = 0
+    @Published var conditioningMinutes: Double = 0
+    @Published var overloadMinutes: Double = 0
     
+    var maxExertionTime: Double {
+        let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
+        return maxTime == 0 ? 1 : maxTime // Return 1 to avoid division by zero
+    }
     
     init() {
         fetchExertionScore()
+        fetchExertionScoreAndTimes()
     }
+    
+    func updateExertionCategories() {
+        // This function will be called once the zoneTimes are updated
+        // Ensure that your zoneTimes array has enough elements to prevent out of range errors
+        if zoneTimes.count >= 3 {
+            let recoveryTime = zoneTimes[0] // Assuming zone 1 is recovery
+            let conditioningTime = zoneTimes[1] + zoneTimes[2] // Assuming zones 2 and 3 are conditioning
+            let overloadTime = zoneTimes.count > 3 ? zoneTimes.dropFirst(3).reduce(0, +) : 0 // Zones 4 and above are overload
+            
+            DispatchQueue.main.async {
+                // Update your published properties
+                self.recoveryMinutes = recoveryTime
+                self.conditioningMinutes = conditioningTime
+                self.overloadMinutes = overloadTime
+            }
+        }
+    }
+    
+    func fetchExertionScoreAndTimes() {
+        // Fetch the user's age from HealthKit or default to 30 if unavailable
+        HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
+            let userAge = age ?? 30 // Use the fetched age or default to 30
+            
+            // Set startDate to the beginning of the current day
+            let startDate = Calendar.current.startOfDay(for: Date())
+            let endDate = Date()
+            
+            HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
+                if let error = error {
+                    print("Error fetching heart rate data: \(error)")
+                    return
+                }
+                guard let results = results else { return }
+                
+                DispatchQueue.global().async {
+                    do {
+                        let score = try self?.calculateExertionScore(userAge: userAge, heartRateData: results)
+                        DispatchQueue.main.async {
+                            self?.exertionScore = score ?? 0.0
+                            // After calculating zoneTimes, update the category times
+                            self?.updateExertionCategories()
+                        }
+                    } catch {
+                        print("Error calculating exertion score: \(error)")
+                    }
+                }
+            }
+        }
+    }
+    
     
     func fetchExertionScore() {
         // Fetch the user's age from HealthKit or default to 30 if unavailable
@@ -97,96 +155,77 @@ class ExertionModel: ObservableObject {
     }
 }
 
-
 func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
     return min(max(range.lowerBound, value), range.upperBound)
 }
 
-
 struct ExertionView: View {
-    @ObservedObject var model: ExertionModel
+    @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false // Declare the state variable here
     
     var body: some View {
-        VStack {
-            HStack {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Daily Exertion")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Button(action: {
-                            isPopoverVisible.toggle()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue)
-                                    .frame(width: 30, height: 30)
-                                Text("?")
-                                    .foregroundColor(.white)
-                                    .font(.headline)
-                            }
-                        }
-                        .padding(.vertical, 20)
-                        .padding(.leading, 5)
-                    }
+        ScrollView {
+            VStack {
+                HStack {
+                    Text("Daily Exertion")
+                        .font(.title2) // Adjusted font size
+                        .fontWeight(.semibold) // Adjusted font weight
+                        .foregroundColor(.white)
                     
-                    Text("Today's Exertion Target: \(targetExertionZone)")
-                        .font(.headline)
-                        .foregroundColor(.gray)
+                    Spacer()
                     
-                    // Debugging Text View
-                    //                    Text("Debug Recovery Score: \(recoveryModel.recoveryScore ?? -1)")
-                    //                        .foregroundColor(.white)
-                    //                        .onAppear {
-                    //                            print("Debug Recovery Score Appeared: \(recoveryModel.recoveryScore ?? -1)")
-                    //                        }
+                    ExertionRingView(exertionScore: exertionModel.exertionScore)
+                        .frame(width: 120, height: 120)
                 }
-                .padding(.leading)
+                .padding(.vertical, 20)
+                .padding(.horizontal)
                 
-                Spacer()
+                // Dynamically create zoneInfos from model.zoneTimes
+                let maxTime = exertionModel.zoneTimes.max() ?? 1
+                let zoneInfos = exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
+                    // Define your color array matching the zones
+                    let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                    let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
+                    
+                    return ZoneInfo(
+                        zoneNumber: index + 1,
+                        timeSpent: timeSpentString,
+                        color: colors[index % colors.count],
+                        timeInMinutes: timeInMinutes
+                    )
+                }
                 
-                ExertionRingView(exertionScore: model.exertionScore)
-                    .frame(width: 120, height: 120)
-                    .padding(.trailing, 20)
+                ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
+                    ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
+                }
             }
-            .padding(.vertical, 20)
+            .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Training Zones")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.vertical)
+                
+                ExertionBarView(label: "RECOVERY",
+                                minutes: exertionModel.recoveryMinutes,
+                                color: .teal,
+                                maxTime: exertionModel.maxExertionTime)
+                ExertionBarView(label: "CONDITIONING",
+                                minutes: exertionModel.conditioningMinutes,
+                                color: .green,
+                                maxTime: exertionModel.maxExertionTime)
+                ExertionBarView(label: "OVERLOAD",
+                                minutes: exertionModel.overloadMinutes,
+                                color: .red,
+                                maxTime: exertionModel.maxExertionTime)
+            }
+            .padding()
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(8)
         }
-        
-        
-        // Dynamically create zoneInfos from model.zoneTimes
-        let maxTime = model.zoneTimes.max() ?? 1
-        let zoneInfos = model.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
-            // Define your color array matching the zones
-            let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
-            let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
-            
-            return ZoneInfo(
-                zoneNumber: index + 1,
-                timeSpent: timeSpentString,
-                color: colors[index % colors.count],
-                timeInMinutes: timeInMinutes
-            )
-        }
-        
-        ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
-            ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
-        }
-        
-        
-        
-        .background(Color.black.edgesIgnoringSafeArea(.all))
-    }
-    
-    // Helper function to format the time from minutes to a string
-    func formatTime(timeInMinutes: Double) -> String {
-        let totalSeconds = Int(timeInMinutes * 60)
-        let minutes = totalSeconds / 60
-        let seconds = totalSeconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+        .padding(.horizontal)
     }
     
     // Computed property for target exertion zone
@@ -217,13 +256,14 @@ struct ExertionView: View {
             return "Not available"
         }
     }
-}
-
-func formatTime(timeInMinutes: Double) -> String {
-    let totalSeconds = Int(timeInMinutes * 60)
-    let minutes = totalSeconds / 60
-    let seconds = totalSeconds % 60
-    return String(format: "%02d:%02d", minutes, seconds)
+    
+    // Helper function to format the time from minutes to a string
+    func formatTime(timeInMinutes: Double) -> String {
+        let totalSeconds = Int(timeInMinutes * 60)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
 }
 
 struct ExertionRingView: View {
@@ -318,5 +358,46 @@ struct ExertionInfoPopoverView: View {
             Spacer()
         }
         .padding()
+    }
+}
+
+
+struct ExertionBarView: View {
+    var label: String
+    var minutes: Double
+    var color: Color
+    var maxTime: Double
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) { // Add spacing between bars
+            ZStack {
+                // Background for the progress bar
+                Rectangle()
+                    .opacity(0.3)
+                    .foregroundColor(color)
+                    .cornerRadius(0) // Make corners square
+                
+                // Foreground of the progress bar
+                GeometryReader { geometry in
+                    Rectangle()
+                        .frame(width: maxTime > 0 ? geometry.size.width * CGFloat(minutes / maxTime) : 0)
+                        .foregroundColor(color)
+                        .cornerRadius(0) // Make corners square
+                }
+                
+                // Label and minute text overlay
+                HStack {
+                    Text(label)
+                        .foregroundColor(.white)
+                        .bold()
+                    Spacer()
+                    Text("\(Int(minutes)) min")
+                        .foregroundColor(.white)
+                        .bold()
+                }
+                .padding(.horizontal, 8)
+            }
+            .frame(height: 50) // Increase the thickness of the bars
+        }
     }
 }

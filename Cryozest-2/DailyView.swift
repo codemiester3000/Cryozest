@@ -9,7 +9,7 @@ struct DailyView: View {
             
             RecoveryGraphView(model: model)
             
-            ExertionView(model: ExertionModel(), recoveryModel: model)
+            ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
         }
         .refreshable {
             model.pullAllData()
