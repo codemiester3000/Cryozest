@@ -91,7 +91,7 @@ class ExertionModel: ObservableObject {
         var zoneTime: TimeInterval = 0
         var previousSample: HKQuantitySample?
         
-        let maxHeartRate = Double(220 - userAge)
+        let maxHeartRate = Double(185 - userAge)
         let lowerBoundHeartRate = lowerBoundMultiplier * maxHeartRate
         let upperBoundHeartRate = upperBoundMultiplier * maxHeartRate
         
@@ -126,7 +126,11 @@ struct ExertionView: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false // Declare the state variable here
     
+    
+    
     var body: some View {
+        let userStatement = recoveryModel.generateUserStatement()
+        
         ScrollView {
             VStack {
                 HStack {
@@ -151,22 +155,33 @@ struct ExertionView: View {
                             }
                         }
                         
-                        Text("Today's Exertion Target: \(targetExertionZone)")
-                            .font(.caption)
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                        Text("Today's Exertion Target: ")
+                            .font(.system(size: 17))  // Set the font size for the initial part
+                            .foregroundColor(.gray)  // Set the color for the initial part
+                            +
+                        Text("\(targetExertionZone)")
+                            .font(.system(size: 17))
+                            .foregroundColor(.green)
+                            .fontWeight(.bold)
+
                     }
                     .padding([.top, .bottom, .trailing])
                     
                     Spacer()
                     
                     ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
-                        .frame(width: 120, height: 120)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 20)
+                                          .frame(width: 120, height: 120)
+                                  }
+                                   // Second VStack for the User Statement Text
+                                   VStack(alignment: .leading) {
+                                       let userStatement = recoveryModel.generateUserStatement()
+                                       Text(userStatement)
+                                           .foregroundColor(.white)
+                                            .padding(.top, 8)
+    
+                                   }
                 
-                
+  
                 
                 // Dynamically create zoneInfos from model.zoneTimes
                 let maxTime = exertionModel.zoneTimes.max() ?? 1
@@ -184,32 +199,42 @@ struct ExertionView: View {
                 
                 ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
                     ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
+                        .padding(.vertical, 0) // Reduced vertical padding
                 }
-            }
-            .padding(.horizontal)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Training Zones")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.vertical)
                 
-                ExertionBarView(label: "RECOVERY",
-                                minutes: exertionModel.recoveryMinutes,
-                                color: .teal,
-                                maxTime: exertionModel.maxExertionTime)
-                ExertionBarView(label: "CONDITIONING",
-                                minutes: exertionModel.conditioningMinutes,
-                                color: .green,
-                                maxTime: exertionModel.maxExertionTime)
-                ExertionBarView(label: "OVERLOAD",
-                                minutes: exertionModel.overloadMinutes,
-                                color: .red,
-                                maxTime: exertionModel.maxExertionTime)
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                
+                    Text("Training Zones")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.vertical)
+                    
+                    ExertionBarView(label: "RECOVERY",
+                                    minutes: exertionModel.recoveryMinutes,
+                                    color: .teal,
+                                    maxTime: exertionModel.maxExertionTime)
+                    ExertionBarView(label: "CONDITIONING",
+                                    minutes: exertionModel.conditioningMinutes,
+                                    color: .green,
+                                    maxTime: exertionModel.maxExertionTime)
+                    ExertionBarView(label: "OVERLOAD",
+                                    minutes: exertionModel.overloadMinutes,
+                                    color: .red,
+                                    maxTime: exertionModel.maxExertionTime)
+                }
+                .padding()
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(8)
+                
+
+
             }
-            .padding()
-            .background(Color.black.opacity(0.8))
-            .cornerRadius(8)
+            .padding(.horizontal, 5)  // Adjust this for overall horizontal padding
+            .padding(.vertical, 20)
+    
+
         }
         .padding(.horizontal)
     }

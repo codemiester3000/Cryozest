@@ -73,6 +73,9 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentRespiratoryRate: Double? = nil
     @Published var mostRecentActiveCalories: Double? = nil
     @Published var mostRecentRestingCalories: Double? = nil
+    @Published var sleepScorePercentage: Int?
+
+    
     
     var hrvReadings: [Date: Int] = [:]
     
@@ -87,6 +90,58 @@ class RecoveryGraphModel: ObservableObject {
         }
         return nil
     }
+    
+    
+    func generateUserStatement() -> String {
+        guard let recoveryScore = recoveryScores.last,
+              let sleepDurationString = previousNightSleepDuration,
+              let sleepDuration = Double(sleepDurationString) else {
+            return "Data not available."
+        }
+
+        let sleepScore = (sleepDuration / 8.0) * 100
+
+        switch (recoveryScore, sleepScore) {
+            case (80...100, 80...100):
+                return "Hello! Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to tackle any challenge. Aim high for your exertion targets, but remember to stay attuned to your body's signals."
+            case (80...100, 70..<80):
+                return "Great job! Your Recovery is high, showing you're in excellent shape. Your Sleep was decent, so you might want to focus a bit more on rest tonight. Feel confident to push your limits today, but keep an eye on your body's needs."
+            case (80...100, 60..<70):
+                return "You're showing high recovery levels, which is fantastic! Your sleep was not optimal, though. Today, you can aim high but also consider some extra rest to improve your sleep quality."
+            case (80...100, ..<60):
+                return "Although your Sleep was low, your Recovery is high. You might still feel ready for challenges, but remember, consistent good sleep is key for sustained well-being. Balance is essential."
+            case (70..<80, 80...100):
+                return "Nice work! Your Recovery is decent and your Sleep was impressive. You're well-equipped for today's activities. Aim for your exertion goals while ensuring you maintain this great sleep pattern."
+            case (70..<80, 70..<80):
+                return "Good going! You're showing decent levels in both Recovery and Sleep. You're on the right track. Today is a good day to work towards your goals at a steady pace, keeping a balance between activity and rest."
+            case (70..<80, 60..<70):
+                return "Your recovery is decent, but your sleep wasn't quite optimal. While you can still be active, try to prioritize improving your sleep tonight for a better balance."
+            case (70..<80, ..<60):
+                return "You have a decent recovery score, but your sleep is low. Be mindful of your energy levels today and focus on getting more restful sleep tonight."
+            case (60..<70, 80...100):
+                return "Your sleep quality is high, which is great, but your recovery isn't optimal. You can be moderately active today, but don't forget to listen to your body and take it easy if needed."
+            case (60..<70, 70..<80):
+                return "With not optimal recovery and decent sleep, today might be a day for moderate activities. Focus on maintaining your good sleep habits and giving your body time to recover."
+            case (60..<70, 60..<70):
+                return "Both your recovery and sleep are not optimal. It's a signal to take things slow today. Focus on self-care and try to improve both your sleep and recovery."
+            case (60..<70, ..<60),
+                 (50..<60, 60..<70):
+                return "Your Sleep wasn't optimal and Recovery is a bit low. It might be a sign to take it easier today. Focus on activities that are less strenuous and prioritize rest to bounce back stronger."
+            case (50..<60, 80...100):
+                return "Your sleep is excellent, but your recovery is low. This contrast suggests you might want to take a lighter approach to activities today, despite the good sleep."
+            case (50..<60, 70..<80):
+                return "Your Recovery is on the lower side, but your Sleep was decent. Consider lighter activities today and continue focusing on good sleep habits. Your body will thank you for the balanced approach."
+            case (50..<60, 60..<70):
+                return "With low recovery and not optimal sleep, it's crucial to prioritize rest and recovery today. Engage in light, restorative activities and focus on improving your sleep tonight."
+            case (50..<60, ..<60):
+                return "Both your recovery and sleep are low, indicating a need for rest and recuperation. Today should be about restful activities and aiming for better sleep."
+            default:
+                return "Keep up with your health metrics for personalized insights."
+        }
+    }
+
+
+    
     
     
     private func formatSleepDuration(_ duration: TimeInterval) -> String {
@@ -113,6 +168,7 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
+        
         
         HealthKitManager.shared.fetchLastKnownHRV(before: Date()) { lastHrv in
             DispatchQueue.main.async {
@@ -189,6 +245,22 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
     }
+    
+    private func calculateSleepScorePercentage() {
+        guard let sleepDurationString = previousNightSleepDuration,
+              let sleepDuration = Double(sleepDurationString) else {
+            sleepScorePercentage = nil
+            return
+        }
+
+        // Assuming sleepDurationString is in hours
+        let idealSleepDuration: Double = 8 // 8 hours for 100% score
+        let sleepScore = (sleepDuration / idealSleepDuration) * 100
+        sleepScorePercentage = Int(sleepScore.rounded())
+    }
+
+    
+    
     
     private func calculateHrvPercentage() {
         if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
@@ -440,8 +512,8 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ScrollView {
-            VStack {
-                
+            VStack(alignment: .leading) {
+                // HStack to place text and recovery ring side by side
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Daily Summary")
@@ -453,18 +525,18 @@ struct RecoveryCardView: View {
                             Text("Updated HealthKit data:")
                                 .font(.caption)
                                 .foregroundColor(.gray)
-                                .padding(.top, 2)
+                                .padding(.top, 0)
                             Text("\(lastRefreshDate, formatter: dateFormatter)")
                                 .font(.caption)
                                 .foregroundColor(.green)
-                                .padding(.top, 0.5)
+                                .padding(.top, 0)
+                            
                         }
-                        
                     }
                     
-                    Spacer() // Adding a spacer for separation
+                    Spacer() // This will push the content to the opposite sides
                     
-                    // Ready to Train Circle - Made smaller
+                    // Ready to Train Circle (Right side)
                     ZStack {
                         Circle()
                             .stroke(lineWidth: 8)
@@ -511,8 +583,8 @@ struct RecoveryCardView: View {
                             change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)))",
                             arrowUp: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1,
                             isGreen: model.hrvSleepPercentage ?? -1 < model.avgHrvDuringSleep60Days ?? -1
-                            
                         )
+                        
                         Spacer()
                         
                         MetricView(
@@ -522,8 +594,9 @@ struct RecoveryCardView: View {
                             arrowUp: model.restingHeartRatePercentage ?? -1 > model.avgRestingHeartRate60Days ?? -1,
                             isGreen: model.restingHeartRatePercentage ?? -1 < model.avgRestingHeartRate60Days ?? -1
                         )
+                 
                     }
-                    .padding(.horizontal)
+                    
                     
                     // TODO: COMPLETELY HARDCODED
                     VStack {
@@ -546,6 +619,8 @@ struct RecoveryCardView: View {
                             .foregroundColor(.white)
                         
                     }
+                    .frame(maxWidth: .infinity, alignment: .center)  // Center VStack content
+                }
                     .padding(.horizontal, 6)
                     .padding(.vertical)
                     
@@ -617,70 +692,71 @@ struct RecoveryCardView: View {
         guard let respRate = respRate else { return "N/A" }
         return String(format: "%.1f", respRate) // One decimal place
     }
-}
-
-struct MetricView: View {
-    let label: String
-    let symbolName: String
-    let change: String
-    let arrowUp: Bool
-    let isGreen: Bool
     
-    var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: symbolName)
-                    .foregroundColor(.gray)
-                Text(label)
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            HStack {
-                Text(change)
-                    .font(.caption)
-                    .foregroundColor(.white)
-                    .opacity(0.7)
-                Text(arrowUp ? "↑" : "↓")
-                    .font(.footnote)
-                    .foregroundColor(isGreen ? .green : .red)
+    
+    struct MetricView: View {
+        let label: String
+        let symbolName: String
+        let change: String
+        let arrowUp: Bool
+        let isGreen: Bool
+        
+        var body: some View {
+            VStack {
+                HStack {
+                    Image(systemName: symbolName)
+                        .foregroundColor(.gray)
+                    Text(label)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+                HStack {
+                    Text(change)
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .opacity(0.7)
+                    Text(arrowUp ? "↑" : "↓")
+                        .font(.footnote)
+                        .foregroundColor(isGreen ? .green : .red)
+                }
             }
         }
     }
-}
-
-struct GridItemView: View {
-    var title: String
-    var value: String
-    var unit: String
     
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.system(size: 14)) // Slightly smaller font size
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.bottom, 1) // Reduced bottom padding
-            
-            HStack(alignment: .lastTextBaseline) {
-                Text(value)
-                    .font(.system(size: 20)) // Slightly smaller font size
+    struct GridItemView: View {
+        var title: String
+        var value: String
+        var unit: String
+        
+        var body: some View {
+            VStack {
+                Text(title)
+                    .font(.system(size: 14)) // Slightly smaller font size
                     .fontWeight(.bold)
                     .foregroundColor(.white)
+                    .padding(.bottom, 1) // Reduced bottom padding
                 
-                Text(unit)
-                    .font(.footnote)
-                    .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 1) // Keep existing padding
+                HStack(alignment: .lastTextBaseline) {
+                    Text(value)
+                        .font(.system(size: 20)) // Slightly smaller font size
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text(unit)
+                        .font(.footnote)
+                        .foregroundColor(.white.opacity(0.7))
+                        .padding(.leading, 1) // Keep existing padding
+                }
             }
+            .padding(.all, 6) // Slightly reduced overall padding
+            .frame(width: 110, height: 70) // Reduced height
+            .background(Color.black)
+            .cornerRadius(8)
+            .shadow(radius: 3)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.red, lineWidth: 1)
+            )
         }
-        .padding(.all, 6) // Slightly reduced overall padding
-        .frame(width: 110, height: 70) // Reduced height
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red, lineWidth: 1)
-        )
     }
-}
+
