@@ -135,7 +135,7 @@ class RecoveryGraphModel: ObservableObject {
         case (50..<60, ..<60):
             return "Both your recovery and sleep are low, indicating a need for rest and recuperation. Today should be about restful activities and aiming for better sleep."
         default:
-            return "Keep up with your health metrics for personalized insights."
+            return "Wear your Apple Watch for personalized insights."
         }
     }
     
