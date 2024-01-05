@@ -13,6 +13,7 @@
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
+		C53817ED2B48A88600F42568 /* DailySleepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53817EC2B48A88600F42568 /* DailySleepView.swift */; };
 		C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */; };
 		C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EAC62B2FCEC200F583C7 /* DailyView.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
@@ -74,6 +75,7 @@
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
+		C53817EC2B48A88600F42568 /* DailySleepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailySleepView.swift; sourceTree = "<group>"; };
 		C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManuallyAddSession.swift; sourceTree = "<group>"; };
 		C549EAC62B2FCEC200F583C7 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 				C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */,
 				C598129F2B41007100C13C15 /* TherapyTypeClass.swift */,
 				C57F62812B422E93004515EA /* ExertionView.swift */,
+				C53817EC2B48A88600F42568 /* DailySleepView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -388,6 +391,7 @@
 				C57F62822B422E93004515EA /* ExertionView.swift in Sources */,
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C576E6C22A510B880042C8A7 /* RecoveryAnalysisView.swift in Sources */,
+				C53817ED2B48A88600F42568 /* DailySleepView.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,

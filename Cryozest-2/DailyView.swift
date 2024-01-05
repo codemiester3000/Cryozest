@@ -10,6 +10,8 @@ struct DailyView: View {
             RecoveryGraphView(model: model)
             
             ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
+            
+            DailySleepView(dailySleepModel: DailySleepViewModel())
         }
         .refreshable {
             model.pullAllData()
