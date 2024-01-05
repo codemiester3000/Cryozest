@@ -495,7 +495,7 @@ struct ExertionView: View {
                             .fill(Color.gray.opacity(0.3))
                             .frame(height: 1)
                             .padding(.horizontal, 22)
-                            .padding(.vertical, 4)
+                            .padding(.vertical, 6)
                     }
                 }
                 .background(Color.black)
