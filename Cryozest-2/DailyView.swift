@@ -649,7 +649,7 @@ struct RecoveryExplanation: View {
 }
 
 struct DailyGridMetrics: View {
-    var model: RecoveryGraphModel
+    @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
         HStack {
