@@ -247,45 +247,55 @@ struct ZoneInfo {
     var timeInMinutes: Double
 }
 
-
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var zoneRange: String
     var maxTime: Double
-
+    
     var body: some View {
-        HStack(spacing: 4) { // Adjust the horizontal spacing between elements
+        HStack(spacing: 4) {
             Text("Zone \(zoneInfo.zoneNumber)")
                 .foregroundColor(zoneInfo.color)
                 .padding(.leading, 5)
-
-            ZStack(alignment: .leading) {
-                Rectangle()
-                    .frame(width: CGFloat(zoneInfo.timeInMinutes / maxTime) * 100, height: 5)
-                    .foregroundColor(zoneInfo.color)
-                    .cornerRadius(2.5)
-
-                Circle()
-                    .fill(zoneInfo.color)
-                    .frame(width: 5, height: 5)
-                    .offset(x: 0, y: 0)
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Foreground line for time spent
+                    let fillWidth: CGFloat = zoneInfo.timeInMinutes > 0 ?
+                        CGFloat(zoneInfo.timeInMinutes / maxTime) * geometry.size.width * 0.6 : 5
+                    
+                    if fillWidth > 5 { // Ensure there's enough space to display the time text
+                        Rectangle()
+                            .frame(width: fillWidth, height: 5)
+                            .foregroundColor(zoneInfo.color)
+                            .cornerRadius(2.5)
+                        
+                        Text(zoneInfo.timeSpent)
+                            .foregroundColor(.white)
+                            .position(x: fillWidth + 30, y: geometry.size.height / 2) // Position the time text
+                    } else {
+                        // If no time or very short time, only show the circle
+                        Circle()
+                            .fill(zoneInfo.color)
+                            .frame(width: 5, height: 5)
+                            .position(x: 0, y: geometry.size.height / 2)
+                    }
+                }
             }
-
-            Text(zoneInfo.timeSpent)
-                .foregroundColor(.white)
-                .padding(.leading, 5)
-
+            .frame(height: 5)
+            
             Spacer()
-
+            
             Text(zoneRange)
                 .foregroundColor(.gray)
                 .padding(.trailing, 5)
         }
-        .padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0)) // Reduced vertical padding
+        .padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
         .background(Color.black.opacity(0.8))
         .cornerRadius(5)
     }
 }
+
 
 
 
