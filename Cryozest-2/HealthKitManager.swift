@@ -95,6 +95,7 @@ class HealthKitManager {
         healthStore.execute(bodyMassQuery)
     }
     
+    
     func fetchUserAge(completion: @escaping (Int?, Error?) -> Void) {
           do {
               let dateOfBirthComponents = try healthStore.dateOfBirthComponents()
@@ -110,6 +111,38 @@ class HealthKitManager {
               completion(nil, error)
           }
       }
+    
+    func fetchAvgRestingHeartRate(numDays: Int, completion: @escaping (Double?) -> Void) {
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let startDate = Calendar.current.date(byAdding: .day, value: -numDays, to: startOfDay)
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictEndDate)
+
+        guard let restingHeartRateType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else {
+            completion(nil)
+            return
+        }
+
+        let query = HKStatisticsQuery(quantityType: restingHeartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
+            if let error = error {
+                print("Error fetching average resting heart rate: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let avgQuantity = statistics?.averageQuantity() else {
+                completion(nil)
+                return
+            }
+
+            let avgRestingHeartRate = avgQuantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
+            completion(avgRestingHeartRate)
+        }
+
+        healthStore.execute(query)
+    }
+
     
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
