@@ -518,7 +518,7 @@ struct RecoveryCardView: View {
                             Text("Updated HealthKit data:")
                                 .font(.caption)
                                 .foregroundColor(.gray)
-                                .padding(.top, 0.5)
+                                .padding(.top, 0)
                             Text("\(lastRefreshDate, formatter: dateFormatter)")
                                 .font(.caption)
                                 .foregroundColor(.green)

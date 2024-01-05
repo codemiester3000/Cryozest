@@ -41,26 +41,26 @@ class ExertionModel: ObservableObject {
         HealthKitManager.shared.fetchUserAge { [weak self] (age: Int?, error: Error?) in
             guard let self = self else { return }
             let userAge = age ?? 30 // Use the fetched age or default to 30
-
+            
             // Fetch the average resting heart rate
             HealthKitManager.shared.fetchAvgRestingHeartRate(numDays: 30) { [weak self] avgRestingHeartRate in
                 guard let self = self, let avgRestingHeartRate = avgRestingHeartRate else {
                     print("Error fetching average resting heart rate")
                     return
                 }
-
+                
                 self.avgRestingHeartRate = avgRestingHeartRate
-
+                
                 let startDate = Calendar.current.startOfDay(for: Date())
                 let endDate = Date()
-
+                
                 // Fetch heart rate data
                 HealthKitManager.shared.fetchHeartRateData(from: startDate, to: endDate) { (results, error) in
                     guard let results = results else {
                         print("Error fetching heart rate data: \(error?.localizedDescription ?? "Unknown error")")
                         return
                     }
-
+                    
                     // Calculate exertion score
                     DispatchQueue.global().async {
                         do {
@@ -94,18 +94,18 @@ class ExertionModel: ObservableObject {
         for (index, upperBoundary) in zoneUpperBoundaries.enumerated() {
             let lowerBoundary = index == 0 ? 0.5 : zoneUpperBoundaries[index - 1]
             let timeInZone = calculateTimeInZone(
-                       for: heartRateData,
-                       userAge: userAge,
-                       lowerBoundMultiplier: lowerBoundary,
-                       upperBoundMultiplier: upperBoundary,
-                       avgRestingHeartRate: avgRestingHeartRate  // Passing the avgRestingHeartRate
-                   )
-                   exertionScore += timeInZone * zoneMultipliers[index]
-
-                   DispatchQueue.main.async {
-                       self.zoneTimes.append(timeInZone)
-                   }
-               }
+                for: heartRateData,
+                userAge: userAge,
+                lowerBoundMultiplier: lowerBoundary,
+                upperBoundMultiplier: upperBoundary,
+                avgRestingHeartRate: avgRestingHeartRate  // Passing the avgRestingHeartRate
+            )
+            exertionScore += timeInZone * zoneMultipliers[index]
+            
+            DispatchQueue.main.async {
+                self.zoneTimes.append(timeInZone)
+            }
+        }
         
         return exertionScore
     }
@@ -200,11 +200,11 @@ struct ExertionBarView: View {
                     .foregroundColor(color)
                     .cornerRadius(0)
                 GeometryReader { geometry in
-                    Rectangle()
-                        .frame(width: geometry.size.width * CGFloat(minutes / fullScaleTime))
-                        .foregroundColor(color)
-                        .cornerRadius(0)
-                }
+                                    Rectangle()
+                                        .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width))
+                                        .foregroundColor(color)
+                                        .cornerRadius(0)
+                                }
                 
                 HStack {
                     Text(label)
