@@ -432,7 +432,7 @@ struct ExertionView: View {
             
             
             VStack(alignment: .leading) {
-
+                
                 ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
                 ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
                 ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
@@ -507,8 +507,6 @@ struct ExertionView: View {
                 }
                 .padding(.bottom, 7)
             }
-            
-            
         }
     }
 }

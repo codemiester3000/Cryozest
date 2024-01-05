@@ -164,7 +164,7 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         
-        HealthKitManager.shared.fetchLastKnownHRV(before: Date()) { lastHrv in
+        HealthKitManager.shared.fetchMostRecentHRVForToday(before: Date()) { lastHrv in
             DispatchQueue.main.async {
                 if let lastHrv = lastHrv {
                     self.lastKnownHRV = Int(lastHrv)
