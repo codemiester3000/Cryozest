@@ -429,8 +429,10 @@ struct ExertionView: View {
                 Text(userStatement)
                     .foregroundColor(.white)
                     .padding(.top, 8)
-                    .padding(.horizontal, 22) // Add horizontal padding here
+                    .padding(.horizontal, 20)
             }
+            .padding(.vertical, 32)
+
             
             VStack(alignment: .leading) {
                 //                Text("Training Zones")
@@ -440,10 +442,11 @@ struct ExertionView: View {
                 //                    .padding(.vertical)
                 
                 ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-            }
-            .padding(.top)
+                 ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                 ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+             }
+             .padding(.top)
+             .padding(.horizontal, 6) // Adding horizontal padding
             
             // Dynamically create zoneInfos from model.zoneTimes
             let maxTime = exertionModel.zoneTimes.max() ?? 1
@@ -459,16 +462,19 @@ struct ExertionView: View {
                 )
             }
             
-            Spacer(minLength: 26) // You can adjust the value to increase or decrease the space
+            Spacer(minLength: 32) // You can adjust the value to increase or decrease the space
             
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
-                VStack(spacing: 0) { // No spacing between VStack elements
+                VStack(spacing: 0.1) {
                     
-                    // Add a divider above Zone 1 with horizontal padding
-                            if index == 0 {
-                                Divider().background(Color.gray).padding(.horizontal, 22)
-                    }
+                   
+                           if index == 0 {
+                               Rectangle()
+                                   .fill(Color.gray.opacity(0.3))
+                                   .frame(height: 1)
+                                   .padding(.horizontal, 22)
+                           }
                     
                     HStack {
                         if index < exertionModel.heartRateZoneRanges.count {
@@ -479,30 +485,36 @@ struct ExertionView: View {
                             ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
                         }
                     }
-                    .padding(.horizontal, 22)
+                    .padding(.horizontal, 19)
                     .frame(maxWidth: .infinity)
                     
-           
                     if index < zoneInfos.count - 1 {
-                        Divider().background(Color.gray).padding(.horizontal, 22)
-                    }
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(height: 1)
+                                    .padding(.horizontal, 22)
+                            }
                 }
                 .background(Color.black)
             }
 
             if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
-                Divider().background(Color.gray).padding(.horizontal, 22)
-                // Add vertical spacing above the text
-                Spacer().frame(height: 5)
-                // Use an HStack for left alignment
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 1)
+                    .padding(.horizontal, 22)
+
+              
+                Spacer().frame(height: 7)
+            
                 HStack {
                     Text("Estimated time in each heart rate zone.")
                         .font(.footnote)
                         .foregroundColor(.gray)
-                        .padding(.leading, 22) // Left-align the text with padding
-                    Spacer() // Pushes the text to the left
+                        .padding(.leading, 30)
+                    Spacer()
                 }
-                .padding(.bottom, 5) // Padding at the bottom of the HStack
+                .padding(.bottom, 7)
             }
 
 
