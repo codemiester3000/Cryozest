@@ -466,6 +466,16 @@ struct ExertionView: View {
             .padding(.top)
             .padding(.horizontal, 6)
             
+            
+            VStack(alignment: .leading) {
+                
+                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+            }
+            .padding(.top)
+            .padding(.horizontal, 6)
+            
             let maxTime = exertionModel.zoneTimes.max() ?? 1
             
             Spacer(minLength: 32)
@@ -510,7 +520,6 @@ struct ExertionView: View {
                 }
                 .background(Color.black)
             }
-
         }
     }
 }
