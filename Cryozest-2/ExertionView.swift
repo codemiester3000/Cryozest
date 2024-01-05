@@ -149,14 +149,18 @@ struct ExertionView: View {
                         }
                     }
                     
-                    Text("Today's Exertion Target: ")
-                        .font(.system(size: 17))  // Set the font size for the initial part
-                        .foregroundColor(.gray)  // Set the color for the initial part
-                    +
-                    Text("\(targetExertionZone)")
-                        .font(.system(size: 17))
-                        .foregroundColor(.green)
-                        .fontWeight(.bold)
+                    VStack {
+                        Text("Today's Exertion Target:\n")
+                            .font(.footnote)  // Set the font size for the initial part
+                            .foregroundColor(.gray)
+                            
+                        +
+                        Text("\(targetExertionZone)")
+                            .font(.system(size: 17))
+                            .foregroundColor(.green)
+                            .fontWeight(.bold)
+                    }.padding(.vertical, 1)
+                   
                     
                 }
                 .padding(.vertical)
@@ -177,16 +181,17 @@ struct ExertionView: View {
             }
             
             VStack(alignment: .leading) {
-                Text("Training Zones")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.vertical)
+//                Text("Training Zones")
+//                    .font(.title2)
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.white)
+//                    .padding(.vertical)
                 
                 ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
                 ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
                 ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
             }
+            .padding(.top)
             
             // Dynamically create zoneInfos from model.zoneTimes
             let maxTime = exertionModel.zoneTimes.max() ?? 1
@@ -290,12 +295,14 @@ struct ExertionRingView: View {
         }
     }
 }
+
 struct ZoneInfo {
     var zoneNumber: Int
     var timeSpent: String
     var color: Color
     var timeInMinutes: Double
 }
+
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var maxTime: Double
