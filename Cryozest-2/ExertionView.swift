@@ -63,8 +63,6 @@ class ExertionModel: ObservableObject {
         }
     }
     
-    
-    
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample]) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
         let zoneUpperBoundaries: [Double] = [0.6, 0.7, 0.8, 0.9, 1.1]
@@ -124,113 +122,91 @@ func clamp(_ value: Double, to range: ClosedRange<Double>) -> Double {
 struct ExertionView: View {
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var recoveryModel: RecoveryGraphModel
-    @State private var isPopoverVisible = false // Declare the state variable here
-    
-    
+    @State private var isPopoverVisible = false
     
     var body: some View {
-        let userStatement = recoveryModel.generateUserStatement()
         
-        ScrollView {
-            VStack {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 0) {
-                            Text("Daily Exertion")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                            
-                            Button(action: {
-                                isPopoverVisible.toggle()
-                            }) {
-                                Image(systemName: "questionmark.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(Color.blue)
-                            }
-                            .padding(.leading, 8)
-                            .popover(isPresented: $isPopoverVisible) {
-                                ExertionInfoPopoverView()
-                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                            }
-                        }
+        VStack(spacing: 20) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack() {
+                        Text("Daily Exertion")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
                         
-                        Text("Today's Exertion Target: ")
-                            .font(.system(size: 17))  // Set the font size for the initial part
-                            .foregroundColor(.gray)  // Set the color for the initial part
-                            +
-                        Text("\(targetExertionZone)")
-                            .font(.system(size: 17))
-                            .foregroundColor(.green)
-                            .fontWeight(.bold)
-
+                        Button(action: {
+                            isPopoverVisible.toggle()
+                        }) {
+                            Image(systemName: "questionmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(Color.blue)
+                        }
+                        .padding(.leading, 8)
+                        .popover(isPresented: $isPopoverVisible) {
+                            ExertionInfoPopoverView()
+                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                        }
                     }
-                    .padding([.top, .bottom, .trailing])
                     
-                    Spacer()
+                    Text("Today's Exertion Target: ")
+                        .font(.system(size: 17))  // Set the font size for the initial part
+                        .foregroundColor(.gray)  // Set the color for the initial part
+                    +
+                    Text("\(targetExertionZone)")
+                        .font(.system(size: 17))
+                        .foregroundColor(.green)
+                        .fontWeight(.bold)
                     
-                    ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
-                                          .frame(width: 120, height: 120)
-                                  }
-                                   // Second VStack for the User Statement Text
-                                   VStack(alignment: .leading) {
-                                       let userStatement = recoveryModel.generateUserStatement()
-                                       Text(userStatement)
-                                           .foregroundColor(.white)
-                                            .padding(.top, 8)
-    
-                                   }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    
-                
-                    Text("Training Zones")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical)
-                    
-                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                    ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                    ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-
                 }
-                .padding([.horizontal], 5)  // Adjust horizontal padding here
-                .background(Color.black.opacity(0.8))
-                .cornerRadius(8)
+                .padding(.vertical)
                 
-                Divider()
                 
-                // Dynamically create zoneInfos from model.zoneTimes
-                let maxTime = exertionModel.zoneTimes.max() ?? 1
-                let zoneInfos = exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
-                    let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
-                    let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
-                    
-                    return ZoneInfo(
-                        zoneNumber: index + 1,
-                        timeSpent: timeSpentString,
-                        color: colors[index % colors.count],
-                        timeInMinutes: timeInMinutes
-                    )
-                }
+                Spacer()
                 
-                ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
-                    ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
-//                        .padding(.vertical, 0)  // Reduce vertical padding
-                }
-
-                
- 
-
-
+                ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
+                    .frame(width: 120, height: 120)
             }
-            .padding(.horizontal, 5)  // Adjust this for overall horizontal padding
-            .padding(.vertical, 20)
-    
-
+            //.padding(.horizontal, 6)
+            
+            VStack() {
+                let userStatement = recoveryModel.generateUserStatement()
+                Text(userStatement)
+                    .foregroundColor(.white)
+                    .padding(.top, 8)
+            }
+            
+            VStack(alignment: .leading) {
+                Text("Training Zones")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.vertical)
+                
+                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+            }
+            
+            // Dynamically create zoneInfos from model.zoneTimes
+            let maxTime = exertionModel.zoneTimes.max() ?? 1
+            let zoneInfos = exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
+                let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
+                
+                return ZoneInfo(
+                    zoneNumber: index + 1,
+                    timeSpent: timeSpentString,
+                    color: colors[index % colors.count],
+                    timeInMinutes: timeInMinutes
+                )
+            }
+            
+            ForEach(zoneInfos, id: \.zoneNumber) { zoneInfo in
+                ZoneItemView(zoneInfo: zoneInfo, maxTime: maxTime)
+            }
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 22)
     }
     
     // Computed property for target exertion zone
@@ -323,7 +299,7 @@ struct ZoneInfo {
 struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var maxTime: Double
-
+    
     var body: some View {
         HStack {
             Circle()
@@ -362,8 +338,6 @@ struct ZoneItemView: View {
         .cornerRadius(5)
     }
 }
-
-
 
 struct ExertionInfoPopoverView: View {
     var body: some View {
