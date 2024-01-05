@@ -213,7 +213,7 @@ struct ExertionBarView: View {
                 Rectangle()
                     .opacity(0.3)
                     .foregroundColor(color)
-                    .cornerRadius(0)
+                    .cornerRadius(9)
                 GeometryReader { geometry in
                     Rectangle()
                         .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width))
@@ -329,6 +329,32 @@ struct ExertionView: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false
     
+    var zoneInfos: [ZoneInfo] {
+        if exertionModel.zoneTimes.isEmpty {
+            return (1...5).map { index in
+                let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                return ZoneInfo(
+                    zoneNumber: index,
+                    timeSpent: formatTime(timeInMinutes: 0),
+                    color: colors[(index - 1) % colors.count],
+                    timeInMinutes: 0
+                )
+            }
+        } else {
+            return exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) in
+                let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
+                return ZoneInfo(
+                    zoneNumber: index + 1,
+                    timeSpent: timeSpentString,
+                    color: colors[index % colors.count],
+                    timeInMinutes: timeInMinutes
+                )
+            }
+        }
+    }
+
+    
     // Computed property for target exertion zone
     var targetExertionZone: String {
         let recoveryScore = recoveryModel.recoveryScores.last ?? 0
@@ -441,31 +467,26 @@ struct ExertionView: View {
             .padding(.horizontal, 6)
             
             let maxTime = exertionModel.zoneTimes.max() ?? 1
-            let zoneInfos = exertionModel.zoneTimes.enumerated().map { (index, timeInMinutes) -> ZoneInfo in
-                let colors: [Color] = [.blue, .cyan, .green, .orange, .pink]
-                let timeSpentString = formatTime(timeInMinutes: timeInMinutes)
-                
-                return ZoneInfo(
-                    zoneNumber: index + 1,
-                    timeSpent: timeSpentString,
-                    color: colors[index % colors.count],
-                    timeInMinutes: timeInMinutes
-                )
-            }
             
             Spacer(minLength: 32)
             
+            HStack {
+                Text("Estimated time in each heart rate zone")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.leading, 24)
+                Spacer()
+            }
+            .padding(.bottom)
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
                 VStack(spacing: 0.1) {
-                    
-                    
-                    if index == 0 {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 1)
-                            .padding(.horizontal, 22)
-                    }
+//                    if index == 0 {
+//                        Rectangle()
+//                            .fill(Color.gray.opacity(0.3))
+//                            .frame(height: 1)
+//                            .padding(.horizontal, 22)
+//                    }
                     
                     HStack {
                         if index < exertionModel.heartRateZoneRanges.count {
@@ -484,29 +505,12 @@ struct ExertionView: View {
                             .fill(Color.gray.opacity(0.3))
                             .frame(height: 1)
                             .padding(.horizontal, 22)
+                            .padding(.vertical, 4)
                     }
                 }
                 .background(Color.black)
             }
-            
-            if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 1)
-                    .padding(.horizontal, 22)
-                
-                
-                Spacer().frame(height: 7)
-                
-                HStack {
-                    Text("Estimated time in each heart rate zone.")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                        .padding(.leading, 30)
-                    Spacer()
-                }
-                .padding(.bottom, 7)
-            }
+
         }
     }
 }
