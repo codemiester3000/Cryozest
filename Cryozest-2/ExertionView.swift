@@ -218,7 +218,7 @@ struct ExertionBarView: View {
                     Rectangle()
                         .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width))
                         .foregroundColor(color)
-                        .cornerRadius(0)
+                        .cornerRadius(9)
                 }
                 
                 HStack {
@@ -456,18 +456,25 @@ struct ExertionView: View {
             }
             .padding(.vertical, 20)
             
+            
+            
+            
+            VStack(alignment: .leading) {
+                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 6)
+            .padding(.bottom, 20)
+        }
+            
             let maxTime = exertionModel.zoneTimes.max() ?? 1
+            
             
             Spacer(minLength: 32)
             
-            HStack {
-                Text("Estimated time in each heart rate zone")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .padding(.leading, 24)
-                Spacer()
-            }
-            .padding(.bottom)
+          
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
                 VStack(spacing: 0.1) {
@@ -498,36 +505,28 @@ struct ExertionView: View {
                             .padding(.vertical, 6)
                     }
                 }
+                
                 .background(Color.black)
             }
             
-//            if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
-//                Rectangle()
-//                    .fill(Color.gray.opacity(0.3))
-//                    .frame(height: 1)
-//                    .padding(.horizontal, 22)
-//                
-//                Spacer().frame(height: 7)
-//                
-//                HStack {
-//                    Text("Estimated time in each heart rate zone.")
-//                        .font(.footnote)
-//                        .foregroundColor(.gray)
-//                        .padding(.leading, 30)
-//                    Spacer()
-//                }
-//                .padding(.bottom, 20)
-//            }
-            
-            
-            VStack(alignment: .leading) {
-                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-            }
-            .padding(.top, 20)
-            .padding(.horizontal, 6)
-            .padding(.bottom, 20)
+            if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 1)
+                    .padding(.horizontal, 22)
+                
+                Spacer().frame(height: 7)
+                
+                HStack {
+                    Text("Estimated time in each heart rate zone.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .padding(.leading, 30)
+                    Spacer()
+                }
+                .padding(.bottom, 20)
+                .padding(.vertical, 4)
+
         }
     }
 }
