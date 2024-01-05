@@ -84,7 +84,7 @@ class ExertionModel: ObservableObject {
     }
     
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample], avgRestingHeartRate: Double) throws -> Double {
-        let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975]
+        let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975].map { $0 * 0.8 } // ROB: Working on scaling exertion score
         let zoneUpperBoundaries: [Double] = [0.6, 0.7, 0.8, 0.9, 1.1]
         
         var exertionScore = 0.0
@@ -99,7 +99,7 @@ class ExertionModel: ObservableObject {
                 userAge: userAge,
                 lowerBoundMultiplier: lowerBoundary,
                 upperBoundMultiplier: upperBoundary,
-                avgRestingHeartRate: avgRestingHeartRate  // Passing the avgRestingHeartRate
+                avgRestingHeartRate: avgRestingHeartRate
             )
             exertionScore += timeInZone * zoneMultipliers[index]
             
@@ -453,7 +453,7 @@ struct ExertionView: View {
                 )
             }
             
-            Spacer(minLength: 32) 
+            Spacer(minLength: 32)
             
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
