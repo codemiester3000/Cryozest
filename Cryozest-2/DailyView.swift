@@ -588,73 +588,13 @@ struct RecoveryCardView: View {
                     .padding(.bottom)
                     .padding(.horizontal, 6)
                 
-                    VStack {
-                        Text("Recovery is based on your average HRV during sleep of ")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white) +
-                        Text("\(model.avgHrvDuringSleep ?? 0) ms ")
-                            .font(.system(size: 17))
-                            .foregroundColor(.green)
-                            .fontWeight(.bold) +
-                        Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white) +
-                        Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
-                            .font(.system(size: 17))
-                            .foregroundColor(.green)
-                            .fontWeight(.bold) +
-                        Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white)
-                        
-                    }
-                    .frame(maxWidth: .infinity, alignment: .center)  // Center VStack content
+                    RecoveryExplanation(model: model)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
             }
             
-            // Horizontal Stack for Grid Items
-            HStack(spacing: 10) {
-                GridItemView(
-                    title: "Sleep",
-                    value: model.previousNightSleepDuration ?? "N/A",
-                    unit: "hrs"
-                )
-                
-                GridItemView(
-                    title: "HRV",
-                    value: "\(model.lastKnownHRV)",
-                    unit: "ms"
-                )
-                
-                GridItemView(
-                    title: "RHR",
-                    value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                    unit: "bpm"
-                )
-            }
-            
-            // Second row of grid items
-            HStack(spacing: 10) {
-                GridItemView(
-                    title: "SPO2",
-                    value: formatSPO2Value(model.mostRecentSPO2),
-                    unit: "%"
-                )
-                GridItemView(
-                    title: "Resp Rate",
-                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
-                    unit: "BrPM"
-                )
-                
-                GridItemView(
-                    title: "Cals Burned",
-                    value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
-                    unit: "kcal"
-                )
-            }
-            .padding(.top, 6) // Reduced top padding
+            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
@@ -680,6 +620,89 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
     return String(format: "%.1f", respRate) // One decimal place
 }
 
+struct RecoveryExplanation: View {
+    var model: RecoveryGraphModel
+    
+    var body: some View {
+        VStack {
+            Text("Recovery is based on your average HRV during sleep of ")
+                .font(.system(size: 16))
+                .foregroundColor(.white) +
+            Text("\(model.avgHrvDuringSleep ?? 0) ms ")
+                .font(.system(size: 17))
+                .foregroundColor(.green)
+                .fontWeight(.bold) +
+            Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
+                .font(.system(size: 16))
+                .foregroundColor(.white) +
+            Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
+                .font(.system(size: 17))
+                .foregroundColor(.green)
+                .fontWeight(.bold) +
+            Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
+                .font(.system(size: 16))
+                .foregroundColor(.white)
+            
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+}
+
+struct DailyGridMetrics: View {
+    var model: RecoveryGraphModel
+    
+    var body: some View {
+        HStack {
+            Text("Latest Daily Metrics:")
+                .foregroundColor(.gray)
+                .font(.footnote)
+            Spacer()
+        }
+        .padding(.horizontal, 6)
+        .padding(.bottom, 1)
+        
+        // Horizontal Stack for Grid Items
+        HStack(spacing: 10) {
+            GridItemView(
+                title: "Sleep",
+                value: model.previousNightSleepDuration ?? "N/A",
+                unit: "hrs"
+            )
+            
+            GridItemView(
+                title: "HRV",
+                value: "\(model.lastKnownHRV)",
+                unit: "ms"
+            )
+            
+            GridItemView(
+                title: "RHR",
+                value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                unit: "bpm"
+            )
+        }
+        
+        // Second row of grid items
+        HStack(spacing: 10) {
+            GridItemView(
+                title: "SPO2",
+                value: formatSPO2Value(model.mostRecentSPO2),
+                unit: "%"
+            )
+            GridItemView(
+                title: "Resp Rate",
+                value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                unit: "BrPM"
+            )
+            
+            GridItemView(
+                title: "Cals Burned",
+                value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+                unit: "kcal"
+            )
+        }
+    }
+}
 
 struct MetricView: View {
     let label: String
