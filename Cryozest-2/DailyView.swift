@@ -621,7 +621,7 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
 }
 
 struct RecoveryExplanation: View {
-    var model: RecoveryGraphModel
+    @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
         VStack {
