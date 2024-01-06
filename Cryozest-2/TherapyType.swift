@@ -2,10 +2,6 @@ import SwiftUI
 import CoreData
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
-    case custom1 = "Custom 1"
-    case custom2 = "Custom 2"
-    case custom3 = "Custom 3"
-    case custom4 = "Custom 4"
     case drySauna = "Sauna"
     case hotYoga = "Hot Yoga"
     case running = "Running"
@@ -18,6 +14,10 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case stretching = "Stretching"
     case deepBreathing = "Deep Breathing"
     case sleep = "Sleep"
+    case custom1 = "Custom 1"
+    case custom2 = "Custom 2"
+    case custom3 = "Custom 3"
+    case custom4 = "Custom 4"
     
     var id: String { self.rawValue }
     

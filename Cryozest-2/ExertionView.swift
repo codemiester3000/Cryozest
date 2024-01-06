@@ -460,14 +460,14 @@ struct ExertionView: View {
             
             Spacer(minLength: 32)
             
-            HStack {
-                Text("Estimated time in each heart rate zone")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .padding(.leading, 24)
-                Spacer()
+            VStack(alignment: .leading) {
+                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
             }
-            .padding(.bottom)
+            .padding(.top, 10)
+            .padding(.horizontal, 6)
+            .padding(.bottom, 20)
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
                 VStack(spacing: 0.1) {
@@ -501,6 +501,16 @@ struct ExertionView: View {
                 .background(Color.black)
             }
             
+            HStack {
+                Text("Estimated time in each heart rate zone")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.leading, 24)
+                Spacer()
+            }
+            .padding(.top)
+            .padding(.bottom, 30)
+            
 //            if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
 //                Rectangle()
 //                    .fill(Color.gray.opacity(0.3))
@@ -518,16 +528,6 @@ struct ExertionView: View {
 //                }
 //                .padding(.bottom, 20)
 //            }
-            
-            
-            VStack(alignment: .leading) {
-                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-            }
-            .padding(.top, 20)
-            .padding(.horizontal, 6)
-            .padding(.bottom, 20)
         }
     }
 }
