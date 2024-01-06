@@ -466,16 +466,6 @@ struct ExertionView: View {
             .padding(.top)
             .padding(.horizontal, 6)
             
-            
-            VStack(alignment: .leading) {
-                
-                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-            }
-            .padding(.top)
-            .padding(.horizontal, 6)
-            
             let maxTime = exertionModel.zoneTimes.max() ?? 1
             
             Spacer(minLength: 32)
@@ -491,13 +481,6 @@ struct ExertionView: View {
             
             ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
                 VStack(spacing: 0.1) {
-//                    if index == 0 {
-//                        Rectangle()
-//                            .fill(Color.gray.opacity(0.3))
-//                            .frame(height: 1)
-//                            .padding(.horizontal, 22)
-//                    }
-                    
                     HStack {
                         if index < exertionModel.heartRateZoneRanges.count {
                             let range = exertionModel.heartRateZoneRanges[index]
