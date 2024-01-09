@@ -626,24 +626,29 @@ struct RestorativeSleepView: View {
     @ObservedObject var viewModel: DailySleepViewModel
     
     var body: some View {
-        HStack {
-            VStack {
-                ProgressRingView(progress: viewModel.restorativeSleepPercentage / 100,
-                                 progressColor: .blue,
-                                 ringSize: 70)
-                .frame(width: 70, height: 70)
-            }
-            .padding(.leading, 22)
-            
-            VStack(alignment: .leading) {
-                HStack(spacing: 2) {
-                    Text(viewModel.formattedRestorativeSleepTime)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    Text("of Restorative Sleep")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                }
+           HStack {
+               // Full Stroke Blue Circle with Text Inside
+               ZStack {
+                   Circle()
+                       .stroke(Color.blue, lineWidth: 10)
+                       .frame(width: 70, height: 70)
+
+                   Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
+                       .font(.title3)
+                       .bold()
+                       .foregroundColor(.blue)
+               }
+               .padding(.leading, 22)
+               
+               VStack(alignment: .leading) {
+                   HStack(spacing: 2) {
+                       Text(viewModel.formattedRestorativeSleepTime)
+                           .font(.headline)
+                           .fontWeight(.semibold)
+                       Text("of Restorative Sleep")
+                           .font(.headline)
+                           .fontWeight(.semibold)
+                   }
                 
                 Text(viewModel.restorativeSleepDescription)
                     .font(.caption)
@@ -666,30 +671,19 @@ struct HeartRateDifferenceProgressCircle: View {
     var averageHeartRateDuringSleep: Double
 
     var body: some View {
-        HStack {
-            // Progress Circle View
-            VStack {
-                ZStack {
-                    Circle()
-                        .stroke(Color.red.opacity(0.3), lineWidth: 10)
-                        .frame(width: 70, height: 70)
+          HStack {
+              ZStack {
+                  Circle()
+                      .stroke(Color.red, lineWidth: 10)
+                      .frame(width: 70, height: 70)
 
-                    Circle()
-                        .trim(from: 0.0, to: CGFloat(min(self.heartRateDifferencePercentage / 100, 1.0)))
-                        .stroke(Color.red, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                        .rotationEffect(Angle(degrees: -90))
-                        .frame(width: 70, height: 70)
-                        .animation(.linear(duration: 0.5))
-                    
-
-                    Text("\(Int(heartRateDifferencePercentage))%")
-                        .font(.title3)
-                        .bold()
-                        .foregroundColor(.white)
-                }
-                .frame(width: 70, height: 70)
-                .padding(.leading, 22)
-            }
+                  Text("\(Int(heartRateDifferencePercentage))%")
+                      .font(.title3)
+                      .bold()
+                      .foregroundColor(.white)
+              }
+              .padding(.leading, 22)
+            
             
             
             // Text Section (Reduced left padding)
