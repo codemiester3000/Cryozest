@@ -527,15 +527,12 @@ struct RecoveryCardView: View {
                         }
                     }
                     
-                    Spacer() // This will push the content to the opposite sides
+                    Spacer()
                     
-                    // Ready to Train Circle (Right side)
                     ZStack {
                         Circle()
                             .stroke(lineWidth: 8)
                             .foregroundColor(Color(.systemGreen).opacity(0.5))
-                        
-                        // Calculate the progress as a fraction of 100
                         let progress = Double(model.recoveryScores.last ?? 0) / 100.0
                         let progressColor = Color(red: 1.0 - progress, green: progress, blue: 0)
                         
@@ -553,13 +550,13 @@ struct RecoveryCardView: View {
                                 .foregroundColor(.white)
                             
                             Text("\(model.recoveryScores.last ?? 0)%")
-                                .font(.title3) // Smaller font size
+                                .font(.title3)
                                 .fontWeight(.bold)
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
                         }
                     }
-                    .frame(width: 120, height: 120) // Smaller frame size
+                    .frame(width: 120, height: 120)
                     
                 }
                 .padding(.horizontal, 6)
