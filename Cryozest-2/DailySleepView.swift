@@ -40,8 +40,22 @@ class DailySleepViewModel: ObservableObject {
     private var sleepSamples: [HKCategorySample] = []
     
     init() {
-        fetchSleepData()
-    }
+            fetchSleepData()
+            fetchAverageWakingHeartRate { bpm, _ in
+                if let bpm = bpm {
+                    DispatchQueue.main.async {
+                        self.averageWakingHeartRate = bpm
+                    }
+                }
+            }
+            fetchAverageHeartRateDuringSleep { bpm, _ in
+                if let bpm = bpm {
+                    DispatchQueue.main.async {
+                        self.averageHeartRateDuringSleep = bpm
+                    }
+                }
+            }
+        }
     
     private func fetchSleepData() {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
@@ -314,6 +328,8 @@ struct DailySleepView: View {
     
     @State private var sleepStartTime: String = "N/A"
     @State private var sleepEndTime: String = "N/A"
+    @StateObject var viewModel = DailySleepViewModel()
+    
     
     var body: some View {
         ScrollView {
@@ -356,14 +372,16 @@ struct DailySleepView: View {
                 RestorativeSleepView(viewModel: dailySleepModel)
                     .padding()
                 
-                Text("Heart Rate Difference: \(dailySleepModel.heartRateDifferencePercentage, specifier: "%.2f")%")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                HeartRateDifferenceProgressCircle(heartRateDifferencePercentage: viewModel.heartRateDifferencePercentage)
+                .padding(.horizontal)
+                
+    
 
             }
             .onAppear {
                 
                 fetchSleepTimes()
+                
             }
         }
     }
@@ -559,4 +577,45 @@ struct RestorativeSleepView: View {
     }
 }
 
+struct HeartRateDifferenceProgressCircle: View {
+    var heartRateDifferencePercentage: Double
 
+    var body: some View {
+        HStack {
+            // Progress Circle View
+            ZStack {
+                Circle()
+                    .stroke(Color.red.opacity(0.3), lineWidth: 10)
+                    .frame(width: 70, height: 70)
+
+                Circle()
+                    .trim(from: 0.0, to: CGFloat(min(self.heartRateDifferencePercentage / 100, 1.0)))
+                    .stroke(Color.red, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                    .rotationEffect(Angle(degrees: -90))
+                    .frame(width: 70, height: 70)
+                    .animation(.linear(duration: 0.5))
+
+                Text("\(heartRateDifferencePercentage, specifier: "%.0f")%")
+                    .font(.title3)
+                    .bold()
+            }
+            .frame(width: 60, height: 60)
+            .padding(.horizontal, 22)
+
+            // Text Section (Reduced left padding)
+                       VStack(alignment: .leading) {
+                           Text("Heart Rate Dip")
+                               .font(.headline)
+                               .fontWeight(.semibold)
+
+                           Text("Your Heart Rate Dip during sleep is the percentage difference between your waking non-active heart rate versus your average heart rate during sleep for the night before. Studies indicate that a greater dip may be a sign of good cardiovascular health. Aim for above a 20% Heart Rate Dip")
+                               .font(.caption)
+                               .foregroundColor(.gray)
+                               .padding(.top, 4)
+                       }
+                       .padding(.leading, 0) // Reduced left padding
+
+                       Spacer()
+                   }
+               }
+           }
