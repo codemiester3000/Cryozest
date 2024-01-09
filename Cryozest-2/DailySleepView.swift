@@ -95,7 +95,7 @@ class DailySleepViewModel: ObservableObject {
     
     // Computed property to get restorative sleep description
     var restorativeSleepDescription: String {
-        "Your Restorative Sleep (Deep and REM) was greater than \(String(format: "%.0f%%", restorativeSleepPercentage)) of your total time asleep and higher than your average. This should help your body to repair itself and your mind to be refreshed."
+        "Your Restorative Sleep (Deep and REM) was greater than \(String(format: "%.0f%%", restorativeSleepPercentage)) of your total time asleep. This should help your body to repair itself and your mind to be refreshed."
     }
 }
 
@@ -160,9 +160,10 @@ struct DailySleepView: View {
                     Spacer() // This will push the ProgressRingView to the right
                     
                     ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
-                                     ringSize: 100)
-                    .frame(width: 100, height: 100)
-                    .padding()
+                                     ringSize: 120)
+                    .frame(width: 120, height: 120)
+                    .padding(.top, 16)
+                    .padding(.bottom, 16)
                     .padding(.horizontal, 22)
                 }
                 
@@ -325,6 +326,7 @@ struct ProgressRingView: View {
     var progressColor: Color // The color of the progress ring
     var ringSize: CGFloat // The size of the ring
     var thickness: CGFloat = 8
+    
     
     var body: some View {
         ZStack {
