@@ -112,39 +112,103 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
 struct DailySleepView: View {
     @ObservedObject var dailySleepModel = DailySleepViewModel()
     
+    @State private var sleepStartTime: String = "N/A"
+    @State private var sleepEndTime: String = "N/A"
+    
     var body: some View {
         ScrollView {
-            HStack {
-                Text("Daily Sleep")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading) // Align text to the left
-                    .padding(.horizontal, 22) // Horizontal padding of 22
-                    .padding(.top, 16) // Top padding
-                
-                Spacer() // Add a spacer to push the ProgressRingView to the right
-                
-                ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .blue)
-                    .frame(width: 100, height: 100)
-                    .padding()
-                    .padding(.horizontal, 22) // Horizontal padding of 22
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) { // VStack for title and sleep time
+                        Text("Sleep Performance")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Text("\(sleepStartTime) to \(sleepEndTime)")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.top, 16)
 
+                    Spacer() // This will push the ProgressRingView to the right
+                    
+                    ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .blue)
+                        .frame(width: 100, height: 100)
+                        .padding()
+                        .padding(.horizontal, 22)
+                }
+
+                if let sleepData = dailySleepModel.sleepData {
+                    Spacer(minLength: 20)
+                    SleepGraphView(sleepData: sleepData)
+                        .frame(height: 200)
+                } else {
+                    Spacer(minLength: 20)
+                    Text("Sleep data is not available yet.")
+                }
             }
-            .padding( .bottom)
-            
-            if let sleepData = dailySleepModel.sleepData {
-                Spacer(minLength: 20) // Add space between text and graph
-                SleepGraphView(sleepData: sleepData)
-                    .frame(height: 200) // Graph height
-            } else {
-                Spacer(minLength: 20) // Add space between text and placeholder
-                Text("Sleep data is not available yet.")
+            .onAppear {
+                // Fetch and update sleep start and end times
+                fetchSleepTimes()
             }
-            
         }
     }
-}
+
+    private func fetchSleepTimes() {
+                      // Use your own logic to fetch the sleep start and end times here
+                      // You can update the sleepStartTime and sleepEndTime properties accordingly
+                      // For example, you can call the getSleepTimesYesterday function mentioned earlier
+                      
+                      getSleepTimesYesterday { (start, end) in
+                          if let start = start, let end = end {
+                              let dateFormatter = DateFormatter()
+                              dateFormatter.dateFormat = "hh:mm a"
+                              
+                              self.sleepStartTime = dateFormatter.string(from: start)
+                              self.sleepEndTime = dateFormatter.string(from: end)
+                          } else {
+                              self.sleepStartTime = "N/A"
+                              self.sleepEndTime = "N/A"
+                          }
+                      }
+                  }
+              }
+
+private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void) {
+    // Define the date range for "last night"
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: Date())
+        let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)
+
+        // Create the predicate for the query
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        // Define the sleep analysis query
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+                                  predicate: predicate,
+                                  limit: HKObjectQueryNoLimit,
+                                  sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            
+            guard error == nil, let sleepSamples = samples as? [HKCategorySample], let lastSleep = sleepSamples.first else {
+                completion(nil, nil)
+                return
+            }
+
+            // Extract start and end times
+            let sleepStart = lastSleep.startDate
+            let sleepEnd = lastSleep.endDate
+
+            // Call completion handler
+            completion(sleepStart, sleepEnd)
+        }
+
+        // Execute the query
+        HKHealthStore().execute(query)
+    }
 
 
 struct SleepData {
@@ -167,6 +231,8 @@ struct SleepGraphView: View {
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
+    
+    
     
     var body: some View {
         VStack(spacing: 16) {
