@@ -218,7 +218,7 @@ struct ExertionBarView: View {
                     Rectangle()
                         .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width))
                         .foregroundColor(color)
-                        .cornerRadius(0)
+                        .cornerRadius(9)
                 }
                 
                 HStack {
@@ -463,7 +463,7 @@ struct ExertionView: View {
             VStack(alignment: .leading) {
                 ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
                 ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "OVERLOAD", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+                ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
             }
             .padding(.top, 10)
             .padding(.horizontal, 6)
