@@ -23,21 +23,23 @@ class DailySleepViewModel: ObservableObject {
                 HealthKitManager.shared.fetchSleepData { samples, error in
                     guard let self = self, let sleepSamples = samples as? [HKCategorySample], error == nil else { return }
                     
-                    // Now we call updateSleepData to process the fetched samples.
                     self.updateSleepData(with: sleepSamples)
                     
-                    // Then we can update the string properties for display.
-                    self.totalTimeAsleep = self.formatTimeInterval(self.calculateTotalDuration(samples: sleepSamples, for: .asleepUnspecified))
-                    self.totalDeepSleep = self.formatTimeInterval(self.calculateTotalDuration(samples: sleepSamples, for: .asleepDeep))
-                    self.totalCoreSleep = self.formatTimeInterval(self.calculateTotalDuration(samples: sleepSamples, for: .asleepCore))
-                    self.totalRemSleep = self.formatTimeInterval(self.calculateTotalDuration(samples: sleepSamples, for: .asleepREM))
-                    self.totalTimeAwake = self.formatTimeInterval(self.calculateTotalDuration(samples: sleepSamples, for: .awake))
+                    // Calculate and update sleep score
+                    let totalSleep = self.calculateTotalDuration(samples: sleepSamples, for: .asleepUnspecified)
+                    let deepSleep = self.calculateTotalDuration(samples: sleepSamples, for: .asleepDeep)
+                    let remSleep = self.calculateTotalDuration(samples: sleepSamples, for: .asleepREM)
+                    
+                    DispatchQueue.main.async {
+                        self.sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep)
+                    }
                 }
             } else {
                 // Handle errors or lack of authorization
             }
         }
     }
+
     
     
     private func updateSleepData(with samples: [HKCategorySample]) {
@@ -73,19 +75,17 @@ class DailySleepViewModel: ObservableObject {
     }
 }
 
-func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remSleep: TimeInterval, coreSleep: TimeInterval) -> Double {
+func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remSleep: TimeInterval) -> Double {
     let totalSleepTarget: TimeInterval = 420 * 60 // 7 hours in seconds
     let deepSleepTarget: TimeInterval = 60 * 60  // 1 hour in seconds
     let remSleepTarget: TimeInterval = 120 * 60  // 2 hours in seconds
-    
-    let totalSleepScore = min(totalSleep / totalSleepTarget, 1.0) * 50
-    let deepSleepScore = min(deepSleep / deepSleepTarget, 1.0) * 20
-    let remSleepScore = min(remSleep / remSleepTarget, 1.0) * 20
-    let coreSleepScore = min(coreSleep / (totalSleepTarget - remSleepTarget - deepSleepTarget), 1.0) * 10
-    
-    return totalSleepScore + deepSleepScore + remSleepScore + coreSleepScore
-}
 
+    let totalSleepScore = min(totalSleep / totalSleepTarget, 1.0) * 40 // 40% of the score
+    let deepSleepScore = min(deepSleep / deepSleepTarget, 1.0) * 40 // 40% of the score
+    let remSleepScore = min(remSleep / remSleepTarget, 1.0) * 20 // 20% of the score
+
+    return totalSleepScore + deepSleepScore + remSleepScore // Total score
+}
 
 func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
     HealthKitManager.shared.fetchSleepData { samples, error in
@@ -98,14 +98,14 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
         let totalSleep = sleepData["Total Sleep"] ?? 0
         let deepSleep = sleepData["Deep Sleep"] ?? 0
         let remSleep = sleepData["REM Sleep"] ?? 0
-        let coreSleep = sleepData["Core Sleep"] ?? 0
 
-        let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep, coreSleep: coreSleep)
+        let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep)
         print("Sleep Score: \(sleepScore)")
 
         completion(sleepScore)
     }
 }
+
 
 
 
