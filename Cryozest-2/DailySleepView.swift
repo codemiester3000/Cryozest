@@ -31,7 +31,6 @@ class DailySleepViewModel: ObservableObject {
             return percentageDifference
         } else {
             // Handling the case where averageWakingHeartRate is zero
-            print("Average Waking Heart Rate is zero, unable to calculate Heart Rate Difference Percentage.")
             return 0.0
         }
     }
@@ -100,27 +99,23 @@ class DailySleepViewModel: ObservableObject {
         let earliestWakeUpTime = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: startOfPreviousDay)!
         let latestWakeUpTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: startOfPreviousDay)!
 
-        // Debugging: Print search period for wake-up time
-        print("Searching for wake-up time between \(earliestWakeUpTime) and \(latestWakeUpTime)")
+
 
         let predicate = HKQuery.predicateForSamples(withStart: earliestWakeUpTime, end: latestWakeUpTime, options: .strictEndDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         
         let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
             if let error = error {
-                print("Error fetching wake-up time: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
 
             guard let sleepSamples = samples as? [HKCategorySample], let lastSleepSession = sleepSamples.first else {
-                print("No wake-up time found for the specified period.")
                 completion(nil)
                 return
             }
 
             let wakeUpTime = lastSleepSession.endDate
-            print("Fetched wake-up time: \(wakeUpTime)")
             completion(wakeUpTime)
         }
 
@@ -134,27 +129,22 @@ class DailySleepViewModel: ObservableObject {
         let startOfSleepSearch = calendar.date(bySettingHour: 20, minute: 0, second: 0, of: today.addingTimeInterval(-24*60*60))! // 8 PM on Jan 8th
         let endOfSleepSearch = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: today)! // 3 AM on Jan 9th
 
-        // Debugging: Print search period
-        print("Searching for sleep start time between \(startOfSleepSearch) and \(endOfSleepSearch)")
 
         let predicate = HKQuery.predicateForSamples(withStart: startOfSleepSearch, end: endOfSleepSearch, options: .strictEndDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         
         let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
             if let error = error {
-                print("Error fetching sleep start time: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
 
             guard let sleepSamples = samples as? [HKCategorySample], let firstSleepSession = sleepSamples.first else {
-                print("No sleep start time found for the specified period.")
                 completion(nil)
                 return
             }
 
             let sleepStartTime = firstSleepSession.startDate
-            print("Fetched sleep start time: \(sleepStartTime)")
             completion(sleepStartTime)
         }
 
@@ -173,14 +163,13 @@ class DailySleepViewModel: ObservableObject {
 
         fetchWakeUpTimePreviousDay { wakeUpTimePreviousDay in
             guard let wakeUpTimePreviousDay = wakeUpTimePreviousDay else {
-                print("Unable to fetch wake-up time for the previous day.")
                 completion(nil, NSError(domain: "com.yourapp.healthkit", code: 2, userInfo: [NSLocalizedDescriptionKey: "Unable to fetch wake-up time for the previous day."]))
                 return
             }
 
             self.fetchSleepStartTimeCurrentDay { sleepStartTimeCurrentDay in
                 guard let sleepStartTimeCurrentDay = sleepStartTimeCurrentDay else {
-                    print("Unable to fetch sleep start time for the current day.")
+                    
                     completion(nil, NSError(domain: "com.yourapp.healthkit", code: 3, userInfo: [NSLocalizedDescriptionKey: "Unable to fetch sleep start time for the current day."]))
                     return
                 }
@@ -193,7 +182,6 @@ class DailySleepViewModel: ObservableObject {
                 dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
                 let wakeUpTimeString = dateFormatter.string(from: wakeUpTimePreviousDay)
                 let sleepStartTimeString = dateFormatter.string(from: sleepStartTimeCurrentDay)
-                print("Fetching waking heart rate from \(wakeUpTimeString) to \(sleepStartTimeString) Pacific Time")
 
                 let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, results, error) in
                     if let error = error {
@@ -225,7 +213,6 @@ class DailySleepViewModel: ObservableObject {
 
         // Ensure sleep data is available
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-            print("Sleep data is not available.")
             completion(nil)
             return
         }
@@ -239,13 +226,11 @@ class DailySleepViewModel: ObservableObject {
         // Create the query for sleep analysis
         let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: 0, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { (query, results, error) in
             if let error = error {
-                print("Error fetching sleep data: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
 
             guard let sleepResults = results as? [HKCategorySample], let lastSleep = sleepResults.first else {
-                print("No sleep data available for today.")
                 completion(nil)
                 return
             }
@@ -279,7 +264,6 @@ class DailySleepViewModel: ObservableObject {
         // Fetch the sleep times for last night
         getSleepTimesYesterday { sleepStartTime, sleepEndTime in
             guard let sleepStartTime = sleepStartTime, let sleepEndTime = sleepEndTime else {
-                print("No sleep times available for last night.")
                 completion(nil, nil)
                 return
             }
@@ -291,7 +275,6 @@ class DailySleepViewModel: ObservableObject {
             // Create a query to fetch heart rate samples during sleep
             let query = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { (query, result, error) in
                 if let error = error {
-                    print("Error fetching heart rate samples: \(error.localizedDescription)")
                     completion(nil, error)
                     return
                 }
@@ -301,7 +284,6 @@ class DailySleepViewModel: ObservableObject {
                     let bpm = averageHeartRate.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
                     completion(bpm, nil)
                 } else {
-                    print("No average heart rate data available for sleep period.")
                     completion(nil, nil)
                 }
             }
@@ -409,28 +391,46 @@ struct DailySleepView: View {
     
     @State private var sleepStartTime: String = "N/A"
     @State private var sleepEndTime: String = "N/A"
-    
+    @State private var isPopoverVisible: Bool = false // State for showing the popover
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Sleep Performance")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Text("\(sleepStartTime) to \(sleepEndTime)")
-                            .font(.footnote)
-                            .fontWeight(.medium)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 22)
-                    .padding(.top, 16)
-                    
-                    Spacer()
-                    
+           ScrollView {
+               VStack(alignment: .leading, spacing: 0) {
+                   HStack {
+                       // "Sleep Performance" Text and "?" Button
+                       VStack(alignment: .leading, spacing: 2) {
+                           HStack {
+                               
+                               Text("Sleep Quality")
+                                   .font(.title2)
+                                   .fontWeight(.semibold)
+                                   .foregroundColor(.white)
+
+
+                               Button(action: {
+                                   isPopoverVisible.toggle()
+                               }) {
+                                   Image(systemName: "questionmark.circle.fill")
+                                       .font(.title2)
+                                       .foregroundColor(Color.blue)
+                               }
+                               .padding(.leading, 8)
+                               .popover(isPresented: $isPopoverVisible) {
+                                   SleepInfoPopoverView()
+                                       .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                               }
+                           }
+
+                           Text("\(sleepStartTime) to \(sleepEndTime)")
+                               .font(.footnote)
+                               .fontWeight(.medium)
+                               .foregroundColor(.gray)
+                       }
+                       .padding(.horizontal, 22)
+                       .padding(.top, 16)
+                       
+                       Spacer()
+                      
                     ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
                                      ringSize: 120)
                     .frame(width: 120, height: 120)
@@ -448,7 +448,8 @@ struct DailySleepView: View {
                     Text("Sleep data is not available yet.")
                 }
                 
-                
+                Spacer(minLength: 20)
+                   
                 RestorativeSleepView(viewModel: dailySleepModel)
 
                 
@@ -598,14 +599,15 @@ struct ProgressRingView: View {
     var ringSize: CGFloat
     var thickness: CGFloat = 8
     
-    
     var body: some View {
         ZStack {
+            // Background Circle
             Circle()
                 .stroke(lineWidth: thickness)
                 .foregroundColor(Color.gray.opacity(0.5))
                 .frame(width: ringSize, height: ringSize)
             
+            // Progress Circle
             Circle()
                 .trim(from: 0, to: CGFloat(progress))
                 .stroke(style: StrokeStyle(lineWidth: thickness, lineCap: .round))
@@ -613,12 +615,21 @@ struct ProgressRingView: View {
                 .rotationEffect(.degrees(-90))
                 .frame(width: ringSize, height: ringSize)
             
-            Text(String(format: "%.0f%%", min(progress, 1.0) * 100))
-                .font(.title2)
-                .bold()
+            // Text for "Sleep Score" and Percentage
+            VStack {
+                Text("Sleep Score")
+                    .font(.system(size: 10))
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                Text(String(format: "%.0f%%", min(progress, 1.0) * 100))
+                    .font(.title2)
+                    .bold()
+            }
         }
     }
 }
+
 
 
 
@@ -636,7 +647,7 @@ struct RestorativeSleepView: View {
                    Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
                        .font(.title3)
                        .bold()
-                       .foregroundColor(.blue)
+                       .foregroundColor(.white)
                }
                .padding(.leading, 22)
                
@@ -723,3 +734,47 @@ struct HeartRateDifferenceProgressCircle: View {
         }
     }
 }
+
+struct SleepInfoPopoverView: View {
+    var body: some View {
+        VStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    // First Paragraph with "Sleep Score:" in bold
+                    Text("Sleep Score: ").font(.system(size: 18)).bold().foregroundColor(.green) +
+                    Text("Your sleep score represents your sleep last night versus your target sleep goals. The target sleep is 7 hours of total sleep, 1 hour of deep sleep, and 2 hours of REM sleep, with deep sleep making up the largest portion of the score.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                    
+                    // Second Paragraph with "Restorative Sleep:" in bold
+                    Text("Restorative Sleep: ").font(.system(size: 18)).bold().foregroundColor(.blue) +
+                    Text("Restorative sleep consists of the last two stages of sleep: deep sleep and rapid eye movement (REM) sleep. During sleep, your body repairs itself, with REM sleep refreshing the brain. Studies have shown that deep sleep should ideally represent 13-23% of your total sleep, and 20-25% should be allocated to REM sleep for optimal restorative sleep.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                    
+                    // Third Paragraph with "Heart Rate Dip:" in bold
+                    Text("Heart Rate Dip: ").font(.system(size: 18)).bold().foregroundColor(.red) +
+                    Text("Heart rate dip is the percentage difference between your average non-active heart rate for the previous day and your average sleeping heart rate for the previous night. The goal is to achieve a high heart rate dip, with anything over 20% being considered good, anything between 10-20% being average, and under 10% being suboptimal.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                }
+                                .padding()
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(VisualEffectBlur(blurStyle: .dark)) // Blur effect for the background
+                        .cornerRadius(20)
+                        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
+                    }
+                }
+
+                struct VisualEffectBlur: UIViewRepresentable {
+                    var blurStyle: UIBlurEffect.Style
+
+                    func makeUIView(context: Context) -> UIVisualEffectView {
+                        return UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+                    }
+
+                    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+                }
+
