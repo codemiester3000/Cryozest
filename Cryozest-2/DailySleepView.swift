@@ -406,24 +406,26 @@ private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void
     let calendar = Calendar.current
     let endDate = calendar.startOfDay(for: Date())
     let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)
-    
+
     let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-    
+
     let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-    let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
-                              predicate: predicate,
-                              limit: HKObjectQueryNoLimit,
-                              sortDescriptors: [sortDescriptor]) { (query, samples, error) in
-        
-        guard error == nil, let sleepSamples = samples as? [HKCategorySample], let lastSleep = sleepSamples.first else {
+    let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+        guard error == nil, let sleepSamples = samples as? [HKCategorySample] else {
             completion(nil, nil)
             return
         }
-        
-        let sleepStart = lastSleep.startDate
-        let sleepEnd = lastSleep.endDate
-        
-        completion(sleepStart, sleepEnd)
+
+        // Filter out 'inBed' samples and focus on 'asleep' samples
+        let asleepSamples = sleepSamples.filter { $0.value == HKCategoryValueSleepAnalysis.asleep.rawValue }
+
+        // Find the earliest sleep start time and latest sleep end time
+        let sleepStart = asleepSamples.map { $0.startDate }.min()
+        let sleepEnd = asleepSamples.map { $0.endDate }.max()
+
+        DispatchQueue.main.async {
+            completion(sleepStart, sleepEnd)
+        }
     }
     HKHealthStore().execute(query)
 }
