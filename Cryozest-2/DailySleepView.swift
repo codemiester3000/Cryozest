@@ -10,17 +10,19 @@ class DailySleepViewModel: ObservableObject {
     @Published var totalRemSleep: String = "N/A"
     @Published var totalTimeAwake: String = "N/A"
     @Published var sleepData: SleepData?
-
+    @Published var sleepScore: Double = 0.0
+    
+    
     init() {
         fetchSleepData()
     }
-
+    
     private func fetchSleepData() {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
             if authorized {
                 HealthKitManager.shared.fetchSleepData { samples, error in
                     guard let self = self, let sleepSamples = samples as? [HKCategorySample], error == nil else { return }
-
+                    
                     // Now we call updateSleepData to process the fetched samples.
                     self.updateSleepData(with: sleepSamples)
                     
@@ -36,34 +38,34 @@ class DailySleepViewModel: ObservableObject {
             }
         }
     }
-
+    
     
     private func updateSleepData(with samples: [HKCategorySample]) {
-           let awakeDuration = calculateTotalDuration(samples: samples, for: .awake)
-           let remDuration = calculateTotalDuration(samples: samples, for: .asleepREM)
-           let coreDuration = calculateTotalDuration(samples: samples, for: .asleepCore)
-           let deepDuration = calculateTotalDuration(samples: samples, for: .asleepDeep)
-
-           // Assuming 'light' sleep is 'unspecified' in this context
-           let lightDuration = calculateTotalDuration(samples: samples, for: .asleepUnspecified)
-
-           DispatchQueue.main.async {
-               self.sleepData = SleepData(awake: awakeDuration, rem: remDuration, core: coreDuration, deep: deepDuration)
-           }
-       }
-
-       private func calculateTotalDuration(samples: [HKCategorySample], for sleepStage: HKCategoryValueSleepAnalysis) -> TimeInterval {
-           return samples.filter { $0.categoryType.identifier == HKCategoryTypeIdentifier.sleepAnalysis.rawValue && $0.value == sleepStage.rawValue }
-                         .reduce(0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
-       
-       }
-
+        let awakeDuration = calculateTotalDuration(samples: samples, for: .awake)
+        let remDuration = calculateTotalDuration(samples: samples, for: .asleepREM)
+        let coreDuration = calculateTotalDuration(samples: samples, for: .asleepCore)
+        let deepDuration = calculateTotalDuration(samples: samples, for: .asleepDeep)
+        
+        // Assuming 'light' sleep is 'unspecified' in this context
+        let lightDuration = calculateTotalDuration(samples: samples, for: .asleepUnspecified)
+        
+        DispatchQueue.main.async {
+            self.sleepData = SleepData(awake: awakeDuration, rem: remDuration, core: coreDuration, deep: deepDuration)
+        }
+    }
+    
+    private func calculateTotalDuration(samples: [HKCategorySample], for sleepStage: HKCategoryValueSleepAnalysis) -> TimeInterval {
+        return samples.filter { $0.categoryType.identifier == HKCategoryTypeIdentifier.sleepAnalysis.rawValue && $0.value == sleepStage.rawValue }
+            .reduce(0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
+        
+    }
+    
     private func calculateTotalTime(samples: [HKCategorySample], for sleepStage: HKCategoryValueSleepAnalysis) -> String {
         let totalSeconds = samples.filter { $0.categoryType.identifier == HKCategoryTypeIdentifier.sleepAnalysis.rawValue && $0.value == sleepStage.rawValue }
             .reduce(0) { $0 + $1.endDate.timeIntervalSince($1.startDate) }
         return formatTimeInterval(totalSeconds)
     }
-
+    
     private func formatTimeInterval(_ interval: TimeInterval) -> String {
         let hours = Int(interval) / 3600
         let minutes = Int(interval) % 3600 / 60
@@ -75,14 +77,15 @@ func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remS
     let totalSleepTarget: TimeInterval = 420 * 60 // 7 hours in seconds
     let deepSleepTarget: TimeInterval = 60 * 60  // 1 hour in seconds
     let remSleepTarget: TimeInterval = 120 * 60  // 2 hours in seconds
-
+    
     let totalSleepScore = min(totalSleep / totalSleepTarget, 1.0) * 50
     let deepSleepScore = min(deepSleep / deepSleepTarget, 1.0) * 20
     let remSleepScore = min(remSleep / remSleepTarget, 1.0) * 20
     let coreSleepScore = min(coreSleep / (totalSleepTarget - remSleepTarget - deepSleepTarget), 1.0) * 10
-
+    
     return totalSleepScore + deepSleepScore + remSleepScore + coreSleepScore
 }
+
 
 func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
     HealthKitManager.shared.fetchSleepData { samples, error in
@@ -98,17 +101,20 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
         let coreSleep = sleepData["Core Sleep"] ?? 0
 
         let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep, coreSleep: coreSleep)
+        print("Sleep Score: \(sleepScore)")
+
         completion(sleepScore)
     }
 }
 
 
+
 struct DailySleepView: View {
     @ObservedObject var dailySleepModel = DailySleepViewModel()
-
+    
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            HStack {
                 Text("Daily Sleep")
                     .font(.title2)
                     .fontWeight(.semibold)
@@ -116,52 +122,59 @@ struct DailySleepView: View {
                     .frame(maxWidth: .infinity, alignment: .leading) // Align text to the left
                     .padding(.horizontal, 22) // Horizontal padding of 22
                     .padding(.top, 16) // Top padding
+                
+                Spacer() // Add a spacer to push the ProgressRingView to the right
+                
+                ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .blue)
+                    .frame(width: 100, height: 100)
+                    .padding()
+                    .padding(.horizontal, 22) // Horizontal padding of 22
 
-                if let sleepData = dailySleepModel.sleepData {
-                    Spacer(minLength: 20) // Add space between text and graph
-                    SleepGraphView(sleepData: sleepData)
-                        .frame(height: 200) // Graph height
-                } else {
-                    Spacer(minLength: 20) // Add space between text and placeholder
-                    Text("Sleep data is not available yet.")
-                }
             }
-            .padding([.horizontal, .bottom])
+            .padding( .bottom)
+            
+            if let sleepData = dailySleepModel.sleepData {
+                Spacer(minLength: 20) // Add space between text and graph
+                SleepGraphView(sleepData: sleepData)
+                    .frame(height: 200) // Graph height
+            } else {
+                Spacer(minLength: 20) // Add space between text and placeholder
+                Text("Sleep data is not available yet.")
+            }
+            
         }
     }
 }
 
 
-
-
 struct SleepData {
-        var awake: TimeInterval
-        var rem: TimeInterval
-        var core: TimeInterval
-        var deep: TimeInterval
-    }
+    var awake: TimeInterval
+    var rem: TimeInterval
+    var core: TimeInterval
+    var deep: TimeInterval
+}
 
 
 struct SleepGraphView: View {
     var sleepData: SleepData
-
+    
     private var totalSleepTime: TimeInterval {
         max(sleepData.awake + sleepData.rem + sleepData.core + sleepData.deep, 1) // Avoid division by zero
     }
-
+    
     private func formatTimeInterval(_ interval: TimeInterval) -> String {
         let hours = Int(interval) / 3600
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
-
+    
     var body: some View {
         VStack(spacing: 16) {
-//            Text("Sleep Stages")
-//                .font(.title2)
-//                .fontWeight(.semibold)
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//                .padding(.horizontal, 16)
+            //            Text("Sleep Stages")
+            //                .font(.title2)
+            //                .fontWeight(.semibold)
+            //                .frame(maxWidth: .infinity, alignment: .leading)
+            //                .padding(.horizontal, 16)
             
             HStack(alignment: .bottom, spacing: 12) {
                 GraphBarView(color: .red, heightFraction: sleepData.awake / totalSleepTime, label: "Awake", value: sleepData.awake)
@@ -171,34 +184,34 @@ struct SleepGraphView: View {
             }
             .frame(height: 150)
             .padding(.horizontal, 16)
-
+            
             Text("Total Sleep Time: \(formatTimeInterval(totalSleepTime))")
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .padding(.horizontal, 16)
         }
-               .padding(.vertical, 20)
-               .background(Color(.black))
-               .padding([.horizontal, .bottom])
-           }
-       }
+        .padding(.vertical, 20)
+        .background(Color(.black))
+        .padding([.horizontal, .bottom])
+    }
+}
 
 struct GraphBarView: View {
     var color: Color
     var heightFraction: CGFloat // fraction of the total height
     var label: String
     var value: TimeInterval
-
+    
     private var barHeight: CGFloat {
         max(150 * heightFraction, 10) // Ensure a minimum height of 10 for visibility
     }
-
+    
     private func formatTimeInterval(_ interval: TimeInterval) -> String {
         let hours = Int(interval) / 3600
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
-
+    
     var body: some View {
         VStack {
             Spacer()
@@ -211,6 +224,72 @@ struct GraphBarView: View {
             Text(formatTimeInterval(value))
                 .font(.caption2)
                 .foregroundColor(.secondary)
+        }
+    }
+}
+
+struct ProgressRingView: View {
+    var progress: Double // The progress value, between 0 and 1
+    var progressColor: Color // The color of the progress ring
+    var thickness: CGFloat = 8
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(lineWidth: thickness)
+                .foregroundColor(Color.gray.opacity(0.5))
+                .frame(width: 120, height: 120)
+
+            Circle()
+                .trim(from: 0, to: CGFloat(progress))
+                .stroke(style: StrokeStyle(lineWidth: thickness, lineCap: .round))
+                .foregroundColor(progressColor)
+                .rotationEffect(.degrees(-90))
+                .frame(width: 120, height: 120)
+
+            Text(String(format: "%.0f%%", min(progress, 1.0) * 100))
+                .font(.title2)
+                .bold()
+        }
+    }
+}
+
+
+struct RestorativeSleepView: View {
+    var deepSleep: TimeInterval
+    var remSleep: TimeInterval
+    var totalSleep: TimeInterval
+    
+    private var restorativePercentage: Double {
+        let totalRestorative = deepSleep + remSleep
+        return totalRestorative / totalSleep
+    }
+
+    var body: some View {
+        VStack {
+            Text("Restorative Sleep")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+            
+            ZStack {
+                Circle()
+                    .stroke(lineWidth: 8)
+                    .foregroundColor(Color.gray.opacity(0.5))
+                    .frame(width: 120, height: 120)
+                
+                Circle()
+                    .trim(from: 0, to: CGFloat(min(restorativePercentage, 1.0)))
+                    .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .foregroundColor(Color.green) // You can change the color to your preference
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 120, height: 120)
+                
+                Text(String(format: "%.0f%%", min(restorativePercentage, 1.0) * 100))
+                    .font(.title2)
+                    .bold()
+            }
         }
     }
 }
