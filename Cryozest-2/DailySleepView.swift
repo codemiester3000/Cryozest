@@ -653,21 +653,21 @@ struct RestorativeSleepView: View {
                .padding(.leading, 22)
                
                VStack(alignment: .leading) {
-                   HStack(spacing: 2) {
+                   HStack(spacing: 0) {
                        Text(viewModel.formattedRestorativeSleepTime)
                            .font(.headline)
                            .fontWeight(.semibold)
-                       Text("of Restorative Sleep")
+                       Text(" of Restorative Sleep")
                            .font(.headline)
                            .fontWeight(.semibold)
                    }
-                
-                Text(viewModel.restorativeSleepDescription)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.top, 4)
-            }
-            .padding(.leading, 10)
+                   
+                   Text(viewModel.restorativeSleepDescription)
+                       .font(.caption)
+                       .foregroundColor(.gray)
+               }
+               .padding(.leading, 10)
+
             
             Spacer()
         }
@@ -681,6 +681,18 @@ struct HeartRateDifferenceProgressCircle: View {
     var heartRateDifferencePercentage: Double
     var averageWakingHeartRate: Double
     var averageHeartRateDuringSleep: Double
+    
+    // Computed property to get the appropriate title
+    private var heartRateDipTitle: (String, Text) {
+           let mainTitle = "Heart Rate Dip is "
+           if heartRateDifferencePercentage > 20 {
+               return (mainTitle, Text("Good").foregroundColor(.green))
+           } else if heartRateDifferencePercentage >= 10 {
+               return (mainTitle, Text("Average").foregroundColor(.yellow))
+           } else {
+               return (mainTitle, Text("Suboptimal").foregroundColor(.red))
+           }
+       }
 
     var body: some View {
           HStack {
@@ -700,10 +712,13 @@ struct HeartRateDifferenceProgressCircle: View {
             
             // Text Section (Reduced left padding)
             VStack(alignment: .leading) {
-                Text("Heart Rate Dip")
+                Text(heartRateDipTitle.0) // Main title
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.white) +
+                heartRateDipTitle.1 // Status part
+                    .font(.headline)
+                    .fontWeight(.semibold)
                 
                 Text("Your Heart Rate Dip during sleep is the percentage difference between your waking non-active heart rate ")
                     .font(.caption)
