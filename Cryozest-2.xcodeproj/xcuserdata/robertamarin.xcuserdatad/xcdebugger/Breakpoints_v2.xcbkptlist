@@ -14,10 +14,10 @@
             filePath = "Cryozest-2/DailySleepView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "627"
-            endingLineNumber = "627"
-            landmarkName = "ProgressRingView"
-            landmarkType = "14">
+            startingLineNumber = "621"
+            endingLineNumber = "621"
+            landmarkName = "body"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
