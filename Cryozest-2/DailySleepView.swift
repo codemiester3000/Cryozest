@@ -21,24 +21,23 @@ class DailySleepViewModel: ObservableObject {
     }
     
     private func fetchSleepData() {
-            HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
-                if authorized {
-                    HealthKitManager.shared.fetchSleepData { samples, error in
-                        guard let self = self, let fetchedSamples = samples as? [HKCategorySample], error == nil else {
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            self.sleepSamples = fetchedSamples // Save the fetched samples
-                            self.updateSleepData(with: self.sleepSamples)
-                            
-                        }
+        HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
+            if authorized {
+                HealthKitManager.shared.fetchSleepData { samples, error in
+                    guard let self = self, let fetchedSamples = samples as? [HKCategorySample], error == nil else {
+                        return
                     }
-                } else {
-                    // Handle errors or lack of authorization
+                    DispatchQueue.main.async {
+                        self.sleepSamples = fetchedSamples
+                        self.updateSleepData(with: self.sleepSamples)
+                    }
                 }
+            } else {
+                // Handle errors or lack of authorization
             }
         }
-
+    }
+    
     
     
     
@@ -96,28 +95,20 @@ class DailySleepViewModel: ObservableObject {
     
     // Computed property to get restorative sleep description
     var restorativeSleepDescription: String {
-        if restorativeSleepPercentage > 30 {
-            return "Your Restorative Sleep (Deep and REM) was greater than 30% of your total time asleep and higher than your average. This should help your body to repair itself and your mind to be refreshed."
-        } else if restorativeSleepPercentage > 20 {
-            return "Your Restorative Sleep (Deep and REM) is within a normal range but there’s room for improvement. Try to maintain a consistent sleep schedule."
-        } else {
-            return "Your Restorative Sleep (Deep and REM) is low, which may affect your recovery. Consider improving your sleep habits for better health."
-        }
+        "Your Restorative Sleep (Deep and REM) was greater than \(String(format: "%.0f%%", restorativeSleepPercentage)) of your total time asleep and higher than your average. This should help your body to repair itself and your mind to be refreshed."
     }
-
+}
 
 func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remSleep: TimeInterval) -> Double {
     let totalSleepTarget: TimeInterval = 420 * 60 // 7 hours in seconds
     let deepSleepTarget: TimeInterval = 60 * 60  // 1 hour in seconds
     let remSleepTarget: TimeInterval = 120 * 60  // 2 hours in seconds
-
+    
     let totalSleepScore = min(totalSleep / totalSleepTarget, 1.0) * 40 // 40% of the score
     let deepSleepScore = min(deepSleep / deepSleepTarget, 1.0) * 40 // 40% of the score
     let remSleepScore = min(remSleep / remSleepTarget, 1.0) * 20 // 20% of the score
-
+    
     return totalSleepScore + deepSleepScore + remSleepScore // Total score
-    
-    
 }
 
 func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
@@ -126,15 +117,15 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
             completion(0)
             return
         }
-
+        
         let sleepData = HealthKitManager.shared.processSleepData(samples: samples)
         let totalSleep = sleepData["Total Sleep"] ?? 0
         let deepSleep = sleepData["Deep Sleep"] ?? 0
         let remSleep = sleepData["REM Sleep"] ?? 0
-
+        
         let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep)
         print("Sleep Score: \(sleepScore)")
-
+        
         completion(sleepScore)
     }
 }
@@ -159,21 +150,22 @@ struct DailySleepView: View {
                             .foregroundColor(.white)
                         
                         Text("\(sleepStartTime) to \(sleepEndTime)")
-                            .font(.subheadline)
+                            .font(.footnote)
                             .fontWeight(.medium)
                             .foregroundColor(.gray)
                     }
                     .padding(.horizontal, 22)
                     .padding(.top, 16)
-
+                    
                     Spacer() // This will push the ProgressRingView to the right
                     
-                    ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green)
-                        .frame(width: 100, height: 100)
-                        .padding()
-                        .padding(.horizontal, 22)
+                    ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
+                                     ringSize: 100)
+                    .frame(width: 100, height: 100)
+                    .padding()
+                    .padding(.horizontal, 22)
                 }
-
+                
                 if let sleepData = dailySleepModel.sleepData {
                     Spacer(minLength: 20)
                     SleepGraphView(sleepData: sleepData)
@@ -182,8 +174,10 @@ struct DailySleepView: View {
                     Spacer(minLength: 20)
                     Text("Sleep data is not available yet.")
                 }
+                
+                
                 RestorativeSleepView(viewModel: dailySleepModel)
-                           .padding()
+                    .padding()
             }
             .onAppear {
                 // Fetch and update sleep start and end times
@@ -191,59 +185,59 @@ struct DailySleepView: View {
             }
         }
     }
-
+    
     private func fetchSleepTimes() {
-                      // Use your own logic to fetch the sleep start and end times here
-                      // You can update the sleepStartTime and sleepEndTime properties accordingly
-                      // For example, you can call the getSleepTimesYesterday function mentioned earlier
-                      
-                      getSleepTimesYesterday { (start, end) in
-                          if let start = start, let end = end {
-                              let dateFormatter = DateFormatter()
-                              dateFormatter.dateFormat = "hh:mm a"
-                              
-                              self.sleepStartTime = dateFormatter.string(from: start)
-                              self.sleepEndTime = dateFormatter.string(from: end)
-                          } else {
-                              self.sleepStartTime = "N/A"
-                              self.sleepEndTime = "N/A"
-                          }
-                      }
-                  }
-              }
+        // Use your own logic to fetch the sleep start and end times here
+        // You can update the sleepStartTime and sleepEndTime properties accordingly
+        // For example, you can call the getSleepTimesYesterday function mentioned earlier
+        
+        getSleepTimesYesterday { (start, end) in
+            if let start = start, let end = end {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "hh:mm a"
+                
+                self.sleepStartTime = dateFormatter.string(from: start)
+                self.sleepEndTime = dateFormatter.string(from: end)
+            } else {
+                self.sleepStartTime = "N/A"
+                self.sleepEndTime = "N/A"
+            }
+        }
+    }
+}
 
 private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void) {
     // Define the date range for "last night"
-        let calendar = Calendar.current
-        let endDate = calendar.startOfDay(for: Date())
-        let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)
-
-        // Create the predicate for the query
-        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-
-        // Define the sleep analysis query
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
-                                  predicate: predicate,
-                                  limit: HKObjectQueryNoLimit,
-                                  sortDescriptors: [sortDescriptor]) { (query, samples, error) in
-            
-            guard error == nil, let sleepSamples = samples as? [HKCategorySample], let lastSleep = sleepSamples.first else {
-                completion(nil, nil)
-                return
-            }
-
-            // Extract start and end times
-            let sleepStart = lastSleep.startDate
-            let sleepEnd = lastSleep.endDate
-
-            // Call completion handler
-            completion(sleepStart, sleepEnd)
+    let calendar = Calendar.current
+    let endDate = calendar.startOfDay(for: Date())
+    let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)
+    
+    // Create the predicate for the query
+    let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+    
+    // Define the sleep analysis query
+    let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+    let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+                              predicate: predicate,
+                              limit: HKObjectQueryNoLimit,
+                              sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+        
+        guard error == nil, let sleepSamples = samples as? [HKCategorySample], let lastSleep = sleepSamples.first else {
+            completion(nil, nil)
+            return
         }
-
-        // Execute the query
-        HKHealthStore().execute(query)
+        
+        // Extract start and end times
+        let sleepStart = lastSleep.startDate
+        let sleepEnd = lastSleep.endDate
+        
+        // Call completion handler
+        completion(sleepStart, sleepEnd)
     }
+    
+    // Execute the query
+    HKHealthStore().execute(query)
+}
 
 
 struct SleepData {
@@ -271,12 +265,6 @@ struct SleepGraphView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            //            Text("Sleep Stages")
-            //                .font(.title2)
-            //                .fontWeight(.semibold)
-            //                .frame(maxWidth: .infinity, alignment: .leading)
-            //                .padding(.horizontal, 16)
-            
             HStack(alignment: .bottom, spacing: 12) {
                 GraphBarView(color: .red, heightFraction: sleepData.awake / totalSleepTime, label: "Awake", value: sleepData.awake)
                 GraphBarView(color: .purple, heightFraction: sleepData.rem / totalSleepTime, label: "REM", value: sleepData.rem)
@@ -287,9 +275,12 @@ struct SleepGraphView: View {
             .padding(.horizontal, 16)
             
             Text("Total Sleep Time: \(formatTimeInterval(totalSleepTime))")
-                .font(.subheadline)
+                .font(.footnote)
                 .fontWeight(.medium)
+                .foregroundColor(.gray)
+                .frame(maxWidth: .infinity, alignment: .leading) // Align to left
                 .padding(.horizontal, 16)
+            
         }
         .padding(.vertical, 20)
         .background(Color(.black))
@@ -332,22 +323,23 @@ struct GraphBarView: View {
 struct ProgressRingView: View {
     var progress: Double // The progress value, between 0 and 1
     var progressColor: Color // The color of the progress ring
+    var ringSize: CGFloat // The size of the ring
     var thickness: CGFloat = 8
-
+    
     var body: some View {
         ZStack {
             Circle()
                 .stroke(lineWidth: thickness)
                 .foregroundColor(Color.gray.opacity(0.5))
-                .frame(width: 120, height: 120)
-
+                .frame(width: ringSize, height: ringSize)
+            
             Circle()
                 .trim(from: 0, to: CGFloat(progress))
                 .stroke(style: StrokeStyle(lineWidth: thickness, lineCap: .round))
                 .foregroundColor(progressColor)
                 .rotationEffect(.degrees(-90))
-                .frame(width: 120, height: 120)
-
+                .frame(width: ringSize, height: ringSize)
+            
             Text(String(format: "%.0f%%", min(progress, 1.0) * 100))
                 .font(.title2)
                 .bold()
@@ -356,29 +348,32 @@ struct ProgressRingView: View {
 }
 
 
+
 struct RestorativeSleepView: View {
     @ObservedObject var viewModel: DailySleepViewModel
     
     var body: some View {
         HStack {
-            // Progress ring and percentage on the left
+            // Progress ring aligned on the left
             VStack {
                 ProgressRingView(progress: viewModel.restorativeSleepPercentage / 100,
-                                 progressColor: .blue) // Customize the color as needed
-                    .frame(width: 80, height: 80) // Smaller size as requested
-
-                // Display the percentage below the progress ring
-                Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.blue) // Use the color that matches your design
+                                 progressColor: .blue,
+                                 ringSize: 70)
+                .frame(width: 70, height: 70) // Smaller size
             }
+            .padding(.leading, 22) // Left padding for the ring
             
             VStack(alignment: .leading) {
-                // Display restorative sleep time
-                Text(viewModel.formattedRestorativeSleepTime)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                // Display restorative sleep time followed by "of Restorative Sleep"
+                HStack(spacing: 2) {
+                    Text(viewModel.formattedRestorativeSleepTime)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    Text("of Restorative Sleep")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                }
+                
                 
                 // Description text
                 Text(viewModel.restorativeSleepDescription)
@@ -386,12 +381,13 @@ struct RestorativeSleepView: View {
                     .foregroundColor(.gray)
                     .padding(.top, 4)
             }
-            .padding(.leading, 8)
+            .padding(.leading, 10) // Left padding for the text
             
-            Spacer() // Push everything to the left
+            Spacer() // Ensures the ring and text are aligned to the left
         }
-        .padding()
+        .padding(.vertical, 10) // Vertical padding for the entire HStack
         .background(Color(.systemBackground)) // Use the appropriate background color
-        .cornerRadius(10) // Adjust the corner radius to match your design
+        .cornerRadius(10)
     }
 }
+
