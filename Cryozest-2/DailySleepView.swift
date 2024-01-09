@@ -76,22 +76,32 @@ struct DailySleepView: View {
     @ObservedObject var dailySleepModel = DailySleepViewModel()
 
     var body: some View {
-        VStack {
-//            Text("Total Time Asleep: \(dailySleepModel.totalTimeAsleep)")
-//            Text("Total Deep Sleep: \(dailySleepModel.totalDeepSleep)")
-//            Text("Total Core Sleep: \(dailySleepModel.totalCoreSleep)")
-//            Text("Total REM Sleep: \(dailySleepModel.totalRemSleep)")
-//            Text("Total Time Awake: \(dailySleepModel.totalTimeAwake)")
-//            
-            if let sleepData = dailySleepModel.sleepData {
-                         SleepGraphView(sleepData: sleepData)
-                             .frame(height: 200) // This is important
-            } else {
-                Text("Sleep data is not available yet.")
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("Sleep Analysis")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading) // Align text to the left
+                    .padding(.horizontal, 22) // Horizontal padding of 22
+                    .padding(.top, 16) // Top padding
+
+                if let sleepData = dailySleepModel.sleepData {
+                    Spacer(minLength: 20) // Add space between text and graph
+                    SleepGraphView(sleepData: sleepData)
+                        .frame(height: 200) // Graph height
+                } else {
+                    Spacer(minLength: 20) // Add space between text and placeholder
+                    Text("Sleep data is not available yet.")
+                }
             }
+            .padding([.horizontal, .bottom])
         }
     }
 }
+
+
+
 
 struct SleepData {
         var awake: TimeInterval
@@ -116,11 +126,11 @@ struct SleepGraphView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Sleep Stages")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
+//            Text("Sleep Stages")
+//                .font(.title2)
+//                .fontWeight(.semibold)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//                .padding(.horizontal, 16)
             
             HStack(alignment: .bottom, spacing: 12) {
                 GraphBarView(color: .red, heightFraction: sleepData.awake / totalSleepTime, label: "Awake", value: sleepData.awake)
@@ -136,13 +146,11 @@ struct SleepGraphView: View {
                 .fontWeight(.medium)
                 .padding(.horizontal, 16)
         }
-        .padding(.vertical, 20)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-        .padding(.horizontal)
-    }
-}
+               .padding(.vertical, 20)
+               .background(Color(.black))
+               .padding([.horizontal, .bottom])
+           }
+       }
 
 struct GraphBarView: View {
     var color: Color
