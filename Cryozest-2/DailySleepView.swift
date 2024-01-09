@@ -456,7 +456,8 @@ struct DailySleepView: View {
                 HeartRateDifferenceProgressCircle(heartRateDifferencePercentage: dailySleepModel.heartRateDifferencePercentage,
                                                   averageWakingHeartRate: dailySleepModel.averageWakingHeartRate,
                                                   averageHeartRateDuringSleep: dailySleepModel.averageHeartRateDuringSleep)
-
+                .padding(.bottom,16)
+                   
                     }
             
             
