@@ -456,7 +456,7 @@ struct DailySleepView: View {
                 
                 
                 RestorativeSleepView(viewModel: dailySleepModel)
-                    .padding()
+
                 
                 HeartRateDifferenceProgressCircle(heartRateDifferencePercentage: dailySleepModel.heartRateDifferencePercentage,
                                                   averageWakingHeartRate: dailySleepModel.averageWakingHeartRate,
@@ -693,8 +693,8 @@ struct HeartRateDifferenceProgressCircle: View {
                         .bold()
                         .foregroundColor(.white)
                 }
-                .frame(width: 60, height: 60)
-                .padding(.horizontal, 32)
+                .frame(width: 70, height: 70)
+                .padding(.leading, 22)
             }
             
             
@@ -727,7 +727,9 @@ struct HeartRateDifferenceProgressCircle: View {
                     .font(.caption)
                     .foregroundColor(.gray)
             }
-            .padding(.leading, 0)
+            .padding(.leading, 10)
+            .padding(.bottom, 10)
+            .padding(.top,10)
 
             Spacer()
         }
