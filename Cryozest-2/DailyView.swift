@@ -33,7 +33,11 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var lastDataRefresh: Date?
     
-    @Published var previousNightSleepDuration: String? = nil
+    @Published var previousNightSleepDuration: String? = nil {
+           didSet {
+               calculateSleepScorePercentage()
+           }
+       }
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -77,7 +81,7 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentRestingCalories: Double? = nil
     @Published var sleepScorePercentage: Int?
     
-    
+    private var dailySleepViewModel = DailySleepViewModel()
     
     var hrvReadings: [Date: Int] = [:]
     
@@ -94,14 +98,13 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func generateUserStatement() -> String {
-        guard let recoveryScore = recoveryScores.last,
-              let sleepDurationString = previousNightSleepDuration,
-              let sleepDuration = Double(sleepDurationString) else {
-            return "Data not available."
-        }
-        
-        let sleepScore = (sleepDuration / 8.0) * 100
-        
+            guard let recoveryScore = recoveryScores.last else {
+                return "Data not available."
+            }
+
+            // Fetch the sleep score from DailySleepViewModel
+            let sleepScore = dailySleepViewModel.sleepScore
+
         switch (recoveryScore, sleepScore) {
         case (80...100, 80...100):
             return "Hello! Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to tackle any challenge. Aim high for your exertion targets, but remember to stay attuned to your body's signals."
@@ -243,18 +246,20 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     private func calculateSleepScorePercentage() {
-        guard let sleepDurationString = previousNightSleepDuration,
-              let sleepDuration = Double(sleepDurationString) else {
-            sleepScorePercentage = nil
-            return
+            guard let sleepDurationString = previousNightSleepDuration,
+                  let sleepDuration = Double(sleepDurationString) else {
+                print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
+                sleepScorePercentage = nil
+                return
+            }
+
+            let idealSleepDuration: Double = 8 // 8 hours for 100% score
+            let sleepScore = (sleepDuration / idealSleepDuration) * 100
+            sleepScorePercentage = Int(sleepScore.rounded())
+
+            print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
         }
-        
-        // Assuming sleepDurationString is in hours
-        let idealSleepDuration: Double = 8 // 8 hours for 100% score
-        let sleepScore = (sleepDuration / idealSleepDuration) * 100
-        sleepScorePercentage = Int(sleepScore.rounded())
-    }
-    
+
     
     
     

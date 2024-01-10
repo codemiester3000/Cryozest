@@ -262,9 +262,6 @@ class DailySleepViewModel: ObservableObject {
                 return
             }
 
-            // Debugging: Print sleep start and end times
-            print("Sleep Start Time: \(sleepStartTime)")
-            print("Sleep End Time: \(sleepEndTime)")
 
             // Create a predicate for heart rate samples during sleep
             let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictStartDate)
@@ -280,7 +277,6 @@ class DailySleepViewModel: ObservableObject {
                 if let result = result, let averageHeartRate = result.averageQuantity() {
                     // Calculate the average heart rate during sleep
                     let bpm = averageHeartRate.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
-                    print("Average Heart Rate During Sleep: \(bpm) BPM")
                     completion(bpm, nil)
                 } else {
                     print("No heart rate samples found for the given period.")
@@ -528,7 +524,6 @@ private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void
             sleepEnd = lastAdditionalSleep.endDate
         }
 
-        print("Identified Sleep Start: \(sleepStart), Sleep End: \(sleepEnd)")
         DispatchQueue.main.async {
             completion(sleepStart, sleepEnd)
         }
