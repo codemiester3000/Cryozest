@@ -31,7 +31,7 @@ struct TherapyTypeSelectionView: View {
             
             VStack {
                 ScrollView {
-                    Text("Select up to 4 exercisesr")
+                    Text("Select up to 4")
                         .font(.system(size: 24, weight: .bold, design: .default))
                         .fontWeight(.semibold) // Slightly heavier font weight for emphasis
                         .foregroundColor(.white)

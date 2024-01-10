@@ -672,7 +672,7 @@ struct RestorativeSleepView: View {
             Spacer()
         }
         .padding(.vertical, 10)
-        .background(Color(.systemBackground))
+        .background(Color(.black))
         .cornerRadius(10)
     }
 }
