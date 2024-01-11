@@ -602,10 +602,10 @@ struct GraphBarView: View {
                 .frame(height: barHeight)
             Text(label)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray)
             Text(formatTimeInterval(value))
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray)
         }
     }
 }
@@ -643,6 +643,7 @@ struct ProgressRingView: View {
                 Text(String(format: "%.0f%%", min(progress, 1.0) * 100))
                     .font(.title2)
                     .bold()
+                    .foregroundColor(.white)
             }
         }
     }
