@@ -14,48 +14,73 @@ class DailySleepViewModel: ObservableObject {
     @Published var restorativeSleepPercentage: Double = 0.0
     @Published var averageWakingHeartRate: Double = 0.0
     @Published var averageHeartRateDuringSleep: Double = 0.0
-
     
     var heartRateDifferencePercentage: Double {
         let averageWakingHeartRate = self.averageWakingHeartRate
         let averageHeartRateDuringSleep = self.averageHeartRateDuringSleep
-
-
-        // Calculate the percentage difference
-        if averageWakingHeartRate != 0 {
-            let difference =  averageWakingHeartRate - averageHeartRateDuringSleep
+        
+        // Check if averageWakingHeartRate is zero or a valid number
+        if averageWakingHeartRate == 0 || !averageWakingHeartRate.isNormal {
+            // Return a default value or handle accordingly if the waking heart rate is zero or invalid
+            return 0.0
+        } else {
+            let difference = averageWakingHeartRate - averageHeartRateDuringSleep
             let percentageDifference = (difference / averageWakingHeartRate) * 100.0
             
-            // Additional debugging statement to check the final calculated value
-            
-            return percentageDifference
-        } else {
-            // Handling the case where averageWakingHeartRate is zero
-            return 0.0
+            // Check for NaN or infinite result
+            if percentageDifference.isFinite {
+                return percentageDifference
+            } else {
+                // Return a default value or handle accordingly if the result is not finite
+                return 0.0
+            }
         }
     }
-
-        
+    
+    
+    //    var heartRateDifferencePercentage: Double {
+    //        let averageWakingHeartRate = self.averageWakingHeartRate
+    //        let averageHeartRateDuringSleep = self.averageHeartRateDuringSleep
+    //
+    //
+    //        // Calculate the percentage difference
+    //        if averageWakingHeartRate != 0 {
+    //            let difference =  averageWakingHeartRate - averageHeartRateDuringSleep
+    //            let percentageDifference = (difference / averageWakingHeartRate) * 100.0
+    //
+    //            // Additional debugging statement to check the final calculated value
+    //
+    //            return percentageDifference
+    //        } else {
+    //            // Handling the case where averageWakingHeartRate is zero
+    //            return 0.0
+    //        }
+    //    }
     
     private var sleepSamples: [HKCategorySample] = []
     
     init() {
-            fetchSleepData()
-            fetchAverageWakingHeartRate { bpm, _ in
-                if let bpm = bpm {
-                    DispatchQueue.main.async {
-                        self.averageWakingHeartRate = bpm
-                    }
+        fetchSleepData()
+        fetchAverageWakingHeartRate { bpm, _ in
+            if let bpm = bpm, bpm.isFinite {
+                DispatchQueue.main.async {
+                    self.averageWakingHeartRate = bpm
                 }
-            }
-            fetchAverageHeartRateDuringSleep { bpm, _ in
-                if let bpm = bpm {
-                    DispatchQueue.main.async {
-                        self.averageHeartRateDuringSleep = bpm
-                    }
+            } else {
+                DispatchQueue.main.async {
+                    self.averageWakingHeartRate = 0.0
                 }
             }
         }
+        
+        fetchAverageHeartRateDuringSleep { bpm, _ in
+            if let bpm = bpm {
+                DispatchQueue.main.async {
+                    self.averageHeartRateDuringSleep = bpm
+                }
+            }
+        }
+    }
     
     private func fetchSleepData() {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
@@ -70,10 +95,12 @@ class DailySleepViewModel: ObservableObject {
                         
                         // Pass completion handlers to the functions
                         self.fetchAverageWakingHeartRate { bpm, error in
-                            if let bpm = bpm {
+                            if let bpm = bpm, bpm.isFinite {
                                 self.averageWakingHeartRate = bpm
+                            } else {
+                                self.averageWakingHeartRate = 0.0
                             }
-                            // Handle error if needed
+                            
                         }
                         self.fetchAverageHeartRateDuringSleep { bpm, error in
                             if let bpm = bpm {
@@ -88,9 +115,9 @@ class DailySleepViewModel: ObservableObject {
             }
         }
     }
-
-
-
+    
+    
+    
     private func fetchWakeUpTimePreviousDay(completion: @escaping (Date?) -> Void) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -98,9 +125,9 @@ class DailySleepViewModel: ObservableObject {
         
         let earliestWakeUpTime = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: startOfPreviousDay)!
         let latestWakeUpTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: startOfPreviousDay)!
-
-
-
+        
+        
+        
         let predicate = HKQuery.predicateForSamples(withStart: earliestWakeUpTime, end: latestWakeUpTime, options: .strictEndDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         
@@ -109,27 +136,27 @@ class DailySleepViewModel: ObservableObject {
                 completion(nil)
                 return
             }
-
+            
             guard let sleepSamples = samples as? [HKCategorySample], let lastSleepSession = sleepSamples.first else {
                 completion(nil)
                 return
             }
-
+            
             let wakeUpTime = lastSleepSession.endDate
             completion(wakeUpTime)
         }
-
+        
         HKHealthStore().execute(query)
     }
-
-
+    
+    
     private func fetchSleepStartTimeCurrentDay(completion: @escaping (Date?) -> Void) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let startOfSleepSearch = calendar.date(bySettingHour: 20, minute: 0, second: 0, of: today.addingTimeInterval(-24*60*60))! // 8 PM on Jan 8th
         let endOfSleepSearch = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: today)! // 3 AM on Jan 9th
-
-
+        
+        
         let predicate = HKQuery.predicateForSamples(withStart: startOfSleepSearch, end: endOfSleepSearch, options: .strictEndDate)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
         
@@ -138,42 +165,42 @@ class DailySleepViewModel: ObservableObject {
                 completion(nil)
                 return
             }
-
+            
             guard let sleepSamples = samples as? [HKCategorySample], let firstSleepSession = sleepSamples.first else {
                 completion(nil)
                 return
             }
-
+            
             let sleepStartTime = firstSleepSession.startDate
             completion(sleepStartTime)
         }
-
+        
         HKHealthStore().execute(query)
     }
-
-
+    
+    
     private func fetchAverageWakingHeartRate(completion: @escaping (Double?, Error?) -> Void) {
         guard HKHealthStore.isHealthDataAvailable() else {
             completion(nil, NSError(domain: "com.yourapp.healthkit", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."]))
             return
         }
-
+        
         let healthStore = HKHealthStore()
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-
+        
         fetchWakeUpTimePreviousDay { wakeUpTimePreviousDay in
             guard let wakeUpTimePreviousDay = wakeUpTimePreviousDay else {
                 completion(nil, NSError(domain: "com.yourapp.healthkit", code: 2, userInfo: [NSLocalizedDescriptionKey: "Unable to fetch wake-up time for the previous day."]))
                 return
             }
-
+            
             self.fetchSleepStartTimeCurrentDay { sleepStartTimeCurrentDay in
                 guard let sleepStartTimeCurrentDay = sleepStartTimeCurrentDay else {
                     
                     completion(nil, NSError(domain: "com.yourapp.healthkit", code: 3, userInfo: [NSLocalizedDescriptionKey: "Unable to fetch sleep start time for the current day."]))
                     return
                 }
-
+                
                 let predicate = HKQuery.predicateForSamples(withStart: wakeUpTimePreviousDay, end: sleepStartTimeCurrentDay, options: .strictStartDate)
                 
                 // Debugging: Convert dates to Pacific Time for readability
@@ -182,69 +209,69 @@ class DailySleepViewModel: ObservableObject {
                 dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
                 let wakeUpTimeString = dateFormatter.string(from: wakeUpTimePreviousDay)
                 let sleepStartTimeString = dateFormatter.string(from: sleepStartTimeCurrentDay)
-
+                
                 let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, results, error) in
                     if let error = error {
                         completion(nil, error)
                         return
                     }
-
+                    
                     guard let heartRateSamples = results as? [HKQuantitySample] else {
                         completion(nil, nil)
                         return
                     }
-
+                    
                     let filteredSamples = heartRateSamples.filter { $0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) <= 80 }
                     let averageHeartRate = filteredSamples.reduce(0.0) { sum, sample in sum + sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) } / Double(filteredSamples.count)
-
+                    
                     DispatchQueue.main.async {
                         completion(averageHeartRate, nil)
                     }
                 }
-
+                
                 healthStore.execute(query)
             }
         }
     }
-
-
+    
+    
     private func getSleepStartTimeForNextDay(completion: @escaping (Date?) -> Void) {
         let healthStore = HKHealthStore()
-
+        
         // Ensure sleep data is available
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             completion(nil)
             return
         }
-
+        
         // Set the query period (start of today to now)
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: Date())
         let endDate = Date()
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-
+        
         // Create the query for sleep analysis
         let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: 0, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]) { (query, results, error) in
             if let error = error {
                 completion(nil)
                 return
             }
-
+            
             guard let sleepResults = results as? [HKCategorySample], let lastSleep = sleepResults.first else {
                 completion(nil)
                 return
             }
-
+            
             // Assuming sleep data is recorded with the end date as the wake-up time and start date as sleep time
             let sleepStartTime = lastSleep.startDate
             completion(sleepStartTime)
         }
-
+        
         healthStore.execute(query)
     }
-
-
-
+    
+    
+    
     
     
     private func fetchAverageHeartRateDuringSleep(completion: @escaping (Double?, Error?) -> Void) {
@@ -252,20 +279,20 @@ class DailySleepViewModel: ObservableObject {
             completion(nil, NSError(domain: "com.yourapp.healthkit", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."]))
             return
         }
-
+        
         let healthStore = HKHealthStore()
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-
+        
         getSleepTimesYesterday { sleepStartTime, sleepEndTime in
             guard let sleepStartTime = sleepStartTime, let sleepEndTime = sleepEndTime else {
                 completion(nil, nil)
                 return
             }
-
-
+            
+            
             // Create a predicate for heart rate samples during sleep
             let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictStartDate)
-
+            
             // Create a query to fetch heart rate samples during sleep
             let query = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { (query, result, error) in
                 if let error = error {
@@ -273,7 +300,7 @@ class DailySleepViewModel: ObservableObject {
                     print("Error fetching heart rate samples: \(error.localizedDescription)")
                     return
                 }
-
+                
                 if let result = result, let averageHeartRate = result.averageQuantity() {
                     // Calculate the average heart rate during sleep
                     let bpm = averageHeartRate.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
@@ -283,12 +310,12 @@ class DailySleepViewModel: ObservableObject {
                     completion(nil, nil)
                 }
             }
-
+            
             // Execute the query
             healthStore.execute(query)
         }
     }
-
+    
     
     private func updateSleepData(with samples: [HKCategorySample]) {
         let awakeDuration = calculateTotalDuration(samples: samples, for: .awake)
@@ -388,43 +415,43 @@ struct DailySleepView: View {
     @State private var isPopoverVisible: Bool = false // State for showing the popover
     
     var body: some View {
-           ScrollView {
-               VStack(alignment: .leading, spacing: 0) {
-                   HStack {
-                       // "Sleep Performance" Text and "?" Button
-                       VStack(alignment: .leading, spacing: 2) {
-                           HStack {
-                               
-                               Text("Sleep Quality")
-                                   .font(.title2)
-                                   .fontWeight(.semibold)
-                                   .foregroundColor(.white)
-
-
-                               Button(action: {
-                                   isPopoverVisible.toggle()
-                               }) {
-                                   Image(systemName: "questionmark.circle.fill")
-                                       .font(.title2)
-                                       .foregroundColor(Color.blue)
-                               }
-                               .padding(.leading, 8)
-                               .popover(isPresented: $isPopoverVisible) {
-                                   SleepInfoPopoverView()
-                                       .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                               }
-                           }
-
-                           Text("\(sleepStartTime) to \(sleepEndTime)")
-                               .font(.footnote)
-                               .fontWeight(.medium)
-                               .foregroundColor(.gray)
-                       }
-                       .padding(.horizontal, 22)
-                       .padding(.top, 16)
-                       
-                       Spacer()
-                      
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    // "Sleep Performance" Text and "?" Button
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            
+                            Text("Sleep Quality")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                            
+                            
+                            Button(action: {
+                                isPopoverVisible.toggle()
+                            }) {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(Color.blue)
+                            }
+                            .padding(.leading, 8)
+                            .popover(isPresented: $isPopoverVisible) {
+                                SleepInfoPopoverView()
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            }
+                        }
+                        
+                        Text("\(sleepStartTime) to \(sleepEndTime)")
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.top, 16)
+                    
+                    Spacer()
+                    
                     ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
                                      ringSize: 120)
                     .frame(width: 120, height: 120)
@@ -443,16 +470,16 @@ struct DailySleepView: View {
                 }
                 
                 Spacer(minLength: 20)
-                   
+                
                 RestorativeSleepView(viewModel: dailySleepModel)
-
+                
                 
                 HeartRateDifferenceProgressCircle(heartRateDifferencePercentage: dailySleepModel.heartRateDifferencePercentage,
                                                   averageWakingHeartRate: dailySleepModel.averageWakingHeartRate,
                                                   averageHeartRateDuringSleep: dailySleepModel.averageHeartRateDuringSleep)
                 .padding(.bottom,16)
-                   
-                    }
+                
+            }
             
             
             .onAppear {
@@ -486,14 +513,14 @@ struct SleepSession {
 
 private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void) {
     let calendar = Calendar.current
-
+    
     // Set search window from 7 PM previous day to 2 PM current day
     let startOfPreviousDay = calendar.startOfDay(for: Date())
     let sleepSearchStartTime = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: startOfPreviousDay.addingTimeInterval(-24 * 60 * 60))!
     let sleepSearchEndTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: startOfPreviousDay)!
-
+    
     let predicate = HKQuery.predicateForSamples(withStart: sleepSearchStartTime, end: sleepSearchEndTime, options: .strictEndDate)
-
+    
     let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
     let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
         guard error == nil, let sleepSamples = samples as? [HKCategorySample] else {
@@ -501,10 +528,10 @@ private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void
             completion(nil, nil)
             return
         }
-
+        
         // Filter 'asleep' samples and ignore very short sessions
         let asleepSamples = sleepSamples.filter { $0.value == HKCategoryValueSleepAnalysis.asleep.rawValue && $0.endDate.timeIntervalSince($0.startDate) >= 15 * 60 }
-
+        
         // Identify the primary sleep session by finding the longest session
         guard let primarySleepSession = asleepSamples.max(by: { $0.endDate.timeIntervalSince($0.startDate) < $1.endDate.timeIntervalSince($1.startDate) }) else {
             print("No valid sleep session found.")
@@ -513,17 +540,17 @@ private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void
             }
             return
         }
-
+        
         // Initial sleep period
         var sleepStart = primarySleepSession.startDate
         var sleepEnd = primarySleepSession.endDate
-
+        
         // Check for additional sleep sessions after the primary session
         let additionalSleepSessions = asleepSamples.filter { $0.startDate > sleepEnd }
         if let lastAdditionalSleep = additionalSleepSessions.last {
             sleepEnd = lastAdditionalSleep.endDate
         }
-
+        
         DispatchQueue.main.async {
             completion(sleepStart, sleepEnd)
         }
@@ -649,43 +676,40 @@ struct ProgressRingView: View {
     }
 }
 
-
-
-
 struct RestorativeSleepView: View {
     @ObservedObject var viewModel: DailySleepViewModel
     
     var body: some View {
-           HStack {
-               // Full Stroke Blue Circle with Text Inside
-               ZStack {
-                   Circle()
-                       .stroke(Color.blue, lineWidth: 10)
-                       .frame(width: 70, height: 70)
-
-                   Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
-                       .font(.title3)
-                       .bold()
-                       .foregroundColor(.white)
-               }
-               .padding(.leading, 22)
-               
-               VStack(alignment: .leading) {
-                   HStack(spacing: 0) {
-                       Text(viewModel.formattedRestorativeSleepTime)
-                           .font(.headline)
-                           .fontWeight(.semibold)
-                       Text(" of Restorative Sleep")
-                           .font(.headline)
-                           .fontWeight(.semibold)
-                   }
-                   
-                   Text(viewModel.restorativeSleepDescription)
-                       .font(.caption)
-                       .foregroundColor(.gray)
-               }
-               .padding(.leading, 10)
-
+        HStack {
+            // Full Stroke Blue Circle with Text Inside
+            ZStack {
+                Circle()
+                    .stroke(Color.blue, lineWidth: 10)
+                    .frame(width: 70, height: 70)
+                
+                Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.white)
+            }
+            .padding(.leading, 22)
+            
+            VStack(alignment: .leading) {
+                HStack(spacing: 0) {
+                    Text(viewModel.formattedRestorativeSleepTime)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                    Text(" of Restorative Sleep")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                }
+                
+                Text(viewModel.restorativeSleepDescription)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding(.leading, 10)
+            
             
             Spacer()
         }
@@ -702,29 +726,29 @@ struct HeartRateDifferenceProgressCircle: View {
     
     // Computed property to get the appropriate title
     private var heartRateDipTitle: (String, Text) {
-           let mainTitle = "Heart Rate Dip is "
-           if heartRateDifferencePercentage > 20 {
-               return (mainTitle, Text("Good").foregroundColor(.green))
-           } else if heartRateDifferencePercentage >= 10 {
-               return (mainTitle, Text("Average").foregroundColor(.yellow))
-           } else {
-               return (mainTitle, Text("Suboptimal").foregroundColor(.red))
-           }
-       }
-
+        let mainTitle = "Heart Rate Dip is "
+        if heartRateDifferencePercentage > 20 {
+            return (mainTitle, Text("Good").foregroundColor(.green))
+        } else if heartRateDifferencePercentage >= 10 {
+            return (mainTitle, Text("Average").foregroundColor(.yellow))
+        } else {
+            return (mainTitle, Text("Suboptimal").foregroundColor(.red))
+        }
+    }
+    
     var body: some View {
-          HStack {
-              ZStack {
-                  Circle()
-                      .stroke(Color.red, lineWidth: 10)
-                      .frame(width: 70, height: 70)
-
-                  Text("\(Int(heartRateDifferencePercentage))%")
-                      .font(.title3)
-                      .bold()
-                      .foregroundColor(.white)
-              }
-              .padding(.leading, 22)
+        HStack {
+            ZStack {
+                Circle()
+                    .stroke(Color.red, lineWidth: 10)
+                    .frame(width: 70, height: 70)
+                
+                Text("\(Int(heartRateDifferencePercentage))%")
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.white)
+            }
+            .padding(.leading, 22)
             
             
             
@@ -763,7 +787,7 @@ struct HeartRateDifferenceProgressCircle: View {
             .padding(.leading, 10)
             .padding(.bottom, 10)
             .padding(.top,10)
-
+            
             Spacer()
         }
     }
@@ -792,23 +816,23 @@ struct SleepInfoPopoverView: View {
                         .font(.system(size: 18))
                         .foregroundColor(.white)
                 }
-                                .padding()
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(VisualEffectBlur(blurStyle: .dark)) // Blur effect for the background
-                        .cornerRadius(20)
-                        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
-                    }
-                }
+                .padding()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(VisualEffectBlur(blurStyle: .dark)) // Blur effect for the background
+        .cornerRadius(20)
+        .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
+    }
+}
 
-                struct VisualEffectBlur: UIViewRepresentable {
-                    var blurStyle: UIBlurEffect.Style
-
-                    func makeUIView(context: Context) -> UIVisualEffectView {
-                        return UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-                    }
-
-                    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
-                }
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        return UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+    }
+    
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+}
 
