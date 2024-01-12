@@ -10,6 +10,7 @@
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
+		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
@@ -73,6 +74,7 @@
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 				C57F62812B422E93004515EA /* ExertionView.swift */,
 				C53817EC2B48A88600F42568 /* DailySleepView.swift */,
 				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
+				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -396,6 +399,7 @@
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C576E6C22A510B880042C8A7 /* RecoveryAnalysisView.swift in Sources */,
 				C53817ED2B48A88600F42568 /* DailySleepView.swift in Sources */,
+				C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,

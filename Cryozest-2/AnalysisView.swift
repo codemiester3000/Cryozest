@@ -48,7 +48,7 @@ struct AnalysisView: View {
             VStack {
                 ScrollView {
                     HStack {
-                        Text("Analysis")
+                        Text("Metrics Comparisons")
                             .font(.system(size: 24, weight: .regular, design: .default))
                             .foregroundColor(.white)
                             .bold()
@@ -70,20 +70,22 @@ struct AnalysisView: View {
                     //                    .background(Color.white.opacity(0.8))
                     //                    .padding(.bottom, 8)
                     
-                    Picker("Time frame", selection: $selectedTimeFrame) {
-                        Text("Last Week")
-                            .tag(TimeFrame.week)
-                            .foregroundColor(selectedTimeFrame == .week ? .orange : .white)
-                        Text("Last Month")
-                            .tag(TimeFrame.month)
-                            .foregroundColor(selectedTimeFrame == .month ? .orange : .white)
-                        Text("Last Year")
-                            .tag(TimeFrame.allTime)
-                            .foregroundColor(selectedTimeFrame == .allTime ? .orange : .white)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .background(Color.black) // This sets the background color of the picker to black
-                    .padding(.horizontal)
+                    CustomPicker(selectedTimeFrame: $selectedTimeFrame)
+                    
+//                    Picker("Time frame", selection: $selectedTimeFrame) {
+//                        Text("Last Week")
+//                            .tag(TimeFrame.week)
+//                            .foregroundColor(selectedTimeFrame == .week ? .orange : .white)
+//                        Text("Last Month")
+//                            .tag(TimeFrame.month)
+//                            .foregroundColor(selectedTimeFrame == .month ? .orange : .white)
+//                        Text("Last Year")
+//                            .tag(TimeFrame.allTime)
+//                            .foregroundColor(selectedTimeFrame == .allTime ? .orange : .white)
+//                    }
+//                    .pickerStyle(SegmentedPickerStyle())
+//                    .background(Color.black) // This sets the background color of the picker to black
+//                    .padding(.horizontal)
                     
                     
                     //                Divider()
@@ -205,7 +207,7 @@ struct AnalysisView: View {
     }
 }
 
-enum TimeFrame {
+enum TimeFrame: CaseIterable {
     case week, month, allTime
     
     func displayString() -> String {
@@ -231,3 +233,25 @@ enum TimeFrame {
     }
 }
 
+//struct CustomPicker: View {
+//    @Binding var selectedTimeFrame: TimeFrame
+//
+//    var body: some View {
+//        HStack {
+//            ForEach(timeFrames, id: \.self) { timeFrame in
+//                Text(timeFrame.displayText)
+//                    .foregroundColor(selectedTimeFrame == timeFrame ? .orange : .white)
+//                    .padding(.vertical, 10)
+//                    .padding(.horizontal, 20)
+//                    .background(selectedTimeFrame == timeFrame ? Color.orange.opacity(0.2) : Color.clear)
+//                    .cornerRadius(10)
+//                    .onTapGesture {
+//                        self.selectedTimeFrame = timeFrame
+//                    }
+//            }
+//        }
+//        .padding(.horizontal)
+//        .background(Color.black)
+//        .cornerRadius(15)
+//    }
+//}
