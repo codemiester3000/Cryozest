@@ -67,6 +67,10 @@ class SleepComparisonDataModel: ObservableObject {
                 self.baselineSleepData.rem = averageREMSleep
                 self.baselineSleepData.total = averageTotalSleep
                 self.baselineSleepData.deep = averageDeepSleep
+                
+//                self.baselineSleepData.rem = 3.0 // averageREMSleep
+//                self.baselineSleepData.total = 8.0 // averageTotalSleep
+//                self.baselineSleepData.deep = 6.0 // averageDeepSleep
             }
         }
         
@@ -84,6 +88,10 @@ class SleepComparisonDataModel: ObservableObject {
                 self.exerciseSleepData.rem = averageREMSleep
                 self.exerciseSleepData.total = averageTotalSleep
                 self.exerciseSleepData.deep = averageDeepSleep
+                
+//                self.exerciseSleepData.rem = 7.0 // averageREMSleep
+//                self.exerciseSleepData.total = 10.0 // averageTotalSleep
+//                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
             }
         }
     }
@@ -179,7 +187,7 @@ struct ComparisonBarView: View {
 
     private var baselineGradient: LinearGradient {
         LinearGradient(
-            gradient: Gradient(colors: [Color.gray.opacity(0.6), .gray]),
+            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
             startPoint: .top,
             endPoint: .bottom
         )
@@ -187,7 +195,7 @@ struct ComparisonBarView: View {
 
     private var exerciseGradient: LinearGradient {
         LinearGradient(
-            gradient: Gradient(colors: [color.opacity(0.6), color]),
+            gradient: Gradient(colors: [color.opacity(0.8), color]),
             startPoint: .top,
             endPoint: .bottom
         )
@@ -195,10 +203,9 @@ struct ComparisonBarView: View {
 
     var body: some View {
         VStack {
-            Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
+            Text(label)
                 .font(.caption)
-                .foregroundColor(percentChange >= 0.0 ? .green : .red)
-            
+                .foregroundColor(.white)
             ZStack(alignment: .bottom) {
                 // Invisible background frame to enforce consistent maximum height
                 Rectangle()
@@ -215,17 +222,18 @@ struct ComparisonBarView: View {
             }
 
             Group {
-                Text(label)
-                    .font(.caption)
-                    .foregroundColor(.white)
-
                 Text(String(format: "%.1f hrs", exerciseValue))
                     .font(.caption)
                     .foregroundColor(color)
 
                 Text(String(format: "%.1f hrs", baselineValue))
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white)
+                
+                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
+                    .font(.caption)
+                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
+                    .padding(.top)
             }
         }
     }

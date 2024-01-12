@@ -105,10 +105,10 @@ struct RecoveryAnalysisView: View {
         if viewModel.isLoading {
             LoadingView()
         } else {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading) {
                 
                 HStack {
-                    Text("Sleep Comparison")
+                    Text("Sleep")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -116,13 +116,32 @@ struct RecoveryAnalysisView: View {
                     
                     Spacer()
                     
-                    Text(viewModel.timeFrame.displayString())
+                    Text(viewModel.therapyType.displayName(managedObjectContext))
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(viewModel.therapyType.color)
+                        .cornerRadius(8)
+                }
+                
+                HStack {
+                    
+                    
+                    Spacer()
+                    
+                    Text("baseline")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(LinearGradient(
+                            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
                         .cornerRadius(8)
                 }
                 
