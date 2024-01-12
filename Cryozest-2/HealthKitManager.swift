@@ -813,8 +813,99 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
-    
-    
+    struct SleepSession {
+            var start: Date
+            var end: Date
+
+            var duration: TimeInterval {
+                return end.timeIntervalSince(start)
+            }
+
+            func overlaps(with other: SleepSession) -> Bool {
+                return (start < other.end) && (end > other.start)
+            }
+
+            func merge(with other: SleepSession) -> SleepSession {
+                return SleepSession(start: min(start, other.start), end: max(end, other.end))
+            }
+        }
+
+        
+        func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
+            let calendar = Calendar.current
+            let healthStore = HKHealthStore()
+            let group = DispatchGroup()
+
+            var dailySleepResults: [(totalSleep: Double, remSleep: Double, deepSleep: Double)] = []
+
+            for date in days {
+                group.enter()
+
+                var totalSleepDurationForDay = 0.0
+                var totalREMSleepDurationForDay = 0.0
+                var totalDeepSleepDurationForDay = 0.0
+
+                let sleepStartTime = calendar.startOfDay(for: date).addingTimeInterval(19 * 3600) // 7 PM
+                let sleepEndTime = calendar.startOfDay(for: date).addingTimeInterval((24 + 14) * 3600) // 2 PM next day
+
+                let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictEndDate)
+                let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+
+                let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+                    defer { group.leave() }
+
+                    guard let sleepSamples = samples as? [HKCategorySample], error == nil else {
+                        print("Error fetching sleep data: \(String(describing: error))")
+                        return
+                    }
+
+                    var sleepSessions = [SleepSession]()
+
+                    for sleepSample in sleepSamples {
+                        let newSession = SleepSession(start: sleepSample.startDate, end: sleepSample.endDate)
+
+                        // Skip if duration is more than 12 hours
+                        if newSession.duration > 43200 { continue }
+
+                        if let lastSession = sleepSessions.last, lastSession.overlaps(with: newSession) {
+                            sleepSessions[sleepSessions.count - 1] = lastSession.merge(with: newSession)
+                        } else {
+                            sleepSessions.append(newSession)
+                        }
+                    }
+
+                    for session in sleepSessions {
+                        totalSleepDurationForDay += session.duration
+
+                        // Iterate through sleepSamples again to classify REM and Deep sleep for the merged sessions
+                        for sleepSample in sleepSamples {
+                            if session.start <= sleepSample.startDate && session.end >= sleepSample.endDate {
+                                if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue {
+                                    totalREMSleepDurationForDay += sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                                } else if sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                                    totalDeepSleepDurationForDay += sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                                }
+                            }
+                        }
+                    }
+
+
+                    dailySleepResults.append((totalSleepDurationForDay, totalREMSleepDurationForDay, totalDeepSleepDurationForDay))
+                }
+
+                healthStore.execute(sleepQuery)
+            }
+
+            group.notify(queue: .main) {
+                let totalDays = Double(dailySleepResults.count)
+                let averageTotalSleep = dailySleepResults.map { $0.totalSleep }.reduce(0, +) / ( totalDays * 3600)
+                let averageREMSleep = dailySleepResults.map { $0.remSleep }.reduce(0, +) / ( totalDays * 3600)
+                let averageDeepSleep = dailySleepResults.map { $0.deepSleep }.reduce(0, +) / ( totalDays * 3600)
+
+                completion(averageTotalSleep, averageREMSleep, averageDeepSleep)
+            }
+        }
+
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
@@ -1339,129 +1430,6 @@ class HealthKitManager {
         healthStore.execute(query)
     }
     
-    
-    func fetchAverageHeartRateDuringSleepLastNight() {
-        print("Starting to fetch average heart rate during sleep.")
-
-        // Check if HealthKit is available on this device
-        guard HKHealthStore.isHealthDataAvailable() else {
-            print("HealthKit is not available on this device.")
-            return
-        }
-
-        // Create a HealthKit store instance
-        let healthStore = HKHealthStore()
-
-        // Define the type of data you want to fetch (heart rate)
-        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
-            print("Heart Rate type is not available.")
-            return
-        }
-
-        // Call the getSleepTimesYesterday function to get sleep start and end times
-        getSleepTimesYesterday { (sleepStartTime, sleepEndTime) in
-            guard let sleepStartTime = sleepStartTime, let sleepEndTime = sleepEndTime else {
-                print("No sleep data available for last night.")
-                return
-            }
-
-            print("Sleep times - Start: \(sleepStartTime), End: \(sleepEndTime)")
-
-            // Create a predicate for heart rate samples during sleep
-            let heartRatePredicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: [])
-
-            // Create a query to fetch heart rate samples during sleep
-            let heartRateQuery = HKSampleQuery(sampleType: heartRateType,
-                                               predicate: heartRatePredicate,
-                                               limit: HKObjectQueryNoLimit,
-                                               sortDescriptors: nil) { (query, results, error) in
-                print("Heart rate query executed.")
-
-                if let error = error {
-                    print("Error fetching heart rate samples: \(error.localizedDescription)")
-                    return
-                }
-
-                guard let heartRateSamples = results as? [HKQuantitySample], !heartRateSamples.isEmpty else {
-                    print("No heart rate data available during sleep last night.")
-                    return
-                }
-
-                print("Fetched \(heartRateSamples.count) heart rate samples")
-
-                // Calculate the average heart rate during sleep
-                var totalHeartRate: Double = 0
-                for heartRateSample in heartRateSamples {
-                    let heartRateValue = heartRateSample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
-                    totalHeartRate += heartRateValue
-                    print("Heart Rate Sample: \(heartRateValue) BPM")
-                }
-
-                let averageHeartRate = totalHeartRate / Double(heartRateSamples.count)
-                print("Average heart rate during sleep last night: \(averageHeartRate) BPM")
-            }
-
-            // Execute the heart rate query
-            healthStore.execute(heartRateQuery)
-        }
-    }
-
-
-    func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void) {
-        let healthStore = HKHealthStore()
-        
-        // Set the start and end date for the query (yesterday's date)
-        let calendar = Calendar.current
-        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) else {
-            print("Error computing 'yesterday's' date")
-            completion(nil, nil)
-            return
-        }
-        let startDate = calendar.startOfDay(for: yesterday)
-        let endDate = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: yesterday)!
-        
-        print("Querying sleep data for period: Start: \(startDate), End: \(endDate)")
-
-        // Create a predicate to query sleep data between the specified dates
-        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
-        
-        // Create a query for sleep analysis
-        let query = HKSampleQuery(sampleType: HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!, predicate: predicate, limit: Int(HKObjectQueryNoLimit), sortDescriptors: nil) { (_, samples, error) in
-            if let error = error {
-                print("Error querying sleep data: \(error.localizedDescription)")
-                completion(nil, nil)
-                return
-            }
-            
-            guard let samples = samples as? [HKCategorySample], !samples.isEmpty else {
-                print("No sleep data available")
-                completion(nil, nil)
-                return
-            }
-
-            print("Fetched \(samples.count) sleep data samples")
-
-            // Processing sleep samples
-            let sleepTimes = samples.compactMap { sample -> (Date, Date)? in
-                guard sample.value == HKCategoryValueSleepAnalysis.asleep.rawValue else { return nil }
-                return (sample.startDate, sample.endDate)
-            }
-
-            guard let firstSleepTime = sleepTimes.min(by: { $0.0 < $1.0 }),
-                  let lastSleepTime = sleepTimes.max(by: { $0.1 < $1.1 }) else {
-                print("No valid sleep periods found")
-                completion(nil, nil)
-                return
-            }
-            
-            completion(firstSleepTime.0, lastSleepTime.1)
-        }
-        
-        healthStore.execute(query)
-    }
-    
-    
-    
     func processSleepData(samples: [HKCategorySample]) -> [String: TimeInterval] {
         let deepSleepSamples = samples.filter { $0.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue }
         let coreSleepSamples = samples.filter { $0.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue }
@@ -1484,7 +1452,7 @@ class HealthKitManager {
         
         return sleepDataResults
     }
-
+    
 }
 
 enum Trend: CustomStringConvertible {

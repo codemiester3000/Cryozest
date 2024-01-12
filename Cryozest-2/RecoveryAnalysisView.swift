@@ -94,7 +94,6 @@ class SleepViewModel: ObservableObject {
     }
 }
 
-
 struct RecoveryAnalysisView: View {
     
     @Environment(\.managedObjectContext) private var managedObjectContext
@@ -106,10 +105,9 @@ struct RecoveryAnalysisView: View {
         if viewModel.isLoading {
             LoadingView()
         } else {
-            VStack(alignment: .leading, spacing: 16) {
-                
+            VStack(alignment: .leading) {
                 HStack {
-                    Text("Recovery Analysis")
+                    Text("Sleep")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -117,7 +115,7 @@ struct RecoveryAnalysisView: View {
                     
                     Spacer()
                     
-                    Text(viewModel.timeFrame.displayString())
+                    Text(viewModel.therapyType.displayName(managedObjectContext))
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -127,49 +125,67 @@ struct RecoveryAnalysisView: View {
                         .cornerRadius(8)
                 }
                 
-                Divider().background(Color.darkBackground.opacity(0.8))
+                HStack {
+                    Spacer()
+                    Text("baseline")
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(LinearGradient(
+                            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ))
+                        .cornerRadius(8)
+                }
+                
+                // Divider().background(Color.darkBackground.opacity(0.8))
+                
+                SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                 
                 // Sleep data
-                VStack {
-                    HStack {
-                        Text("Avg Sleep Duration")
-                            .font(.footnote)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        Spacer()
-                        
-                        Image(systemName: "moon.fill")
-                            .foregroundColor(viewModel.therapyType.color)
-                            .padding(.trailing, 10)
-                    }
-                    HStack {
-                        HStack {
-                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
-                                .font(.footnote)
-                                .foregroundColor(.white)
-                            
-                        }
-                        Spacer()
-                        Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                            .padding(.trailing, 10)
-                    }
-                    .padding(.vertical, 5)
-                    HStack {
-                        HStack {
-                            
-                            Text("baseline")
-                                .font(.footnote)
-                                .foregroundColor(.white)
-                        }
-                        Spacer()
-                        Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                            .padding(.trailing, 10)
-                    }
-                }
+//                VStack {
+//                    HStack {
+//                        Text("Avg Sleep Duration")
+//                            .font(.footnote)
+//                            .fontWeight(.bold)
+//                            .foregroundColor(.white)
+//                        Spacer()
+//                        
+//                        Image(systemName: "moon.fill")
+//                            .foregroundColor(viewModel.therapyType.color)
+//                            .padding(.trailing, 10)
+//                    }
+//                    HStack {
+//                        HStack {
+//                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
+//                                .font(.footnote)
+//                                .foregroundColor(.white)
+//                            
+//                        }
+//                        Spacer()
+//                        Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                            .padding(.trailing, 10)
+//                    }
+//                    .padding(.vertical, 5)
+//                    HStack {
+//                        HStack {
+//                            
+//                            Text("baseline")
+//                                .font(.footnote)
+//                                .foregroundColor(.white)
+//                        }
+//                        Spacer()
+//                        Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                            .padding(.trailing, 10)
+//                    }
+//                }
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
                 

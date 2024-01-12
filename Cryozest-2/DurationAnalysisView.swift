@@ -137,31 +137,31 @@ struct DurationAnalysisView: View {
     
     var body: some View {
         VStack() {
-            HStack(alignment: .center) {
-                Text("Overall Analysis")
-                    .font(.system(size: 24, weight: .regular, design: .default))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.bottom, 10)
-                Spacer()
-                Text(viewModel.timeFrame.displayString())
-                    .font(.footnote)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(viewModel.therapyType.color)
-                    .cornerRadius(8)
-            }
+//            HStack(alignment: .center) {
+//                Text("Summary")
+//                    .font(.system(size: 24, weight: .regular, design: .default))
+//                    .fontWeight(.bold)
+//                    .foregroundColor(.white)
+//                    .padding(.bottom, 10)
+//                Spacer()
+////                Text(viewModel.timeFrame.displayString())
+////                    .font(.footnote)
+////                    .fontWeight(.semibold)
+////                    .foregroundColor(.white)
+////                    .padding(.horizontal, 8)
+////                    .padding(.vertical, 4)
+////                    .background(viewModel.therapyType.color)
+////                    .cornerRadius(8)
+//            }
             
-            Divider().background(Color.darkBackground.opacity(0.8))
+            //Divider().background(Color.darkBackground.opacity(0.8))
             
             VStack {
                 HStack {
                     Text("Completed")
                         .font(.footnote)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(viewModel.therapyType.color)
                     Spacer()
                     Text("\(viewModel.totalSessions) sessions")
                         .font(.footnote)
@@ -174,7 +174,7 @@ struct DurationAnalysisView: View {
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
                 HStack {
-                    Text("Time")
+                    Text("Time spent")
                         .font(.footnote)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -202,24 +202,24 @@ struct DurationAnalysisView: View {
                         .padding(.vertical, 4)
                         .cornerRadius(15)
                 }
-                
-                Divider().background(Color.darkBackground.opacity(0.8))
-                
-                HStack {
-                    Text("Longest streak")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("\(viewModel.longestStreak) days")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 4)
-                        .cornerRadius(15)
-                }
+//                
+//                Divider().background(Color.darkBackground.opacity(0.8))
+//                
+//                HStack {
+//                    Text("Longest streak")
+//                        .font(.footnote)
+//                        .fontWeight(.bold)
+//                        .foregroundColor(.white)
+//                    Spacer()
+//                    Text("\(viewModel.longestStreak) days")
+//                        .font(.footnote)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.white)
+//                        .padding(.vertical, 4)
+//                        .cornerRadius(15)
+//                }
             }
-            ///.padding(.horizontal)
+            //.padding(.horizontal)
         }
         .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
