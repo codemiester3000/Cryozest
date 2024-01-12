@@ -818,14 +818,14 @@ class HealthKitManager {
         let calendar = Calendar.current
         let healthStore = HKHealthStore()
         let group = DispatchGroup()
-
+        
         var totalSleepDurationSum = 0.0
         var totalREMSleepDurationSum = 0.0
         var totalDeepSleepDurationSum = 0.0
         
         for date in days {
             group.enter()
-
+            
             let sleepStartTime = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: date)!
             
             let sleepEndTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: date)!)!
@@ -835,7 +835,7 @@ class HealthKitManager {
             
             let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
                 defer { group.leave() }
-
+                
                 guard let sleepSamples = samples as? [HKCategorySample], error == nil else {
                     return
                 }
@@ -854,17 +854,21 @@ class HealthKitManager {
             
             healthStore.execute(sleepQuery)
         }
-
+        
         group.notify(queue: DispatchQueue.main) {
             let numberOfDays = Double(days.count)
-            let avgTotalSleep = totalSleepDurationSum / (numberOfDays * 3600)
-            let avgREMSleep = totalREMSleepDurationSum / (numberOfDays * 3600)
-            let avgDeepSleep = totalDeepSleepDurationSum / (numberOfDays * 3600)
-
+            var avgTotalSleep = totalSleepDurationSum / (numberOfDays * 3600)
+            var avgREMSleep = totalREMSleepDurationSum / (numberOfDays * 3600)
+            var avgDeepSleep = totalDeepSleepDurationSum / (numberOfDays * 3600)
+            
+            avgTotalSleep = (avgTotalSleep.isNaN || avgTotalSleep < 0) ? 0 : avgTotalSleep
+            avgREMSleep = (avgREMSleep.isNaN || avgREMSleep < 0) ? 0 : avgREMSleep
+            avgDeepSleep = (avgDeepSleep.isNaN || avgDeepSleep < 0) ? 0 : avgDeepSleep
+            
             completion(avgTotalSleep, avgREMSleep, avgDeepSleep)
         }
     }
-
+    
     
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {

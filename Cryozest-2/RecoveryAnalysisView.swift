@@ -127,7 +127,7 @@ struct RecoveryAnalysisView: View {
                         .cornerRadius(8)
                 }
                 
-                Divider().background(Color.darkBackground.opacity(0.8))
+                // Divider().background(Color.darkBackground.opacity(0.8))
                 
                 SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                 
