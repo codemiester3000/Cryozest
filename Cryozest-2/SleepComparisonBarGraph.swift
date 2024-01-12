@@ -102,9 +102,9 @@ struct SleepComparisonBarGraph: View {
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            ComparisonBarView(baselineValue: model.baselineSleepData.total, excerciseValue: model.exerciseSleepData.total, color: model.therapyType.color, maxValue: model.maxValue, label: "Total")
-            ComparisonBarView(baselineValue: model.baselineSleepData.rem, excerciseValue:  model.exerciseSleepData.rem, color: model.therapyType.color, maxValue: model.maxValue, label: "REM")
-            ComparisonBarView(baselineValue: model.baselineSleepData.deep, excerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
+            ComparisonBarView(baselineValue: model.baselineSleepData.total, exerciseValue: model.exerciseSleepData.total, color: model.therapyType.color, maxValue: model.maxValue, label: "Total")
+            ComparisonBarView(baselineValue: model.baselineSleepData.rem, exerciseValue:  model.exerciseSleepData.rem, color: model.therapyType.color, maxValue: model.maxValue, label: "REM")
+            ComparisonBarView(baselineValue: model.baselineSleepData.deep, exerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
         }
         .padding()
     }
@@ -112,61 +112,90 @@ struct SleepComparisonBarGraph: View {
 
 struct ComparisonBarView: View {
     var baselineValue: CGFloat
-    var excerciseValue: CGFloat
+    var exerciseValue: CGFloat
     var color: Color
     var maxValue: CGFloat
     var label: String
-    
+
     let multiplier = 12.0
     
+    private var percentChange: CGFloat {
+        ((exerciseValue - baselineValue) / baselineValue) * 100
+    }
+
     private var baselineHeight: CGFloat {
         min(baselineValue, maxValue)
     }
-    
-    private var excerciseHeight: CGFloat {
-        min(excerciseValue, maxValue)
+
+    private var exerciseHeight: CGFloat {
+        min(exerciseValue, maxValue)
     }
-    
+
+    private var baselineGradient: LinearGradient {
+        LinearGradient(
+            gradient: Gradient(colors: [Color.gray.opacity(0.6), .gray]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
+    private var exerciseGradient: LinearGradient {
+        LinearGradient(
+            gradient: Gradient(colors: [color.opacity(0.6), color]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
     var body: some View {
         VStack {
+            Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
+                .font(.caption)
+                .foregroundColor(percentChange >= 0.0 ? .green : .red)
+            
             ZStack(alignment: .bottom) {
                 // Invisible background frame to enforce consistent maximum height
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: maxValue * multiplier)
-                
-                if baselineHeight >= excerciseHeight {
-                    // Baseline rectangle (gray) is shorter or equal, so it goes in front
-                    Rectangle()
-                        .fill(Color.gray)
-                        .frame(height: baselineHeight * multiplier)
-                    Rectangle()
-                        .fill(color)
-                        .frame(height: excerciseHeight * multiplier)
+
+                if baselineHeight >= exerciseHeight {
+                    BarView(height: baselineHeight, gradient: baselineGradient)
+                    BarView(height: exerciseHeight, gradient: exerciseGradient)
                 } else {
-                    // Excercise rectangle (blue) is shorter, so it goes in front
-                    Rectangle()
-                        .fill(color)
-                        .frame(height: excerciseHeight * multiplier)
-                    Rectangle()
-                        .fill(Color.gray)
-                        .frame(height: baselineHeight * multiplier)
+                    BarView(height: exerciseHeight, gradient: exerciseGradient)
+                    BarView(height: baselineHeight, gradient: baselineGradient)
                 }
             }
-            
-            // Label
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.gray)
-            
-            Text(String(format: "%.1f hrs", excerciseValue))
-                .font(.caption)
-                .foregroundColor(color)
-            
-            Text(String(format: "%.1f hrs", baselineValue))
-                .font(.caption)
-                .foregroundColor(.gray)
+
+            Group {
+                Text(label)
+                    .font(.caption)
+                    .foregroundColor(.white)
+
+                Text(String(format: "%.1f hrs", exerciseValue))
+                    .font(.caption)
+                    .foregroundColor(color)
+
+                Text(String(format: "%.1f hrs", baselineValue))
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
         }
+    }
+}
+
+struct BarView: View {
+    var height: CGFloat
+    var gradient: LinearGradient
+    let multiplier: CGFloat = 12.0
+
+    var body: some View {
+        Rectangle()
+            .fill(gradient)
+            .frame(height: height * multiplier)
+            .cornerRadius(10)
+            .animation(.easeInOut(duration: 0.5))
     }
 }
 
