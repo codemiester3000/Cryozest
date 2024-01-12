@@ -109,7 +109,7 @@ struct RecoveryAnalysisView: View {
             VStack(alignment: .leading, spacing: 16) {
                 
                 HStack {
-                    Text("Recovery Analysis")
+                    Text("Your Sleep")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)

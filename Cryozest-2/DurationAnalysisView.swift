@@ -138,7 +138,7 @@ struct DurationAnalysisView: View {
     var body: some View {
         VStack() {
             HStack(alignment: .center) {
-                Text("Overall Analysis")
+                Text("Activity Summary")
                     .font(.system(size: 24, weight: .regular, design: .default))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -174,7 +174,7 @@ struct DurationAnalysisView: View {
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
                 HStack {
-                    Text("Time")
+                    Text("Time spent")
                         .font(.footnote)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
