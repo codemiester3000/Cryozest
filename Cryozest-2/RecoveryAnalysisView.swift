@@ -129,6 +129,8 @@ struct RecoveryAnalysisView: View {
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
+                SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
+                
                 // Sleep data
                 VStack {
                     HStack {

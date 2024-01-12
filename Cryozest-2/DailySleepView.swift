@@ -534,7 +534,6 @@ private func getSleepTimesYesterday(completion: @escaping (Date?, Date?) -> Void
         
         // Identify the primary sleep session by finding the longest session
         guard let primarySleepSession = asleepSamples.max(by: { $0.endDate.timeIntervalSince($0.startDate) < $1.endDate.timeIntervalSince($1.startDate) }) else {
-            print("No valid sleep session found.")
             DispatchQueue.main.async {
                 completion(nil, nil)
             }
@@ -565,7 +564,6 @@ struct SleepData {
     var deep: TimeInterval
 }
 
-
 struct SleepGraphView: View {
     var sleepData: SleepData
     
@@ -578,8 +576,6 @@ struct SleepGraphView: View {
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
-    
-    
     
     var body: some View {
         VStack(spacing: 16) {
