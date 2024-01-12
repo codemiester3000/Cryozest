@@ -167,6 +167,8 @@ struct SleepComparisonBarGraph: View {
 
 struct ParagraphExplanation: View {
     
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     @ObservedObject var model: SleepComparisonDataModel
     
     var totalSleepPercentChange: CGFloat {
@@ -220,14 +222,20 @@ struct ParagraphExplanation: View {
             + Text("\(percentChangeText)% ")
                 .font(.system(size: 11))
                 .foregroundColor(indicator.color)
+                .fontWeight(.bold)
             
             + Text("\(changeDescription) ")
                 .font(.system(size: 11))
                 .foregroundColor(indicator.color)
+                .fontWeight(.bold)
             
-            + Text("in \(sleepType) on Sauna days")
+            + Text("in \(sleepType) on ")
                 .font(.system(size: 11))
                 .foregroundColor(.white)
+            
+            + Text("\(model.therapyType.displayName(managedObjectContext)) days")
+                .font(.system(size: 11))
+                .foregroundColor(model.therapyType.color)
         }
         .padding(.bottom, 4)
     }
