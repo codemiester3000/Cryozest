@@ -813,63 +813,99 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
-    // TODO: FETCH the awake time as well
-    func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
-        let calendar = Calendar.current
-        let healthStore = HKHealthStore()
-        let group = DispatchGroup()
-        
-        var totalSleepDurationSum = 0.0
-        var totalREMSleepDurationSum = 0.0
-        var totalDeepSleepDurationSum = 0.0
-        
-        for date in days {
-            group.enter()
-            
-            let sleepStartTime = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: date)!
-            
-            let sleepEndTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: date)!)!
-            
-            let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictEndDate)
-            let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
-            
-            let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-                defer { group.leave() }
-                
-                guard let sleepSamples = samples as? [HKCategorySample], error == nil else {
-                    return
-                }
-                
-                for sleepSample in sleepSamples {
-                    let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
-                    totalSleepDurationSum += duration
-                    
-                    if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue {
-                        totalREMSleepDurationSum += duration
-                    } else if sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
-                        totalDeepSleepDurationSum += duration
-                    }
-                }
+    struct SleepSession {
+            var start: Date
+            var end: Date
+
+            var duration: TimeInterval {
+                return end.timeIntervalSince(start)
             }
-            
-            healthStore.execute(sleepQuery)
+
+            func overlaps(with other: SleepSession) -> Bool {
+                return (start < other.end) && (end > other.start)
+            }
+
+            func merge(with other: SleepSession) -> SleepSession {
+                return SleepSession(start: min(start, other.start), end: max(end, other.end))
+            }
         }
+
         
-        group.notify(queue: DispatchQueue.main) {
-            let numberOfDays = Double(days.count)
-            var avgTotalSleep = totalSleepDurationSum / (numberOfDays * 3600)
-            var avgREMSleep = totalREMSleepDurationSum / (numberOfDays * 3600)
-            var avgDeepSleep = totalDeepSleepDurationSum / (numberOfDays * 3600)
-            
-            avgTotalSleep = (avgTotalSleep.isNaN || avgTotalSleep < 0) ? 0 : avgTotalSleep
-            avgREMSleep = (avgREMSleep.isNaN || avgREMSleep < 0) ? 0 : avgREMSleep
-            avgDeepSleep = (avgDeepSleep.isNaN || avgDeepSleep < 0) ? 0 : avgDeepSleep
-            
-            completion(avgTotalSleep, avgREMSleep, avgDeepSleep)
+        func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
+            let calendar = Calendar.current
+            let healthStore = HKHealthStore()
+            let group = DispatchGroup()
+
+            var dailySleepResults: [(totalSleep: Double, remSleep: Double, deepSleep: Double)] = []
+
+            for date in days {
+                group.enter()
+
+                var totalSleepDurationForDay = 0.0
+                var totalREMSleepDurationForDay = 0.0
+                var totalDeepSleepDurationForDay = 0.0
+
+                let sleepStartTime = calendar.startOfDay(for: date).addingTimeInterval(19 * 3600) // 7 PM
+                let sleepEndTime = calendar.startOfDay(for: date).addingTimeInterval((24 + 14) * 3600) // 2 PM next day
+
+                let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictEndDate)
+                let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+
+                let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+                    defer { group.leave() }
+
+                    guard let sleepSamples = samples as? [HKCategorySample], error == nil else {
+                        print("Error fetching sleep data: \(String(describing: error))")
+                        return
+                    }
+
+                    var sleepSessions = [SleepSession]()
+
+                    for sleepSample in sleepSamples {
+                        let newSession = SleepSession(start: sleepSample.startDate, end: sleepSample.endDate)
+
+                        // Skip if duration is more than 12 hours
+                        if newSession.duration > 43200 { continue }
+
+                        if let lastSession = sleepSessions.last, lastSession.overlaps(with: newSession) {
+                            sleepSessions[sleepSessions.count - 1] = lastSession.merge(with: newSession)
+                        } else {
+                            sleepSessions.append(newSession)
+                        }
+                    }
+
+                    for session in sleepSessions {
+                        totalSleepDurationForDay += session.duration
+
+                        // Iterate through sleepSamples again to classify REM and Deep sleep for the merged sessions
+                        for sleepSample in sleepSamples {
+                            if session.start <= sleepSample.startDate && session.end >= sleepSample.endDate {
+                                if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue {
+                                    totalREMSleepDurationForDay += sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                                } else if sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                                    totalDeepSleepDurationForDay += sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                                }
+                            }
+                        }
+                    }
+
+
+                    dailySleepResults.append((totalSleepDurationForDay, totalREMSleepDurationForDay, totalDeepSleepDurationForDay))
+                }
+
+                healthStore.execute(sleepQuery)
+            }
+
+            group.notify(queue: .main) {
+                let totalDays = Double(dailySleepResults.count)
+                let averageTotalSleep = dailySleepResults.map { $0.totalSleep }.reduce(0, +) / ( totalDays * 3600)
+                let averageREMSleep = dailySleepResults.map { $0.remSleep }.reduce(0, +) / ( totalDays * 3600)
+                let averageDeepSleep = dailySleepResults.map { $0.deepSleep }.reduce(0, +) / ( totalDays * 3600)
+
+                completion(averageTotalSleep, averageREMSleep, averageDeepSleep)
+            }
         }
-    }
-    
-    
+
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
