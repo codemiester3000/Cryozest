@@ -100,13 +100,58 @@ struct NewSleepData {
 struct SleepComparisonBarGraph: View {
     @ObservedObject var model: SleepComparisonDataModel
     
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    
     var body: some View {
-        HStack(alignment: .bottom, spacing: 12) {
-            ComparisonBarView(baselineValue: model.baselineSleepData.total, exerciseValue: model.exerciseSleepData.total, color: model.therapyType.color, maxValue: model.maxValue, label: "Total")
-            ComparisonBarView(baselineValue: model.baselineSleepData.rem, exerciseValue:  model.exerciseSleepData.rem, color: model.therapyType.color, maxValue: model.maxValue, label: "REM")
-            ComparisonBarView(baselineValue: model.baselineSleepData.deep, exerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
+        VStack {
+            HStack(alignment: .bottom, spacing: 12) {
+                ComparisonBarView(baselineValue: model.baselineSleepData.total, exerciseValue: model.exerciseSleepData.total, color: model.therapyType.color, maxValue: model.maxValue, label: "Total")
+                ComparisonBarView(baselineValue: model.baselineSleepData.rem, exerciseValue:  model.exerciseSleepData.rem, color: model.therapyType.color, maxValue: model.maxValue, label: "REM")
+                ComparisonBarView(baselineValue: model.baselineSleepData.deep, exerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
+            }
+            .padding()
+            
+            VStack {
+                HStack {
+                    Text("Avg Sleep Duration")
+                        .font(.footnote)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    
+                    Image(systemName: "moon.fill")
+                        .foregroundColor(model.therapyType.color)
+                        .padding(.trailing, 10)
+                }
+                HStack {
+                    HStack {
+                        Text("\(model.therapyType.displayName(managedObjectContext)) days")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                        
+                    }
+                    Spacer()
+                    Text((model.exerciseSleepData.total != 0 ? String(format: "%.1f", model.exerciseSleepData.total) + " Hrs" : "N/A"))
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.trailing, 10)
+                }
+                .padding(.vertical, 5)
+                HStack {
+                    HStack {
+                        
+                        Text("baseline")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                    }
+                    Spacer()
+                    Text((model.baselineSleepData.total != 0 ? String(format: "%.1f", model.baselineSleepData.total) + " Hrs" : "N/A"))
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.trailing, 10)
+                }
+            }
         }
-        .padding()
     }
 }
 
@@ -173,11 +218,11 @@ struct ComparisonBarView: View {
                     .font(.caption)
                     .foregroundColor(.white)
 
-                Text(String(format: "%.0f hrs", exerciseValue))
+                Text(String(format: "%.1f hrs", exerciseValue))
                     .font(.caption)
                     .foregroundColor(color)
 
-                Text(String(format: "%.0f hrs", baselineValue))
+                Text(String(format: "%.1f hrs", baselineValue))
                     .font(.caption)
                     .foregroundColor(.gray)
             }

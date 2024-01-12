@@ -94,7 +94,6 @@ class SleepViewModel: ObservableObject {
     }
 }
 
-
 struct RecoveryAnalysisView: View {
     
     @Environment(\.managedObjectContext) private var managedObjectContext
@@ -132,46 +131,46 @@ struct RecoveryAnalysisView: View {
                 SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                 
                 // Sleep data
-                VStack {
-                    HStack {
-                        Text("Avg Sleep Duration")
-                            .font(.footnote)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        Spacer()
-                        
-                        Image(systemName: "moon.fill")
-                            .foregroundColor(viewModel.therapyType.color)
-                            .padding(.trailing, 10)
-                    }
-                    HStack {
-                        HStack {
-                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
-                                .font(.footnote)
-                                .foregroundColor(.white)
-                            
-                        }
-                        Spacer()
-                        Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                            .padding(.trailing, 10)
-                    }
-                    .padding(.vertical, 5)
-                    HStack {
-                        HStack {
-                            
-                            Text("baseline")
-                                .font(.footnote)
-                                .foregroundColor(.white)
-                        }
-                        Spacer()
-                        Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                            .padding(.trailing, 10)
-                    }
-                }
+//                VStack {
+//                    HStack {
+//                        Text("Avg Sleep Duration")
+//                            .font(.footnote)
+//                            .fontWeight(.bold)
+//                            .foregroundColor(.white)
+//                        Spacer()
+//                        
+//                        Image(systemName: "moon.fill")
+//                            .foregroundColor(viewModel.therapyType.color)
+//                            .padding(.trailing, 10)
+//                    }
+//                    HStack {
+//                        HStack {
+//                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
+//                                .font(.footnote)
+//                                .foregroundColor(.white)
+//                            
+//                        }
+//                        Spacer()
+//                        Text((viewModel.avgSleepDurationTherapyDays != 0 ? String(format: "%.1f", viewModel.avgSleepDurationTherapyDays) + " Hrs" : "N/A"))
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                            .padding(.trailing, 10)
+//                    }
+//                    .padding(.vertical, 5)
+//                    HStack {
+//                        HStack {
+//                            
+//                            Text("baseline")
+//                                .font(.footnote)
+//                                .foregroundColor(.white)
+//                        }
+//                        Spacer()
+//                        Text((viewModel.baselineSleepingDuration != 0 ? String(format: "%.1f", viewModel.baselineSleepingDuration) + " Hrs" : "N/A"))
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                            .padding(.trailing, 10)
+//                    }
+//                }
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
                 
