@@ -2,9 +2,18 @@ import SwiftUI
 
 class SleepComparisonDataModel: ObservableObject {
     
-    var timeFrame: TimeFrame
+    var timeFrame: TimeFrame {
+        didSet {
+            fetchSleepData()
+        }
+    }
+    @Published var therapyType: TherapyType {
+        didSet {
+            fetchSleepData()
+        }
+    }
+    
     var sessions: FetchedResults<TherapySessionEntity>
-    @Published var therapyType: TherapyType
     
     @Published var baselineTotalSleep: Double
     @Published var exerciseTotalSleep: Double
@@ -26,8 +35,8 @@ class SleepComparisonDataModel: ObservableObject {
         baselineTotalSleep = 0.0
         exerciseTotalSleep = 0.0
         
-        baselineSleepData = NewSleepData(awake: 0, rem: 0, core: 0, deep: 0)
-        exerciseSleepData = NewSleepData(awake: 0, rem: 0, core: 0, deep: 0)
+        baselineSleepData = NewSleepData(rem: 0, deep: 0, total: 0)
+        exerciseSleepData = NewSleepData(rem: 0, deep: 0, total: 0)
         
         fetchSleepData()
     }
@@ -40,6 +49,12 @@ class SleepComparisonDataModel: ObservableObject {
             print("baseline Total Sleep: \(averageTotalSleep) hrs")
             print("baseline REM Sleep: \(averageREMSleep) hrs")
             print("baseline Deep Sleep: \(averageDeepSleep) hrs")
+            
+            DispatchQueue.main.async {
+                self.baselineSleepData.rem = averageREMSleep
+                self.baselineSleepData.total = averageTotalSleep
+                self.baselineSleepData.deep = averageDeepSleep
+            }
         }
         
         // Fetch sleep data for therapy days
@@ -51,15 +66,22 @@ class SleepComparisonDataModel: ObservableObject {
             print("Average Total Sleep: \(averageTotalSleep) hrs")
             print("Average REM Sleep: \(averageREMSleep) hrs")
             print("Average Deep Sleep: \(averageDeepSleep) hrs")
+            
+            DispatchQueue.main.async {
+                self.exerciseSleepData.rem = averageREMSleep
+                self.exerciseSleepData.total = averageTotalSleep
+                self.exerciseSleepData.deep = averageDeepSleep
+            }
         }
     }
 }
 
 struct NewSleepData {
-    var awake: TimeInterval
+    //var awake: TimeInterval
     var rem: TimeInterval
-    var core: TimeInterval
+    // var core: TimeInterval
     var deep: TimeInterval
+    var total: TimeInterval
 }
 
 struct SleepComparisonBarGraph: View {
@@ -69,29 +91,29 @@ struct SleepComparisonBarGraph: View {
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            ComparisonBarView(redValueHeightFraction: 0.6, blueValueHeightFraction: 0.4, maxValue: maxValue, label: "Awake")
-            ComparisonBarView(redValueHeightFraction: 0.7, blueValueHeightFraction: 0.5, maxValue: maxValue, label: "REM")
-            ComparisonBarView(redValueHeightFraction: 0.5, blueValueHeightFraction: 0.8, maxValue: maxValue, label: "Core")
-            ComparisonBarView(redValueHeightFraction: 0.4, blueValueHeightFraction: 0.7, maxValue: maxValue, label: "Deep")
+            ComparisonBarView(baselineValue: model.baselineSleepData.total, excerciseValue: model.exerciseSleepData.total, maxValue: maxValue, label: "Total")
+            ComparisonBarView(baselineValue: model.baselineSleepData.rem, excerciseValue:  model.exerciseSleepData.rem, maxValue: maxValue, label: "REM")
+            ComparisonBarView(baselineValue: model.baselineSleepData.deep, excerciseValue:  model.exerciseSleepData.deep, maxValue: maxValue, label: "Deep")
         }
         .padding()
     }
 }
 
 struct ComparisonBarView: View {
-    var redValueHeightFraction: CGFloat
-    var blueValueHeightFraction: CGFloat
+    var baselineValue: CGFloat
+    var excerciseValue: CGFloat
+    
     var maxValue: CGFloat
     var label: String
-
-    private var redBarHeight: CGFloat {
-        min(maxValue * redValueHeightFraction, maxValue)
+    
+    private var baselineHeight: CGFloat {
+        min(baselineValue, maxValue)
     }
-
-    private var blueBarHeight: CGFloat {
-        min(maxValue * blueValueHeightFraction, maxValue)
+    
+    private var excerciseHeight: CGFloat {
+        min(excerciseValue, maxValue)
     }
-
+    
     var body: some View {
         VStack {
             ZStack(alignment: .bottom) {
@@ -99,20 +121,20 @@ struct ComparisonBarView: View {
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: maxValue)
-
+                
                 // Red bar
                 Rectangle()
-                    .fill(Color.red)
-                    .frame(height: redBarHeight)
-
+                    .fill(Color.gray)
+                    .frame(height: baselineHeight)
+                
                 // Blue bar
                 Rectangle()
                     .fill(Color.blue)
-                    .frame(height: blueBarHeight)
+                    .frame(height: excerciseHeight)
             }
-
+            
             // Label
-            Text(label)
+            Text("\(baselineValue)")
                 .font(.caption)
                 .foregroundColor(.gray)
         }

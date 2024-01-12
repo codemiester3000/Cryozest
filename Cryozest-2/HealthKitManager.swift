@@ -813,6 +813,7 @@ class HealthKitManager {
         healthStore.execute(sleepQuery)
     }
     
+    // TODO: FETCH the awake time as well
     func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
         let calendar = Calendar.current
         let healthStore = HKHealthStore()
