@@ -151,6 +151,7 @@ struct SleepComparisonBarGraph: View {
                         .padding(.trailing, 10)
                 }
             }
+            .padding(.top)
         }
     }
 }
