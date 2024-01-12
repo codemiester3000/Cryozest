@@ -64,13 +64,13 @@ class SleepComparisonDataModel: ObservableObject {
             print("baseline Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-//                self.baselineSleepData.rem = averageREMSleep
-//                self.baselineSleepData.total = averageTotalSleep
-//                self.baselineSleepData.deep = averageDeepSleep
+                self.baselineSleepData.rem = averageREMSleep
+                self.baselineSleepData.total = averageTotalSleep
+                self.baselineSleepData.deep = averageDeepSleep
                 
-                self.baselineSleepData.rem = 3.0 // averageREMSleep
-                self.baselineSleepData.total = 8.0 // averageTotalSleep
-                self.baselineSleepData.deep = 6.0 // averageDeepSleep
+//                self.baselineSleepData.rem = 3.0 // averageREMSleep
+//                self.baselineSleepData.total = 8.0 // averageTotalSleep
+//                self.baselineSleepData.deep = 6.0 // averageDeepSleep
             }
         }
         
@@ -85,13 +85,13 @@ class SleepComparisonDataModel: ObservableObject {
             print("Average Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-//                self.exerciseSleepData.rem = averageREMSleep
-//                self.exerciseSleepData.total = averageTotalSleep
-//                self.exerciseSleepData.deep = averageDeepSleep
+                self.exerciseSleepData.rem = averageREMSleep
+                self.exerciseSleepData.total = averageTotalSleep
+                self.exerciseSleepData.deep = averageDeepSleep
                 
-                self.exerciseSleepData.rem = 7.0 // averageREMSleep
-                self.exerciseSleepData.total = 10.0 // averageTotalSleep
-                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
+//                self.exerciseSleepData.rem = 7.0 // averageREMSleep
+//                self.exerciseSleepData.total = 10.0 // averageTotalSleep
+//                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
             }
         }
     }
@@ -212,32 +212,32 @@ struct ParagraphExplanation: View {
         
         HStack(spacing: 2) {
             Text(indicator.symbol)
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(indicator.color)
 
             Text("You saw a ")
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(.white)
             
             + Text("\(percentChangeText)% ")
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(indicator.color)
                 .fontWeight(.bold)
             
             + Text("\(changeDescription) ")
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(indicator.color)
                 .fontWeight(.bold)
             
             + Text("in \(sleepType) on ")
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(.white)
             
             + Text("\(model.therapyType.displayName(managedObjectContext)) days")
-                .font(.system(size: 11))
+                .font(.system(size: 12))
                 .foregroundColor(model.therapyType.color)
         }
-        .padding(.bottom, 4)
+        .padding(.bottom, 6)
     }
 }
 
