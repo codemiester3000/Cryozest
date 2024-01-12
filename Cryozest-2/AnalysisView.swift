@@ -90,22 +90,31 @@ struct AnalysisView: View {
                     //                    .background(Color.white.opacity(0.8))
                     //                    .padding(.vertical, 8)
                     
-                    MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    // MetricsHighlightsView(model: MetricsHighlightsViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                     
                     //                Divider()
                     //                    .background(Color.white.opacity(0.8))
                     //                    .padding(.vertical, 8)
                     
-                    DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions)).padding(.horizontal)
-                    
-                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                    
-                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                        .padding(.horizontal)
+                        .padding(.top)
                     
                     Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                     
                     RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.bottom)
+                    
+                    
+                    
+                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+                    
+                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    
+                    // Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+                    
+                    //                    RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    //                        .padding(.bottom)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -198,7 +207,7 @@ struct AnalysisView: View {
 
 enum TimeFrame {
     case week, month, allTime
-
+    
     func displayString() -> String {
         switch self {
         case .week:
@@ -209,7 +218,7 @@ enum TimeFrame {
             return "Last Year"
         }
     }
-
+    
     func numberOfDays() -> Int {
         switch self {
         case .week:

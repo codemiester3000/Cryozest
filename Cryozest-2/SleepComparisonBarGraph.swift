@@ -64,9 +64,9 @@ class SleepComparisonDataModel: ObservableObject {
             print("baseline Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-                self.baselineSleepData.rem = 2.0 // averageREMSleep
+                self.baselineSleepData.rem = averageREMSleep
                 self.baselineSleepData.total = averageTotalSleep
-                self.baselineSleepData.deep = 5.0 //averageDeepSleep
+                self.baselineSleepData.deep = averageDeepSleep
             }
         }
         
@@ -81,9 +81,9 @@ class SleepComparisonDataModel: ObservableObject {
             print("Average Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-                self.exerciseSleepData.rem = 3.0 //averageREMSleep
-                self.exerciseSleepData.total = 4.0 // averageTotalSleep
-                self.exerciseSleepData.deep = 1.0 // averageDeepSleep
+                self.exerciseSleepData.rem = averageREMSleep
+                self.exerciseSleepData.total = averageTotalSleep
+                self.exerciseSleepData.deep = averageDeepSleep
             }
         }
     }
@@ -173,11 +173,11 @@ struct ComparisonBarView: View {
                     .font(.caption)
                     .foregroundColor(.white)
 
-                Text(String(format: "%.1f hrs", exerciseValue))
+                Text(String(format: "%.0f hrs", exerciseValue))
                     .font(.caption)
                     .foregroundColor(color)
 
-                Text(String(format: "%.1f hrs", baselineValue))
+                Text(String(format: "%.0f hrs", baselineValue))
                     .font(.caption)
                     .foregroundColor(.gray)
             }
