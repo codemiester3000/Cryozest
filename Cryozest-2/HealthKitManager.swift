@@ -826,6 +826,7 @@ class HealthKitManager {
             group.enter()
 
             let sleepStartTime = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: date)!
+            
             let sleepEndTime = calendar.date(bySettingHour: 14, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: date)!)!
             
             let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictEndDate)
@@ -855,9 +856,9 @@ class HealthKitManager {
 
         group.notify(queue: DispatchQueue.main) {
             let numberOfDays = Double(days.count)
-            let avgTotalSleep = totalSleepDurationSum / numberOfDays
-            let avgREMSleep = totalREMSleepDurationSum / numberOfDays
-            let avgDeepSleep = totalDeepSleepDurationSum / numberOfDays
+            let avgTotalSleep = totalSleepDurationSum / (numberOfDays * 3600)
+            let avgREMSleep = totalREMSleepDurationSum / (numberOfDays * 3600)
+            let avgDeepSleep = totalDeepSleepDurationSum / (numberOfDays * 3600)
 
             completion(avgTotalSleep, avgREMSleep, avgDeepSleep)
         }
