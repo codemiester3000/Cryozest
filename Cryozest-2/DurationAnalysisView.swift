@@ -161,7 +161,7 @@ struct DurationAnalysisView: View {
                     Text("Completed")
                         .font(.footnote)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(viewModel.therapyType.color)
                     Spacer()
                     Text("\(viewModel.totalSessions) sessions")
                         .font(.footnote)
