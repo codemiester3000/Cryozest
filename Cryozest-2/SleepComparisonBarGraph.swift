@@ -58,7 +58,7 @@ class SleepComparisonDataModel: ObservableObject {
         // Fetch baseline sleep days (off days)
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
-        HealthKitManager.shared.fetchAverageSleepStatisticsForDays(days: baselineDates) { averageTotalSleep, averageREMSleep, averageDeepSleep in
+        HealthKitManager.shared.fetchAverageSleepStatisticsForDays(days: baselineDates) { averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep in
             print("baseline Total Sleep: \(averageTotalSleep) hrs")
             print("baseline REM Sleep: \(averageREMSleep) hrs")
             print("baseline Deep Sleep: \(averageDeepSleep) hrs")
@@ -79,7 +79,7 @@ class SleepComparisonDataModel: ObservableObject {
         
         print("fetchSleepForExcerciseDays ", completedSessionDates)
         
-        HealthKitManager.shared.fetchAverageSleepStatisticsForDays(days: completedSessionDates) { averageTotalSleep, averageREMSleep, averageDeepSleep in
+        HealthKitManager.shared.fetchAverageSleepStatisticsForDays(days: completedSessionDates) { averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep in
             print("Average Total Sleep: \(averageTotalSleep) hrs")
             print("Average REM Sleep: \(averageREMSleep) hrs")
             print("Average Deep Sleep: \(averageDeepSleep) hrs")
