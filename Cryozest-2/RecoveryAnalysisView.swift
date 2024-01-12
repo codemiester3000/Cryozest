@@ -106,7 +106,6 @@ struct RecoveryAnalysisView: View {
             LoadingView()
         } else {
             VStack(alignment: .leading) {
-                
                 HStack {
                     Text("Sleep")
                         .font(.system(size: 24, weight: .regular, design: .default))
@@ -127,10 +126,7 @@ struct RecoveryAnalysisView: View {
                 }
                 
                 HStack {
-                    
-                    
                     Spacer()
-                    
                     Text("baseline")
                         .font(.footnote)
                         .fontWeight(.semibold)

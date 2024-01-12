@@ -64,13 +64,13 @@ class SleepComparisonDataModel: ObservableObject {
             print("baseline Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-                self.baselineSleepData.rem = averageREMSleep
-                self.baselineSleepData.total = averageTotalSleep
-                self.baselineSleepData.deep = averageDeepSleep
+//                self.baselineSleepData.rem = averageREMSleep
+//                self.baselineSleepData.total = averageTotalSleep
+//                self.baselineSleepData.deep = averageDeepSleep
                 
-//                self.baselineSleepData.rem = 3.0 // averageREMSleep
-//                self.baselineSleepData.total = 8.0 // averageTotalSleep
-//                self.baselineSleepData.deep = 6.0 // averageDeepSleep
+                self.baselineSleepData.rem = 3.0 // averageREMSleep
+                self.baselineSleepData.total = 8.0 // averageTotalSleep
+                self.baselineSleepData.deep = 6.0 // averageDeepSleep
             }
         }
         
@@ -85,13 +85,13 @@ class SleepComparisonDataModel: ObservableObject {
             print("Average Deep Sleep: \(averageDeepSleep) hrs")
             
             DispatchQueue.main.async {
-                self.exerciseSleepData.rem = averageREMSleep
-                self.exerciseSleepData.total = averageTotalSleep
-                self.exerciseSleepData.deep = averageDeepSleep
+//                self.exerciseSleepData.rem = averageREMSleep
+//                self.exerciseSleepData.total = averageTotalSleep
+//                self.exerciseSleepData.deep = averageDeepSleep
                 
-//                self.exerciseSleepData.rem = 7.0 // averageREMSleep
-//                self.exerciseSleepData.total = 10.0 // averageTotalSleep
-//                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
+                self.exerciseSleepData.rem = 7.0 // averageREMSleep
+                self.exerciseSleepData.total = 10.0 // averageTotalSleep
+                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
             }
         }
     }
@@ -118,6 +118,8 @@ struct SleepComparisonBarGraph: View {
                 ComparisonBarView(baselineValue: model.baselineSleepData.deep, exerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
             }
             .padding()
+            
+            ParagraphExplanation(model: model)
             
             VStack {
                 HStack {
@@ -147,7 +149,6 @@ struct SleepComparisonBarGraph: View {
                 .padding(.vertical, 5)
                 HStack {
                     HStack {
-                        
                         Text("baseline")
                             .font(.footnote)
                             .foregroundColor(.white)
@@ -163,6 +164,77 @@ struct SleepComparisonBarGraph: View {
         }
     }
 }
+
+struct ParagraphExplanation: View {
+    
+    @ObservedObject var model: SleepComparisonDataModel
+    
+    var totalSleepPercentChange: CGFloat {
+        guard model.baselineSleepData.total != 0 else { return 0 }
+        return ((model.exerciseSleepData.total - model.baselineSleepData.total) / model.baselineSleepData.total) * 100
+    }
+    
+    var remSleepPercentChange: CGFloat {
+        guard model.baselineSleepData.rem != 0 else { return 0 }
+        return ((model.exerciseSleepData.rem - model.baselineSleepData.rem) / model.baselineSleepData.rem) * 100
+    }
+    
+    var deepSleepPercentChange: CGFloat {
+        guard model.baselineSleepData.deep != 0 else { return 0 }
+        return ((model.exerciseSleepData.deep - model.baselineSleepData.deep) / model.baselineSleepData.deep) * 100
+    }
+    
+    private func changeIndicator(for percentChange: CGFloat) -> (color: Color, symbol: String) {
+        if percentChange > 0 {
+            return (Color.green, "↑")
+        } else if percentChange < 0 {
+            return (Color.red, "↓")
+        } else {
+            return (Color.gray, "")
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            ParagraphText("total sleep", percentChange: totalSleepPercentChange)
+            ParagraphText("REM sleep", percentChange: remSleepPercentChange)
+            ParagraphText("deep sleep", percentChange: deepSleepPercentChange)
+        }
+    }
+
+    @ViewBuilder
+    private func ParagraphText(_ sleepType: String, percentChange: CGFloat) -> some View {
+        let indicator = changeIndicator(for: percentChange)
+        let percentChangeText = String(format: "%.1f", abs(percentChange))
+        let changeDescription = percentChange >= 0 ? "increase" : "decrease"
+        
+        HStack(spacing: 2) {
+            Text(indicator.symbol)
+                .font(.system(size: 11))
+                .foregroundColor(indicator.color)
+
+            Text("You saw a ")
+                .font(.system(size: 11))
+                .foregroundColor(.white)
+            
+            + Text("\(percentChangeText)% ")
+                .font(.system(size: 11))
+                .foregroundColor(indicator.color)
+            
+            + Text("\(changeDescription) ")
+                .font(.system(size: 11))
+                .foregroundColor(indicator.color)
+            
+            + Text("in \(sleepType) on Sauna days")
+                .font(.system(size: 11))
+                .foregroundColor(.white)
+        }
+        .padding(.bottom, 4)
+    }
+}
+
+
+
 
 struct ComparisonBarView: View {
     var baselineValue: CGFloat
@@ -230,10 +302,10 @@ struct ComparisonBarView: View {
                     .font(.caption)
                     .foregroundColor(.white)
                 
-                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
-                    .font(.caption)
-                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
-                    .padding(.top)
+//                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
+//                    .font(.caption)
+//                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
+//                    .padding(.top)
             }
         }
     }
