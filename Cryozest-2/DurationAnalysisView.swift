@@ -202,24 +202,24 @@ struct DurationAnalysisView: View {
                         .padding(.vertical, 4)
                         .cornerRadius(15)
                 }
-                
-                Divider().background(Color.darkBackground.opacity(0.8))
-                
-                HStack {
-                    Text("Longest streak")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("\(viewModel.longestStreak) days")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 4)
-                        .cornerRadius(15)
-                }
+//                
+//                Divider().background(Color.darkBackground.opacity(0.8))
+//                
+//                HStack {
+//                    Text("Longest streak")
+//                        .font(.footnote)
+//                        .fontWeight(.bold)
+//                        .foregroundColor(.white)
+//                    Spacer()
+//                    Text("\(viewModel.longestStreak) days")
+//                        .font(.footnote)
+//                        .fontWeight(.semibold)
+//                        .foregroundColor(.white)
+//                        .padding(.vertical, 4)
+//                        .cornerRadius(15)
+//                }
             }
-            ///.padding(.horizontal)
+            //.padding(.horizontal)
         }
         .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
