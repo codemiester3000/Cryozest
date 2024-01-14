@@ -133,7 +133,7 @@ struct AvgHeartRateComparisonView: View {
         else {
             VStack() {
                 HStack {
-                    Text("Heart Rate Analysis")
+                    Text("Heart Rate")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
