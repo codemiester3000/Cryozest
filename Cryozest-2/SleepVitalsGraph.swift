@@ -75,6 +75,7 @@ struct BarGraphView: View {
     var excerciseValue: Double
     var barColor: Color
     
+    // These are used for the growing animation.
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
     
@@ -91,6 +92,7 @@ struct BarGraphView: View {
                         baselineBarWidth = baselineValue
                     }
                 }
+                .cornerRadius(6.0)
             
             Rectangle()
                 .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
@@ -100,6 +102,7 @@ struct BarGraphView: View {
                         exerciseBarWidth = excerciseValue
                     }
                 }
+                .cornerRadius(6.0)
         }
     }
 }
