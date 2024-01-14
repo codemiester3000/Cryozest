@@ -40,7 +40,6 @@ struct TherapyTypeSelectionView: View {
                             .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                            .padding(.trailing, 20)
                         
                         Spacer()
                     }
