@@ -29,6 +29,7 @@ struct SettingsIconView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(self.settingsColor)
+                    .background(.black)
                     .frame(width: 30, height: 30)
                     .rotationEffect(.degrees(viewModel.rotationDegrees))
             }
