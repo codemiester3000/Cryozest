@@ -5,13 +5,39 @@ struct DailyView: View {
     
     var body: some View {
         ScrollView {
+            DailyViewHeader(lastDataRefresh: model.lastDataRefresh)
+            
+            CaloriesBurnedGraphView()
+            
+            SleepBarGraphView()
+            
+            StepsBarGraphView()
+            
+            DailyGridMetrics(model: model)
+                .padding(.top, 24)
+            
+//            StepsBarGraphView()
+//            
+//            StepsBarGraphView()
+            
+            Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+            
+            
+            DailySleepView(dailySleepModel: DailySleepViewModel())
+            
+            Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+            
             RecoveryCardView(model: model)
             
             RecoveryGraphView(model: model)
             
+            Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+            
             ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
             
-            DailySleepView(dailySleepModel: DailySleepViewModel())
+           // Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
+            
+            //DailySleepView(dailySleepModel: DailySleepViewModel())
         }
         .refreshable {
             model.pullAllData()
@@ -34,10 +60,10 @@ class RecoveryGraphModel: ObservableObject {
     @Published var lastDataRefresh: Date?
     
     @Published var previousNightSleepDuration: String? = nil {
-           didSet {
-               calculateSleepScorePercentage()
-           }
-       }
+        didSet {
+            calculateSleepScorePercentage()
+        }
+    }
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -98,13 +124,13 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func generateUserStatement() -> String {
-            guard let recoveryScore = recoveryScores.last else {
-                return "Data not available."
-            }
-
-            // Fetch the sleep score from DailySleepViewModel
-            let sleepScore = dailySleepViewModel.sleepScore
-
+        guard let recoveryScore = recoveryScores.last else {
+            return "Data not available."
+        }
+        
+        // Fetch the sleep score from DailySleepViewModel
+        let sleepScore = dailySleepViewModel.sleepScore
+        
         switch (recoveryScore, sleepScore) {
         case (80...100, 80...100):
             return "Hello! Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to tackle any challenge. Aim high for your exertion targets, but remember to stay attuned to your body's signals."
@@ -246,20 +272,20 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     private func calculateSleepScorePercentage() {
-            guard let sleepDurationString = previousNightSleepDuration,
-                  let sleepDuration = Double(sleepDurationString) else {
-                print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
-                sleepScorePercentage = nil
-                return
-            }
-
-            let idealSleepDuration: Double = 8 // 8 hours for 100% score
-            let sleepScore = (sleepDuration / idealSleepDuration) * 100
-            sleepScorePercentage = Int(sleepScore.rounded())
-
-            print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
+        guard let sleepDurationString = previousNightSleepDuration,
+              let sleepDuration = Double(sleepDurationString) else {
+            print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
+            sleepScorePercentage = nil
+            return
         }
-
+        
+        let idealSleepDuration: Double = 8 // 8 hours for 100% score
+        let sleepScore = (sleepDuration / idealSleepDuration) * 100
+        sleepScorePercentage = Int(sleepScore.rounded())
+        
+        print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
+    }
+    
     
     
     
@@ -499,6 +525,65 @@ func getColor(forPercentage percentage: Int) -> Color {
     }
 }
 
+struct DailyViewHeader: View {
+    
+    var lastDataRefresh: Date?
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Text("Daily Summary")
+                            .font(.system(size: 24, weight: .regular, design: .default))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        if let lastRefreshDate = lastDataRefresh {
+                            Text("Updated HealthKit data:")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                                .padding(.top, 0)
+                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                    }
+                    
+                    
+                    Spacer()
+                    
+//                    Button(action: {
+//                        // Action for the button
+//                    }) {
+//                        Text("Record Data")
+//                            .fontWeight(.semibold)
+//                            .foregroundColor(.white)
+//                            .padding()
+//                            .background(Color.clear)
+//                            .cornerRadius(8)
+//                            .overlay(
+//                                RoundedRectangle(cornerRadius: 8)
+//                                    .stroke(Color.orange, lineWidth: 2)
+//                            )
+//                            .shadow(radius: 5)
+//                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 36)
+            Spacer()
+        }
+    }
+}
+
 
 struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
@@ -513,23 +598,12 @@ struct RecoveryCardView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                // HStack to place text and recovery ring side by side
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Daily Summary")
+                        Text("Recovery")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                        
-                        if let lastRefreshDate = model.lastDataRefresh {
-                            Text("Updated HealthKit data:")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.top, 0)
-                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
                     }
                     
                     Spacer()
@@ -591,14 +665,12 @@ struct RecoveryCardView: View {
                     }
                     .padding(.bottom)
                     .padding(.horizontal, 6)
-                
+                    
                     RecoveryExplanation(model: model)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
             }
-            
-            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
@@ -656,57 +728,111 @@ struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     
     var body: some View {
-        HStack {
-            Text("Latest Daily Metrics:")
-                .foregroundColor(.gray)
-                .font(.footnote)
-            Spacer()
+        VStack {
+            // First row of grid items
+            HStack(spacing: 12) {
+//                GridItemView(
+//                    title: "Sleep",
+//                    value: model.previousNightSleepDuration ?? "N/A",
+//                    unit: "hrs"
+//                )
+                
+                                GridItemView(
+                                    title: "SPO2",
+                                    value: formatSPO2Value(model.mostRecentSPO2),
+                                    unit: "%"
+                                )
+                
+//                GridItemView(
+//                    title: "HRV",
+//                    value: "\(model.lastKnownHRV)",
+//                    unit: "ms"
+//                )
+                
+                GridItemView(
+                    title: "Resp Rate",
+                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                    unit: "BrPM"
+                )
+                
+                GridItemView(
+                    title: "RHR",
+                    value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                    unit: "bpm"
+                )
+            }
+
+            // Second row of grid items
+//            HStack(spacing: 12) {
+//                GridItemView(
+//                    title: "SPO2",
+//                    value: formatSPO2Value(model.mostRecentSPO2),
+//                    unit: "%"
+//                )
+//                GridItemView(
+//                    title: "Resp Rate",
+//                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
+//                    unit: "BrPM"
+//                )
+//                
+//                GridItemView(
+//                    title: "Cals Burned",
+//                    value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+//                    unit: "kcal"
+//                )
+//            }
+//            .padding(.top, 10)
+
+            HStack {
+                Spacer()
+                Text("Latest Daily Metrics")
+                    .foregroundColor(.gray)
+                    .font(.footnote)
+                Spacer()
+            }
+            .padding(.top, 4)
+            .padding(.bottom, 12)
         }
         .padding(.horizontal, 6)
-        .padding(.bottom, 1)
-        
-        // Horizontal Stack for Grid Items
-        HStack(spacing: 10) {
-            GridItemView(
-                title: "Sleep",
-                value: model.previousNightSleepDuration ?? "N/A",
-                unit: "hrs"
-            )
-            
-            GridItemView(
-                title: "HRV",
-                value: "\(model.lastKnownHRV)",
-                unit: "ms"
-            )
-            
-            GridItemView(
-                title: "RHR",
-                value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                unit: "bpm"
-            )
-        }
-        
-        // Second row of grid items
-        HStack(spacing: 10) {
-            GridItemView(
-                title: "SPO2",
-                value: formatSPO2Value(model.mostRecentSPO2),
-                unit: "%"
-            )
-            GridItemView(
-                title: "Resp Rate",
-                value: formatRespRateValue(model.mostRecentRespiratoryRate),
-                unit: "BrPM"
-            )
-            
-            GridItemView(
-                title: "Cals Burned",
-                value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
-                unit: "kcal"
-            )
-        }
     }
 }
+
+struct GridItemView: View {
+    var title: String
+    var value: String
+    var unit: String
+    
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.system(size: 15))
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(.bottom, 2)
+            
+            HStack(alignment: .lastTextBaseline) {
+                Text(value)
+                    .font(.system(size: 22))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                Text(unit)
+                    .font(.footnote)
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.leading, 2)
+            }
+        }
+        .padding(8)
+        .frame(width: 115, height: 75)
+        .background(Color.clear) // No background color
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.red, lineWidth: 2) // Red border
+        )
+    }
+}
+
 
 struct MetricView: View {
     let label: String
@@ -738,40 +864,4 @@ struct MetricView: View {
     }
 }
 
-struct GridItemView: View {
-    var title: String
-    var value: String
-    var unit: String
-    
-    var body: some View {
-        VStack {
-            Text(title)
-                .font(.system(size: 14)) // Slightly smaller font size
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding(.bottom, 1) // Reduced bottom padding
-            
-            HStack(alignment: .lastTextBaseline) {
-                Text(value)
-                    .font(.system(size: 20)) // Slightly smaller font size
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text(unit)
-                    .font(.footnote)
-                    .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 1) // Keep existing padding
-            }
-        }
-        .padding(.all, 6) // Slightly reduced overall padding
-        .frame(width: 110, height: 70) // Reduced height
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red, lineWidth: 1)
-        )
-    }
-}
 

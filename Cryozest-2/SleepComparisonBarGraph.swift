@@ -309,11 +309,6 @@ struct ComparisonBarView: View {
                 Text(String(format: "%.1f hrs", baselineValue))
                     .font(.caption)
                     .foregroundColor(.white)
-                
-//                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
-//                    .font(.caption)
-//                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
-//                    .padding(.top)
             }
         }
     }

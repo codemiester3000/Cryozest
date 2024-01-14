@@ -11,6 +11,9 @@
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
 		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
+		C525A0A12B52E83100A0B34A /* StepsBarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A0A02B52E83100A0B34A /* StepsBarGraphView.swift */; };
+		C525A0A32B532AF300A0B34A /* SleepBarGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A0A22B532AF300A0B34A /* SleepBarGraphView.swift */; };
+		C525A0A52B532B7E00A0B34A /* CaloriesBurnedBarGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A0A42B532B7E00A0B34A /* CaloriesBurnedBarGraph.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
@@ -75,6 +78,9 @@
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
+		C525A0A02B52E83100A0B34A /* StepsBarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsBarGraphView.swift; sourceTree = "<group>"; };
+		C525A0A22B532AF300A0B34A /* SleepBarGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepBarGraphView.swift; sourceTree = "<group>"; };
+		C525A0A42B532B7E00A0B34A /* CaloriesBurnedBarGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaloriesBurnedBarGraph.swift; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
@@ -205,6 +211,9 @@
 				C53817EC2B48A88600F42568 /* DailySleepView.swift */,
 				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
 				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
+				C525A0A02B52E83100A0B34A /* StepsBarGraphView.swift */,
+				C525A0A22B532AF300A0B34A /* SleepBarGraphView.swift */,
+				C525A0A42B532B7E00A0B34A /* CaloriesBurnedBarGraph.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -379,10 +388,12 @@
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
+				C525A0A12B52E83100A0B34A /* StepsBarGraphView.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
+				C525A0A52B532B7E00A0B34A /* CaloriesBurnedBarGraph.swift in Sources */,
 				C5BD39BE2A43D0E300BCB3DF /* HeartRateAnalysisView.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
@@ -403,6 +414,7 @@
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
+				C525A0A32B532AF300A0B34A /* SleepBarGraphView.swift in Sources */,
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,

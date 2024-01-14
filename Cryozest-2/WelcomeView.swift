@@ -12,13 +12,6 @@ struct WelcomeView: View {
             
             // Content overlay
             VStack(spacing: 30) { // Increased spacing
-                
-//                Image("TestLogo")
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 250) // adjust this to change the logo size
-//                    .padding(.vertical, 20)
-                
                 HardcodedGraph()
                 
                 Text("Welcome to CryoZest")
@@ -123,29 +116,13 @@ struct HardcodedGraph: View {
     var body: some View {
         ZStack {
             VStack {
-//                HStack {
-//                    Text("Recovery Per Day")
-//                        .font(.headline)
-//                        .foregroundColor(.white)
-//                        .padding(.horizontal)
-//                    Spacer()
-//                }
-//                .padding(.horizontal)
-//                .padding(.vertical)
-                
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(lastSevenDays, recoveryScores)), id: \.0) { (day, percentage) in
                         VStack {
-//                            Text("\(percentage)%")
-//                                .font(.caption)
-//                                .foregroundColor(.white)
                             Rectangle()
                                 .fill(getColor(forPercentage: percentage))
                                 .frame(width: 40, height: CGFloat(percentage))
                                 .cornerRadius(5)
-//                            Text(day)
-//                                .font(.caption)
-//                                .foregroundColor(.white)
                         }
                     }
                 }
