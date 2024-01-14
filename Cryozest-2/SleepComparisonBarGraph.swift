@@ -198,9 +198,21 @@ struct ParagraphExplanation: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            ParagraphText("total sleep", percentChange: totalSleepPercentChange)
-            ParagraphText("REM sleep", percentChange: remSleepPercentChange)
-            ParagraphText("deep sleep", percentChange: deepSleepPercentChange)
+            if !totalSleepPercentChange.isNaN {
+                ParagraphText("total sleep", percentChange: totalSleepPercentChange)
+            }
+            if !remSleepPercentChange.isNaN {
+                ParagraphText("REM sleep", percentChange: remSleepPercentChange)
+            }
+            if !deepSleepPercentChange.isNaN {
+                ParagraphText("deep sleep", percentChange: deepSleepPercentChange)
+            }
+            
+            if totalSleepPercentChange.isNaN && remSleepPercentChange.isNaN && deepSleepPercentChange.isNaN {
+                Text("Wear your Apple Watch during sleep to see how metrics differs on \(model.therapyType.displayName(managedObjectContext)) days")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+            }
         }
     }
 
