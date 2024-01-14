@@ -34,10 +34,10 @@ class RecoveryGraphModel: ObservableObject {
     @Published var lastDataRefresh: Date?
     
     @Published var previousNightSleepDuration: String? = nil {
-           didSet {
-               calculateSleepScorePercentage()
-           }
-       }
+        didSet {
+            calculateSleepScorePercentage()
+        }
+    }
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
@@ -98,13 +98,13 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func generateUserStatement() -> String {
-            guard let recoveryScore = recoveryScores.last else {
-                return "Data not available."
-            }
-
-            // Fetch the sleep score from DailySleepViewModel
-            let sleepScore = dailySleepViewModel.sleepScore
-
+        guard let recoveryScore = recoveryScores.last else {
+            return "Data not available."
+        }
+        
+        // Fetch the sleep score from DailySleepViewModel
+        let sleepScore = dailySleepViewModel.sleepScore
+        
         switch (recoveryScore, sleepScore) {
         case (80...100, 80...100):
             return "Hello! Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to tackle any challenge. Aim high for your exertion targets, but remember to stay attuned to your body's signals."
@@ -246,20 +246,20 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     private func calculateSleepScorePercentage() {
-            guard let sleepDurationString = previousNightSleepDuration,
-                  let sleepDuration = Double(sleepDurationString) else {
-                print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
-                sleepScorePercentage = nil
-                return
-            }
-
-            let idealSleepDuration: Double = 8 // 8 hours for 100% score
-            let sleepScore = (sleepDuration / idealSleepDuration) * 100
-            sleepScorePercentage = Int(sleepScore.rounded())
-
-            print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
+        guard let sleepDurationString = previousNightSleepDuration,
+              let sleepDuration = Double(sleepDurationString) else {
+            print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
+            sleepScorePercentage = nil
+            return
         }
-
+        
+        let idealSleepDuration: Double = 8 // 8 hours for 100% score
+        let sleepScore = (sleepDuration / idealSleepDuration) * 100
+        sleepScorePercentage = Int(sleepScore.rounded())
+        
+        print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
+    }
+    
     
     
     
@@ -591,7 +591,7 @@ struct RecoveryCardView: View {
                     }
                     .padding(.bottom)
                     .padding(.horizontal, 6)
-                
+                    
                     RecoveryExplanation(model: model)
                 }
                 .padding(.horizontal, 4)
@@ -629,24 +629,31 @@ struct RecoveryExplanation: View {
     
     var body: some View {
         VStack {
-            Text("Recovery is based on your average HRV during sleep of ")
-                .font(.system(size: 16))
-                .foregroundColor(.white) +
-            Text("\(model.avgHrvDuringSleep ?? 0) ms ")
-                .font(.system(size: 17))
-                .foregroundColor(.green)
-                .fontWeight(.bold) +
-            Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
-                .font(.system(size: 16))
-                .foregroundColor(.white) +
-            Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
-                .font(.system(size: 17))
-                .foregroundColor(.green)
-                .fontWeight(.bold) +
-            Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
-                .font(.system(size: 16))
-                .foregroundColor(.white)
-            
+            if (model.avgHrvDuringSleep ?? 0) == 0 || (model.mostRecentRestingHeartRate ?? 0) == 0 {
+                Text("Wear your Apple Watch to get recovery information")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            else {
+                Text("Recovery is based on your average HRV during sleep of ")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white) +
+                Text("\(model.avgHrvDuringSleep ?? 0) ms ")
+                    .font(.system(size: 17))
+                    .foregroundColor(.green)
+                    .fontWeight(.bold) +
+                Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white) +
+                Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
+                    .font(.system(size: 17))
+                    .foregroundColor(.green)
+                    .fontWeight(.bold) +
+                Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .center)
     }
