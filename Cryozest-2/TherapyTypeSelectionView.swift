@@ -9,6 +9,7 @@ struct TherapyTypeSelectionView: View {
     @State var showAlert = false
     @State var alertTitle = ""
     @State var alertMessage = ""
+    @State var selectedCategory: Category = Category.category0
     
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
@@ -31,20 +32,24 @@ struct TherapyTypeSelectionView: View {
             
             VStack {
                 ScrollView {
-                    Text("Select up to 4")
-                        .font(.system(size: 24, weight: .bold, design: .default))
-                        .fontWeight(.semibold) // Slightly heavier font weight for emphasis
-                        .foregroundColor(.white)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 20) // Add horizontal padding for better spacing
-                        .cornerRadius(10) // Rounded corners for a smoother look
-                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Subtle shadow for depth
-                        .multilineTextAlignment(.center) // Center align for better readability in multiple lines
-                        .frame(maxWidth: .infinity) // Ensure it spans the width of the container
-                        .lineLimit(2) // Limit to 2 lines to maintain layout consistency
+                
+                    HStack {
+                        Spacer()
+                        
+                        Text("Habits to Track")
+                            .font(.system(size: 20, weight: .bold, design: .default))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 20)
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 12)
+                
+                    CategoryPillsView(selectedCategory: $selectedCategory)
+                        .padding(.bottom, 60)
                     
-                    
-                    ForEach(TherapyType.allCases, id: \.self) { therapyType in
+                    ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
                         Button(action: {
                             switch therapyType {
                             case .custom1:
@@ -72,7 +77,7 @@ struct TherapyTypeSelectionView: View {
                             }
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
-                            } else if selectedTypes.count < 4 {
+                            } else if selectedTypes.count < 6 {
                                 selectedTypes.append(therapyType)
                             } else {
                                 // user tried to select a 5th type
@@ -349,3 +354,54 @@ struct CustomTherapyTypeNameView: View {
     }
 }
 
+struct CategoryPillsView: View {
+    @Binding var selectedCategory: Category
+    @State private var scrollViewWidth: CGFloat = 0
+
+    var body: some View {
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(Category.allCases, id: \.self) { category in
+                            PillView(category: category, isSelected: Binding(get: {
+                                self.selectedCategory == category
+                            }, set: { _ in }))
+                                .id(category.id)
+                                .onTapGesture {
+                                    self.selectedCategory = category
+                                    withAnimation {
+                                        proxy.scrollTo(category.id, anchor: .center)
+                                    }
+                                }
+                        }
+                    }
+                    .padding()
+                    .onAppear {
+                        scrollViewWidth = geometry.size.width
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+struct PillView: View {
+    let category: Category
+    let isSelected: Binding<Bool>
+    
+    var body: some View {
+        Text(category.rawValue)
+            .padding(.horizontal)
+            .padding(.vertical, 5)
+            .background(isSelected.wrappedValue ? Color.blue : Color.clear)
+            .foregroundColor(isSelected.wrappedValue ? .white : Color.blue)
+            .cornerRadius(9) // Updated corner radius
+            .overlay(
+                RoundedRectangle(cornerRadius: 9) // Updated corner radius for the border
+                    .stroke(Color.blue, lineWidth: 1)
+                    .opacity(isSelected.wrappedValue ? 0 : 1)
+            )
+    }
+}

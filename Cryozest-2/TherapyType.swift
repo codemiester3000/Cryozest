@@ -18,6 +18,14 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case custom2 = "Custom 2"
     case custom3 = "Custom 3"
     case custom4 = "Custom 4"
+    case custom5 = "Custom 5"
+    case custom6 = "Custom 6"
+    case custom7 = "Custom 7"
+    case custom8 = "Custom 8"
+    case magnesium = "Magnesium"
+    case zinc = "Zinc"
+    case d3 = "D3"
+    case noCoffee = "No Coffee"
     
     var id: String { self.rawValue }
     
@@ -47,6 +55,14 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "wind"
         case .sleep:
             return "moon.fill"
+        case .magnesium:
+            return "capsule.fill"
+        case .zinc:
+            return "capsule.fill"
+        case .d3:
+            return "capsule.fill"
+        case .noCoffee:
+            return "cup.and.saucer"
         case .custom1:
             return "person.fill"
         case .custom2:
@@ -55,19 +71,33 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "person.fill"
         case .custom4:
             return "person.fill"
+        case .custom5:
+            return "person.fill"
+        case .custom6:
+            return "person.fill"
+        case .custom7:
+            return "person.fill"
+        case .custom8:
+            return "person.fill"
         }
     }
     
     var color: Color {
         switch self {
-        case .drySauna, .hotYoga, .running, .weightTraining:
+        case .drySauna, .hotYoga:
             return Color.orange
-        case .coldPlunge, .coldShower, .iceBath, .coldYoga:
+        case .coldPlunge, .coldShower, .iceBath:
             return Color.blue
-        case .meditation, .stretching, .deepBreathing, .sleep:
+        case .running, .weightTraining:
+            return Color.red
+        case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga:
             return Color(red: 0.0, green: 0.5, blue: 0.0)
-        case .custom1, .custom2, .custom3, .custom4:
+        case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
             return Color.purple
+        case .magnesium, .zinc, .d3:
+            return Color.teal
+        case .noCoffee:
+            return Color.mint
         }
     }
     
@@ -103,9 +133,50 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return 3
         case .custom4:
             return 4
+        case .custom5:
+            return 5
+        case .custom6:
+            return 6
+        case .custom7:
+            return 7
+        case .custom8:
+            return 8
         default:
             return 0 // Or handle other cases as needed
         }
     }
+    
+    static func therapies(forCategory category: Category) -> [TherapyType] {
+        switch category {
+        case .category0:
+            return TherapyType.allCases
+        case .category1: // Heat-Based
+            return [.drySauna, .hotYoga]
+        case .category2: // Cold-Based
+            return [.coldPlunge, .coldShower, .iceBath]
+        case .category3:
+            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching]
+        case .category4: // Workouts
+            return [.running, .weightTraining]
+        case .category5:
+            return [.magnesium, .zinc, .d3]
+        case .category6: // Diet
+            return [.noCoffee]
+        case .category7: // Custom
+            return [.custom1, .custom2, .custom3, .custom4]
+        }
+    }
 }
 
+enum Category: String, CaseIterable, Identifiable {
+    var id: String { self.rawValue }
+    
+    case category0 = "All"
+    case category1 = "Heat-Based"
+    case category2 = "Cold-Based"
+    case category3 = "Recovery"
+    case category4 = "Workouts"
+    case category5 = "Supplements"
+    case category6 = "Diet"
+    case category7 = "Custom"
+}

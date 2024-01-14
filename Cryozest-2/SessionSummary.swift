@@ -390,6 +390,8 @@ struct SessionSummary: View {
                 return 0..<100
             case .custom1, .custom2, .custom3, .custom4:
                 return 0..<100
+            default:
+                return 0..<100
             }
             
         }
@@ -570,6 +572,8 @@ struct SessionSummary: View {
             case .sleep:
                 burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             case .custom1, .custom2, .custom3, .custom4:
+                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
+            default:
                 burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
             }
             
