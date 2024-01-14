@@ -9,7 +9,7 @@ struct TherapyTypeSelectionView: View {
     @State var showAlert = false
     @State var alertTitle = ""
     @State var alertMessage = ""
-    @State var selectedCategory: Category = Category.category1
+    @State var selectedCategory: Category = Category.category0
     
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
@@ -32,13 +32,20 @@ struct TherapyTypeSelectionView: View {
             
             VStack {
                 ScrollView {
+                
                     HStack {
+                        Spacer()
+                        
                         Text("Habits to Track")
                             .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
+                            .padding(.trailing, 20)
+                        
+                        Spacer()
                     }
-                    
+                    .padding(.top, 12)
+                
                     CategoryPillsView(selectedCategory: $selectedCategory)
                         .padding(.bottom, 60)
                     

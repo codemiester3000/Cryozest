@@ -55,6 +55,14 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "wind"
         case .sleep:
             return "moon.fill"
+        case .magnesium:
+            return "capsule.fill"
+        case .zinc:
+            return "capsule.fill"
+        case .d3:
+            return "capsule.fill"
+        case .noCoffee:
+            return "cup.and.saucer"
         case .custom1:
             return "person.fill"
         case .custom2:
@@ -71,14 +79,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "person.fill"
         case .custom8:
             return "person.fill"
-        case .magnesium:
-            return "capsule.fill"
-        case .zinc:
-            return "capsule.fill"
-        case .d3:
-            return "capsule.fill"
-        case .noCoffee:
-            return "cup.and.saucer"
         }
     }
     
@@ -148,6 +148,8 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     static func therapies(forCategory category: Category) -> [TherapyType] {
         switch category {
+        case .category0:
+            return TherapyType.allCases
         case .category1: // Heat-Based
             return [.drySauna, .hotYoga]
         case .category2: // Cold-Based
@@ -169,6 +171,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 enum Category: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
     
+    case category0 = "All"
     case category1 = "Heat-Based"
     case category2 = "Cold-Based"
     case category3 = "Recovery"
