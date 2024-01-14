@@ -77,7 +77,7 @@ struct TherapyTypeSelectionView: View {
                             }
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
-                            } else if selectedTypes.count < 4 {
+                            } else if selectedTypes.count < 6 {
                                 selectedTypes.append(therapyType)
                             } else {
                                 // user tried to select a 5th type
