@@ -72,7 +72,7 @@ struct MainView: View {
         NavigationView {
             VStack {
                 HStack {
-                    Text("CryoZest")
+                    Text("Record Session")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .foregroundColor(.white)
                         .bold()

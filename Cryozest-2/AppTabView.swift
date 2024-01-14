@@ -21,19 +21,19 @@ struct AppTabView: View {
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-            AnalysisView(therapyTypeSelection: therapyTypeSelection)
+            MainView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
-                    Image(systemName: "chart.bar.fill")
-                    Text("Analysis")
+                    Image(systemName: "stopwatch")
+                    Text("Stopwatch")
                 }
                 .tag(1)
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-            MainView(therapyTypeSelection: therapyTypeSelection)
+            AnalysisView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
-                    Image(systemName: "stopwatch")
-                    Text("Stopwatch")
+                    Image(systemName: "chart.bar.fill")
+                    Text("Analysis")
                 }
                 .tag(2)
                 .toolbarBackground(.black, for: .tabBar)
