@@ -26,7 +26,7 @@ struct LoadingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(EdgeInsets(top: 40, leading: 30, bottom: 40, trailing: 30))
-        .background(Color(.darkGray))
+        .background(.black)
         .cornerRadius(16)
         .padding(.horizontal)
     }
