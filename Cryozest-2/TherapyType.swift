@@ -2,13 +2,17 @@ import SwiftUI
 import CoreData
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
+    // Hot-Based
     case drySauna = "Sauna"
     case hotYoga = "Hot Yoga"
-    case running = "Running"
-    case weightTraining = "Lifting"
+    // Cold-Based
     case coldPlunge = "Cold Plunge"
     case coldShower = "Cold Shower"
     case iceBath = "Ice Bath"
+    // Workouts
+    case running = "Running"
+    case weightTraining = "Lifting"
+    // Recovery
     case coldYoga = "Yoga"
     case meditation = "Meditation"
     case stretching = "Stretching"
