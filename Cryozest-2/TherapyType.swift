@@ -25,7 +25,13 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case magnesium = "Magnesium"
     case zinc = "Zinc"
     case d3 = "D3"
+    // Diet
     case noCoffee = "No Coffee"
+    case noCaffeine = "No Caffeine"
+    case vegetarian = "Vegetarian Diet"
+    case vegan = "Vegan Diet"
+    case keto = "Keto Diet"
+    case noSugar = "No sugar"
     
     var id: String { self.rawValue }
     
@@ -55,14 +61,10 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "wind"
         case .sleep:
             return "moon.fill"
-        case .magnesium:
-            return "capsule.fill"
-        case .zinc:
-            return "capsule.fill"
-        case .d3:
-            return "capsule.fill"
-        case .noCoffee:
-            return "cup.and.saucer"
+        case .magnesium, .zinc, .d3:
+            return "capsule"
+        case .noCoffee, .noSugar, .noCaffeine, .vegan, .vegetarian, .keto:
+            return "cup.and.saucer.fill"
         case .custom1:
             return "person.fill"
         case .custom2:
@@ -96,7 +98,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.purple
         case .magnesium, .zinc, .d3:
             return Color.teal
-        case .noCoffee:
+        case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar:
             return Color.mint
         }
     }
@@ -161,9 +163,9 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .category5:
             return [.magnesium, .zinc, .d3]
         case .category6: // Diet
-            return [.noCoffee]
+            return [.noCoffee, .noSugar, .noCaffeine, .keto, .vegetarian, .vegan]
         case .category7: // Custom
-            return [.custom1, .custom2, .custom3, .custom4]
+            return [.custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8]
         }
     }
 }
