@@ -1,7 +1,6 @@
 import SwiftUI
 
 class SleepComparisonDataModel: ObservableObject {
-    
     var timeFrame: TimeFrame {
         didSet {
             fetchSleepData()
@@ -38,12 +37,6 @@ class SleepComparisonDataModel: ObservableObject {
         self.timeFrame = timeFrame
         self.therapyType = therapyType
         self.maxValue = 0.0
-        
-        print("Owen here \n\n\n")
-        print("sessions: ", sessions)
-        print("timeFrame: ", timeFrame)
-        print("therapyType: ", therapyType)
-        print("\n\n\n")
         
         baselineTotalSleep = 0.0
         exerciseTotalSleep = 0.0
@@ -121,46 +114,46 @@ struct SleepComparisonBarGraph: View {
             
             ParagraphExplanation(model: model)
             
-            VStack {
-                HStack {
-                    Text("Avg Sleep Duration")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    
-                    Image(systemName: "moon.fill")
-                        .foregroundColor(model.therapyType.color)
-                        .padding(.trailing, 10)
-                }
-                HStack {
-                    HStack {
-                        Text("\(model.therapyType.displayName(managedObjectContext)) days")
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                        
-                    }
-                    Spacer()
-                    Text((model.exerciseSleepData.total != 0 ? String(format: "%.1f", model.exerciseSleepData.total) + " Hrs" : "N/A"))
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.trailing, 10)
-                }
-                .padding(.vertical, 5)
-                HStack {
-                    HStack {
-                        Text("baseline")
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                    }
-                    Spacer()
-                    Text((model.baselineSleepData.total != 0 ? String(format: "%.1f", model.baselineSleepData.total) + " Hrs" : "N/A"))
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.trailing, 10)
-                }
-            }
-            .padding(.top)
+//            VStack {
+//                HStack {
+//                    Text("Avg Sleep Duration")
+//                        .font(.footnote)
+//                        .fontWeight(.bold)
+//                        .foregroundColor(.white)
+//                    Spacer()
+//                    
+//                    Image(systemName: "moon.fill")
+//                        .foregroundColor(model.therapyType.color)
+//                        .padding(.trailing, 10)
+//                }
+//                HStack {
+//                    HStack {
+//                        Text("\(model.therapyType.displayName(managedObjectContext)) days")
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                        
+//                    }
+//                    Spacer()
+//                    Text((model.exerciseSleepData.total != 0 ? String(format: "%.1f", model.exerciseSleepData.total) + " Hrs" : "N/A"))
+//                        .font(.footnote)
+//                        .foregroundColor(.white)
+//                        .padding(.trailing, 10)
+//                }
+//                .padding(.vertical, 5)
+//                HStack {
+//                    HStack {
+//                        Text("baseline")
+//                            .font(.footnote)
+//                            .foregroundColor(.white)
+//                    }
+//                    Spacer()
+//                    Text((model.baselineSleepData.total != 0 ? String(format: "%.1f", model.baselineSleepData.total) + " Hrs" : "N/A"))
+//                        .font(.footnote)
+//                        .foregroundColor(.white)
+//                        .padding(.trailing, 10)
+//                }
+//            }
+//            .padding(.top)
         }
     }
 }
@@ -212,6 +205,7 @@ struct ParagraphExplanation: View {
                 Text("Wear your Apple Watch during sleep to see how metrics differs on \(model.therapyType.displayName(managedObjectContext)) days")
                     .font(.system(size: 12))
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
             }
         }
     }
