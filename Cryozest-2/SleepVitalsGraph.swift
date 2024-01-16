@@ -50,36 +50,36 @@ class SleepVitalsDataModel: ObservableObject {
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
         HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: baselineDates) { averageHeartRate, averageHRV in
-                DispatchQueue.main.async {
-                    self.baselineRestingHeartRate = averageHeartRate
-                    self.baselineRestingHRV = averageHRV
-                }
+            DispatchQueue.main.async {
+                self.baselineRestingHeartRate = averageHeartRate
+                self.baselineRestingHRV = averageHRV
             }
+        }
         HealthKitManager.shared.fetchAverageRespiratoryRateAndSPO2ForDays(days: baselineDates) { averageRespiratoryRate, averageSPO2 in
-                DispatchQueue.main.async {
-                    self.baselineRespiratoryRate = averageRespiratoryRate
-                    self.baselineSPO2 = averageSPO2
-                }
+            DispatchQueue.main.async {
+                self.baselineRespiratoryRate = averageRespiratoryRate
+                self.baselineSPO2 = averageSPO2
             }
+        }
         
         let therapySessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
-           
-           HealthKitManager.shared.fetchAverageRespiratoryRateAndSPO2ForDays(days: therapySessionDates) { averageRespiratoryRate, averageSPO2 in
-               DispatchQueue.main.async {
-                   self.exerciseRespiratoryRate = averageRespiratoryRate
-                   self.exerciseSPO2 = averageSPO2
-               }
-           }
+        
+        HealthKitManager.shared.fetchAverageRespiratoryRateAndSPO2ForDays(days: therapySessionDates) { averageRespiratoryRate, averageSPO2 in
+            DispatchQueue.main.async {
+                self.exerciseRespiratoryRate = averageRespiratoryRate
+                self.exerciseSPO2 = averageSPO2
+            }
+        }
         
         
         
         HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: therapySessionDates) { averageHeartRate, averageHRV in
-                DispatchQueue.main.async {
-                    self.exerciseRestingHeartRate = averageHeartRate
-                    self.exerciseRestingHRV = averageHRV
-                }
+            DispatchQueue.main.async {
+                self.exerciseRestingHeartRate = averageHeartRate
+                self.exerciseRestingHRV = averageHRV
             }
         }
+    }
     
     
     
@@ -92,15 +92,21 @@ struct SleepVitalsGraph: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            CenteredDivider().padding(.bottom, 8)
+            
             BarGraphView(
                 title: "Sleeping Resting Heart Rate",
                 baselineValue: model.baselineRestingHeartRate,
                 exerciseValue: model.exerciseRestingHeartRate,
                 baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
-                barColor: model.therapyType.color
+                barColor: model.therapyType.color,
+                upArrow: true,
+                isGreen: true
             )
             .padding(.bottom)
+            
+            CenteredDivider().padding(.bottom, 8)
             
             BarGraphView(
                 title: "Sleeping Heart Rate Variability",
@@ -108,11 +114,42 @@ struct SleepVitalsGraph: View {
                 exerciseValue: model.exerciseRestingHRV,
                 baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
-                barColor: model.therapyType.color
+                barColor: model.therapyType.color,
+                upArrow: true,
+                isGreen: true
             )
             .padding(.bottom)
             
+            CenteredDivider()
+                .padding(.bottom, 4)
             
+            // Respiratory Rate Graph
+            BarGraphView(
+                title: "Sleeping Respiratory Rate",
+                baselineValue: model.baselineRespiratoryRate,
+                exerciseValue: model.exerciseRespiratoryRate,
+                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",
+                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",
+                barColor: model.therapyType.color,
+                upArrow: true,
+                isGreen: true
+            )
+            .padding(.bottom)
+            
+            CenteredDivider().padding(.bottom, 4)
+            
+            // SPO2 Graph
+            BarGraphView(
+                title: "Sleeping SPO2",
+                baselineValue: model.baselineSPO2 * 100,
+                exerciseValue: model.exerciseSPO2 * 100,
+                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",
+                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
+                barColor: model.therapyType.color,
+                upArrow: true,
+                isGreen: true
+            )
+            .padding(.bottom)
             
             ParagraphText("RHR",
                           percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
@@ -125,40 +162,18 @@ struct SleepVitalsGraph: View {
                                                                 exercise: model.exerciseRestingHRV) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
-       
-            // Respiratory Rate Graph
-            BarGraphView(
-                title: "Sleeping Respiratory Rate",
-                baselineValue: model.baselineRespiratoryRate,
-                exerciseValue: model.exerciseRespiratoryRate,
-                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",
-                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",
-                barColor: model.therapyType.color
-            )
-            
-            // SPO2 Graph
-            BarGraphView(
-                title: "Sleeping SPO2",
-                baselineValue: model.baselineSPO2 * 100,
-                exerciseValue: model.exerciseSPO2 * 100,
-                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",
-                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
-                barColor: model.therapyType.color
-            )
-            .padding(.bottom)
-            
-            VitalsGaugeView(model: model)
-            .padding(.bottom)
-
             ParagraphText("Respiratory Rate",
                           percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
                                                                 exercise: model.exerciseRespiratoryRate) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-
+            
             ParagraphText("SPO2",
                           percentChange: calculatePercentChange(baseline: model.baselineSPO2,
                                                                 exercise: model.exerciseSPO2) ?? 0,
-            therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+            VitalsGaugeView(model: model)
+                .padding(.bottom)
             
         }
     }
@@ -223,6 +238,8 @@ struct BarGraphView: View {
     var baselineLabel: String
     var exerciseLabel: String
     var barColor: Color
+    var upArrow: Bool
+    var isGreen: Bool
     
     private let maxBarWidth: CGFloat = 200  // Maximum width of the bar
     private let maxValue: Double = 100 // This should be your maximum scale value
@@ -237,9 +254,14 @@ struct BarGraphView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(title)
-                .font(.footnote)
-                .foregroundColor(.white)
+            HStack {
+                Text(title)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+                
+                Image(systemName: upArrow ? "arrow.up" : "arrow.down")
+                    .foregroundColor(isGreen ? .green : .red)
+            }
             
             // Baseline Bar with Label
             HStack {
@@ -274,23 +296,39 @@ struct BarGraphView: View {
     }
 }
 
+struct CenteredDivider: View {
+    var body: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer() // Pushes everything below to the middle
+                
+                Divider()
+                    .frame(width: geometry.size.width * 0.8) // 80% of screen's width
+                    .background(Color.white) // Set the color to white
+                
+                Spacer() // Centers the divider vertically
+            }
+        }
+    }
+}
+
 struct GaugeView: View {
     var title: String
     var value: Double
     var inRange: ClosedRange<Double>
     var unit: String
-
+    
     private var normalizedValue: Double {
         // Normalize the value to fit within the gauge scale
         return min(max(value, inRange.lowerBound), inRange.upperBound)
     }
-
+    
     var body: some View {
         VStack {
             Text(title)
                 .font(.headline)
                 .foregroundColor(.gray)
-
+            
             Gauge(value: normalizedValue, in: inRange) {
                 Text("")
             } currentValueLabel: {
@@ -308,14 +346,14 @@ struct GaugeView: View {
 
 struct VitalsGaugeView: View {
     @ObservedObject var model: SleepVitalsDataModel
-
+    
     var body: some View {
         VStack {
             // Respiratory Rate Comparison
             Text("Sleeping Respiratory Rate Comparison")
                 .font(.headline)
                 .padding()
-
+            
             HStack {
                 GaugeView(
                     title: "Baseline Days",
@@ -323,7 +361,7 @@ struct VitalsGaugeView: View {
                     inRange: 10...20,  // Adjust the range as appropriate
                     unit: " br/min"
                 )
-
+                
                 GaugeView(
                     title: "Therapy Days",
                     value: model.exerciseRespiratoryRate,
@@ -331,12 +369,12 @@ struct VitalsGaugeView: View {
                     unit: " br/min"
                 )
             }
-
+            
             // SPO2 Comparison
             Text("Sleeping SPO2 Comparison")
                 .font(.headline)
                 .padding()
-
+            
             HStack {
                 GaugeView(
                     title: "Baseline Days",
@@ -344,7 +382,7 @@ struct VitalsGaugeView: View {
                     inRange: 90...100,  // Adjust the range as appropriate
                     unit: "%"
                 )
-
+                
                 GaugeView(
                     title: "Therapy Days",
                     value: model.exerciseSPO2 * 100,  // Assuming this value is in decimal format
