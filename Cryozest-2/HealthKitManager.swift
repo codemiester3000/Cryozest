@@ -879,6 +879,8 @@ class HealthKitManager {
     }
 
     
+    
+    
 
     func fetchAverageSleepVitalsForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
         let calendar = Calendar.current
@@ -947,6 +949,85 @@ class HealthKitManager {
         }
     }
 
+    func fetchAverageRespiratoryRateAndSPO2ForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
+        let healthStore = HKHealthStore()
+        let group = DispatchGroup()
+
+        var dailyVitalsResults: [(averageRespiratoryRate: Double, averageSPO2: Double)] = []
+
+        for date in days {
+            group.enter()
+            print("Processing data for date: \(date)")
+
+            getSleepTimes(for: date) { sleepStart, sleepEnd in
+                guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+                    print("Error getting sleep times for date: \(date)")
+                    group.leave()
+                    return
+                }
+                print("Sleep times for date \(date): Start - \(sleepStart), End - \(sleepEnd)")
+
+                let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+                let respiratoryRateType = HKQuantityType.quantityType(forIdentifier: .respiratoryRate)!
+                let spo2Type = HKQuantityType.quantityType(forIdentifier: .oxygenSaturation)!
+
+                let respiratoryRateQuery = HKSampleQuery(sampleType: respiratoryRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+
+                    guard let respiratoryRateSamples = samples as? [HKQuantitySample], error == nil else {
+                        print("Error fetching respiratory rate data for date: \(date), Error: \(String(describing: error))")
+                        group.leave()
+                        return
+                    }
+
+                    let totalRespiratoryRate = respiratoryRateSamples.reduce(0.0) { (acc, sample) -> Double in
+                        return acc + sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                    }
+                    let averageRespiratoryRate = respiratoryRateSamples.isEmpty ? 0.0 : totalRespiratoryRate / Double(respiratoryRateSamples.count)
+                    print("Average Respiratory Rate for date \(date): \(averageRespiratoryRate)")
+
+                    let spo2Query = HKSampleQuery(sampleType: spo2Type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+
+                        guard let spo2Samples = samples as? [HKQuantitySample], error == nil else {
+                            print("Error fetching SPO2 data for date: \(date), Error: \(String(describing: error))")
+                            group.leave()
+                            return
+                        }
+
+                        let totalSPO2 = spo2Samples.reduce(0.0) { (acc, sample) -> Double in
+                            return acc + sample.quantity.doubleValue (for: HKUnit.percent())
+                        }
+                        let averageSPO2 = spo2Samples.isEmpty ? 0.0 : totalSPO2 / Double(spo2Samples.count)
+                        print("Average SPO2 for date \(date): \(averageSPO2)")
+
+                        // Append the results for this day to the daily vitals results array
+                        dailyVitalsResults.append((averageRespiratoryRate: averageRespiratoryRate, averageSPO2: averageSPO2))
+                        group.leave()
+                    }
+
+                    // Execute the SPO2 Query
+                    healthStore.execute(spo2Query)
+                }
+
+                // Execute the Respiratory Rate Query
+                healthStore.execute(respiratoryRateQuery)
+            }
+        }
+
+        group.notify(queue: .main) {
+            // Calculate the overall averages
+            let totalRespiratoryRate = dailyVitalsResults.reduce(0.0) { $0 + $1.averageRespiratoryRate }
+            let totalSPO2 = dailyVitalsResults.reduce(0.0) { $0 + $1.averageSPO2 }
+            let averageRespiratoryRate = !dailyVitalsResults.isEmpty ? totalRespiratoryRate / Double(dailyVitalsResults.count) : 0.0
+            let averageSPO2 = !dailyVitalsResults.isEmpty ? totalSPO2 / Double(dailyVitalsResults.count) : 0.0
+
+            // Call the completion handler with the overall average values
+            completion(averageRespiratoryRate, averageSPO2)
+        }
+    }
+
+    
+    
+    
 
 
     // Return averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep

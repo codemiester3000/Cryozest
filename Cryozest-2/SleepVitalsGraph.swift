@@ -23,6 +23,12 @@ class SleepVitalsDataModel: ObservableObject {
     @Published var baselineRestingHRV: Double
     @Published var exerciseRestingHRV: Double
     
+    @Published var baselineRespiratoryRate: Double
+    @Published var exerciseRespiratoryRate: Double
+    @Published var baselineSPO2: Double
+    @Published var exerciseSPO2: Double
+    
+    
     init(therapyType: TherapyType, timeFrame: TimeFrame, sessions: FetchedResults<TherapySessionEntity>) {
         self.sessions = sessions
         self.timeFrame = timeFrame
@@ -30,9 +36,12 @@ class SleepVitalsDataModel: ObservableObject {
         
         baselineRestingHeartRate = 0.0
         exerciseRestingHeartRate = 0.0
-        
         baselineRestingHRV = 0.0
         exerciseRestingHRV = 0.0
+        baselineRespiratoryRate = 0.0
+        exerciseRespiratoryRate = 0.0
+        baselineSPO2 = 0.0
+        exerciseSPO2 = 0.0
         
         fetchSleepVitalsData()
     }
@@ -41,23 +50,36 @@ class SleepVitalsDataModel: ObservableObject {
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
         HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: baselineDates) { averageHeartRate, averageHRV in
-            DispatchQueue.main.async {
-                // Update the published properties on the main thread
-                self.baselineRestingHeartRate = averageHeartRate
-                self.baselineRestingHRV = averageHRV
+                DispatchQueue.main.async {
+                    self.baselineRestingHeartRate = averageHeartRate
+                    self.baselineRestingHRV = averageHRV
+                }
+            }
+        HealthKitManager.shared.fetchAverageRespiratoryRateAndSPO2ForDays(days: baselineDates) { averageRespiratoryRate, averageSPO2 in
+                DispatchQueue.main.async {
+                    self.baselineRespiratoryRate = averageRespiratoryRate
+                    self.baselineSPO2 = averageSPO2
+                }
+            }
+        
+        let therapySessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
+           
+           HealthKitManager.shared.fetchAverageRespiratoryRateAndSPO2ForDays(days: therapySessionDates) { averageRespiratoryRate, averageSPO2 in
+               DispatchQueue.main.async {
+                   self.exerciseRespiratoryRate = averageRespiratoryRate
+                   self.exerciseSPO2 = averageSPO2
+               }
+           }
+        
+        
+        
+        HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: therapySessionDates) { averageHeartRate, averageHRV in
+                DispatchQueue.main.async {
+                    self.exerciseRestingHeartRate = averageHeartRate
+                    self.exerciseRestingHRV = averageHRV
+                }
             }
         }
-        
-        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
-        
-        HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: completedSessionDates) { averageHeartRate, averageHRV in
-            DispatchQueue.main.async {
-                // Update the published properties on the main thread
-                self.exerciseRestingHeartRate = averageHeartRate
-                self.exerciseRestingHRV = averageHRV
-            }
-        }
-    }
     
     
     
@@ -95,22 +117,44 @@ struct SleepVitalsGraph: View {
                           percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
                                                                 exercise: model.exerciseRestingHeartRate) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-
-        
-                   ParagraphText("HRV",
-                                 percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
-                                                                       exercise: model.exerciseRestingHRV) ?? 0,
-                                 therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-             
+            
+            
+            ParagraphText("HRV",
+                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
+                                                                exercise: model.exerciseRestingHRV) ?? 0,
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+            // Respiratory Rate Graph
+            BarGraphView(
+                title: "Sleeping Respiratory Rate",
+                baselineValue: model.baselineRespiratoryRate,
+                exerciseValue: model.exerciseRespiratoryRate,
+                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",  // Format as needed
+                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",  // Format as needed
+                barColor: model.therapyType.color
+            )
+            .padding(.bottom)
+            
+            // SPO2 Graph
+            BarGraphView(
+                title: "Sleeping SPO2",
+                baselineValue: model.baselineSPO2 * 100,  // Multiply by 100 to convert to percentage
+                exerciseValue: model.exerciseSPO2 * 100,  // Multiply by 100 to convert to percentage
+                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",  // Multiply by 100 inside interpolation
+                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",  // Multiply by 100 inside interpolation
+                barColor: model.therapyType.color
+            )
+            .padding(.bottom)
+            
         }
     }
     
     private func calculatePercentChange(baseline: Double, exercise: Double) -> CGFloat? {
-            if baseline != 0 {
-                return CGFloat((exercise - baseline) / baseline * 100)
-            }
-            return nil
+        if baseline != 0 {
+            return CGFloat((exercise - baseline) / baseline * 100)
         }
+        return nil
+    }
     
     
     @ViewBuilder
@@ -148,14 +192,14 @@ struct SleepVitalsGraph: View {
         }
         .padding(.bottom, 6)
     }
-
+    
     private func changeIndicator(for percentChange: CGFloat) -> (symbol: String, color: Color) {
         if percentChange == 0 {
-        return ("↑", .green)
+            return ("↑", .green)
         } else {
-        return ("↓", .red)
+            return ("↓", .red)
         }
-        }
+    }
 }
 
 struct BarGraphView: View {
@@ -168,46 +212,46 @@ struct BarGraphView: View {
     
     private let maxBarWidth: CGFloat = 200  // Maximum width of the bar
     private let maxValue: Double = 100 // This should be your maximum scale value
-
+    
     
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
     
     var body: some View {
-          VStack(alignment: .leading) {
-              Text(title)
-                  .font(.footnote)
-                  .foregroundColor(.white)
-              
-              // Baseline Bar with Label
-              HStack {
-                  Rectangle()
-                      .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
-                      .frame(width: CGFloat(baselineValue / maxValue) * maxBarWidth, height: 20)
-                      .cornerRadius(6.0)
-                  
-                  Text(baselineLabel)
-                      .font(.footnote)
-                      .foregroundColor(.white)
-              }
-              
-              // Exercise Bar with Label
-              HStack {
-                  Rectangle()
-                      .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
-                      .frame(width: CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 20)
-                      .cornerRadius(6.0)
-                  
-                  Text(exerciseLabel)
-                      .font(.footnote)
-                      .foregroundColor(.white)
-              }
-          }
-          .onAppear {
-              // Trigger any necessary animations when the view appears
-              withAnimation(.linear(duration: 3.0)) {
-                  // Your animation code, if needed
-              }
-          }
-      }
-  }
+        VStack(alignment: .leading) {
+            Text(title)
+                .font(.footnote)
+                .foregroundColor(.white)
+            
+            // Baseline Bar with Label
+            HStack {
+                Rectangle()
+                    .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
+                    .frame(width: CGFloat(baselineValue / maxValue) * maxBarWidth, height: 20)
+                    .cornerRadius(6.0)
+                
+                Text(baselineLabel)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+            }
+            
+            // Exercise Bar with Label
+            HStack {
+                Rectangle()
+                    .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
+                    .frame(width: CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 20)
+                    .cornerRadius(6.0)
+                
+                Text(exerciseLabel)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+            }
+        }
+        .onAppear {
+            // Trigger any necessary animations when the view appears
+            withAnimation(.linear(duration: 3.0)) {
+                // Your animation code, if needed
+            }
+        }
+    }
+}
