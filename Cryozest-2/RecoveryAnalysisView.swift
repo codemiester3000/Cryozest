@@ -146,7 +146,7 @@ struct RecoveryAnalysisView: View {
                 SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                 
                 SleepVitalsGraph(model: SleepVitalsDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
-                    .padding(.top, 24)
+                    .padding(.top, 32)
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
                 

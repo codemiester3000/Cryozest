@@ -17,11 +17,11 @@ class SleepVitalsDataModel: ObservableObject {
     
     // Resting Heart Rate
     @Published var baselineRestingHeartRate: Double
-    @Published var excerciseRestingHeartRate: Double
+    @Published var exerciseRestingHeartRate: Double
     
     // Resting Heart Rate Variability
     @Published var baselineRestingHRV: Double
-    @Published var excerciseRestingHRV: Double
+    @Published var exerciseRestingHRV: Double
     
     init(therapyType: TherapyType, timeFrame: TimeFrame, sessions: FetchedResults<TherapySessionEntity>) {
         self.sessions = sessions
@@ -29,17 +29,36 @@ class SleepVitalsDataModel: ObservableObject {
         self.therapyType = therapyType
         
         baselineRestingHeartRate = 0.0
-        excerciseRestingHeartRate = 0.0
+        exerciseRestingHeartRate = 0.0
         
         baselineRestingHRV = 0.0
-        excerciseRestingHRV = 0.0
+        exerciseRestingHRV = 0.0
         
         fetchSleepVitalsData()
     }
     
     private func fetchSleepVitalsData() {
-        // TODO: Implement
+        let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
+        
+        HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: baselineDates) { averageHeartRate, averageHRV in
+            DispatchQueue.main.async {
+                // Update the published properties on the main thread
+                self.baselineRestingHeartRate = averageHeartRate
+                self.baselineRestingHRV = averageHRV
+            }
+        }
+        
+        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
+        
+        HealthKitManager.shared.fetchAverageSleepVitalsForDays(days: completedSessionDates) { averageHeartRate, averageHRV in
+            DispatchQueue.main.async {
+                // Update the published properties on the main thread
+                self.exerciseRestingHeartRate = averageHeartRate
+                self.exerciseRestingHRV = averageHRV
+            }
+        }
     }
+    
     
     
 }
@@ -51,16 +70,20 @@ struct SleepVitalsGraph: View {
         VStack(alignment: .leading) {
             BarGraphView(
                 title: "Resting Heart Rate",
-                baselineValue: 50.0,
-                excerciseValue: 150.0,
+                baselineValue: model.baselineRestingHeartRate,
+                exerciseValue: model.exerciseRestingHeartRate,
+                baselineLabel: "\(Int(model.baselineRestingHeartRate)) bpm",
+                exerciseLabel: "\(Int(model.exerciseRestingHeartRate)) bpm",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
             
             BarGraphView(
                 title: "Resting Heart Rate Variability",
-                baselineValue: 70.0,
-                excerciseValue: 225.0,
+                baselineValue: model.baselineRestingHRV,
+                exerciseValue: model.exerciseRestingHRV,
+                baselineLabel: "\(Int(model.baselineRestingHRV)) ms",
+                exerciseLabel: "\(Int(model.exerciseRestingHRV)) ms",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
@@ -72,10 +95,11 @@ struct SleepVitalsGraph: View {
 struct BarGraphView: View {
     var title: String
     var baselineValue: Double
-    var excerciseValue: Double
+    var exerciseValue: Double
+    var baselineLabel: String
+    var exerciseLabel: String
     var barColor: Color
     
-    // These are used for the growing animation.
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
     
@@ -84,25 +108,42 @@ struct BarGraphView: View {
             Text(title)
                 .font(.footnote)
                 .foregroundColor(.white)
-            Rectangle()
-                .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
-                .frame(width: baselineBarWidth, height: 20)
-                .onAppear {
-                    withAnimation(.linear(duration: 3.0)) {
-                        baselineBarWidth = baselineValue
-                    }
-                }
-                .cornerRadius(6.0)
             
-            Rectangle()
-                .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
-                .frame(width: excerciseValue, height: 20)
-                .onAppear {
-                    withAnimation(.linear(duration: 3.0)) {
-                        exerciseBarWidth = excerciseValue
-                    }
+            // Baseline Bar with Label
+            HStack {
+                Rectangle()
+                    .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
+                    .frame(width: baselineBarWidth, height: 20)
+                    .cornerRadius(6.0)
+                
+                Text(baselineLabel)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+            }
+            .onAppear {
+                withAnimation(.linear(duration: 3.0)) {
+                    baselineBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : baselineValue
                 }
-                .cornerRadius(6.0)
+            }
+            
+            // Exercise Bar with Label
+            HStack {
+                Rectangle()
+                    .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
+                    .frame(width: exerciseBarWidth, height: 20)
+                    .cornerRadius(6.0)
+                
+                Text(exerciseLabel)
+                    .font(.footnote)
+                    .foregroundColor(.white)
+            }
+            .onAppear {
+                withAnimation(.linear(duration: 3.0)) {
+                    exerciseBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : exerciseValue
+                }
+            }
         }
     }
 }
+
+

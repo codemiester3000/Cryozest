@@ -830,7 +830,69 @@ class HealthKitManager {
             return SleepSession(start: min(start, other.start), end: max(end, other.end))
         }
     }
+    
+    func fetchAverageSleepVitalsForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
+        let calendar = Calendar.current
+        let healthStore = HKHealthStore()
+        let group = DispatchGroup()
 
+        var dailyVitalsResults: [(averageHeartRate: Double, averageHRV: Double)] = []
+
+        for date in days {
+            group.enter()
+
+            let sleepStartTime = calendar.startOfDay(for: date).addingTimeInterval(19 * 3600) // 7 PM
+            let sleepEndTime = calendar.startOfDay(for: date).addingTimeInterval((24 + 14) * 3600) // 2 PM next day
+
+            let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictEndDate)
+            let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+            let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+
+            let heartRateQuery = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+
+                guard let heartRateSamples = samples as? [HKQuantitySample], error == nil else {
+                    print("Error fetching heart rate data: \(String(describing: error))")
+                    return
+                }
+
+                let totalHeartRate = heartRateSamples.reduce(0.0) { (acc, sample) -> Double in
+                    return acc + sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                }
+                let averageHeartRate = heartRateSamples.isEmpty ? 0.0 : totalHeartRate / Double(heartRateSamples.count)
+
+                let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
+
+                    guard let hrvSamples = samples as? [HKQuantitySample], error == nil else {
+                        print("Error fetching HRV data: \(String(describing: error))")
+                        return
+                    }
+
+                    let totalHRV = hrvSamples.reduce(0.0) { (acc, sample) -> Double in
+                        return acc + sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                    }
+                    let averageHRV = hrvSamples.isEmpty ? 0.0 : totalHRV / Double(hrvSamples.count)
+
+                    dailyVitalsResults.append((averageHeartRate: averageHeartRate, averageHRV: averageHRV))
+                    group.leave()
+                }
+
+                healthStore.execute(hrvQuery)
+            }
+
+            healthStore.execute(heartRateQuery)
+        }
+
+        group.notify(queue: .main) {
+            let totalDays = Double(dailyVitalsResults.count)
+            let averageHeartRate = dailyVitalsResults.map { $0.averageHeartRate }.reduce(0, +) / totalDays
+            let averageHRV = dailyVitalsResults.map { $0.averageHRV }.reduce(0, +) / totalDays
+
+            completion(averageHeartRate, averageHRV)
+        }
+    }
+
+
+    // Return averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep
     func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double, Double) -> Void) {
         let calendar = Calendar.current
         let healthStore = HKHealthStore()
