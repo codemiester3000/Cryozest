@@ -14,6 +14,19 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     // Workouts
     case running = "Running"
     case weightTraining = "Lifting"
+    case lowIntensityCardio = "Low Intensity Cardio"
+    case hiit = "HIIT"
+    case cycling = "Cycling"
+    case swimming = "Swimming"
+    case boxing = "Boxing"
+    case pilates = "Pilates"
+    case crossfit = "CrossFit"
+    case dance = "Dance"
+    case rockClimbing = "Rock Climbing"
+    case hiking = "Hiking"
+    case rowing = "Rowing"
+    case skateboarding = "Skateboarding"
+    case surfing = "Surfing"
     
     // Recovery
     case coldYoga = "Yoga"
@@ -155,26 +168,56 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .custom4, .custom5, .custom6, .custom7, .custom8:
             return "person.fill"
             // Recovery items
-               case .massage:
-                   return "person.crop.rectangle"
-               case .nap:
-                   return "bed.double.fill"
-               case .sleepAid:
-                   return "pills.fill"
-               case .sleepMask:
-                   return "moon.stars.fill"
-               case .whiteNoise:
-                   return "waveform.path.ecg"
-
-               // 'Other' category
-               case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
-                    .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
-                    .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing,
-                    .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading,
-                    .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring,
-                    .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation,
-                    .vaccination, .vividDreams, .workingLate:
-                   return "tray.fill"
+        case .massage:
+            return "person.crop.rectangle"
+        case .nap:
+            return "bed.double.fill"
+        case .sleepAid:
+            return "pills.fill"
+        case .sleepMask:
+            return "moon.stars.fill"
+        case .whiteNoise:
+            return "waveform.path.ecg"
+            
+            // 'Other' category
+        case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
+                .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
+                .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing,
+                .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading,
+                .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring,
+                .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation,
+                .vaccination, .vividDreams, .workingLate:
+            return "tray.fill"
+            
+            // Icons for new workouts
+                   case .lowIntensityCardio:
+                       return "hare.fill" // Represents fast movement, suitable for cardio
+                   case .hiit:
+                       return "flame.fill" // Represents intensity
+                   case .cycling:
+                       return "bicycle" // Direct representation of cycling
+                   case .swimming:
+                       return "waveform.path.ecg" // Represents water movement
+                   case .boxing:
+                       return "burst.fill" // Alternative representation for boxing
+                   case .pilates:
+                       return "circle.grid.cross.fill" // Abstract representation for pilates
+                   case .crossfit:
+                       return "figure.walk.diamond.fill" // Represents dynamic movement
+           case .dance:
+           return "music.note.list" // Music symbol, often associated with dance
+           case .rockClimbing:
+           return "figure.climbing" // Represents rock climbing (if available) or use a placeholder like "triangle.fill" as an alternative
+           case .hiking:
+           return "map.fill" // Represents navigating trails
+           case .rowing:
+           return "wave.3.right.circle.fill" // Represents water movement, a placeholder for rowing
+           case .skateboarding:
+           return "bolt.horizontal.fill" // Represents the dynamic nature of skateboarding
+           case .surfing:
+           return "waveform.path.badge.plus" // Represents waves for surfing
+            
+            
         default:
             return ""
         }
@@ -190,7 +233,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .running, .weightTraining:
             return Color.red
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
-            return Color(red: 0.0, green: 0.5, blue: 0.0)
+            return Color(red: 0.0, green: 1, blue: 0.0)
         case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin:
             return Color.teal
         case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
@@ -200,6 +243,9 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             
         case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
             return Color.purple
+            
+        case .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing:
+                return Color.green
             
         default:
             return Color.gray
@@ -276,22 +322,22 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         }
     }
 }
+
+
+enum Category: String, CaseIterable, Identifiable {
+    var id: String { self.rawValue }
     
     
-    enum Category: String, CaseIterable, Identifiable {
-        var id: String { self.rawValue }
-        
-        
-        case category0 = "All"
-        case category1 = "Heat-Based"
-        case category2 = "Cold-Based"
-        case category3 = "Recovery"
-        case category4 = "Workouts"
-        case category5 = "Supplements"
-        case category6 = "Diet"
-        case category7 = "Custom"
-        case category8 = "Other"
-    }
-    
-    
+    case category0 = "All"
+    case category1 = "Heat-Based"
+    case category2 = "Cold-Based"
+    case category3 = "Recovery"
+    case category4 = "Workouts"
+    case category5 = "Supplements"
+    case category6 = "Diet"
+    case category7 = "Custom"
+    case category8 = "Other"
+}
+
+
 
