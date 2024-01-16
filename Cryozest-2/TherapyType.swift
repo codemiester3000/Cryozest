@@ -21,6 +21,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case magnesium = "Magnesium"
     case zinc = "Zinc"
     case d3 = "D3"
+    
     // Diet
     case noCoffee = "No Coffee"
     case noCaffeine = "No Caffeine"
@@ -28,6 +29,15 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case vegan = "Vegan Diet"
     case keto = "Keto Diet"
     case noSugar = "No sugar"
+    case Dairy = "Dairy"
+    case Fasting = "Fasting"
+    case Gluten = "Gluten"
+    case HighCarb = "High Carb"
+    case JunkFood = "Junk Food"
+    case LateMeal = "Late Meal"
+    case Sugar = "Sugar"
+    
+    
     case custom1 = "Custom 1"
     case custom2 = "Custom 2"
     case custom3 = "Custom 3"
@@ -36,6 +46,72 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     case custom6 = "Custom 6"
     case custom7 = "Custom 7"
     case custom8 = "Custom 8"
+    
+    // New supplements
+    case adaptogens = "Adaptogens"
+    case antidepressant = "Antidepressant"
+    case creatine = "Creatine"
+    case iron = "Iron"
+    case lTheanine = "L-Theanine"
+    case multivitamin = "Multivitamin"
+    case vitaminC = "Vitamin C"
+    case cbd = "CBD"
+    case electrolytes = "Electrolytes"
+    case fishOil = "Fish Oil"
+    case ashwagandha = "Ashwagandha"
+    case melatonin = "Melatonin"
+    
+    // New recovery items
+    case massage = "Massage"
+    case nap = "Nap"
+    case sleepAid = "Sleep Aid"
+    case sleepMask = "Sleep Mask"
+    case whiteNoise = "White Noise"
+    
+    // Other
+    case allergies = "Allergies"
+    case animalInBed = "Animal in Bed"
+    case artificialLight = "Artificial Light"
+    case badWeather = "Bad Weather"
+    case blueLightBlocker = "Blue Light Blocker"
+    case childCare = "Child Care"
+    case earPlugs = "Ear Plugs"
+    case familyTime = "Family Time"
+    case fatigue = "Fatigue"
+    case friendTime = "Friend Time"
+    case hydration = "Hydration"
+    case injury = "Injury"
+    case jobStress = "Job Stress"
+    case lifeStress = "Life Stress"
+    case medication = "Medication"
+    case menstruation = "Menstruation"
+    case microdosing = "Microdosing"
+    case migraine = "Migraine"
+    case nightmares = "Nightmares"
+    case office = "Office"
+    case ovulating = "Ovulating"
+    case pms = "PMS"
+    case pregnancy = "Pregnancy"
+    case reading = "Reading"
+    case remoteWork = "Remote Work"
+    case sexualActivity = "Sexual Activity"
+    case sharedBed = "Shared Bed"
+    case shiftWork = "Shift Work"
+    case sickness = "Sickness"
+    case snoring = "Snoring"
+    case stimulantMedication = "Stimulant Medication"
+    case sunlight = "Sunlight"
+    case thc = "THC"
+    case tobacco = "Tobacco"
+    case travel = "Travel"
+    case vacation = "Vacation"
+    case vaccination = "Vaccination"
+    case vividDreams = "Vivid Dreams"
+    case workingLate = "Working Late"
+    
+    
+    
+    
     
     var id: String { self.rawValue }
     
@@ -67,7 +143,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "moon.fill"
         case .magnesium, .zinc, .d3:
             return "capsule"
-        case .noCoffee, .noSugar, .noCaffeine, .vegan, .vegetarian, .keto:
+        case .noCoffee, .noSugar, .noCaffeine, .vegan, .vegetarian, .keto, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
             return "cup.and.saucer.fill"
         case .custom1:
             return "person.fill"
@@ -77,16 +153,33 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "person.fill"
         case .custom4:
             return "person.fill"
-        case .custom5:
-            return "person.fill"
-        case .custom6:
-            return "person.fill"
-        case .custom7:
-            return "person.fill"
-        case .custom8:
-            return "person.fill"
+            // Icons for new supplements
+        case .adaptogens:
+            return "supplement1" // Placeholder icon for adaptogens
+        case .antidepressant:
+            return "supplement2" // Placeholder icon for antidepressant
+        case .creatine:
+            return "supplement3" // Placeholder icon for creatine
+            // Add more icons for new supplements
+            // Icons for new recovery items
+        case .massage:
+            return "massageicon" // Placeholder icon for massage
+        case .nap:
+            return "napicon" // Placeholder icon for nap
+        case .sleepAid:
+            return "sleepaidicon" // Placeholder icon for sleep aid
+            // Add more icons for new recovery items
+            // Icons for other items
+        case .allergies:
+            return "allergyicon" // Placeholder icon for allergies
+        case .animalInBed:
+            return "animalicon" // Placeholder icon for animal in bed
+            // Add more icons for other items
+        default:
+            return ""
         }
     }
+    
     
     var color: Color {
         switch self {
@@ -96,93 +189,116 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.blue
         case .running, .weightTraining:
             return Color.red
-        case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga:
+        case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid:
             return Color(red: 0.0, green: 0.5, blue: 0.0)
         case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
             return Color.purple
-        case .magnesium, .zinc, .d3:
+        case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine:
             return Color.teal
-        case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar:
+        case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
             return Color.mint
-        }
-    }
-    
-    func displayName(_ managedObjectContext: NSManagedObjectContext) -> String {
-        switch self {
-        case .custom1, .custom2, .custom3, .custom4:
-            let therapyID = therapyTypeToID()
-            let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
-            
-            do {
-                let results = try managedObjectContext.fetch(fetchRequest)
-                if let customTherapy = results.first, let customName = customTherapy.name, !customName.isEmpty {
-                    return customName
-                }
-            } catch {
-                // Handle or log error
-                print("Error fetching custom therapy: \(error)")
-            }
-            return self.rawValue
-        default:
-            return self.rawValue
-        }
-    }
-    
-    func therapyTypeToID() -> Int16 {
-        switch self {
-        case .custom1:
-            return 1
-        case .custom2:
-            return 2
-        case .custom3:
-            return 3
-        case .custom4:
-            return 4
-        case .custom5:
-            return 5
-        case .custom6:
-            return 6
-        case .custom7:
-            return 7
-        case .custom8:
-            return 8
-        default:
-            return 0 // Or handle other cases as needed
-        }
-    }
-    
-    static func therapies(forCategory category: Category) -> [TherapyType] {
-        switch category {
-        case .category0:
-            return TherapyType.allCases
-        case .category1: // Heat-Based
-            return [.drySauna, .hotYoga]
-        case .category2: // Cold-Based
-            return [.coldPlunge, .coldShower, .iceBath]
-        case .category3:
-            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching]
-        case .category4: // Workouts
-            return [.running, .weightTraining]
-        case .category5:
-            return [.magnesium, .zinc, .d3]
-        case .category6: // Diet
-            return [.noCoffee, .noSugar, .noCaffeine, .keto, .vegetarian, .vegan]
-        case .category7: // Custom
-            return [.custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8]
-        }
-    }
-}
+        case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
+                .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
+                .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing, .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading, .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring, .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation, .vaccination, .vividDreams, .workingLate:
+               return Color.white
 
-enum Category: String, CaseIterable, Identifiable {
-    var id: String { self.rawValue }
+           default:
+               return Color.gray // Or any other default color you prefer
+           }
+       }
+
+        
+        func displayName(_ managedObjectContext: NSManagedObjectContext) -> String {
+            switch self {
+            case .custom1, .custom2, .custom3, .custom4:
+                let therapyID = therapyTypeToID()
+                let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+                
+                do {
+                    let results = try managedObjectContext.fetch(fetchRequest)
+                    if let customTherapy = results.first, let customName = customTherapy.name, !customName.isEmpty {
+                        return customName
+                    }
+                } catch {
+                    // Handle or log error
+                    print("Error fetching custom therapy: \(error)")
+                }
+                return self.rawValue
+            default:
+                return self.rawValue
+            }
+        }
+        
+        func therapyTypeToID() -> Int16 {
+            switch self {
+            case .custom1:
+                return 1
+            case .custom2:
+                return 2
+            case .custom3:
+                return 3
+            case .custom4:
+                return 4
+            case .custom5:
+                return 5
+            case .custom6:
+                return 6
+            case .custom7:
+                return 7
+            case .custom8:
+                return 8
+            default:
+                return 0 // Or handle other cases as needed
+            }
+        }
+        
+        static func therapies(forCategory category: Category) -> [TherapyType] {
+            switch category {
+            case .category0:
+                return TherapyType.allCases
+            case .category1: // Heat-Based
+                return [.drySauna, .hotYoga]
+            case .category2: // Cold-Based
+                return [.coldPlunge, .coldShower, .iceBath]
+            case .category3:
+                return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching]
+            case .category4: // Workouts
+                return [.running, .weightTraining]
+            case .category5:
+                return [.magnesium, .zinc, .d3]
+            case .category6: // Diet
+                return [.noCoffee, .noSugar, .noCaffeine, .keto, .vegetarian, .vegan]
+            case .category8: // "Other" category
+                return [
+                    .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
+                    .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
+                    .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing,
+                    .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading,
+                    .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring,
+                    .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation,
+                    .vaccination, .vividDreams, .workingLate
+                ]
+            case .category7: // Custom
+                return [.custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8]
+                
+            }
+        }
+    }
     
-    case category0 = "All"
-    case category1 = "Heat-Based"
-    case category2 = "Cold-Based"
-    case category3 = "Recovery"
-    case category4 = "Workouts"
-    case category5 = "Supplements"
-    case category6 = "Diet"
-    case category7 = "Custom"
-}
+    enum Category: String, CaseIterable, Identifiable {
+        var id: String { self.rawValue }
+        
+        
+        case category0 = "All"
+        case category1 = "Heat-Based"
+        case category2 = "Cold-Based"
+        case category3 = "Recovery"
+        case category4 = "Workouts"
+        case category5 = "Supplements"
+        case category6 = "Diet"
+        case category7 = "Custom"
+        case category8 = "Other"
+    }
+    
+
