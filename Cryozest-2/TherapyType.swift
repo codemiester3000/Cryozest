@@ -142,7 +142,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "wind"
         case .sleep:
             return "moon.fill"
-        case .magnesium, .zinc, .d3:
+        case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin:
             return "capsule"
         case .noCoffee, .noSugar, .noCaffeine, .vegan, .vegetarian, .keto, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
             return "cup.and.saucer.fill"
@@ -152,30 +152,29 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "person.fill"
         case .custom3:
             return "person.fill"
-        case .custom4:
+        case .custom4, .custom5, .custom6, .custom7, .custom8:
             return "person.fill"
-            // Icons for new supplements
-        case .adaptogens:
-            return "supplement1" // Placeholder icon for adaptogens
-        case .antidepressant:
-            return "supplement2" // Placeholder icon for antidepressant
-        case .creatine:
-            return "supplement3" // Placeholder icon for creatine
-            // Add more icons for new supplements
-            // Icons for new recovery items
-        case .massage:
-            return "massageicon" // Placeholder icon for massage
-        case .nap:
-            return "napicon" // Placeholder icon for nap
-        case .sleepAid:
-            return "sleepaidicon" // Placeholder icon for sleep aid
-            // Add more icons for new recovery items
-            // Icons for other items
-        case .allergies:
-            return "allergyicon" // Placeholder icon for allergies
-        case .animalInBed:
-            return "animalicon" // Placeholder icon for animal in bed
-            // Add more icons for other items
+            // Recovery items
+               case .massage:
+                   return "person.crop.rectangle"
+               case .nap:
+                   return "bed.double.fill"
+               case .sleepAid:
+                   return "pills.fill"
+               case .sleepMask:
+                   return "moon.stars.fill"
+               case .whiteNoise:
+                   return "waveform.path.ecg"
+
+               // 'Other' category
+               case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
+                    .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
+                    .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing,
+                    .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading,
+                    .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring,
+                    .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation,
+                    .vaccination, .vividDreams, .workingLate:
+                   return "tray.fill"
         default:
             return ""
         }
@@ -197,13 +196,13 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
             return Color.mint
         case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker, .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration, .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing, .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading, .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring, .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation, .vaccination, .vividDreams, .workingLate:
-    return Color.white
+            return Color.white
             
         case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
-        return Color.purple
-
+            return Color.purple
+            
         default:
-        return Color.gray 
+            return Color.gray
         }
     }
     
@@ -255,50 +254,44 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     static func therapies(forCategory category: Category) -> [TherapyType] {
         switch category {
-        case .category0:
+        case .category0: // All
             return TherapyType.allCases
         case .category1: // Heat-Based
             return [.drySauna, .hotYoga]
         case .category2: // Cold-Based
             return [.coldPlunge, .coldShower, .iceBath]
-        case .category3:
-            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching]
+        case .category3: // Recovery
+            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise]
         case .category4: // Workouts
             return [.running, .weightTraining]
-        case .category5:
-            return [.magnesium, .zinc, .d3]
+        case .category5: // Supplements
+            return [.magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin]
         case .category6: // Diet
-            return [.noCoffee, .noSugar, .noCaffeine, .keto, .vegetarian, .vegan]
-        case .category8: // "Other" category
+            return [.noCoffee, .noSugar, .noCaffeine, .keto, .vegetarian, .vegan, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar]
+        case .category8: // Other
             return [
-                .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker,
-                .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration,
-                .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing,
-                .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading,
-                .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring,
-                .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation,
-                .vaccination, .vividDreams, .workingLate
-            ]
+                .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker, .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration, .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing, .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading, .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring, .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation, .vaccination, .vividDreams, .workingLate]
         case .category7: // Custom
             return [.custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8]
-            
         }
     }
 }
-
-enum Category: String, CaseIterable, Identifiable {
-    var id: String { self.rawValue }
     
     
-    case category0 = "All"
-    case category1 = "Heat-Based"
-    case category2 = "Cold-Based"
-    case category3 = "Recovery"
-    case category4 = "Workouts"
-    case category5 = "Supplements"
-    case category6 = "Diet"
-    case category7 = "Custom"
-    case category8 = "Other"
-}
-
+    enum Category: String, CaseIterable, Identifiable {
+        var id: String { self.rawValue }
+        
+        
+        case category0 = "All"
+        case category1 = "Heat-Based"
+        case category2 = "Cold-Based"
+        case category3 = "Recovery"
+        case category4 = "Workouts"
+        case category5 = "Supplements"
+        case category6 = "Diet"
+        case category7 = "Custom"
+        case category8 = "Other"
+    }
+    
+    
 
