@@ -957,7 +957,6 @@ class HealthKitManager {
 
         for date in days {
             group.enter()
-            print("Processing data for date: \(date)")
 
             getSleepTimes(for: date) { sleepStart, sleepEnd in
                 guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
@@ -965,7 +964,6 @@ class HealthKitManager {
                     group.leave()
                     return
                 }
-                print("Sleep times for date \(date): Start - \(sleepStart), End - \(sleepEnd)")
 
                 let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
                 let respiratoryRateType = HKQuantityType.quantityType(forIdentifier: .respiratoryRate)!
@@ -983,7 +981,6 @@ class HealthKitManager {
                         return acc + sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
                     }
                     let averageRespiratoryRate = respiratoryRateSamples.isEmpty ? 0.0 : totalRespiratoryRate / Double(respiratoryRateSamples.count)
-                    print("Average Respiratory Rate for date \(date): \(averageRespiratoryRate)")
 
                     let spo2Query = HKSampleQuery(sampleType: spo2Type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { (query, samples, error) in
 
@@ -997,7 +994,6 @@ class HealthKitManager {
                             return acc + sample.quantity.doubleValue (for: HKUnit.percent())
                         }
                         let averageSPO2 = spo2Samples.isEmpty ? 0.0 : totalSPO2 / Double(spo2Samples.count)
-                        print("Average SPO2 for date \(date): \(averageSPO2)")
 
                         // Append the results for this day to the daily vitals results array
                         dailyVitalsResults.append((averageRespiratoryRate: averageRespiratoryRate, averageSPO2: averageSPO2))
@@ -1083,7 +1079,6 @@ class HealthKitManager {
                 dailySleepResults.append((totalSleep: totalSleepDurationForDay, remSleep: totalREMSleepDurationForDay, deepSleep: totalDeepSleepDurationForDay, coreSleep: totalCoreSleepDurationForDay))
 
                 // Debugging statement to print total sleep duration for the current day
-                print("Total Sleep Duration for \(date): \(totalSleepDurationForDay) seconds")
             }
 
             healthStore.execute(sleepQuery)
@@ -1222,7 +1217,6 @@ class HealthKitManager {
                     let avgHRV = totalHRV / count
                     completion(avgHRV)
                 } else {
-                    // print("No HRV samples found for the specified days.")
                     completion(nil)
                 }
             }

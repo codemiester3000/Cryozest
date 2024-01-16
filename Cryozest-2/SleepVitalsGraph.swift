@@ -89,6 +89,7 @@ struct SleepVitalsGraph: View {
     @ObservedObject var model: SleepVitalsDataModel
     @Environment(\.managedObjectContext) var managedObjectContext
     
+    
     var body: some View {
         VStack(alignment: .leading) {
             BarGraphView(
@@ -144,6 +145,9 @@ struct SleepVitalsGraph: View {
                 exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
                 barColor: model.therapyType.color
             )
+            .padding(.bottom)
+            
+            VitalsGaugeView(model: model)
             .padding(.bottom)
 
             ParagraphText("Respiratory Rate",
@@ -265,3 +269,86 @@ struct BarGraphView: View {
         }
     }
 }
+
+struct GaugeView: View {
+    var title: String
+    var value: Double
+    var inRange: ClosedRange<Double>
+    var unit: String
+
+    private var normalizedValue: Double {
+        // Normalize the value to fit within the gauge scale
+        return min(max(value, inRange.lowerBound), inRange.upperBound)
+    }
+
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.gray)
+
+            Gauge(value: normalizedValue, in: inRange) {
+                Text("")
+            } currentValueLabel: {
+                Text("\(value, specifier: "%.1f")\(unit)")
+                    .font(.headline)
+            } minimumValueLabel: {
+                Text("\(inRange.lowerBound, specifier: "%.0f")")
+            } maximumValueLabel: {
+                Text("\(inRange.upperBound, specifier: "%.0f")")
+            }
+            .gaugeStyle(.accessoryLinearCapacity)
+        }
+    }
+}
+
+struct VitalsGaugeView: View {
+    @ObservedObject var model: SleepVitalsDataModel
+
+    var body: some View {
+        VStack {
+            // Respiratory Rate Comparison
+            Text("Sleeping Respiratory Rate Comparison")
+                .font(.headline)
+                .padding()
+
+            HStack {
+                GaugeView(
+                    title: "Baseline Days",
+                    value: model.baselineRespiratoryRate,
+                    inRange: 10...20,  // Adjust the range as appropriate
+                    unit: " br/min"
+                )
+
+                GaugeView(
+                    title: "Therapy Days",
+                    value: model.exerciseRespiratoryRate,
+                    inRange: 10...20,  // Adjust the range as appropriate
+                    unit: " br/min"
+                )
+            }
+
+            // SPO2 Comparison
+            Text("Sleeping SPO2 Comparison")
+                .font(.headline)
+                .padding()
+
+            HStack {
+                GaugeView(
+                    title: "Baseline Days",
+                    value: model.baselineSPO2 * 100,  // Assuming this value is in decimal format
+                    inRange: 90...100,  // Adjust the range as appropriate
+                    unit: "%"
+                )
+
+                GaugeView(
+                    title: "Therapy Days",
+                    value: model.exerciseSPO2 * 100,  // Assuming this value is in decimal format
+                    inRange: 90...100,  // Adjust the range as appropriate
+                    unit: "%"
+                )
+            }
+        }
+    }
+}
+
