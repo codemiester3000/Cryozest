@@ -231,6 +231,10 @@ struct BarGraphView: View {
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
     
+    private func isInvalidValues() -> Bool {
+        return (baselineValue == 0 || !baselineValue.isFinite) && (exerciseValue == 0 || !exerciseValue.isFinite)
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text(title)
@@ -241,7 +245,7 @@ struct BarGraphView: View {
             HStack {
                 Rectangle()
                     .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: CGFloat(baselineValue / maxValue) * maxBarWidth, height: 20)
+                    .frame(width: isInvalidValues() ? 150 : CGFloat(baselineValue / maxValue) * maxBarWidth, height: 20)
                     .cornerRadius(6.0)
                 
                 Text(baselineLabel)
@@ -253,7 +257,7 @@ struct BarGraphView: View {
             HStack {
                 Rectangle()
                     .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 20)
+                    .frame(width: isInvalidValues() ? 150 : CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 20)
                     .cornerRadius(6.0)
                 
                 Text(exerciseLabel)
