@@ -190,33 +190,32 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "tray.fill"
             
             // Icons for new workouts
-                   case .lowIntensityCardio:
-                       return "hare.fill" // Represents fast movement, suitable for cardio
-                   case .hiit:
-                       return "flame.fill" // Represents intensity
-                   case .cycling:
-                       return "bicycle" // Direct representation of cycling
-                   case .swimming:
-                       return "waveform.path.ecg" // Represents water movement
-                   case .boxing:
-                       return "burst.fill" // Alternative representation for boxing
-                   case .pilates:
-                       return "circle.grid.cross.fill" // Abstract representation for pilates
-                   case .crossfit:
-                       return "figure.walk.diamond.fill" // Represents dynamic movement
-           case .dance:
-           return "music.note.list" // Music symbol, often associated with dance
-           case .rockClimbing:
-           return "figure.climbing" // Represents rock climbing (if available) or use a placeholder like "triangle.fill" as an alternative
-           case .hiking:
-           return "map.fill" // Represents navigating trails
-           case .rowing:
-           return "wave.3.right.circle.fill" // Represents water movement, a placeholder for rowing
-           case .skateboarding:
-           return "bolt.horizontal.fill" // Represents the dynamic nature of skateboarding
-           case .surfing:
-           return "waveform.path.badge.plus" // Represents waves for surfing
-            
+        case .lowIntensityCardio:
+            return "hare.fill"
+        case .hiit:
+            return "flame.fill"
+        case .cycling:
+            return "bicycle"
+        case .swimming:
+            return "figure.wave"
+        case .boxing:
+            return "bolt.fill"
+        case .pilates:
+            return "person.2.fill"
+        case .crossfit:
+            return "bolt.heart.fill"
+        case .dance:
+            return "music.note.list"
+        case .rockClimbing:
+            return "figure.climbing"
+        case .hiking:
+            return "map.fill"
+        case .rowing:
+            return "arrow.triangle.2.circlepath.circle.fill"
+        case .skateboarding:
+            return "bolt.horizontal.fill"
+        case .surfing:
+            return "wave.3.right"
             
         default:
             return ""
