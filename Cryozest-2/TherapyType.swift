@@ -233,7 +233,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .running, .weightTraining:
             return Color.red
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
-            return Color(red: 0.0, green: 1, blue: 0.0)
+            return Color(red: 0.0, green: 0.5, blue: 0.0)
         case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin:
             return Color.teal
         case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
@@ -245,7 +245,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.purple
             
         case .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing:
-                return Color.green
+            return Color.red
             
         default:
             return Color.gray
@@ -309,7 +309,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .category3: // Recovery
             return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise]
         case .category4: // Workouts
-            return [.running, .weightTraining]
+            return [.running, .weightTraining, .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing]
         case .category5: // Supplements
             return [.magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin]
         case .category6: // Diet
