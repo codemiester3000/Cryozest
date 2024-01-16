@@ -124,27 +124,37 @@ struct SleepVitalsGraph: View {
                                                                 exercise: model.exerciseRestingHRV) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
+       
             // Respiratory Rate Graph
             BarGraphView(
                 title: "Sleeping Respiratory Rate",
                 baselineValue: model.baselineRespiratoryRate,
                 exerciseValue: model.exerciseRespiratoryRate,
-                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",  // Format as needed
-                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",  // Format as needed
+                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",
+                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",
                 barColor: model.therapyType.color
             )
-            .padding(.bottom)
             
             // SPO2 Graph
             BarGraphView(
                 title: "Sleeping SPO2",
-                baselineValue: model.baselineSPO2 * 100,  // Multiply by 100 to convert to percentage
-                exerciseValue: model.exerciseSPO2 * 100,  // Multiply by 100 to convert to percentage
-                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",  // Multiply by 100 inside interpolation
-                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",  // Multiply by 100 inside interpolation
+                baselineValue: model.baselineSPO2 * 100,
+                exerciseValue: model.exerciseSPO2 * 100,
+                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",
+                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
+
+            ParagraphText("Respiratory Rate",
+                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
+                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+
+            ParagraphText("SPO2",
+                          percentChange: calculatePercentChange(baseline: model.baselineSPO2,
+                                                                exercise: model.exerciseSPO2) ?? 0,
+            therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
         }
     }
