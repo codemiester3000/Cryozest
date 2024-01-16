@@ -72,8 +72,8 @@ struct SleepVitalsGraph: View {
                 title: "Resting Heart Rate",
                 baselineValue: model.baselineRestingHeartRate,
                 exerciseValue: model.exerciseRestingHeartRate,
-                baselineLabel: "\(Int(model.baselineRestingHeartRate)) bpm",
-                exerciseLabel: "\(Int(model.exerciseRestingHeartRate)) bpm",
+                baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
+                exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
@@ -82,8 +82,8 @@ struct SleepVitalsGraph: View {
                 title: "Resting Heart Rate Variability",
                 baselineValue: model.baselineRestingHRV,
                 exerciseValue: model.exerciseRestingHRV,
-                baselineLabel: "\(Int(model.baselineRestingHRV)) ms",
-                exerciseLabel: "\(Int(model.exerciseRestingHRV)) ms",
+                baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
+                exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
@@ -120,9 +120,9 @@ struct BarGraphView: View {
                     .font(.footnote)
                     .foregroundColor(.white)
             }
-            .onAppear {
+            .onChange(of: baselineValue) { newValue in
                 withAnimation(.linear(duration: 3.0)) {
-                    baselineBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : baselineValue
+                    baselineBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : newValue
                 }
             }
             
@@ -137,9 +137,9 @@ struct BarGraphView: View {
                     .font(.footnote)
                     .foregroundColor(.white)
             }
-            .onAppear {
+            .onChange(of: exerciseValue) { newValue in
                 withAnimation(.linear(duration: 3.0)) {
-                    exerciseBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : exerciseValue
+                    exerciseBarWidth = (baselineValue == 0 && exerciseValue == 0) ? 200 : newValue
                 }
             }
         }
