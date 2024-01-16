@@ -432,15 +432,18 @@ struct DailySleepView: View {
                             }
                         }
                         
-                        Text("\(sleepStartTime) to \(sleepEndTime)")
-                            .font(.footnote)
-                            .fontWeight(.medium)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 22)
-                    .padding(.top, 16)
-                    
-                    Spacer()
+                        // Conditional Display of Sleep Start and End Times
+                                     if sleepStartTime != "N/A" && sleepEndTime != "N/A" {
+                                         Text("\(sleepStartTime) to \(sleepEndTime)")
+                                             .font(.footnote)
+                                             .fontWeight(.medium)
+                                             .foregroundColor(.gray)
+                                     }
+                                 }
+                                 .padding(.horizontal, 22)
+                                 .padding(.top, 16)
+                                 
+                                 Spacer()
                     
                     ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
                                      ringSize: 120)
