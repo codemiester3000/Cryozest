@@ -171,8 +171,8 @@ struct SleepVitalsGraph: View {
                                                                 exercise: model.exerciseSPO2) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
-//            VitalsGaugeView(model: model)
-//                .padding(.bottom)
+            //            VitalsGaugeView(model: model)
+            //                .padding(.bottom)
             
         }
     }
@@ -220,16 +220,25 @@ struct SleepVitalsGraph: View {
         }
         .padding(.bottom, 6)
     }
-
+    
     private func changeIndicator(for percentChange: CGFloat, metricType: SleepVitalMetric) -> (symbol: String, color: Color) {
-        // Logic to determine color based on SleepVitalMetric
-        let isPositiveChangePreferred = [SleepVitalMetric.RespiratoryRate, SleepVitalMetric.SP02].contains(metricType)
-        let color: Color = (percentChange > 0 && isPositiveChangePreferred) || (percentChange < 0 && !isPositiveChangePreferred) ? .green : .red
+        // Define whether an increase in the metric is considered positive
+        let isIncreasePositive: Bool
+        switch metricType {
+        case .HeartRateVariability, .SP02: // For HRV and SPO2, an increase is positive
+            isIncreasePositive = true
+        case .RespiratoryRate: // For Respiratory Rate, a decrease is positive
+            isIncreasePositive = false
+        default:
+            isIncreasePositive = true
+        }
+        
+        let isChangePositive = (percentChange > 0 && isIncreasePositive) || (percentChange < 0 && !isIncreasePositive)
+        let color: Color = isChangePositive ? .green : .red
         let symbol: String = percentChange >= 0 ? "↑" : "↓"
-
+        
         return (symbol, color)
     }
-
 }
 
 struct BarGraphView: View {
