@@ -80,15 +80,23 @@ class SleepVitalsDataModel: ObservableObject {
             }
         }
     }
-    
-    
-    
 }
+
+enum SleepVitalMetric: String {
+    case RestingHeartRate = "RHR"
+    case HeartRateVariability = "HRV"
+    case RespiratoryRate = "Resp Rate"
+    case SP02 = "SPO2"
+
+    var displayTitle: String {
+        return self.rawValue
+    }
+}
+
 
 struct SleepVitalsGraph: View {
     @ObservedObject var model: SleepVitalsDataModel
     @Environment(\.managedObjectContext) var managedObjectContext
-    
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -104,7 +112,7 @@ struct SleepVitalsGraph: View {
             )
             .padding(.bottom)
             
-            ParagraphText("RHR",
+            ParagraphText(SleepVitalMetric.RestingHeartRate,
                           percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
                                                                 exercise: model.exerciseRestingHeartRate) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
@@ -121,7 +129,7 @@ struct SleepVitalsGraph: View {
             )
             .padding(.bottom)
             
-            ParagraphText("HRV",
+            ParagraphText(SleepVitalMetric.HeartRateVariability,
                           percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
                                                                 exercise: model.exerciseRestingHRV) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
@@ -140,7 +148,7 @@ struct SleepVitalsGraph: View {
             )
             .padding(.bottom)
             
-            ParagraphText("Respiratory Rate",
+            ParagraphText(SleepVitalMetric.RespiratoryRate,
                           percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
                                                                 exercise: model.exerciseRespiratoryRate) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
@@ -158,31 +166,10 @@ struct SleepVitalsGraph: View {
             )
             .padding(.bottom)
             
-            ParagraphText("SPO2",
+            ParagraphText(SleepVitalMetric.SP02,
                           percentChange: calculatePercentChange(baseline: model.baselineSPO2,
                                                                 exercise: model.exerciseSPO2) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-//            ParagraphText("RHR",
-//                          percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
-//                                                                exercise: model.exerciseRestingHeartRate) ?? 0,
-//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            
-//            ParagraphText("HRV",
-//                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
-//                                                                exercise: model.exerciseRestingHRV) ?? 0,
-//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-//            ParagraphText("Respiratory Rate",
-//                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
-//                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
-//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-//            ParagraphText("SPO2",
-//                          percentChange: calculatePercentChange(baseline: model.baselineSPO2,
-//                                                                exercise: model.exerciseSPO2) ?? 0,
-//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
 //            VitalsGaugeView(model: model)
 //                .padding(.bottom)
@@ -199,8 +186,8 @@ struct SleepVitalsGraph: View {
     
     
     @ViewBuilder
-    private func ParagraphText(_ metricType: String, percentChange: CGFloat, therapyTypeDisplayName: String) -> some View {
-        let indicator = changeIndicator(for: percentChange)
+    private func ParagraphText(_ metricType: SleepVitalMetric, percentChange: CGFloat, therapyTypeDisplayName: String) -> some View {
+        let indicator = changeIndicator(for: percentChange, metricType: metricType)
         let percentChangeText = String(format: "%.1f", abs(percentChange))
         let changeDescription = percentChange >= 0 ? "increase" : "decrease"
         
@@ -223,7 +210,7 @@ struct SleepVitalsGraph: View {
                 .foregroundColor(indicator.color)
                 .fontWeight(.bold)
             
-            + Text("in \(metricType) on ")
+            + Text("in \(metricType.displayTitle) on ")
                 .font(.system(size: 12))
                 .foregroundColor(.white)
             
@@ -233,14 +220,16 @@ struct SleepVitalsGraph: View {
         }
         .padding(.bottom, 6)
     }
-    
-    private func changeIndicator(for percentChange: CGFloat) -> (symbol: String, color: Color) {
-        if percentChange == 0 {
-            return ("↑", .green)
-        } else {
-            return ("↓", .red)
-        }
+
+    private func changeIndicator(for percentChange: CGFloat, metricType: SleepVitalMetric) -> (symbol: String, color: Color) {
+        // Logic to determine color based on SleepVitalMetric
+        let isPositiveChangePreferred = [SleepVitalMetric.RespiratoryRate, SleepVitalMetric.SP02].contains(metricType)
+        let color: Color = (percentChange > 0 && isPositiveChangePreferred) || (percentChange < 0 && !isPositiveChangePreferred) ? .green : .red
+        let symbol: String = percentChange >= 0 ? "↑" : "↓"
+
+        return (symbol, color)
     }
+
 }
 
 struct BarGraphView: View {
