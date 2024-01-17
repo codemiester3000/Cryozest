@@ -100,11 +100,14 @@ struct SleepVitalsGraph: View {
                 exerciseValue: model.exerciseRestingHeartRate,
                 baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
-                barColor: model.therapyType.color,
-                upArrow: true,
-                isGreen: true
+                barColor: model.therapyType.color
             )
             .padding(.bottom)
+            
+            ParagraphText("RHR",
+                          percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
+                                                                exercise: model.exerciseRestingHeartRate) ?? 0,
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
             CenteredDivider().padding(.bottom, 8)
             
@@ -114,11 +117,14 @@ struct SleepVitalsGraph: View {
                 exerciseValue: model.exerciseRestingHRV,
                 baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
-                barColor: model.therapyType.color,
-                upArrow: true,
-                isGreen: true
+                barColor: model.therapyType.color
             )
             .padding(.bottom)
+            
+            ParagraphText("HRV",
+                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
+                                                                exercise: model.exerciseRestingHRV) ?? 0,
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
             CenteredDivider()
                 .padding(.bottom, 4)
@@ -130,11 +136,14 @@ struct SleepVitalsGraph: View {
                 exerciseValue: model.exerciseRespiratoryRate,
                 baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",
                 exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",
-                barColor: model.therapyType.color,
-                upArrow: true,
-                isGreen: true
+                barColor: model.therapyType.color
             )
             .padding(.bottom)
+            
+            ParagraphText("Respiratory Rate",
+                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
+                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
+                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
             CenteredDivider().padding(.bottom, 4)
             
@@ -145,35 +154,38 @@ struct SleepVitalsGraph: View {
                 exerciseValue: model.exerciseSPO2 * 100,
                 baselineLabel: "\(Int(model.baselineSPO2 * 100))%",
                 exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
-                barColor: model.therapyType.color,
-                upArrow: true,
-                isGreen: true
+                barColor: model.therapyType.color
             )
             .padding(.bottom)
-            
-            ParagraphText("RHR",
-                          percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
-                                                                exercise: model.exerciseRestingHeartRate) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            
-            ParagraphText("HRV",
-                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
-                                                                exercise: model.exerciseRestingHRV) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            ParagraphText("Respiratory Rate",
-                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
-                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
             ParagraphText("SPO2",
                           percentChange: calculatePercentChange(baseline: model.baselineSPO2,
                                                                 exercise: model.exerciseSPO2) ?? 0,
                           therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
             
-            VitalsGaugeView(model: model)
-                .padding(.bottom)
+//            ParagraphText("RHR",
+//                          percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
+//                                                                exercise: model.exerciseRestingHeartRate) ?? 0,
+//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+            
+//            ParagraphText("HRV",
+//                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
+//                                                                exercise: model.exerciseRestingHRV) ?? 0,
+//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+//            ParagraphText("Respiratory Rate",
+//                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
+//                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
+//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+//            ParagraphText("SPO2",
+//                          percentChange: calculatePercentChange(baseline: model.baselineSPO2,
+//                                                                exercise: model.exerciseSPO2) ?? 0,
+//                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            
+//            VitalsGaugeView(model: model)
+//                .padding(.bottom)
             
         }
     }
@@ -238,8 +250,6 @@ struct BarGraphView: View {
     var baselineLabel: String
     var exerciseLabel: String
     var barColor: Color
-    var upArrow: Bool
-    var isGreen: Bool
     
     private let maxBarWidth: CGFloat = 200  // Maximum width of the bar
     private let maxValue: Double = 100 // This should be your maximum scale value
@@ -259,15 +269,15 @@ struct BarGraphView: View {
                     .font(.footnote)
                     .foregroundColor(.white)
                 
-                Image(systemName: upArrow ? "arrow.up" : "arrow.down")
-                    .foregroundColor(isGreen ? .green : .red)
+//                Image(systemName: upArrow ? "arrow.up" : "arrow.down")
+//                    .foregroundColor(isGreen ? .green : .red)
             }
             
             // Baseline Bar with Label
             HStack {
                 Rectangle()
                     .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: isInvalidValues() ? 150 : CGFloat(baselineValue / maxValue) * maxBarWidth, height: 20)
+                    .frame(width: isInvalidValues() ? 150 : CGFloat(baselineValue / maxValue) * maxBarWidth, height: 25)
                     .cornerRadius(6.0)
                 
                 Text(baselineLabel)
@@ -279,7 +289,7 @@ struct BarGraphView: View {
             HStack {
                 Rectangle()
                     .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: isInvalidValues() ? 150 : CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 20)
+                    .frame(width: isInvalidValues() ? 150 : CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 25)
                     .cornerRadius(6.0)
                 
                 Text(exerciseLabel)

@@ -198,9 +198,6 @@ struct ParagraphExplanation: View {
     }
 }
 
-
-
-
 struct ComparisonBarView: View {
     var baselineValue: CGFloat
     var exerciseValue: CGFloat
