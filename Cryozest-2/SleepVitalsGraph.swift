@@ -227,7 +227,7 @@ struct SleepVitalsGraph: View {
         switch metricType {
         case .HeartRateVariability, .SP02: // For HRV and SPO2, an increase is positive
             isIncreasePositive = true
-        case .RespiratoryRate: // For Respiratory Rate, a decrease is positive
+        case .RestingHeartRate, .RespiratoryRate: // For RHR and Respiratory Rate, a decrease is positive
             isIncreasePositive = false
         default:
             isIncreasePositive = true
