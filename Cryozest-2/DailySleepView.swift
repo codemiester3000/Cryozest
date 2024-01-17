@@ -713,15 +713,45 @@ struct HeartRateDifferenceProgressCircle: View {
     var averageWakingHeartRate: Double
     var averageHeartRateDuringSleep: Double
     
-    // Computed property to get the appropriate title
-    private var heartRateDipTitle: (String, Text) {
-        let mainTitle = "Heart Rate Dip is "
-        if heartRateDifferencePercentage > 20 {
-            return (mainTitle, Text("Good").foregroundColor(.green))
-        } else if heartRateDifferencePercentage >= 10 {
-            return (mainTitle, Text("Average").foregroundColor(.yellow))
+    // Determine if the watch was worn based on averageHeartRateDuringSleep
+    private var watchWasWorn: Bool {
+        averageHeartRateDuringSleep != 0
+    }
+    
+    // Computed property to get the title with the appropriate status and color
+    private var heartRateDipTitle: (Text, Text) {
+        if watchWasWorn {
+            let titleText = Text("Heart Rate Dip is ")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+            
+            if heartRateDifferencePercentage > 20 {
+                let statusText = Text("Good")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.green)
+                return (titleText, statusText)
+            } else if heartRateDifferencePercentage >= 10 {
+                let statusText = Text("Average")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.yellow)
+                return (titleText, statusText)
+            } else {
+                let statusText = Text("Suboptimal")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.red)
+                return (titleText, statusText)
+            }
         } else {
-            return (mainTitle, Text("Suboptimal").foregroundColor(.red))
+            // When the watch was not worn, display "Heart Rate Dip" without a status
+            let titleText = Text("Heart Rate Dip")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+            return (titleText, Text(""))
         }
     }
     
@@ -732,24 +762,18 @@ struct HeartRateDifferenceProgressCircle: View {
                     .stroke(Color.red, lineWidth: 10)
                     .frame(width: 70, height: 70)
                 
-                Text("\(Int(heartRateDifferencePercentage))%")
+                // Adjust the display based on whether the watch was worn
+                Text(watchWasWorn ? "\(Int(heartRateDifferencePercentage))%" : "0%")
                     .font(.title3)
                     .bold()
                     .foregroundColor(.white)
             }
             .padding(.leading, 22)
             
-            
-            
-            // Text Section (Reduced left padding)
             VStack(alignment: .leading) {
-                Text(heartRateDipTitle.0) // Main title
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white) +
-                heartRateDipTitle.1 // Status part
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                HStack {
+                    heartRateDipTitle.0 + heartRateDipTitle.1
+                }
                 
                 Text("Your Heart Rate Dip during sleep is the percentage difference between your waking non-active heart rate ")
                     .font(.caption)

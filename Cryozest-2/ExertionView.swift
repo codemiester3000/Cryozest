@@ -360,7 +360,7 @@ struct ExertionView: View {
         let recoveryScore = recoveryModel.recoveryScores.last ?? 0
         
         if recoveryScore == 0 {
-                  return "6.0" // Default exertion target when no data
+                  return "5.0-6.0" // Default exertion target when no data
               }
         
         switch recoveryScore {
