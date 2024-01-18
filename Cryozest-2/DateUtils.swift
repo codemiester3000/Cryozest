@@ -37,7 +37,7 @@ class DateUtils {
     
     func datesWithoutTherapySessions(sessions: FetchedResults<TherapySessionEntity>, therapyType: TherapyType, timeFrame: TimeFrame) -> [Date] {
         let completedDates = completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
-        let allDates = getDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
+        let allDates = getBaselineDatesForTimeFrame(timeFrame: timeFrame, fromStartDate: Date())
         
         return allDates.filter { !completedDates.contains($0) }
     }
@@ -60,13 +60,30 @@ class DateUtils {
                 timeFrameDates.append(startOfDay)
             }
         }
+        return timeFrameDates
+    }
+    
+    func getBaselineDatesForTimeFrame(timeFrame: TimeFrame, fromStartDate startDate: Date) -> [Date] {
+        let numberOfDays: Int
+        switch timeFrame {
+        case .week:
+            numberOfDays = 30
+        case .month:
+            numberOfDays = 60
+        case .allTime:
+            numberOfDays = 90
+        }
         
-        print("Time Frame Dates (Start of Day): \(timeFrameDates)")
+        var timeFrameDates = [Date]()
+        for day in 0..<numberOfDays {
+            if let date = calendar.date(byAdding: .day, value: -day, to: startDate) {
+                let startOfDay = calendar.startOfDay(for: date)
+                timeFrameDates.append(startOfDay)
+            }
+        }
         return timeFrameDates
     }
 
-
-    
     func getDatesExcluding(excludeDates: [Date], inDates: [Date]) -> [Date] {
         return inDates.filter { !excludeDates.contains($0) }
     }

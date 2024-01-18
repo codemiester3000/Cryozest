@@ -358,6 +358,11 @@ struct ExertionView: View {
     // Computed property for target exertion zone
     var targetExertionZone: String {
         let recoveryScore = recoveryModel.recoveryScores.last ?? 0
+        
+        if recoveryScore == 0 {
+                  return "5.0-6.0" // Default exertion target when no data
+              }
+        
         switch recoveryScore {
         case 90...100:
             return "9.0-10.0"

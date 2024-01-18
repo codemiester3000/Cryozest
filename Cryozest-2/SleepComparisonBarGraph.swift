@@ -1,7 +1,6 @@
 import SwiftUI
 
 class SleepComparisonDataModel: ObservableObject {
-    
     var timeFrame: TimeFrame {
         didSet {
             fetchSleepData()
@@ -39,12 +38,6 @@ class SleepComparisonDataModel: ObservableObject {
         self.therapyType = therapyType
         self.maxValue = 0.0
         
-        print("Owen here \n\n\n")
-        print("sessions: ", sessions)
-        print("timeFrame: ", timeFrame)
-        print("therapyType: ", therapyType)
-        print("\n\n\n")
-        
         baselineTotalSleep = 0.0
         exerciseTotalSleep = 0.0
         
@@ -67,10 +60,6 @@ class SleepComparisonDataModel: ObservableObject {
                 self.baselineSleepData.rem = averageREMSleep
                 self.baselineSleepData.total = averageTotalSleep
                 self.baselineSleepData.deep = averageDeepSleep
-                
-//                self.baselineSleepData.rem = 3.0 // averageREMSleep
-//                self.baselineSleepData.total = 8.0 // averageTotalSleep
-//                self.baselineSleepData.deep = 6.0 // averageDeepSleep
             }
         }
         
@@ -88,10 +77,6 @@ class SleepComparisonDataModel: ObservableObject {
                 self.exerciseSleepData.rem = averageREMSleep
                 self.exerciseSleepData.total = averageTotalSleep
                 self.exerciseSleepData.deep = averageDeepSleep
-                
-//                self.exerciseSleepData.rem = 7.0 // averageREMSleep
-//                self.exerciseSleepData.total = 10.0 // averageTotalSleep
-//                self.exerciseSleepData.deep = 5.0 // averageDeepSleep
             }
         }
     }
@@ -120,47 +105,6 @@ struct SleepComparisonBarGraph: View {
             .padding()
             
             ParagraphExplanation(model: model)
-            
-            VStack {
-                HStack {
-                    Text("Avg Sleep Duration")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    
-                    Image(systemName: "moon.fill")
-                        .foregroundColor(model.therapyType.color)
-                        .padding(.trailing, 10)
-                }
-                HStack {
-                    HStack {
-                        Text("\(model.therapyType.displayName(managedObjectContext)) days")
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                        
-                    }
-                    Spacer()
-                    Text((model.exerciseSleepData.total != 0 ? String(format: "%.1f", model.exerciseSleepData.total) + " Hrs" : "N/A"))
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.trailing, 10)
-                }
-                .padding(.vertical, 5)
-                HStack {
-                    HStack {
-                        Text("baseline")
-                            .font(.footnote)
-                            .foregroundColor(.white)
-                    }
-                    Spacer()
-                    Text((model.baselineSleepData.total != 0 ? String(format: "%.1f", model.baselineSleepData.total) + " Hrs" : "N/A"))
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.trailing, 10)
-                }
-            }
-            .padding(.top)
         }
     }
 }
@@ -212,10 +156,11 @@ struct ParagraphExplanation: View {
                 Text("Wear your Apple Watch during sleep to see how metrics differs on \(model.therapyType.displayName(managedObjectContext)) days")
                     .font(.system(size: 12))
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
             }
         }
     }
-
+    
     @ViewBuilder
     private func ParagraphText(_ sleepType: String, percentChange: CGFloat) -> some View {
         let indicator = changeIndicator(for: percentChange)
@@ -226,7 +171,7 @@ struct ParagraphExplanation: View {
             Text(indicator.symbol)
                 .font(.system(size: 12))
                 .foregroundColor(indicator.color)
-
+            
             Text("You saw a ")
                 .font(.system(size: 12))
                 .foregroundColor(.white)
@@ -253,30 +198,27 @@ struct ParagraphExplanation: View {
     }
 }
 
-
-
-
 struct ComparisonBarView: View {
     var baselineValue: CGFloat
     var exerciseValue: CGFloat
     var color: Color
     var maxValue: CGFloat
     var label: String
-
+    
     let multiplier = 12.0
     
     private var percentChange: CGFloat {
         ((exerciseValue - baselineValue) / baselineValue) * 100
     }
-
+    
     private var baselineHeight: CGFloat {
         min(baselineValue, maxValue)
     }
-
+    
     private var exerciseHeight: CGFloat {
         min(exerciseValue, maxValue)
     }
-
+    
     private var baselineGradient: LinearGradient {
         LinearGradient(
             gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
@@ -284,7 +226,7 @@ struct ComparisonBarView: View {
             endPoint: .bottom
         )
     }
-
+    
     private var exerciseGradient: LinearGradient {
         LinearGradient(
             gradient: Gradient(colors: [color.opacity(0.8), color]),
@@ -292,7 +234,7 @@ struct ComparisonBarView: View {
             endPoint: .bottom
         )
     }
-
+    
     var body: some View {
         VStack {
             Text(label)
@@ -303,7 +245,7 @@ struct ComparisonBarView: View {
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: maxValue * multiplier)
-
+                
                 if baselineHeight >= exerciseHeight {
                     BarView(height: baselineHeight, gradient: baselineGradient)
                     BarView(height: exerciseHeight, gradient: exerciseGradient)
@@ -312,20 +254,20 @@ struct ComparisonBarView: View {
                     BarView(height: baselineHeight, gradient: baselineGradient)
                 }
             }
-
+            
             Group {
                 Text(String(format: "%.1f hrs", exerciseValue))
                     .font(.caption)
                     .foregroundColor(color)
-
+                
                 Text(String(format: "%.1f hrs", baselineValue))
                     .font(.caption)
                     .foregroundColor(.white)
                 
-//                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
-//                    .font(.caption)
-//                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
-//                    .padding(.top)
+                //                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
+                //                    .font(.caption)
+                //                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
+                //                    .padding(.top)
             }
         }
     }
@@ -335,7 +277,7 @@ struct BarView: View {
     var height: CGFloat
     var gradient: LinearGradient
     let multiplier: CGFloat = 12.0
-
+    
     var body: some View {
         Rectangle()
             .fill(gradient)
