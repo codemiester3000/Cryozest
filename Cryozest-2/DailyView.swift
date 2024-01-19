@@ -6,6 +6,7 @@ struct DailyView: View {
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
+    @State private var dailySleepViewModel = DailySleepViewModel()
     
     var body: some View {
         ScrollView {
@@ -40,7 +41,7 @@ struct DailyView: View {
                 
                 ProgressButtonView(
                     title: "Sleep Quality",
-                    progress: 0.9, // Hardcoded progress value
+                    progress: Float(dailySleepViewModel.sleepScore / 100), // Divide by 100 to scale it correctly
                     color: Color.yellow,
                     action: { showingSleepPopover = true }
                 )
