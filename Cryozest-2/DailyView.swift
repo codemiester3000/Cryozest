@@ -87,21 +87,27 @@ struct HeaderView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
+                    .padding(.horizontal,22)
+                
                 
                 if let lastRefreshDate = model.lastDataRefresh {
                     Text("Updated HealthKit data:")
                         .font(.caption)
                         .foregroundColor(.gray)
                         .padding(.top, 0)
+                        .padding(.horizontal,22)
+
                     Text("\(lastRefreshDate, formatter: dateFormatter)")
                         .font(.caption)
                         .foregroundColor(.green)
+                        .padding(.horizontal,22)
+
                 }
             }
             
             Spacer()
         }
-        .padding(.horizontal)
+        .padding(.horizontal,22)
     }
 }
 
@@ -759,35 +765,39 @@ struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     
     let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2) // Ensure minimum width for items
+    
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 20) { // Align grid to the leading edge
- 
-            
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 30) { // Increased spacing between items
             GridItemView(
-                title: "Heart Rate Variability",
+                symbolName: "waveform.path.ecg",
+                title: "HRV",
                 value: "\(model.lastKnownHRV)",
                 unit: "ms"
             )
             
             GridItemView(
-                title: "Resting Heart Rate",
+                symbolName: "arrow.down.heart",
+                title: "RHR",
                 value: "\(model.mostRecentRestingHeartRate ?? 0)",
                 unit: "bpm"
             )
             
             GridItemView(
+                symbolName: "drop",
                 title: "Blood Oxygen SpO2",
                 value: formatSPO2Value(model.mostRecentSPO2),
                 unit: "%"
             )
             
             GridItemView(
+                symbolName: "lungs",
                 title: "Respiratory Rate",
                 value: formatRespRateValue(model.mostRecentRespiratoryRate),
                 unit: "BrPM"
             )
             
             GridItemView(
+                symbolName: "flame",
                 title: "Calories Burned",
                 value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
                 unit: "kcal"
@@ -796,7 +806,23 @@ struct DailyGridMetrics: View {
         }
         .padding([.horizontal, .top])
     }
+    
+    private func formatSPO2Value(_ spo2: Double?) -> String {
+        guard let spo2 = spo2 else { return "N/A" }
+        return String(format: "%.0f", spo2 * 100) // Convert to percentage
+    }
+    
+    private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
+        let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
+        return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
+    }
+    
+    private func formatRespRateValue(_ respRate: Double?) -> String {
+        guard let respRate = respRate else { return "N/A" }
+        return String(format: "%.1f", respRate) // One decimal place
+    }
 }
+
 
 
 struct MetricView: View {
@@ -830,35 +856,42 @@ struct MetricView: View {
 }
 
 struct GridItemView: View {
+    var symbolName: String
     var title: String
     var value: String
     var unit: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) { // Align to leading and reduce spacing if needed
-            Text(title)
-                .font(.system(size: 16)) // Adjust the font size as necessary
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .lineLimit(1) // Ensure that the title is only one line
-                .truncationMode(.tail) // If the title is too long, it will truncate at the end
-                .fixedSize(horizontal: false, vertical: true) // Allows the text to expand vertically if needed
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Image(systemName: symbolName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 15, height: 15)
+                    .foregroundColor(.gray)
+                Text(title)
+                    .font(.system(size: 16)) // Adjust the size as needed
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .layoutPriority(1) // This tells SwiftUI to give priority to this text view to use available space
+            }
             
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
-                    .font(.system(size: 24)) // Adjust the font size as necessary
+                    .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                
                 Text(unit)
-                    .font(.footnote)
+                    .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
             }
         }
-        .padding(.all, 10) // Adjust padding as necessary
-        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading) // Use max width for the frame
+        .padding(.top,6)
+        .padding(.bottom,6)
+        .padding(.leading, 22) // Apply padding only to the leading (left
         .background(Color.black)
-        .cornerRadius(10)
+        .cornerRadius(8)
         .shadow(radius: 3)
     }
 }
+
