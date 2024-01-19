@@ -758,8 +758,7 @@ struct RecoveryExplanation: View {
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     
-    let columns: [GridItem] = Array(repeating: .init(.fixed(150)), count: 2) // Fixed size for items
-    
+    let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2) // Ensure minimum width for items
     var body: some View {
         LazyVGrid(columns: columns, alignment: .leading, spacing: 20) { // Align grid to the leading edge
  
@@ -836,29 +835,30 @@ struct GridItemView: View {
     var unit: String
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: 2) { // Align to leading and reduce spacing if needed
             Text(title)
-                .font(.system(size: 17)) // Adjust the size as needed
+                .font(.system(size: 16)) // Adjust the font size as necessary
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .padding(.bottom, 1)
+                .lineLimit(1) // Ensure that the title is only one line
+                .truncationMode(.tail) // If the title is too long, it will truncate at the end
+                .fixedSize(horizontal: false, vertical: true) // Allows the text to expand vertically if needed
             
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
-                    .font(.system(size: 28)) // Adjust the size as needed
+                    .font(.system(size: 24)) // Adjust the font size as necessary
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text(unit)
-                    .font(.caption)
+                    .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 2)
             }
         }
-        .padding()
-        .frame(width: 150, height: 90) // Adjust the size as needed
-        .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.7), Color.black]), startPoint: .top, endPoint: .bottom))
+        .padding(.all, 10) // Adjust padding as necessary
+        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading) // Use max width for the frame
+        .background(Color.black)
         .cornerRadius(10)
-        .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 4)
+        .shadow(radius: 3)
     }
 }
