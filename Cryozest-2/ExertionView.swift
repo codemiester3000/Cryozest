@@ -333,6 +333,11 @@ struct ExertionView: View {
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false
+        
+    var exertionScore: Double {
+        return exertionModel.exertionScore
+    }
+    
     
     var zoneInfos: [ZoneInfo] {
         if exertionModel.zoneTimes.isEmpty {

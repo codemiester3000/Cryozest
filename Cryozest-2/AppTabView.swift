@@ -12,7 +12,7 @@ struct AppTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            DailyView(model: RecoveryGraphModel())
+            DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel()) // Pass an instance of ExertionModel
                 .tabItem {
                     Image(systemName: "moon")
                     Text("Daily")
