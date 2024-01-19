@@ -111,11 +111,9 @@ struct MainView: View {
                 .padding(.bottom)
                 
                 Group {
-                    
-                    
                     if selectedMode == "Timer" {
                         TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                            .padding(.bottom, 42)
+                            .padding(.vertical)
                         
                         Spacer()
                         
