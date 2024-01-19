@@ -305,6 +305,9 @@ class DailySleepViewModel: ObservableObject {
             healthStore.execute(query)
         }
     }
+ 
+
+    
     
     
     private func updateSleepData(with samples: [HKCategorySample]) {
@@ -393,6 +396,7 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
         
         let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep)
         completion(sleepScore)
+        
     }
 }
 
@@ -400,9 +404,11 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
 struct DailySleepView: View {
     @ObservedObject var dailySleepModel = DailySleepViewModel()
     
+    
     @State private var sleepStartTime: String = "N/A"
     @State private var sleepEndTime: String = "N/A"
     @State private var isPopoverVisible: Bool = false // State for showing the popover
+    @State private var sleepScore: Double = 0.0
     
     var body: some View {
         ScrollView {
