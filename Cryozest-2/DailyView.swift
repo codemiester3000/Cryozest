@@ -16,10 +16,10 @@ struct DailyView: View {
             
             DailyGridMetrics(model: model)
             
-            VStack(alignment: .leading, spacing: 30) {
+            VStack(alignment: .leading, spacing: 15) {
                 ProgressButtonView(
-                    title: "Recovery",
-                    progress: 0.75, // Hardcoded progress value
+                    title: "Readiness to Train",
+                    progress: Float(model.recoveryScores.last ?? 0) / 100.0, // Using the last recovery score
                     color: Color.green,
                     action: { showingRecoveryPopover = true }
                 )
@@ -29,7 +29,7 @@ struct DailyView: View {
                 }
                 
                 ProgressButtonView(
-                    title: "Exertion",
+                    title: "Daily Exertion",
                     progress: 0.5, // Hardcoded progress value
                     color: Color.orange,
                     action: { showingExertionPopover = true }
@@ -39,7 +39,7 @@ struct DailyView: View {
                 }
                 
                 ProgressButtonView(
-                    title: "Sleep",
+                    title: "Sleep Quality",
                     progress: 0.9, // Hardcoded progress value
                     color: Color.yellow,
                     action: { showingSleepPopover = true }
@@ -84,21 +84,19 @@ struct HeaderView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal,22)
-                
+                    .padding(.horizontal, 22) // Add padding here
                 
                 if let lastRefreshDate = model.lastDataRefresh {
                     Text("Updated HealthKit data:")
                         .font(.caption)
                         .foregroundColor(.gray)
                         .padding(.top, 0)
-                        .padding(.horizontal,22)
+                        .padding(.horizontal, 22) // Add padding here
                     
                     Text("\(lastRefreshDate, formatter: dateFormatter)")
                         .font(.caption)
                         .foregroundColor(.green)
-                        .padding(.horizontal,22)
-                    
+                        .padding(.horizontal, 22) // Add padding here
                 }
             }
             
@@ -898,42 +896,45 @@ struct ProgressButtonView: View {
     let progress: Float // A value between 0.0 and 1.0
     let color: Color
     let action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
-            VStack {
-                // Title Text
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .fontWeight(.semibold)
-                    .padding(.bottom, 5) // Adjust padding for spacing between title and progress bar
-
-                // Horizontal Stack for progress bar and percentage
-                HStack {
-                    ProgressView(value: progress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: color))
-                        .scaleEffect(x: 1, y: 2, anchor: .center)
-                        .frame(height: 20)
-
-                    Text("\(Int(progress * 100))%") // Shows the percentage
-                        .font(.headline)
+            HStack {
+                VStack(alignment: .leading) {
+                    // Title Text
+                    Text(title)
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
                         .fontWeight(.semibold)
+                        .padding(.bottom, 5) // Adjust padding for spacing between title and progress bar
+                    
+                    // Horizontal Stack for progress bar and percentage
+                    HStack {
+                        ProgressView(value: progress)
+                            .progressViewStyle(LinearProgressViewStyle(tint: color))
+                            .scaleEffect(x: 1, y: 2, anchor: .center)
+                            .frame(height: 20)
+                        
+                        Text("\(Int(progress * 100))%") // Shows the percentage
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .fontWeight(.semibold)
+                    }
                 }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.gray.opacity(0.2)) // Button fill
+                .cornerRadius(10)
+                
+                Spacer() // Push '>' to the right
             }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.white, lineWidth: 2)) // White border
-            .background(color.opacity(0.1)) // Button fill
-            .cornerRadius(10)
         }
         .background(
             Image(systemName: "chevron.right") // System name for '>'
                 .foregroundColor(.gray)
                 .font(Font.system(size: 12).weight(.semibold))
-                .padding(.trailing, 8)
-                .padding(.top, 8),
+                .padding(.trailing, 20)
+                .padding(.top, 10),
             alignment: .topTrailing
         )
     }
