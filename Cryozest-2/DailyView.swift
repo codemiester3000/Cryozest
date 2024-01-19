@@ -2,11 +2,13 @@ import SwiftUI
 
 struct DailyView: View {
     @ObservedObject var model: RecoveryGraphModel
+    @ObservedObject var exertionModel: ExertionModel
     
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
     @State private var dailySleepViewModel = DailySleepViewModel()
+    @State private var calculatedUpperBound: Double = 8.0
     
     var body: some View {
         ScrollView {
@@ -31,12 +33,12 @@ struct DailyView: View {
                 
                 ProgressButtonView(
                     title: "Daily Exertion",
-                    progress: 0.5, // Hardcoded progress value
+                    progress: Float(exertionModel.exertionScore / calculatedUpperBound),
                     color: Color.orange,
                     action: { showingExertionPopover = true }
                 )
                 .popover(isPresented: $showingExertionPopover) {
-                    ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
+                    ExertionView(exertionModel: exertionModel, recoveryModel: model)
                 }
                 
                 ProgressButtonView(
