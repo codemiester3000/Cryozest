@@ -17,41 +17,38 @@ struct DailyView: View {
             DailyGridMetrics(model: model)
             
             VStack(alignment: .leading, spacing: 30) {
-                Button(action: { showingRecoveryPopover = true }) {
-                    HStack {
-                        Text("Recovery Details")
-                        Image(systemName: "plus")
-                    }
-                }
+                ProgressButtonView(
+                    title: "Recovery",
+                    progress: 0.75, // Hardcoded progress value
+                    color: Color.green,
+                    action: { showingRecoveryPopover = true }
+                )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
                     RecoveryGraphView(model: model)
                 }
-                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.orange))
                 
-                Button(action: { showingExertionPopover = true }) {
-                    HStack {
-                        Text("Exertion Details")
-                        Image(systemName: "plus")
-                    }
-                }
+                ProgressButtonView(
+                    title: "Exertion",
+                    progress: 0.5, // Hardcoded progress value
+                    color: Color.orange,
+                    action: { showingExertionPopover = true }
+                )
                 .popover(isPresented: $showingExertionPopover) {
                     ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
                 }
-                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.yellow))
                 
-                Button(action: { showingSleepPopover = true }) {
-                    HStack {
-                        Text("Sleep Details")
-                        Image(systemName: "plus")
-                    }
-                }
+                ProgressButtonView(
+                    title: "Sleep",
+                    progress: 0.9, // Hardcoded progress value
+                    color: Color.yellow,
+                    action: { showingSleepPopover = true }
+                )
                 .popover(isPresented: $showingSleepPopover) {
                     DailySleepView(dailySleepModel: DailySleepViewModel())
                 }
-                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.red))
             }
-            .padding(.leading, -150)
+            .padding(.horizontal,22)
             .padding(.top, 30)
         }
         .refreshable {
@@ -96,18 +93,17 @@ struct HeaderView: View {
                         .foregroundColor(.gray)
                         .padding(.top, 0)
                         .padding(.horizontal,22)
-
+                    
                     Text("\(lastRefreshDate, formatter: dateFormatter)")
                         .font(.caption)
                         .foregroundColor(.green)
                         .padding(.horizontal,22)
-
+                    
                 }
             }
             
             Spacer()
         }
-        .padding(.horizontal,22)
     }
 }
 
@@ -894,4 +890,53 @@ struct GridItemView: View {
         .shadow(radius: 3)
     }
 }
+
+
+
+struct ProgressButtonView: View {
+    let title: String
+    let progress: Float // A value between 0.0 and 1.0
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack {
+                // Title Text
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .fontWeight(.semibold)
+                    .padding(.bottom, 5) // Adjust padding for spacing between title and progress bar
+
+                // Horizontal Stack for progress bar and percentage
+                HStack {
+                    ProgressView(value: progress)
+                        .progressViewStyle(LinearProgressViewStyle(tint: color))
+                        .scaleEffect(x: 1, y: 2, anchor: .center)
+                        .frame(height: 20)
+
+                    Text("\(Int(progress * 100))%") // Shows the percentage
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .fontWeight(.semibold)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(RoundedRectangle(cornerRadius: 10).stroke(Color.white, lineWidth: 2)) // White border
+            .background(color.opacity(0.1)) // Button fill
+            .cornerRadius(10)
+        }
+        .background(
+            Image(systemName: "chevron.right") // System name for '>'
+                .foregroundColor(.gray)
+                .font(Font.system(size: 12).weight(.semibold))
+                .padding(.trailing, 8)
+                .padding(.top, 8),
+            alignment: .topTrailing
+        )
+    }
+}
+
 
