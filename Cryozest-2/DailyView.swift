@@ -3,15 +3,56 @@ import SwiftUI
 struct DailyView: View {
     @ObservedObject var model: RecoveryGraphModel
     
+    @State private var showingExertionPopover = false
+    @State private var showingRecoveryPopover = false
+    @State private var showingSleepPopover = false
+    
     var body: some View {
         ScrollView {
-            RecoveryCardView(model: model)
             
-            RecoveryGraphView(model: model)
+            HeaderView(model: model)
+                .padding(.top)
+                .padding(.bottom, 30)
             
-            ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
+            DailyGridMetrics(model: model)
             
-            DailySleepView(dailySleepModel: DailySleepViewModel())
+            VStack(alignment: .leading, spacing: 30) {
+                Button(action: { showingRecoveryPopover = true }) {
+                    HStack {
+                        Text("Recovery Details")
+                        Image(systemName: "plus")
+                    }
+                }
+                .popover(isPresented: $showingRecoveryPopover) {
+                    RecoveryCardView(model: model)
+                    RecoveryGraphView(model: model)
+                }
+                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.orange))
+                
+                Button(action: { showingExertionPopover = true }) {
+                    HStack {
+                        Text("Exertion Details")
+                        Image(systemName: "plus")
+                    }
+                }
+                .popover(isPresented: $showingExertionPopover) {
+                    ExertionView(exertionModel: ExertionModel(), recoveryModel: model)
+                }
+                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.yellow))
+                
+                Button(action: { showingSleepPopover = true }) {
+                    HStack {
+                        Text("Sleep Details")
+                        Image(systemName: "plus")
+                    }
+                }
+                .popover(isPresented: $showingSleepPopover) {
+                    DailySleepView(dailySleepModel: DailySleepViewModel())
+                }
+                .buttonStyle(PrimaryButtonStyle(backgroundColor: Color.red))
+            }
+            .padding(.leading, -150)
+            .padding(.top, 30)
         }
         .refreshable {
             model.pullAllData()
@@ -28,6 +69,61 @@ struct DailyView: View {
         }
     }
 }
+
+struct HeaderView: View {
+    @ObservedObject var model: RecoveryGraphModel
+    
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text("Daily Summary")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                if let lastRefreshDate = model.lastDataRefresh {
+                    Text("Updated HealthKit data:")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.top, 0)
+                    Text("\(lastRefreshDate, formatter: dateFormatter)")
+                        .font(.caption)
+                        .foregroundColor(.green)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct PrimaryButtonStyle: ButtonStyle {
+    var backgroundColor: Color
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .padding()
+            .background(backgroundColor)
+            .foregroundColor(.black)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(color: backgroundColor.opacity(0.4), radius: 10, x: 0, y: 10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(), value: configuration.isPressed)
+    }
+}
+
 
 class RecoveryGraphModel: ObservableObject {
     
@@ -516,7 +612,7 @@ struct RecoveryCardView: View {
                 // HStack to place text and recovery ring side by side
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Daily Summary")
+                        Text("Recovery")
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
@@ -598,7 +694,7 @@ struct RecoveryCardView: View {
                 .padding(.vertical, 32)
             }
             
-            DailyGridMetrics(model: model)
+            //            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
@@ -671,6 +767,7 @@ struct DailyGridMetrics: View {
         }
         .padding(.horizontal, 6)
         .padding(.bottom, 1)
+        .padding(.leading, 12)
         
         // Horizontal Stack for Grid Items
         HStack(spacing: 10) {
@@ -781,4 +878,5 @@ struct GridItemView: View {
         )
     }
 }
+
 
