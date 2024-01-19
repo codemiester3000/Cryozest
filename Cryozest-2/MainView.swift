@@ -6,6 +6,15 @@ struct MainView: View {
     
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     
+    var isSessionCompleteForToday: Bool {
+        sessions.contains { session in
+            let calendar = Calendar.current
+            let isSameDay = calendar.isDateInToday(session.date ?? Date())
+            let isSameTherapyType = session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
+            return isSameDay && isSameTherapyType
+        }
+    }
+    
     @Environment(\.scenePhase) private var scenePhase
     
     @Environment(\.managedObjectContext) private var viewContext
@@ -64,6 +73,8 @@ struct MainView: View {
     @State private var initialTimerDuration: TimeInterval = 0
     @State private var showCreateTimer = false
     
+    @State private var selectedMode = "Timer"
+    
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
     }
@@ -86,68 +97,97 @@ struct MainView: View {
                     }
                 }
                 .padding(.top, 33)
-                //.padding(.vertical, 28)
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    .padding(.bottom, 42)
+                    .padding(.bottom)
                 
                 Spacer()
                 
-                TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                    .padding(.bottom, 42)
-                
-                Spacer()
-                
-                HStack(spacing: 10) {
-                    ForEach(customTimers, id: \.self) { timer in
-                        Button(action: {
-                            startCountdown(for: Double(timer.duration) * 60)
-                        }) {
-                            Text("\(timer.duration) min")
-                                .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(self.therapyTypeSelection.selectedTherapyType.color)
-                                .cornerRadius(40)
-                                .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                                .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
-                        }
-                        .disabled(self.timer != nil)
-                        .opacity(self.timer != nil ? 0.3 : 1)
-                        
-                    }
-                    Button(action: {
-                        // Navigate to a view for creating a new custom timer
-                        showCreateTimer = true
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white) // Change icon color to match the border
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Color.clear) // Set background to transparent
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(self.therapyTypeSelection.selectedTherapyType.color, lineWidth: 3) // Create a border with the selected color
-                            )
-                            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                            .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
-                    }
-                    .disabled(self.timer != nil)
-                    .opacity(self.timer != nil ? 0.3 : 1)
-                    
-                    
+                Picker("Select Mode", selection: $selectedMode) {
+                    Text("Timer").tag("Timer")
+                    Text("Quick Add").tag("Quick Add")
                 }
-                .padding(.bottom, 18)
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.bottom)
                 
-                
-                StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                
-                Spacer()
-                
-                HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
-                    .padding(.bottom, 28)
+                Group {
+                    
+                    
+                    if selectedMode == "Timer" {
+                        TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
+                            .padding(.bottom, 42)
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 10) {
+                            ForEach(customTimers, id: \.self) { timer in
+                                Button(action: {
+                                    startCountdown(for: Double(timer.duration) * 60)
+                                }) {
+                                    Text("\(timer.duration) min")
+                                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 10)
+                                        .background(self.therapyTypeSelection.selectedTherapyType.color)
+                                        .cornerRadius(40)
+                                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                                        .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
+                                }
+                                .disabled(self.timer != nil)
+                                .opacity(self.timer != nil ? 0.3 : 1)
+                                
+                            }
+                            Button(action: {
+                                // Navigate to a view for creating a new custom timer
+                                showCreateTimer = true
+                            }) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white) // Change icon color to match the border
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.clear) // Set background to transparent
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 40)
+                                            .stroke(self.therapyTypeSelection.selectedTherapyType.color, lineWidth: 3) // Create a border with the selected color
+                                    )
+                                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                                    .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
+                            }
+                            .disabled(self.timer != nil)
+                            .opacity(self.timer != nil ? 0.3 : 1)
+                        }
+                        .padding(.bottom, 18)
+                        
+                        StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
+                        
+                        Spacer()
+                        
+                        HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
+                            .padding(.bottom, 28)
+                    } else {
+                        if isSessionCompleteForToday {
+                            Text("Already Complete for Today!")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                                .padding()
+                        } else {
+                            Button(action: {
+                                logSession()
+                            }) {
+                                Text("Mark today as complete")
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.green)
+                                    .cornerRadius(10)
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                }.frame(maxHeight: .infinity)
                 
                 NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
@@ -169,11 +209,11 @@ struct MainView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black
-//                LinearGradient(
-//                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-//                    startPoint: .top,
-//                    endPoint: .bottom
-//                )
+                        //                LinearGradient(
+                        //                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
+                        //                    startPoint: .top,
+                        //                    endPoint: .bottom
+                        //                )
             )
             .onAppear() {
                 
@@ -240,6 +280,25 @@ struct MainView: View {
                 // Future cases
                 break
             }
+        }
+    }
+    
+    private func logSession() {
+        let newSession = TherapySessionEntity(context: viewContext)
+        newSession.date = Date()
+        newSession.therapyType = therapyTypeSelection.selectedTherapyType.rawValue
+        newSession.id = UUID()
+        
+        do {
+            do {
+                try viewContext.save()
+            } catch {
+                // Handle the error here, e.g., display an error message or log the error
+                print("Failed to save session: \(error.localizedDescription)")
+            }
+        } catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
     }
     
