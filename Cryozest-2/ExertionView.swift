@@ -17,6 +17,11 @@ class ExertionModel: ObservableObject {
         let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
         return maxTime == 0 ? 1 : maxTime
     }
+
+    
+    
+    
+    
     
     init() {
         fetchExertionScoreAndTimes()
