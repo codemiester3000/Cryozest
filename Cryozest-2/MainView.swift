@@ -177,11 +177,20 @@ struct MainView: View {
                                 logSession()
                             }) {
                                 Text("Mark today as complete")
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding()
-                                    .background(Color.green)
-                                    .cornerRadius(10)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                        .font(.title2) // Larger font size
+                                        .padding(.vertical, 15) // Increased vertical padding
+                                        .padding(.horizontal, 30) // Increased horizontal padding
+                                        .background(
+                                            LinearGradient(gradient: Gradient(colors: [therapyTypeSelection.selectedTherapyType.color, therapyTypeSelection.selectedTherapyType.color.opacity(0.4)]), startPoint: .leading, endPoint: .trailing) // Gradient background
+                                        )
+                                        .cornerRadius(15) // Smoothed corner radius
+                                        .shadow(color: .gray, radius: 10, x: 0, y: 5) // Shadow for depth
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 15)
+                                                .stroke(Color.white, lineWidth: 2) // White border
+                                        )
                             }
                         }
                         
