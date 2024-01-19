@@ -758,59 +758,47 @@ struct RecoveryExplanation: View {
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     
+    let columns: [GridItem] = Array(repeating: .init(.fixed(150)), count: 2) // Fixed size for items
+    
     var body: some View {
-        HStack {
-            Text("Latest Daily Metrics:")
-                .foregroundColor(.gray)
-                .font(.footnote)
-            Spacer()
-        }
-        .padding(.horizontal, 6)
-        .padding(.bottom, 1)
-        .padding(.leading, 12)
-        
-        // Horizontal Stack for Grid Items
-        HStack(spacing: 10) {
-            GridItemView(
-                title: "Sleep",
-                value: model.previousNightSleepDuration ?? "N/A",
-                unit: "hrs"
-            )
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 20) { // Align grid to the leading edge
+ 
             
             GridItemView(
-                title: "HRV",
+                title: "Heart Rate Variability",
                 value: "\(model.lastKnownHRV)",
                 unit: "ms"
             )
             
             GridItemView(
-                title: "RHR",
+                title: "Resting Heart Rate",
                 value: "\(model.mostRecentRestingHeartRate ?? 0)",
                 unit: "bpm"
             )
-        }
-        
-        // Second row of grid items
-        HStack(spacing: 10) {
+            
             GridItemView(
-                title: "SPO2",
+                title: "Blood Oxygen SpO2",
                 value: formatSPO2Value(model.mostRecentSPO2),
                 unit: "%"
             )
+            
             GridItemView(
-                title: "Resp Rate",
+                title: "Respiratory Rate",
                 value: formatRespRateValue(model.mostRecentRespiratoryRate),
                 unit: "BrPM"
             )
             
             GridItemView(
-                title: "Cals Burned",
+                title: "Calories Burned",
                 value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
                 unit: "kcal"
             )
+            // Add more GridItemViews as needed
         }
+        .padding([.horizontal, .top])
     }
 }
+
 
 struct MetricView: View {
     let label: String
@@ -850,33 +838,27 @@ struct GridItemView: View {
     var body: some View {
         VStack {
             Text(title)
-                .font(.system(size: 14)) // Slightly smaller font size
-                .fontWeight(.bold)
+                .font(.system(size: 17)) // Adjust the size as needed
+                .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .padding(.bottom, 1) // Reduced bottom padding
+                .padding(.bottom, 1)
             
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
-                    .font(.system(size: 20)) // Slightly smaller font size
+                    .font(.system(size: 28)) // Adjust the size as needed
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text(unit)
-                    .font(.footnote)
+                    .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
-                    .padding(.leading, 1) // Keep existing padding
+                    .padding(.leading, 2)
             }
         }
-        .padding(.all, 6) // Slightly reduced overall padding
-        .frame(width: 110, height: 70) // Reduced height
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.red, lineWidth: 1)
-        )
+        .padding()
+        .frame(width: 150, height: 90) // Adjust the size as needed
+        .background(LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.7), Color.black]), startPoint: .top, endPoint: .bottom))
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 4)
     }
 }
-
-
