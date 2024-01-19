@@ -24,7 +24,7 @@ struct AppTabView: View {
             MainView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
                     Image(systemName: "stopwatch")
-                    Text("Stopwatch")
+                    Text("Record Data")
                 }
                 .tag(1)
                 .toolbarBackground(.black, for: .tabBar)
