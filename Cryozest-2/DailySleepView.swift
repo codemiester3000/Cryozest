@@ -482,12 +482,12 @@ struct DailySleepView: View {
             
             
             .onAppear {
-                
                 fetchSleepTimes()
-                
             }
         }
-    }
+        .background(Color.black)
+    } 
+
     
     private func fetchSleepTimes() {
         getSleepTimesYesterday { (start, end) in
