@@ -28,7 +28,7 @@ struct DailyView: View {
                 )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
-                    RecoveryGraphView(model: model)
+//                    RecoveryGraphView(model: model)
                 }
                 
                 ProgressButtonView(
@@ -611,6 +611,7 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ScrollView {
+            Spacer()
             VStack(alignment: .leading) {
                 // HStack to place text and recovery ring side by side
                 HStack {
@@ -632,6 +633,7 @@ struct RecoveryCardView: View {
                     }
                     
                     Spacer()
+                    
                     
                     ZStack {
                         Circle()
@@ -692,6 +694,14 @@ struct RecoveryCardView: View {
                     .padding(.horizontal, 6)
                     
                     RecoveryExplanation(model: model)
+                                       .padding(.horizontal, 4)
+                                       .padding(.vertical, 32)
+
+                                   Spacer() // Add a Spacer between RecoveryExplanation and RecoveryGraphView
+
+                                   RecoveryGraphView(model: model)
+                                       .padding(.horizontal, 4)
+                                       .padding(.vertical, 32)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
