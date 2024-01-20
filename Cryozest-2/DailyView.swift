@@ -4,11 +4,19 @@ struct DailyView: View {
     @ObservedObject var model: RecoveryGraphModel
     @ObservedObject var exertionModel: ExertionModel
     
+    
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
     @State private var dailySleepViewModel = DailySleepViewModel()
     @State private var calculatedUpperBound: Double = 8.0
+    
+    var calculatedUpperBoundDailyView: Double {
+        let recoveryScore = model.recoveryScores.last ?? 8
+        let upperBound = ceil(Double(recoveryScore) / 10.0) + 1
+        let calculatedUpperBound = max(upperBound, 1.0)
+        return calculatedUpperBound
+    }
     
     var body: some View {
         ScrollView {
@@ -22,7 +30,7 @@ struct DailyView: View {
             VStack(alignment: .leading, spacing: 15) {
                 ProgressButtonView(
                     title: "Readiness to Train",
-                    progress: Float(model.recoveryScores.last ?? 0) / 100.0, // Using the last recovery score
+                    progress: Float(model.recoveryScores.last ?? 0) / 100.0,
                     color: Color.green,
                     action: { showingRecoveryPopover = true }
                 )
@@ -31,15 +39,19 @@ struct DailyView: View {
 //                    RecoveryGraphView(model: model)
                 }
                 
+                
                 ProgressButtonView(
-                    title: "Daily Exertion",
-                    progress: Float(exertionModel.exertionScore / calculatedUpperBound),
-                    color: Color.orange,
-                    action: { showingExertionPopover = true }
-                )
-                .popover(isPresented: $showingExertionPopover) {
-                    ExertionView(exertionModel: exertionModel, recoveryModel: model)
-                }
+                       title: "Daily Exertion",
+                       progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
+                       color: Color.orange,
+                       action: { showingExertionPopover = true }
+                   )
+                   .popover(isPresented: $showingExertionPopover) {
+                       ExertionView(exertionModel: exertionModel, recoveryModel: model)
+                   }
+                   .onAppear {
+                       print("Exertion Score: \(exertionModel.exertionScore)")
+                   }
                 
                 ProgressButtonView(
                     title: "Sleep Quality",
