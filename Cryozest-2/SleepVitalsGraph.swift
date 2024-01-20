@@ -121,8 +121,8 @@ struct SleepVitalsGraph: View {
             
             BarGraphView(
                 title: "Sleeping Heart Rate Variability",
-                baselineValue: model.baselineRestingHRV,
-                exerciseValue: model.exerciseRestingHRV,
+                baselineValue: model.baselineRestingHRV.isFinite ? model.baselineRestingHRV : 0,
+                exerciseValue: model.exerciseRestingHRV.isFinite ? model.exerciseRestingHRV : 0,
                 baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
                 barColor: model.therapyType.color
@@ -140,10 +140,10 @@ struct SleepVitalsGraph: View {
             // Respiratory Rate Graph
             BarGraphView(
                 title: "Sleeping Respiratory Rate",
-                baselineValue: model.baselineRespiratoryRate,
-                exerciseValue: model.exerciseRespiratoryRate,
-                baselineLabel: "\(Int(model.baselineRespiratoryRate)) br/min",
-                exerciseLabel: "\(Int(model.exerciseRespiratoryRate)) br/min",
+                baselineValue: model.baselineRespiratoryRate.isFinite ? model.baselineRespiratoryRate : 0,
+                exerciseValue: model.exerciseRespiratoryRate.isFinite ? model.exerciseRespiratoryRate : 0,
+                baselineLabel: "\(model.baselineRespiratoryRate.isFinite ? Int(model.baselineRespiratoryRate) : 0) br/min",
+                exerciseLabel: "\(model.exerciseRespiratoryRate.isFinite ? Int(model.exerciseRespiratoryRate) : 0) br/min",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
@@ -158,10 +158,10 @@ struct SleepVitalsGraph: View {
             // SPO2 Graph
             BarGraphView(
                 title: "Sleeping SPO2",
-                baselineValue: model.baselineSPO2 * 100,
-                exerciseValue: model.exerciseSPO2 * 100,
-                baselineLabel: "\(Int(model.baselineSPO2 * 100))%",
-                exerciseLabel: "\(Int(model.exerciseSPO2 * 100))%",
+                baselineValue: model.baselineSPO2.isFinite ? model.baselineSPO2 * 100 : 0,
+                exerciseValue: model.exerciseSPO2.isFinite ? model.exerciseSPO2 * 100 : 0,
+                baselineLabel: "\(model.baselineSPO2.isFinite ? Int(model.baselineSPO2 * 100) : 0)%",
+                exerciseLabel: "\(model.exerciseSPO2.isFinite ? Int(model.exerciseSPO2 * 100) : 0)%",
                 barColor: model.therapyType.color
             )
             .padding(.bottom)
