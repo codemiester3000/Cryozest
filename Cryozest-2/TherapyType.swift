@@ -238,7 +238,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
             return Color.mint
         case .allergies, .animalInBed, .artificialLight, .badWeather, .blueLightBlocker, .childCare, .earPlugs, .familyTime, .fatigue, .friendTime, .hydration, .injury, .jobStress, .lifeStress, .medication, .menstruation, .microdosing, .migraine, .nightmares, .office, .ovulating, .pms, .pregnancy, .reading, .remoteWork, .sexualActivity, .sharedBed, .shiftWork, .sickness, .snoring, .stimulantMedication, .sunlight, .thc, .tobacco, .travel, .vacation, .vaccination, .vividDreams, .workingLate:
-            return Color.white
+            return Color.indigo
             
         case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
             return Color.purple
