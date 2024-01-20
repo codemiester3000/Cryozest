@@ -20,8 +20,8 @@ struct DailyView: View {
     }
     
     var body: some View {
+        NavigationView {
         ScrollView {
-            
             HeaderView(model: model)
                 .padding(.top)
                 .padding(.bottom, 5)
@@ -86,42 +86,52 @@ struct DailyView: View {
     }
 }
 
-struct HeaderView: View {
-    @ObservedObject var model: RecoveryGraphModel
-    
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .medium
-        return formatter
-    }
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Daily Summary")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                
-                if let lastRefreshDate = model.lastDataRefresh {
-                    HStack(spacing: 2) { // Adjust the spacing as needed
-                        Text("Updated HealthKit data:")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("\(lastRefreshDate, formatter: dateFormatter)")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    }
-                    .padding(.top, 0)
+    struct HeaderView: View {
+        @ObservedObject var model: RecoveryGraphModel
+        
+        private var dateFormatter: DateFormatter {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .none
+            formatter.timeStyle = .medium
+            return formatter
+        }
+        
+        var body: some View {
+            
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Daily Summary")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
                     
+                    if let lastRefreshDate = model.lastDataRefresh {
+                        HStack(spacing: 2) { // Adjust the spacing as needed
+                            Text("Updated HealthKit data:")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                        .padding(.top, 0)
+                        
+                    }
+                }
+                
+                Spacer()
+                
+                NavigationLink(destination: ProfileView()) {
+                    Image(systemName: "person.crop.circle")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(.white)
                 }
             }
-            
-            Spacer()
+            .padding(.horizontal, 22)
         }
-        .padding(.horizontal, 22)
     }
 }
 

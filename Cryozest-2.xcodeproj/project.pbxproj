@@ -50,6 +50,7 @@
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
+		C5DC773A2B5C5E72005CEC3C /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77392B5C5E72005CEC3C /* ProfileView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,7 @@
 		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
+		C5DC77392B5C5E72005CEC3C /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +210,7 @@
 				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
 				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
 				C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */,
+				C5DC77392B5C5E72005CEC3C /* ProfileView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -381,6 +384,7 @@
 				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
+				C5DC773A2B5C5E72005CEC3C /* ProfileView.swift in Sources */,
 				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
