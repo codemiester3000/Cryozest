@@ -24,11 +24,12 @@ struct DailyView: View {
             
             HeaderView(model: model)
                 .padding(.top)
-                .padding(.bottom, 30)
+                .padding(.bottom, 15)
+                .padding(.leading,17)
             
             DailyGridMetrics(model: model)
             
-            VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
                     title: "Readiness to Train",
                     progress: Float(model.recoveryScores.last ?? 0) / 100.0,
@@ -65,7 +66,7 @@ struct DailyView: View {
                 }
             }
             .padding(.horizontal,22)
-            .padding(.top, 30)
+            .padding(.top, 15)
         }
         .refreshable {
                     model.pullAllData()    // Existing call to refresh RecoveryGraphModel
@@ -397,8 +398,6 @@ class RecoveryGraphModel: ObservableObject {
         let idealSleepDuration: Double = 8 // 8 hours for 100% score
         let sleepScore = (sleepDuration / idealSleepDuration) * 100
         sleepScorePercentage = Int(sleepScore.rounded())
-        
-        print("calculateSleepScorePercentage: Calculated sleep score percentage is \(sleepScorePercentage ?? 0)")
     }
     
     
@@ -861,7 +860,7 @@ struct DailyGridMetrics: View {
                GridItemView(
                    symbolName: "lungs",
                    title: "VO2 Max",
-                   value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0), 
+                   value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
                    unit: "ml/kg/min"
                )
         }
