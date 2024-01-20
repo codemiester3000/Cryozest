@@ -333,7 +333,7 @@ struct ExertionView: View {
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false
-        
+    
     var exertionScore: Double {
         return exertionModel.exertionScore
     }
@@ -363,15 +363,15 @@ struct ExertionView: View {
             }
         }
     }
-
+    
     
     // Computed property for target exertion zone
     var targetExertionZone: String {
         let recoveryScore = recoveryModel.recoveryScores.last ?? 0
         
         if recoveryScore == 0 {
-                  return "5.0-6.0" // Default exertion target when no data
-              }
+            return "5.0-6.0" // Default exertion target when no data
+        }
         
         switch recoveryScore {
         case 90...100:
@@ -413,137 +413,116 @@ struct ExertionView: View {
     }
     
     var body: some View {
-        
-        VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack() {
-                        Text("Daily Exertion")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                        
-                        Button(action: {
-                            isPopoverVisible.toggle()
-                        }) {
-                            Image(systemName: "questionmark.circle.fill")
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all) // Set the background to black and ignore safe area
+            VStack(spacing: 0) {
+                Spacer()
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack() {
+                            Text("Daily Exertion")
                                 .font(.title2)
-                                .foregroundColor(Color.blue)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                isPopoverVisible.toggle()
+                            }) {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .font(.title2)
+                                    .foregroundColor(Color.blue)
+                            }
+                            .padding(.leading, 8)
+                            .popover(isPresented: $isPopoverVisible) {
+                                ExertionInfoPopoverView()
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                            }
                         }
-                        .padding(.leading, 8)
-                        .popover(isPresented: $isPopoverVisible) {
-                            ExertionInfoPopoverView()
-                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                        }
-                    }
-                    
-                    VStack {
-                        Text("Today's Exertion Target:\n")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
                         
-                        +
-                        Text("\(targetExertionZone)")
-                            .font(.system(size: 17))
-                            .foregroundColor(.green)
-                            .fontWeight(.bold)
-                    }.padding(.vertical, 1)
+                        VStack(alignment: .leading) {
+                                Text("Today's Exertion Target:")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+                                
+                                Text("\(targetExertionZone)")
+                                    .font(.system(size: 17))
+                                    .foregroundColor(.green)
+                                    .fontWeight(.bold)
+                            }
+                        }
+                        .padding(.vertical)
+                        .padding(.horizontal, 22)
+                        
+                        Spacer()
+                          
+                          Spacer()
                     
-                    
+                    ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
+                        .frame(width: 120, height: 120)
+                        .padding(.horizontal, 22)
                 }
-                .padding(.vertical)
-                .padding(.horizontal, 22)
                 
-                Spacer()
+                Spacer(minLength: 10)
+
+                VStack() {
+                    let userStatement = recoveryModel.generateUserStatement()
+                    Text(userStatement)
+                        .foregroundColor(.white)
+                        .padding(.top, 8)
+                        .padding(.horizontal, 20)
+                }
+                .padding(.vertical, 1)
                 
-                ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
-                    .frame(width: 120, height: 120)
-                    .padding(.horizontal, 22)
-            }
-            //.padding(.horizontal, 6)
-            
-            VStack() {
-                let userStatement = recoveryModel.generateUserStatement()
-                Text(userStatement)
-                    .foregroundColor(.white)
-                    .padding(.top, 8)
-                    .padding(.horizontal, 20)
-            }
-            .padding(.vertical, 20)
-            
-            let maxTime = exertionModel.zoneTimes.max() ?? 1
-            
-            Spacer(minLength: 32)
-            
-            VStack(alignment: .leading) {
-                ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-            }
-            .padding(.top, 10)
-            .padding(.horizontal, 6)
-            .padding(.bottom, 20)
-            
-            ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
-                VStack(spacing: 0.1) {
-//                    if index == 0 {
-//                        Rectangle()
-//                            .fill(Color.gray.opacity(0.3))
-//                            .frame(height: 1)
-//                            .padding(.horizontal, 22)
-//                    }
-                    
-                    HStack {
-                        if index < exertionModel.heartRateZoneRanges.count {
-                            let range = exertionModel.heartRateZoneRanges[index]
-                            let rangeString = "\(Int(range.lowerBound))-\(Int(range.upperBound))BPM"
-                            ZoneItemView(zoneInfo: zoneInfo, zoneRange: rangeString, maxTime: maxTime)
-                        } else {
-                            ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
+                let maxTime = exertionModel.zoneTimes.max() ?? 1
+                
+                Spacer(minLength: 10)
+                
+                VStack(alignment: .leading) {
+                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                    ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                    ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+                }
+                .padding(.top, 10)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 20)
+                
+                ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
+                    VStack(spacing: 0.1) {
+                        HStack {
+                            if index < exertionModel.heartRateZoneRanges.count {
+                                let range = exertionModel.heartRateZoneRanges[index]
+                                let rangeString = "\(Int(range.lowerBound))-\(Int(range.upperBound))BPM"
+                                ZoneItemView(zoneInfo: zoneInfo, zoneRange: rangeString, maxTime: maxTime)
+                                    .background(Color.black) // Set the background of ZoneItemView to black
+                            } else {
+                                ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
+                                    .background(Color.black) // Set the background of ZoneItemView to black
+                            }
+                        }
+                        .padding(.horizontal, 19)
+                        .frame(maxWidth: .infinity)
+                        
+                        if index < zoneInfos.count - 1 {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
+                                .padding(.horizontal, 22)
+                                .padding(.vertical, 6.0)
                         }
                     }
-                    .padding(.horizontal, 19)
-                    .frame(maxWidth: .infinity)
-                    
-                    if index < zoneInfos.count - 1 {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 1)
-                            .padding(.horizontal, 22)
-                            .padding(.vertical, 6)
-                    }
+                    .background(Color.black)
                 }
-                .background(Color.black)
+                
+                HStack {
+                    Text("Estimated time in each heart rate zone")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .padding(.leading, 24)
+                    Spacer()
+                }
+                .padding(.top)
+                .padding(.bottom, 30)
             }
-            
-            HStack {
-                Text("Estimated time in each heart rate zone")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .padding(.leading, 24)
-                Spacer()
-            }
-            .padding(.top)
-            .padding(.bottom, 30)
-            
-//            if let lastZoneInfo = zoneInfos.last, lastZoneInfo.zoneNumber == 5 {
-//                Rectangle()
-//                    .fill(Color.gray.opacity(0.3))
-//                    .frame(height: 1)
-//                    .padding(.horizontal, 22)
-//                
-//                Spacer().frame(height: 7)
-//                
-//                HStack {
-//                    Text("Estimated time in each heart rate zone.")
-//                        .font(.footnote)
-//                        .foregroundColor(.gray)
-//                        .padding(.leading, 30)
-//                    Spacer()
-//                }
-//                .padding(.bottom, 20)
-//            }
         }
     }
 }
-
