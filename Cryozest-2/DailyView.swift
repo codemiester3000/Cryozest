@@ -711,25 +711,25 @@ struct RecoveryCardView: View {
                 .padding(.horizontal, 22)
                 
                 // Metrics and paragraph
-                VStack {
-                    HStack {
-                        MetricView(
-                            label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
-                            symbolName: "heart.fill",
-                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)))",
-                            arrowUp: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1,
-                            isGreen: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1
-                        )
-                        
-                        Spacer()
-                        
-                        MetricView(
-                            label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
-                            symbolName: "waveform.path.ecg",
-                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0)))",
-                            arrowUp: model.restingHeartRatePercentage ?? -1 > model.avgRestingHeartRate60Days ?? -1,
-                            isGreen: model.restingHeartRatePercentage ?? -1 < model.avgRestingHeartRate60Days ?? -1
-                        )
+                 VStack {
+                     HStack {
+                         MetricView(
+                             label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
+                             symbolName: "heart.fill",
+                             change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0))",
+                             arrowUp: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0,
+                             isGreen: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0
+                         )
+
+                         Spacer()
+
+                         MetricView(
+                             label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
+                             symbolName: "waveform.path.ecg",
+                             change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0))",
+                             arrowUp: model.mostRecentRestingHeartRate ?? 0 > model.avgRestingHeartRate60Days ?? 0,
+                             isGreen: model.mostRecentRestingHeartRate ?? 0 < model.avgRestingHeartRate60Days ?? 0
+                         )
                         
                     }
                     .padding(.bottom, 5)
