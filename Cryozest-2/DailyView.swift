@@ -611,25 +611,26 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ScrollView {
-            Spacer()
-            VStack(alignment: .leading) {
-                // HStack to place text and recovery ring side by side
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Recovery")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
+             Spacer(minLength: 20)
+
+             VStack(alignment: .leading) {
+               
+                 HStack {
+                     VStack(alignment: .leading) {
+                         Text("Recovery")
+                             .font(.title2)
+                             .fontWeight(.semibold)
+                             .foregroundColor(.white)
                         
-                        if let lastRefreshDate = model.lastDataRefresh {
-                            Text("Updated HealthKit data:")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.top, 0)
-                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
+//                        if let lastRefreshDate = model.lastDataRefresh {
+//                            Text("Updated HealthKit data:")
+//                                .font(.caption)
+//                                .foregroundColor(.gray)
+//                                .padding(.top, 0)
+//                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+//                                .font(.caption)
+//                                .foregroundColor(.green)
+//                        }
                     }
                     
                     Spacer()
@@ -665,8 +666,7 @@ struct RecoveryCardView: View {
                     .frame(width: 120, height: 120)
                     
                 }
-                .padding(.horizontal, 6)
-                .padding(.top)
+                .padding(.horizontal, 22)
                 
                 // Metrics and paragraph
                 VStack {
@@ -690,8 +690,7 @@ struct RecoveryCardView: View {
                         )
                         
                     }
-                    .padding(.bottom)
-                    .padding(.horizontal, 6)
+                    .padding(.bottom, 5) 
                     
                     RecoveryExplanation(model: model)
                                        .padding(.horizontal, 4)
