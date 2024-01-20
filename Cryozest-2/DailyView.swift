@@ -24,8 +24,8 @@ struct DailyView: View {
             
             HeaderView(model: model)
                 .padding(.top)
-                .padding(.bottom, 15)
-                .padding(.leading,17)
+                .padding(.bottom, 5)
+                .padding(.leading,10)
             
             DailyGridMetrics(model: model)
             
@@ -66,7 +66,7 @@ struct DailyView: View {
                 }
             }
             .padding(.horizontal,22)
-            .padding(.top, 15)
+            .padding(.top, 10)
         }
         .refreshable {
                     model.pullAllData()    // Existing call to refresh RecoveryGraphModel
@@ -757,8 +757,14 @@ struct RecoveryCardView: View {
 
 private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
     let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
-    return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
+    return String(format: "%.0f", totalCalories)
 }
+
+private func formatVO2MaxValue(_ vo2Max: Double?) -> String {
+    // If vo2Max is nil, return "0"
+    return vo2Max != nil ? String(format: "%.1f", vo2Max!) : "0"
+}
+
 
 private func formatSPO2Value(_ spo2: Double?) -> String {
     guard let spo2 = spo2 else { return "N/A" }
@@ -815,7 +821,7 @@ struct DailyGridMetrics: View {
     let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2) // Ensure minimum width for items
     
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 30) { // Increased spacing between items
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 17) { // Increased spacing between items
             GridItemView(
                 symbolName: "waveform.path.ecg",
                 title: "HRV",
