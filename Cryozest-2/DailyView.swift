@@ -38,22 +38,22 @@ struct DailyView: View {
                 )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
-//                    RecoveryGraphView(model: model)
+                    //                    RecoveryGraphView(model: model)
                 }
                 
                 
                 ProgressButtonView(
-                       title: "Daily Exertion",
-                       progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
-                       color: Color.orange,
-                       action: { showingExertionPopover = true }
-                   )
-                   .popover(isPresented: $showingExertionPopover) {
-                       ExertionView(exertionModel: exertionModel, recoveryModel: model)
-                   }
-                   .onAppear {
-                       print("Exertion Score: \(exertionModel.exertionScore)")
-                   }
+                    title: "Daily Exertion",
+                    progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
+                    color: Color.orange,
+                    action: { showingExertionPopover = true }
+                )
+                .popover(isPresented: $showingExertionPopover) {
+                    ExertionView(exertionModel: exertionModel, recoveryModel: model)
+                }
+                .onAppear {
+                    print("Exertion Score: \(exertionModel.exertionScore)")
+                }
                 
                 ProgressButtonView(
                     title: "Sleep Quality",
@@ -69,10 +69,10 @@ struct DailyView: View {
             .padding(.top, 10)
         }
         .refreshable {
-                 model.pullAllData()
-                 exertionModel.fetchExertionScoreAndTimes()
-                 dailySleepViewModel.refreshData() 
-             }
+            model.pullAllData()
+            exertionModel.fetchExertionScoreAndTimes()
+            dailySleepViewModel.refreshData() 
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .onAppear() {
@@ -97,29 +97,29 @@ struct HeaderView: View {
     }
     
     var body: some View {
-           HStack {
-               VStack(alignment: .leading) {
-                   Text("Daily Summary")
-                       .font(.title2)
-                       .fontWeight(.semibold)
-                       .foregroundColor(.white)
-                   
-                   if let lastRefreshDate = model.lastDataRefresh {
-                       HStack(spacing: 2) { // Adjust the spacing as needed
-                           Text("Updated HealthKit data:")
-                               .font(.caption)
-                               .foregroundColor(.gray)
-
-                           Text("\(lastRefreshDate, formatter: dateFormatter)")
-                               .font(.caption)
-                               .foregroundColor(.green)
-                       }
-                       .padding(.top, 0)
-
-                   }
-               }
-
-               Spacer()
+        HStack {
+            VStack(alignment: .leading) {
+                Text("Daily Summary")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                if let lastRefreshDate = model.lastDataRefresh {
+                    HStack(spacing: 2) { // Adjust the spacing as needed
+                        Text("Updated HealthKit data:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        
+                        Text("\(lastRefreshDate, formatter: dateFormatter)")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                    .padding(.top, 0)
+                    
+                }
+            }
+            
+            Spacer()
         }
         .padding(.horizontal, 22)
     }
@@ -198,6 +198,7 @@ class RecoveryGraphModel: ObservableObject {
     @Published var sleepScorePercentage: Int?
     @Published var mostRecentSteps: Double? = nil
     @Published var mostRecentVO2Max: Double? = nil
+    @Published var averageDailyRHR: Int?
     
     private var dailySleepViewModel = DailySleepViewModel()
     
@@ -372,7 +373,7 @@ class RecoveryGraphModel: ObservableObject {
                 self.mostRecentSteps = steps
             }
         }
-
+        
         HealthKitManager.shared.fetchMostRecentVO2Max { vo2Max, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -383,7 +384,14 @@ class RecoveryGraphModel: ObservableObject {
                 self.mostRecentVO2Max = vo2Max
             }
         }
-
+        
+        HealthKitManager.shared.fetchAverageDailyRHR { averageRHR in
+            DispatchQueue.main.async {
+                // Assuming you have a property in your DailyView to store the average RHR
+                self.averageDailyRHR = averageRHR // Update your property with the fetched value
+            }
+        }
+        
         
         
     }
@@ -653,26 +661,26 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ScrollView {
-             Spacer(minLength: 20)
-
-             VStack(alignment: .leading) {
-               
-                 HStack {
-                     VStack(alignment: .leading) {
-                         Text("Recovery")
-                             .font(.title2)
-                             .fontWeight(.semibold)
-                             .foregroundColor(.white)
+            Spacer(minLength: 20)
+            
+            VStack(alignment: .leading) {
+                
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("Recovery")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
                         
-//                        if let lastRefreshDate = model.lastDataRefresh {
-//                            Text("Updated HealthKit data:")
-//                                .font(.caption)
-//                                .foregroundColor(.gray)
-//                                .padding(.top, 0)
-//                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-//                                .font(.caption)
-//                                .foregroundColor(.green)
-//                        }
+                        //                        if let lastRefreshDate = model.lastDataRefresh {
+                        //                            Text("Updated HealthKit data:")
+                        //                                .font(.caption)
+                        //                                .foregroundColor(.gray)
+                        //                                .padding(.top, 0)
+                        //                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+                        //                                .font(.caption)
+                        //                                .foregroundColor(.green)
+                        //                        }
                     }
                     
                     Spacer()
@@ -711,38 +719,38 @@ struct RecoveryCardView: View {
                 .padding(.horizontal, 22)
                 
                 // Metrics and paragraph
-                 VStack {
-                     HStack {
-                         MetricView(
-                             label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
-                             symbolName: "heart.fill",
-                             change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0))",
-                             arrowUp: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0,
-                             isGreen: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0
-                         )
-
-                         Spacer()
-
-                         MetricView(
-                             label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
-                             symbolName: "waveform.path.ecg",
-                             change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0))",
-                             arrowUp: model.mostRecentRestingHeartRate ?? 0 > model.avgRestingHeartRate60Days ?? 0,
-                             isGreen: model.mostRecentRestingHeartRate ?? 0 < model.avgRestingHeartRate60Days ?? 0
-                         )
+                VStack {
+                    HStack {
+                        MetricView(
+                            label: model.avgHrvDuringSleep != nil ? "\(model.avgHrvDuringSleep!) ms" : "N/A",
+                            symbolName: "heart.fill",
+                            change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0))",
+                            arrowUp: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0,
+                            isGreen: model.avgHrvDuringSleep ?? 0 > model.avgHrvDuringSleep60Days ?? 0
+                        )
+                        
+                        Spacer()
+                        
+                        MetricView(
+                            label: "\(model.mostRecentRestingHeartRate ?? 0) bpm",
+                            symbolName: "waveform.path.ecg",
+                            change: "\(model.restingHeartRatePercentage ?? 0)% (\(model.avgRestingHeartRate60Days ?? 0))",
+                            arrowUp: model.mostRecentRestingHeartRate ?? 0 > model.avgRestingHeartRate60Days ?? 0,
+                            isGreen: model.mostRecentRestingHeartRate ?? 0 < model.avgRestingHeartRate60Days ?? 0
+                        )
                         
                     }
                     .padding(.bottom, 5)
                     
                     RecoveryExplanation(model: model)
-                                       .padding(.horizontal, 4)
-                                       .padding(.vertical, 32)
-
-                                   Spacer() // Add a Spacer between RecoveryExplanation and RecoveryGraphView
-
-                                   RecoveryGraphView(model: model)
-                                       .padding(.horizontal, 4)
-                                       .padding(.vertical, 32)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 32)
+                    
+                    Spacer() // Add a Spacer between RecoveryExplanation and RecoveryGraphView
+                    
+                    RecoveryGraphView(model: model)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 32)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
@@ -751,8 +759,8 @@ struct RecoveryCardView: View {
             //            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.horizontal)
-                .background(Color.black)
+        .padding(.horizontal)
+        .background(Color.black)
     }
 }
 
@@ -831,7 +839,7 @@ struct DailyGridMetrics: View {
             GridItemView(
                 symbolName: "arrow.down.heart",
                 title: "RHR",
-                value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                value: "\(model.averageDailyRHR ?? 0)", // Use averageDailyRHR here
                 unit: "bpm"
             )
             
@@ -856,18 +864,18 @@ struct DailyGridMetrics: View {
                 unit: "kcal"
             )
             GridItemView(
-                   symbolName: "figure.walk",
-                   title: "Steps",
-                   value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
-                   unit: "steps"
-               )
-
-               GridItemView(
-                   symbolName: "lungs",
-                   title: "VO2 Max",
-                   value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
-                   unit: "ml/kg/min"
-               )
+                symbolName: "figure.walk",
+                title: "Steps",
+                value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
+                unit: "steps"
+            )
+            
+            GridItemView(
+                symbolName: "lungs",
+                title: "VO2 Max",
+                value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
+                unit: "ml/kg/min"
+            )
         }
         .padding([.horizontal, .top])
     }

@@ -464,7 +464,45 @@ class HealthKitManager {
          healthStore.execute(query)
      }
     
+    
+    //THIS iS NOT MOST RECENT, IT IS
     func fetchMostRecentRestingHeartRate(completion: @escaping (Int?) -> Void) {
+        // First, get the sleep times
+        getSleepTimes(for: Date()) { sleepStart, sleepEnd in
+            guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+                completion(nil)
+                return
+            }
+
+            // Create a predicate to fetch heart rate samples during sleep time
+            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+            let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+
+            // Create a statistics query to calculate the average heart rate during sleep
+            let heartRateQuery = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, error in
+                guard error == nil else {
+                    completion(nil)
+                    return
+                }
+
+                if let avgQuantity = result?.averageQuantity() {
+                    let averageHeartRate = avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+                    DispatchQueue.main.async {
+                        // Convert the average from Double to Int
+                        completion(Int(averageHeartRate.rounded()))
+                    }
+                } else {
+                    // Return nil if there are no heart rate readings for the sleep period
+                    completion(nil)
+                }
+            }
+
+            HKHealthStore().execute(heartRateQuery)
+        }
+    }
+    
+    
+    func fetchAverageDailyRHR(completion: @escaping (Int?) -> Void) {
         let calendar = Calendar.current
           let startOfToday = calendar.startOfDay(for: Date())
           let endOfToday = Date() // Current moment
@@ -494,6 +532,8 @@ class HealthKitManager {
 
           healthStore.execute(heartRateQuery)
       }
+
+    
     
     
     func fetchMostRecentRespiratoryRate(completion: @escaping (Double?) -> Void) {
@@ -937,8 +977,66 @@ class HealthKitManager {
     }
 
     
-    
-    
+    func fetchAverageRHRDuringSleep(for date: Date, completion: @escaping (Double?) -> Void) {
+        getSleepTimes(for: date) { sleepStart, sleepEnd in
+            guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+                completion(nil)
+                return
+            }
+
+            let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+            let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+                
+                guard error == nil, let heartRateSamples = samples as? [HKQuantitySample] else {
+                    print("Error fetching heart rate data: \(String(describing: error))")
+                    completion(nil)
+                    return
+                }
+
+                let heartRates = heartRateSamples.map { $0.quantity.doubleValue(for: HKUnit(from: "count/min")) }
+                let totalHeartRate = heartRates.reduce(0, +)
+                let averageHeartRate = heartRates.isEmpty ? nil : totalHeartRate / Double(heartRates.count)
+
+                DispatchQueue.main.async {
+                    completion(averageHeartRate)
+                }
+            }
+            
+            HKHealthStore().execute(query)
+        }
+    }
+
+//    func fetchAverageRHRDuringSleep(for date: Date, completion: @escaping (Double?) -> Void) {
+//        getSleepTimes(for: date) { sleepStart, sleepEnd in
+//            guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+//                completion(nil)
+//                return
+//            }
+//
+//            let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+//            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+//            let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+//                
+//                guard error == nil, let heartRateSamples = samples as? [HKQuantitySample] else {
+//                    print("Error fetching heart rate data: \(String(describing: error))")
+//                    completion(nil)
+//                    return
+//                }
+//
+//                let heartRates = heartRateSamples.map { $0.quantity.doubleValue(for: HKUnit(from: "count/min")) }
+//                let totalHeartRate = heartRates.reduce(0, +)
+//                let averageHeartRate = heartRates.isEmpty ? nil : totalHeartRate / Double(heartRates.count)
+//
+//                DispatchQueue.main.async {
+//                    completion(averageHeartRate)
+//                }
+//            }
+//            
+//            HKHealthStore().execute(query)
+//        }
+//    }
+
 
     func fetchAverageSleepVitalsForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
         let calendar = Calendar.current
