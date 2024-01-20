@@ -71,7 +71,7 @@ struct DailyView: View {
         .refreshable {
             model.pullAllData()
             exertionModel.fetchExertionScoreAndTimes()
-            dailySleepViewModel.refreshData() 
+            dailySleepViewModel.refreshData()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
@@ -808,7 +808,7 @@ struct RecoveryExplanation: View {
                     .font(.system(size: 17))
                     .foregroundColor(.green)
                     .fontWeight(.bold) +
-                Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your most recent resting heart rate of ")
+                Text("which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your average  resting heart rate during sleep of ")
                     .font(.system(size: 16))
                     .foregroundColor(.white) +
                 Text("\(model.mostRecentRestingHeartRate ?? 0) bpm ")
