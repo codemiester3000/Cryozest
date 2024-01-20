@@ -81,30 +81,31 @@ struct HeaderView: View {
     }
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Daily Summary")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 22) // Add padding here
-                
-                if let lastRefreshDate = model.lastDataRefresh {
-                    Text("Updated HealthKit data:")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .padding(.top, 0)
-                        .padding(.horizontal, 22) // Add padding here
-                    
-                    Text("\(lastRefreshDate, formatter: dateFormatter)")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 22) // Add padding here
-                }
-            }
-            
-            Spacer()
+           HStack {
+               VStack(alignment: .leading) {
+                   Text("Daily Summary")
+                       .font(.title2)
+                       .fontWeight(.semibold)
+                       .foregroundColor(.white)
+                   
+                   if let lastRefreshDate = model.lastDataRefresh {
+                       HStack(spacing: 2) { // Adjust the spacing as needed
+                           Text("Updated HealthKit data:")
+                               .font(.caption)
+                               .foregroundColor(.gray)
+
+                           Text("\(lastRefreshDate, formatter: dateFormatter)")
+                               .font(.caption)
+                               .foregroundColor(.green)
+                       }
+                       .padding(.top, 0)
+
+                   }
+               }
+
+               Spacer()
         }
+        .padding(.horizontal, 22)
     }
 }
 
@@ -676,7 +677,7 @@ struct RecoveryCardView: View {
                             symbolName: "heart.fill",
                             change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)))",
                             arrowUp: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1,
-                            isGreen: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1  
+                            isGreen: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1
                         )
                         
                         Spacer()
@@ -790,7 +791,7 @@ struct DailyGridMetrics: View {
             
             GridItemView(
                 symbolName: "drop",
-                title: "Blood Oxygen SpO2",
+                title: "Blood Oxygen",
                 value: formatSPO2Value(model.mostRecentSPO2),
                 unit: "%"
             )
