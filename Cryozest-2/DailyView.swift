@@ -893,7 +893,6 @@ struct GridItemView: View {
 }
 
 
-
 struct ProgressButtonView: View {
     let title: String
     let progress: Float // A value between 0.0 and 1.0
@@ -942,5 +941,3 @@ struct ProgressButtonView: View {
         )
     }
 }
-
-
