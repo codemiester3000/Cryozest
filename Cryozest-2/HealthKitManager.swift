@@ -28,25 +28,30 @@ class HealthKitManager {
         let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
         let restingEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
         let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
+        let stepCountType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+        let vo2MaxType = HKQuantityType.quantityType(forIdentifier: .vo2Max)!
         
         // Add new types to the typesToRead set
         let typesToRead: Set<HKObjectType> = [
-            heartRateType,
-            restingHeartRateType,
-            bodyMassType,
-            sleepAnalysisType,
-            hrvType,
-            respirationRateType,
-            spo2Type,
-            activeEnergyType,
-            restingEnergyType,
-            dateOfBirthType
-        ]
+               heartRateType,
+               restingHeartRateType,
+               bodyMassType,
+               sleepAnalysisType,
+               hrvType,
+               respirationRateType,
+               spo2Type,
+               activeEnergyType,
+               restingEnergyType,
+               dateOfBirthType,
+               stepCountType,
+               vo2MaxType
+           ]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
-            completion(success, error)
-        }
-    }
+              completion(success, error)
+          }
+      }
+
     
     func areHealthMetricsAuthorized(completion: @escaping (Bool) -> Void) {
         let typesToRead: Set<HKObjectType> = [heartRateType]
@@ -402,7 +407,62 @@ class HealthKitManager {
         healthStore.execute(heartRateQuery)
     }
     
-    
+    public func fetchMostRecentVO2Max(completion: @escaping (Double?, Error?) -> Void) {
+        let vo2MaxType = HKQuantityType.quantityType(forIdentifier: .vo2Max)!
+        
+        // Create a sort descriptor to fetch the most recent sample
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        
+        // Create a query to fetch the most recent VO2 max sample
+        let vo2MaxQuery = HKSampleQuery(sampleType: vo2MaxType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let vo2MaxSample = samples?.first as? HKQuantitySample else {
+                DispatchQueue.main.async {
+                    print("Error or no VO2 max sample found: \(String(describing: error))")
+                    completion(nil, error)
+                }
+                return
+            }
+            // Extract the VO2 max value from the sample
+            let vo2MaxUnit = HKUnit(from: "ml/(kg*min)")
+            let vo2MaxValue = vo2MaxSample.quantity.doubleValue(for: vo2MaxUnit)
+            completion(vo2MaxValue, nil)
+        }
+        
+        healthStore.execute(vo2MaxQuery)
+    }
+
+    func fetchStepsToday(completion: @escaping (Double?, Error?) -> Void) {
+         // Check if step count data is available on the device
+         guard HKHealthStore.isHealthDataAvailable() else {
+             completion(nil, NSError(domain: "com.yourapp.HealthKitManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Health data is not available on this device."]))
+             return
+         }
+         
+         // Define the type for step count
+         let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+         
+         // Set the start and end date to represent today
+         let calendar = Calendar.current
+         let now = Date()
+         let startOfDay = calendar.startOfDay(for: now)
+         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+         
+         // Create a predicate to fetch step count data for today
+         let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
+         
+         // Create a query to fetch step count samples
+         let query = HKStatisticsQuery(quantityType: stepType, quantitySamplePredicate: predicate, options: .cumulativeSum) { (_, result, error) in
+             guard let result = result, let sum = result.sumQuantity() else {
+                 completion(nil, error)
+                 return
+             }
+             
+             let stepCount = sum.doubleValue(for: HKUnit.count())
+             completion(stepCount, nil)
+         }
+         
+         healthStore.execute(query)
+     }
     
     func fetchMostRecentRestingHeartRate(completion: @escaping (Int?) -> Void) {
         let calendar = Calendar.current

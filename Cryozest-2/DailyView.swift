@@ -11,6 +11,7 @@ struct DailyView: View {
     @State private var dailySleepViewModel = DailySleepViewModel()
     @State private var calculatedUpperBound: Double = 8.0
     
+    
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
         let upperBound = ceil(Double(recoveryScore) / 10.0) + 1
@@ -193,6 +194,8 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentActiveCalories: Double? = nil
     @Published var mostRecentRestingCalories: Double? = nil
     @Published var sleepScorePercentage: Int?
+    @Published var mostRecentSteps: Double? = nil
+    @Published var mostRecentVO2Max: Double? = nil
     
     private var dailySleepViewModel = DailySleepViewModel()
     
@@ -356,6 +359,31 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
+        
+        HealthKitManager.shared.fetchStepsToday { steps, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    // Handle the error here
+                    print("Error fetching steps: \(error.localizedDescription)")
+                    return
+                }
+                self.mostRecentSteps = steps
+            }
+        }
+
+        HealthKitManager.shared.fetchMostRecentVO2Max { vo2Max, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    // Handle the error here
+                    print("Error fetching VO2 Max: \(error.localizedDescription)")
+                    return
+                }
+                self.mostRecentVO2Max = vo2Max
+            }
+        }
+
+        
+        
     }
     
     private func calculateSleepScorePercentage() {
@@ -823,7 +851,19 @@ struct DailyGridMetrics: View {
                 value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
                 unit: "kcal"
             )
-            // Add more GridItemViews as needed
+            GridItemView(
+                   symbolName: "figure.walk",
+                   title: "Steps",
+                   value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
+                   unit: "steps"
+               )
+
+               GridItemView(
+                   symbolName: "lungs",
+                   title: "VO2 Max",
+                   value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0), 
+                   unit: "ml/kg/min"
+               )
         }
         .padding([.horizontal, .top])
     }
