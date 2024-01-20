@@ -119,7 +119,7 @@ class ExertionModel: ObservableObject {
     func calculateHeartRateZoneRanges(userAge: Int, avgRestingHeartRate: Double) {
         let maxHeartRate = 207 - (0.7 * Double(userAge))
         let heartRateReserve = maxHeartRate - avgRestingHeartRate
-        let zoneMultipliers = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.0)]
+        let zoneMultipliers = [(0.4, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.0)]
         
         heartRateZoneRanges = zoneMultipliers.map { (lowerMultiplier, upperMultiplier) in
             let lowerBoundHeartRate = (heartRateReserve * lowerMultiplier) + avgRestingHeartRate
