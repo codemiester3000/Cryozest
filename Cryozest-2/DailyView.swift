@@ -69,9 +69,10 @@ struct DailyView: View {
             .padding(.top, 10)
         }
         .refreshable {
-                    model.pullAllData()    // Existing call to refresh RecoveryGraphModel
-                    exertionModel.fetchExertionScoreAndTimes() // Refresh ExertionModel data
-                }
+                 model.pullAllData()
+                 exertionModel.fetchExertionScoreAndTimes()
+                 dailySleepViewModel.refreshData() 
+             }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .onAppear() {

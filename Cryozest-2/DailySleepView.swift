@@ -82,6 +82,11 @@ class DailySleepViewModel: ObservableObject {
         }
     }
     
+    func refreshData() {
+           fetchSleepData()
+       }
+   
+    
     private func fetchSleepData() {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
             if authorized {
