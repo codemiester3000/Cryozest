@@ -676,7 +676,7 @@ struct RecoveryCardView: View {
                             symbolName: "heart.fill",
                             change: "\(model.hrvSleepPercentage ?? 0)% (\(model.avgHrvDuringSleep60Days ?? 0)))",
                             arrowUp: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1,
-                            isGreen: model.hrvSleepPercentage ?? -1 < model.avgHrvDuringSleep60Days ?? -1
+                            isGreen: model.hrvSleepPercentage ?? -1 > model.avgHrvDuringSleep60Days ?? -1  
                         )
                         
                         Spacer()
@@ -690,7 +690,7 @@ struct RecoveryCardView: View {
                         )
                         
                     }
-                    .padding(.bottom, 5) 
+                    .padding(.bottom, 5)
                     
                     RecoveryExplanation(model: model)
                                        .padding(.horizontal, 4)
