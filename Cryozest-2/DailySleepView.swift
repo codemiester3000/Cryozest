@@ -413,6 +413,7 @@ struct DailySleepView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
+                Spacer()
                 HStack {
                     // "Sleep Performance" Text and "?" Button
                     VStack(alignment: .leading, spacing: 2) {
