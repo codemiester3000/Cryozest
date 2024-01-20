@@ -28,7 +28,7 @@ struct DailyView: View {
                 )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
-                    //                    RecoveryGraphView(model: model)
+//                    RecoveryGraphView(model: model)
                 }
                 
                 ProgressButtonView(
@@ -55,8 +55,9 @@ struct DailyView: View {
             .padding(.top, 30)
         }
         .refreshable {
-            model.pullAllData()
-        }
+                    model.pullAllData()    // Existing call to refresh RecoveryGraphModel
+                    exertionModel.fetchExertionScoreAndTimes() // Refresh ExertionModel data
+                }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .onAppear() {
@@ -81,29 +82,29 @@ struct HeaderView: View {
     }
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Daily Summary")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                
-                if let lastRefreshDate = model.lastDataRefresh {
-                    HStack(spacing: 2) { // Adjust the spacing as needed
-                        Text("Updated HealthKit data:")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("\(lastRefreshDate, formatter: dateFormatter)")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    }
-                    .padding(.top, 0)
-                    
-                }
-            }
-            
-            Spacer()
+           HStack {
+               VStack(alignment: .leading) {
+                   Text("Daily Summary")
+                       .font(.title2)
+                       .fontWeight(.semibold)
+                       .foregroundColor(.white)
+                   
+                   if let lastRefreshDate = model.lastDataRefresh {
+                       HStack(spacing: 2) { // Adjust the spacing as needed
+                           Text("Updated HealthKit data:")
+                               .font(.caption)
+                               .foregroundColor(.gray)
+
+                           Text("\(lastRefreshDate, formatter: dateFormatter)")
+                               .font(.caption)
+                               .foregroundColor(.green)
+                       }
+                       .padding(.top, 0)
+
+                   }
+               }
+
+               Spacer()
         }
         .padding(.horizontal, 22)
     }
@@ -612,26 +613,26 @@ struct RecoveryCardView: View {
     
     var body: some View {
         ScrollView {
-            Spacer(minLength: 20)
-            
-            VStack(alignment: .leading) {
-                
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Recovery")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
+             Spacer(minLength: 20)
+
+             VStack(alignment: .leading) {
+               
+                 HStack {
+                     VStack(alignment: .leading) {
+                         Text("Recovery")
+                             .font(.title2)
+                             .fontWeight(.semibold)
+                             .foregroundColor(.white)
                         
-                        //                        if let lastRefreshDate = model.lastDataRefresh {
-                        //                            Text("Updated HealthKit data:")
-                        //                                .font(.caption)
-                        //                                .foregroundColor(.gray)
-                        //                                .padding(.top, 0)
-                        //                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-                        //                                .font(.caption)
-                        //                                .foregroundColor(.green)
-                        //                        }
+//                        if let lastRefreshDate = model.lastDataRefresh {
+//                            Text("Updated HealthKit data:")
+//                                .font(.caption)
+//                                .foregroundColor(.gray)
+//                                .padding(.top, 0)
+//                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+//                                .font(.caption)
+//                                .foregroundColor(.green)
+//                        }
                     }
                     
                     Spacer()
@@ -694,14 +695,14 @@ struct RecoveryCardView: View {
                     .padding(.bottom, 5)
                     
                     RecoveryExplanation(model: model)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 32)
-                    
-                    Spacer() // Add a Spacer between RecoveryExplanation and RecoveryGraphView
-                    
-                    RecoveryGraphView(model: model)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 32)
+                                       .padding(.horizontal, 4)
+                                       .padding(.vertical, 32)
+
+                                   Spacer() // Add a Spacer between RecoveryExplanation and RecoveryGraphView
+
+                                   RecoveryGraphView(model: model)
+                                       .padding(.horizontal, 4)
+                                       .padding(.vertical, 32)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
@@ -710,8 +711,8 @@ struct RecoveryCardView: View {
             //            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.horizontal)
-        .background(Color.black)
+                .padding(.horizontal)
+                .background(Color.black)
     }
 }
 

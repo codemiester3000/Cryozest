@@ -20,9 +20,6 @@ class ExertionModel: ObservableObject {
 
     
     
-    
-    
-    
     init() {
         fetchExertionScoreAndTimes()
     }
@@ -98,7 +95,7 @@ class ExertionModel: ObservableObject {
         }
         
         for (index, upperBoundary) in zoneUpperBoundaries.enumerated() {
-            let lowerBoundary = index == 0 ? 0.5 : zoneUpperBoundaries[index - 1]
+            let lowerBoundary = index == 0 ? 0.4 : zoneUpperBoundaries[index - 1]
             let timeInZone = calculateTimeInZone(
                 for: heartRateData,
                 userAge: userAge,
