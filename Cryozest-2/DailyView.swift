@@ -887,7 +887,7 @@ struct DailyGridMetrics: View {
     
     private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
         let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
-        return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "N/A"
+        return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "0"
     }
     
     private func formatRespRateValue(_ respRate: Double?) -> String {
