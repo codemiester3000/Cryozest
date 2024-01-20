@@ -807,9 +807,7 @@ struct RecoveryExplanation: View {
                     .font(.system(size: 17))
                     .foregroundColor(.green)
                     .fontWeight(.bold) +
-                Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% lower than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
+                Text("which is \(abs(model.restingHeartRatePercentage ?? 0))% \(model.restingHeartRatePercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
