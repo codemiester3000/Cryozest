@@ -421,7 +421,7 @@ struct ExertionView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack() {
                             Text("Daily Exertion")
-                                .font(.title2)
+                                .font(.system(size: 20)) // Adjust the font size here
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
                             
