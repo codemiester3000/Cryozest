@@ -104,8 +104,8 @@ struct SleepVitalsGraph: View {
             
             BarGraphView(
                 title: "Sleeping Resting Heart Rate",
-                baselineValue: model.baselineRestingHeartRate,
-                exerciseValue: model.exerciseRestingHeartRate,
+                baselineValue: model.baselineRestingHeartRate.isFinite ? model.baselineRestingHeartRate : 0,
+                exerciseValue: model.exerciseRestingHeartRate.isFinite ? model.exerciseRestingHeartRate : 0,
                 baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
                 exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
                 barColor: model.therapyType.color
@@ -179,7 +179,9 @@ struct SleepVitalsGraph: View {
     
     private func calculatePercentChange(baseline: Double, exercise: Double) -> CGFloat? {
         if baseline != 0 {
-            return CGFloat((exercise - baseline) / baseline * 100)
+            var percentage = CGFloat((exercise - baseline) / baseline * 100)
+            
+            return percentage.isFinite ? percentage : 0.0
         }
         return nil
     }
@@ -266,15 +268,12 @@ struct BarGraphView: View {
                 Text(title)
                     .font(.footnote)
                     .foregroundColor(.white)
-                
-//                Image(systemName: upArrow ? "arrow.up" : "arrow.down")
-//                    .foregroundColor(isGreen ? .green : .red)
             }
             
             // Baseline Bar with Label
             HStack {
                 Rectangle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.5), .gray]), startPoint: .leading, endPoint: .trailing))
+                    .fill(LinearGradient(gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]), startPoint: .leading, endPoint: .trailing))
                     .frame(width: isInvalidValues() ? 150 : CGFloat(baselineValue / maxValue) * maxBarWidth, height: 25)
                     .cornerRadius(6.0)
                 
@@ -286,7 +285,7 @@ struct BarGraphView: View {
             // Exercise Bar with Label
             HStack {
                 Rectangle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.6), barColor.opacity(0.9)]), startPoint: .leading, endPoint: .trailing))
+                    .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.8), barColor]), startPoint: .leading, endPoint: .trailing))
                     .frame(width: isInvalidValues() ? 150 : CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 25)
                     .cornerRadius(6.0)
                 

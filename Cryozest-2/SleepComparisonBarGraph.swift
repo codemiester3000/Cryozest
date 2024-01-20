@@ -98,9 +98,27 @@ struct SleepComparisonBarGraph: View {
     var body: some View {
         VStack {
             HStack(alignment: .bottom, spacing: 12) {
-                ComparisonBarView(baselineValue: model.baselineSleepData.total, exerciseValue: model.exerciseSleepData.total, color: model.therapyType.color, maxValue: model.maxValue, label: "Total")
-                ComparisonBarView(baselineValue: model.baselineSleepData.rem, exerciseValue:  model.exerciseSleepData.rem, color: model.therapyType.color, maxValue: model.maxValue, label: "REM")
-                ComparisonBarView(baselineValue: model.baselineSleepData.deep, exerciseValue:  model.exerciseSleepData.deep,color: model.therapyType.color, maxValue: model.maxValue, label: "Deep")
+                ComparisonBarView(
+                    baselineValue: model.baselineSleepData.total.isFinite ? model.baselineSleepData.total : 0,
+                    exerciseValue: model.exerciseSleepData.total.isFinite ?  model.exerciseSleepData.total : 0,
+                    color: model.therapyType.color,
+                    maxValue: model.maxValue,
+                    label: "Total"
+                )
+                ComparisonBarView(
+                    baselineValue: model.baselineSleepData.rem.isFinite ? model.baselineSleepData.rem : 0,
+                    exerciseValue:  model.exerciseSleepData.rem.isFinite ? model.exerciseSleepData.rem : 0,
+                    color: model.therapyType.color,
+                    maxValue: model.maxValue,
+                    label: "REM"
+                )
+                ComparisonBarView(
+                    baselineValue: model.baselineSleepData.deep.isFinite ? model.baselineSleepData.deep : 0,
+                    exerciseValue:  model.exerciseSleepData.deep.isFinite ? model.exerciseSleepData.deep : 0,
+                    color: model.therapyType.color,
+                    maxValue: model.maxValue,
+                    label: "Deep"
+                )
             }
             .padding()
             
@@ -212,11 +230,20 @@ struct ComparisonBarView: View {
     }
     
     private var baselineHeight: CGFloat {
-        min(baselineValue, maxValue)
+        if (baselineValue == 0 && exerciseValue == 0) {
+            5.0
+        } else {
+            min(baselineValue, maxValue)
+        }
+       
     }
     
     private var exerciseHeight: CGFloat {
-        min(exerciseValue, maxValue)
+        if (baselineValue == 0 && exerciseValue == 0) {
+            3.0
+        } else {
+            min(exerciseValue, maxValue)
+        }
     }
     
     private var baselineGradient: LinearGradient {
