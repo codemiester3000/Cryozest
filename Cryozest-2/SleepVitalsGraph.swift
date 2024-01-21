@@ -122,12 +122,12 @@ struct SleepVitalsGraph: View {
                     exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
                     barColor: model.therapyType.color
                 )
-                .padding(.bottom)
                 
                 ParagraphText(SleepVitalMetric.RestingHeartRate,
                               percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
                                                                     exercise: model.exerciseRestingHeartRate) ?? 0,
                               therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                .padding(.leading)
                 
             case .HeartRateVariability:
                 BarGraphView(
@@ -138,12 +138,12 @@ struct SleepVitalsGraph: View {
                     exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
                     barColor: model.therapyType.color
                 )
-                .padding(.bottom)
                 
                 ParagraphText(SleepVitalMetric.HeartRateVariability,
                               percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
                                                                     exercise: model.exerciseRestingHRV) ?? 0,
                               therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                .padding(.leading)
                 
             case .RespiratoryRate:
                 BarGraphView(
@@ -154,12 +154,12 @@ struct SleepVitalsGraph: View {
                     exerciseLabel: "\(model.exerciseRespiratoryRate.isFinite ? Int(model.exerciseRespiratoryRate) : 0) br/min",
                     barColor: model.therapyType.color
                 )
-                .padding(.bottom)
                 
                 ParagraphText(SleepVitalMetric.RespiratoryRate,
                               percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
                                                                     exercise: model.exerciseRespiratoryRate) ?? 0,
                               therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                .padding(.leading)
                 
             case .SP02:
                 BarGraphView(
@@ -170,12 +170,12 @@ struct SleepVitalsGraph: View {
                     exerciseLabel: "\(model.exerciseSPO2.isFinite ? Int(model.exerciseSPO2 * 100) : 0)%",
                     barColor: model.therapyType.color
                 )
-                .padding(.bottom)
                 
                 ParagraphText(SleepVitalMetric.SP02,
                               percentChange: calculatePercentChange(baseline: model.baselineSPO2,
                                                                     exercise: model.exerciseSPO2) ?? 0,
                               therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                .padding(.leading)
             }
         }
     }
@@ -198,29 +198,29 @@ struct SleepVitalsGraph: View {
         
         HStack(spacing: 2) {
             Text(indicator.symbol)
-                .font(.system(size: 12))
+                .font(.system(size: 14))
                 .foregroundColor(indicator.color)
             
-            Text("You saw a ")
-                .font(.system(size: 12))
+            Text(" You saw a ")
+                .font(.system(size: 14))
                 .foregroundColor(.white)
             
-            + Text("\(percentChangeText)% ")
-                .font(.system(size: 12))
+            + Text(" \(percentChangeText)% ")
+                .font(.system(size: 14))
                 .foregroundColor(indicator.color)
                 .fontWeight(.bold)
             
             + Text("\(changeDescription) ")
-                .font(.system(size: 12))
+                .font(.system(size: 14))
                 .foregroundColor(indicator.color)
                 .fontWeight(.bold)
             
-            + Text("in \(metricType.displayTitle) on ")
-                .font(.system(size: 12))
+            + Text("on ")
+                .font(.system(size: 14))
                 .foregroundColor(.white)
             
             + Text("\(therapyTypeDisplayName) days")
-                .font(.system(size: 12))
+                .font(.system(size: 14))
                 .foregroundColor(model.therapyType.color)
         }
         .padding(.bottom, 6)
@@ -302,7 +302,7 @@ struct BarView2: View {
         HStack {
             Rectangle()
                 .fill(LinearGradient(gradient: Gradient(colors: [color.opacity(0.8), color]), startPoint: .leading, endPoint: .trailing))
-                .frame(width: width, height: 25)
+                .frame(width: width, height: 35)
                 .cornerRadius(6.0)
                 .animation(.linear(duration: 2.0), value: width)
 
