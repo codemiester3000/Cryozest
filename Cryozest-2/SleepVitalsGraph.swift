@@ -289,7 +289,7 @@ struct BarGraphView: View {
         .cornerRadius(15)
         .shadow(radius: 10)
         .onAppear {
-            withAnimation(.easeInOut(duration: 1.0)) {
+            withAnimation(.easeInOut(duration: 0.3)) {
                 baselineBarWidth = calculateBarWidth(value: baselineValue)
                 exerciseBarWidth = calculateBarWidth(value: exerciseValue)
             }
