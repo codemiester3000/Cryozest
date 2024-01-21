@@ -104,8 +104,12 @@ struct SleepVitalsGraph: View {
         VStack(alignment: .leading) {
             Divider()
             
-            CustomMetricsPicker(selectedMetric: $selectedMetric)
-                .padding(.top)
+            HStack {
+                Spacer()
+                CustomMetricsPicker(selectedMetric: $selectedMetric)
+                Spacer()
+            }
+            .padding(.top)
             
             switch selectedMetric {
             case .RestingHeartRate:
