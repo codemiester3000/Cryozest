@@ -9,6 +9,8 @@ struct SessionRow: View {
     @State private var averageHeartRateForDay: Double? = nil
     @State private var averageHRVForDay: Double? = nil
     
+    @State private var showingDeleteAlert = false
+    
     @Environment(\.managedObjectContext) private var managedObjectContext
     
     var body: some View {
@@ -34,15 +36,31 @@ struct SessionRow: View {
                 Spacer()
                 
                 // Delete button
-                Button(action: deleteSession) {
-                    Image(systemName: "xmark.circle")
-                        .foregroundColor(.red)
-                }
+                Button(action: {
+                               self.showingDeleteAlert = true // Show the alert when button is tapped
+                           }) {
+                               Image(systemName: "xmark.circle")
+                                   .foregroundColor(.red)
+                           }
+//                Button(action: deleteSession) {
+//                    Image(systemName: "xmark.circle")
+//                        .foregroundColor(.red)
+//                }
             }
         }
         .padding()
         .cornerRadius(16)
         .shadow(radius: 5)
+        .alert(isPresented: $showingDeleteAlert) {
+                    Alert(
+                        title: Text("Confirm Deletion"),
+                        message: Text("Are you sure you want to delete this session?"),
+                        primaryButton: .destructive(Text("Delete")) {
+                            deleteSession()
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
         .onAppear {
             loadAverageHeartRate()
             loadAverageHRV()
