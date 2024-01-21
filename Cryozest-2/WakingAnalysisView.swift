@@ -18,6 +18,12 @@ class WakingAnalysisDataModel: ObservableObject {
     @Published var baselineRestingHR: CGFloat
     @Published var exerciseRestingHR: CGFloat
     
+    @Published var baselineRestingCalories: CGFloat
+    @Published var exerciseRestingCalories: CGFloat
+    
+    @Published var baselineRestingSteps: CGFloat
+    @Published var exerciseRestingSteps: CGFloat
+    
     init(therapyType: TherapyType, timeFrame: TimeFrame, sessions: FetchedResults<TherapySessionEntity>) {
         self.sessions = sessions
         self.timeFrame = timeFrame
@@ -26,18 +32,23 @@ class WakingAnalysisDataModel: ObservableObject {
         baselineRestingHR = 0.0
         exerciseRestingHR = 0.0
         
+        baselineRestingCalories = 0.0
+        exerciseRestingCalories = 0.0
+        
+        baselineRestingSteps = 0.0
+        exerciseRestingSteps = 0.0
+        
         fetchData()
     }
     
     private func fetchData() {
-        
-        print("timeFrame: ", timeFrame)
-        
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
         HealthKitManager.shared.fetchWakingStatisticsForDays(days: baselineDates) { avgHeartRate, avgCalories, avgSteps in
             DispatchQueue.main.async {
                 self.baselineRestingHR = avgHeartRate
+                self.baselineRestingCalories = avgCalories
+                self.baselineRestingSteps = avgSteps
             }
         }
         
@@ -47,6 +58,8 @@ class WakingAnalysisDataModel: ObservableObject {
             
             DispatchQueue.main.async {
                 self.exerciseRestingHR = avgHeartRate
+                self.exerciseRestingCalories = avgCalories
+                self.exerciseRestingSteps = avgSteps
             }
         }
     }
@@ -83,7 +96,7 @@ struct WakingAnalysisView: View {
                         ))
                         .cornerRadius(8)
                     Spacer()
-                    Text(model.therapyType.displayName(managedObjectContext))
+                    Text("\(model.therapyType.displayName(managedObjectContext)) days")
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -99,11 +112,32 @@ struct WakingAnalysisView: View {
             ComparisonView(
                 symbolName: "arrow.down.heart",
                 title: "RHR",
-                baselineValue: "\(Int(model.baselineRestingHR) ?? 0)",
-                exerciseValue: "\(Int(model.baselineRestingHR) ?? 0)",
+                baselineValue: "\(Int(model.baselineRestingHR.isFinite ? model.baselineRestingHR : 0))",
+                exerciseValue: "\(Int(model.baselineRestingHR.isFinite ? model.baselineRestingHR : 0))",
                 unit: "bpm",
                 color: model.therapyType.color
             )
+            .padding(.bottom)
+            
+            ComparisonView(
+                symbolName: "flame",
+                title: "Calories",
+                baselineValue: "\(Int(model.baselineRestingCalories.isFinite ? model.baselineRestingCalories : 0))",
+                exerciseValue: "\(Int(model.exerciseRestingCalories.isFinite ? model.exerciseRestingCalories : 0))",
+                unit: "kcal",
+                color: model.therapyType.color
+            )
+            .padding(.bottom)
+            
+            ComparisonView(
+                symbolName: "figure.walk",
+                title: "Steps",
+                baselineValue: "\(Int(model.baselineRestingSteps.isFinite ? model.baselineRestingSteps : 0))",
+                exerciseValue: "\(Int(model.exerciseRestingSteps.isFinite ? model.exerciseRestingSteps : 0))",
+                unit: "steps",
+                color: model.therapyType.color
+            )
+            .padding(.bottom)
         }
     }
 }
@@ -133,16 +167,16 @@ struct ComparisonView: View {
                 
                 Spacer()
                 
-                Image(systemName: symbolName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 15, height: 15)
-                    .foregroundColor(.gray)
-                Text(title)
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .layoutPriority(1)
+//                Image(systemName: symbolName)
+//                    .resizable()
+//                    .scaledToFit()
+//                    .frame(width: 15, height: 15)
+//                    .foregroundColor(color)
+//                Text(title)
+//                    .font(.system(size: 16))
+//                    .foregroundColor(.white)
+//                    .lineLimit(1)
+//                    .layoutPriority(1)
             }
             .padding(.bottom, 2)
 

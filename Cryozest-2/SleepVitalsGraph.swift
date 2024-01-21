@@ -253,58 +253,66 @@ struct BarGraphView: View {
     var baselineLabel: String
     var exerciseLabel: String
     var barColor: Color
-    
-    private let maxBarWidth: CGFloat = 200  // Maximum width of the bar
-    private let maxValue: Double = 100 // This should be your maximum scale value
-    
+
+    private let maxBarWidth: CGFloat = 200
+    private let maxValue: Double = 100
     
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
-    
-    private func isInvalidValues() -> Bool {
-        return (baselineValue == 0 || !baselineValue.isFinite) && (exerciseValue == 0 || !exerciseValue.isFinite)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(title)
-                    .font(.footnote)
-                    .foregroundColor(.white)
-            }
-            
-            // Baseline Bar with Label
-            HStack {
-                Rectangle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: isInvalidValues() ? 150 : CGFloat(baselineValue / maxValue) * maxBarWidth, height: 25)
-                    .cornerRadius(6.0)
-                
-                Text(baselineLabel)
-                    .font(.footnote)
-                    .foregroundColor(.white)
-            }
-            
-            // Exercise Bar with Label
-            HStack {
-                Rectangle()
-                    .fill(LinearGradient(gradient: Gradient(colors: [barColor.opacity(0.8), barColor]), startPoint: .leading, endPoint: .trailing))
-                    .frame(width: isInvalidValues() ? 150 : CGFloat(exerciseValue / maxValue) * maxBarWidth, height: 25)
-                    .cornerRadius(6.0)
-                
-                Text(exerciseLabel)
-                    .font(.footnote)
-                    .foregroundColor(.white)
-            }
+
+    private func calculateBarWidth(value: Double) -> CGFloat {
+        if value == 0 || !value.isFinite {
+            return 150
+        } else {
+            return CGFloat(value / maxValue) * maxBarWidth
         }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
+
+            // Baseline Bar with Label
+            BarView2(label: baselineLabel, color: Color(white: 0.6), width: $baselineBarWidth)
+
+            // Exercise Bar with Label
+            BarView2(label: exerciseLabel, color: barColor, width: $exerciseBarWidth)
+        }
+        .padding()
+        .background(Color.black.opacity(0.8))
+        .cornerRadius(15)
+        .shadow(radius: 10)
         .onAppear {
-            // Trigger any necessary animations when the view appears
-            withAnimation(.linear(duration: 3.0)) {
-                // Your animation code, if needed
+            withAnimation(.easeInOut(duration: 2.0)) {
+                baselineBarWidth = calculateBarWidth(value: baselineValue)
+                exerciseBarWidth = calculateBarWidth(value: exerciseValue)
             }
         }
     }
 }
+
+struct BarView2: View {
+    var label: String
+    var color: Color
+    @Binding var width: CGFloat
+
+    var body: some View {
+        HStack {
+            Rectangle()
+                .fill(LinearGradient(gradient: Gradient(colors: [color.opacity(0.8), color]), startPoint: .leading, endPoint: .trailing))
+                .frame(width: width, height: 25)
+                .cornerRadius(6.0)
+                .animation(.linear(duration: 2.0), value: width)
+
+            Text(label)
+                .font(.footnote)
+                .foregroundColor(.white)
+        }
+    }
+}
+
 
 struct GaugeView: View {
     var title: String
