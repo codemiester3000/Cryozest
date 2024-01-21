@@ -104,13 +104,8 @@ struct SleepVitalsGraph: View {
         VStack(alignment: .leading) {
             Divider()
             
-            Picker("Select Metric", selection: $selectedMetric) {
-                           ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
-                               Text(metric.displayTitle).tag(metric)
-                           }
-                       }
-                       .pickerStyle(SegmentedPickerStyle())
-                       .padding()
+            CustomMetricsPicker(selectedMetric: $selectedMetric)
+                .padding(.top)
             
             switch selectedMetric {
             case .RestingHeartRate:
@@ -253,13 +248,13 @@ struct BarGraphView: View {
     var baselineLabel: String
     var exerciseLabel: String
     var barColor: Color
-
+    
     private let maxBarWidth: CGFloat = 200
     private let maxValue: Double = 100
     
     @State private var baselineBarWidth: CGFloat = 0
     @State private var exerciseBarWidth: CGFloat = 0
-
+    
     private func calculateBarWidth(value: Double) -> CGFloat {
         if value == 0 || !value.isFinite {
             return 150
@@ -267,16 +262,21 @@ struct BarGraphView: View {
             return CGFloat(value / maxValue) * maxBarWidth
         }
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.white)
-
+            HStack {
+                Spacer()
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+            }
+            .padding(.bottom)
+            
             // Baseline Bar with Label
             BarView2(label: baselineLabel, color: Color(white: 0.6), width: $baselineBarWidth)
-
+            
             // Exercise Bar with Label
             BarView2(label: exerciseLabel, color: barColor, width: $exerciseBarWidth)
         }
@@ -297,7 +297,7 @@ struct BarView2: View {
     var label: String
     var color: Color
     @Binding var width: CGFloat
-
+    
     var body: some View {
         HStack {
             Rectangle()
@@ -305,7 +305,7 @@ struct BarView2: View {
                 .frame(width: width, height: 35)
                 .cornerRadius(6.0)
                 .animation(.linear(duration: 2.0), value: width)
-
+            
             Text(label)
                 .font(.footnote)
                 .foregroundColor(.white)
@@ -396,3 +396,42 @@ struct VitalsGaugeView: View {
     }
 }
 
+struct CustomMetricsPicker: View {
+    @Binding var selectedMetric: SleepVitalMetric
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
+                MetricPickerItem(metric: metric, isSelected: selectedMetric == metric)
+                    .onTapGesture {
+                        self.selectedMetric = metric
+                    }
+            }
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 20)
+            .fill(Color.black)
+            .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
+    }
+}
+
+
+struct MetricPickerItem: View {
+    let metric: SleepVitalMetric
+    let isSelected: Bool
+    
+    var body: some View {
+        Text(metric.displayTitle)
+            .font(.system(size: 12, weight: .regular, design: .default))
+            .fontWeight(isSelected ? .bold : .regular)
+            .foregroundColor(isSelected ? Color.orange : Color.white)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 20)
+            .background(isSelected ? Color.orange.opacity(0.2) : Color.clear)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isSelected ? Color.orange : Color.clear, lineWidth: 2)
+            )
+    }
+}
