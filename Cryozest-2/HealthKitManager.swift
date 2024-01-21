@@ -1187,10 +1187,10 @@ class HealthKitManager {
         var count = 0.0
 
         for date in days {
-            group.enter()
             count += 1
 
             // Resting Heart Rate Query
+            group.enter()
             let restingHeartRateType = HKObjectType.quantityType(forIdentifier: .restingHeartRate)!
             let heartRatePredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
             let heartRateQuery = HKStatisticsQuery(quantityType: restingHeartRateType, quantitySamplePredicate: heartRatePredicate, options: .discreteAverage) { _, result, _ in
@@ -1203,6 +1203,7 @@ class HealthKitManager {
             healthStore.execute(heartRateQuery)
 
             // Total Calories Burned Query
+            group.enter()
             let caloriesType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
             let caloriesPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
             let caloriesQuery = HKStatisticsQuery(quantityType: caloriesType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
@@ -1215,6 +1216,7 @@ class HealthKitManager {
             healthStore.execute(caloriesQuery)
 
             // Steps Taken Query
+            group.enter()
             let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount)!
             let stepsPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
             let stepsQuery = HKStatisticsQuery(quantityType: stepsType, quantitySamplePredicate: stepsPredicate, options: .cumulativeSum) { _, result, _ in

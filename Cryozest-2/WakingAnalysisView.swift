@@ -42,15 +42,15 @@ class WakingAnalysisDataModel: ObservableObject {
                 self.baselineRestingHR = 75 //avgHeartRate
             }
         }
-        
-        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
-        
-        HealthKitManager.shared.fetchWakingStatisticsForDays(days: completedSessionDates) { avgHeartRate, avgCalories, avgSteps in
-            
-            DispatchQueue.main.async {
-                self.exerciseRestingHR = 50 //avgHeartRate
-            }
-        }
+//        
+//        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
+//        
+//        HealthKitManager.shared.fetchWakingStatisticsForDays(days: completedSessionDates) { avgHeartRate, avgCalories, avgSteps in
+//            
+//            DispatchQueue.main.async {
+//                self.exerciseRestingHR = 50 //avgHeartRate
+//            }
+//        }
     }
 }
 

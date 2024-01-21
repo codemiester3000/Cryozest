@@ -327,7 +327,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Cryozest-2/WakingAnalysisView.swift"
@@ -383,6 +383,21 @@
                   endingLineNumber = "35"
                   offsetFromSymbolStart = "172">
                </Location>
+               <Location
+                  uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416 - 4e8dbacf7ff5bb8b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.WakingAnalysisDataModel.fetchData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/WakingAnalysisView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "168">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -390,7 +405,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "61B84738-2322-4772-A251-9B1201D293EF"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Cryozest-2/SleepVitalsGraph.swift"
