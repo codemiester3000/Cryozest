@@ -107,7 +107,7 @@ struct RecoveryAnalysisView: View {
         } else {
             VStack(alignment: .leading) {
                 HStack {
-                    Text("Sleep")
+                    Text("Sleep \(viewModel.timeFrame.presentDisplayString())")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)

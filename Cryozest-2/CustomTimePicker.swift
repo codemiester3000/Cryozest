@@ -2,12 +2,21 @@ import SwiftUI
 
 struct CustomPicker: View {
     @Binding var selectedTimeFrame: TimeFrame
+    
+    func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
 
     var body: some View {
         HStack(spacing: 10) {
             ForEach(TimeFrame.allCases, id: \.self) { timeFrame in
                 CustomPickerItem(timeFrame: timeFrame, isSelected: selectedTimeFrame == timeFrame)
                     .onTapGesture {
+                        func triggerHapticFeedback() {
+                            let generator = UIImpactFeedbackGenerator(style: .heavy)
+                            generator.impactOccurred()
+                        }
                         self.selectedTimeFrame = timeFrame
                     }
             }

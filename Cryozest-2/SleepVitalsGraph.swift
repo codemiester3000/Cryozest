@@ -403,11 +403,20 @@ struct VitalsGaugeView: View {
 struct CustomMetricsPicker: View {
     @Binding var selectedMetric: SleepVitalMetric
     
+    func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
+    
     var body: some View {
         HStack(spacing: 10) {
             ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
                 MetricPickerItem(metric: metric, isSelected: selectedMetric == metric)
                     .onTapGesture {
+                        func triggerHapticFeedback() {
+                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            generator.impactOccurred()
+                        }
                         self.selectedMetric = metric
                     }
             }

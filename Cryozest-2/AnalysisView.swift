@@ -183,6 +183,17 @@ enum TimeFrame: CaseIterable {
         }
     }
     
+    func presentDisplayString() -> String {
+        switch self {
+        case .week:
+            return "this week"
+        case .month:
+            return "this month"
+        case .allTime:
+            return "this year"
+        }
+    }
+    
     func numberOfDays() -> Int {
         switch self {
         case .week:

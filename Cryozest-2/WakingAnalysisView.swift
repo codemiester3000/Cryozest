@@ -74,7 +74,7 @@ struct WakingAnalysisView: View {
         VStack {
             VStack {
                 HStack {
-                    Text("Awake")
+                    Text("Averages \(model.timeFrame.presentDisplayString())")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .fontWeight(.bold)
                         .foregroundColor(.white)
