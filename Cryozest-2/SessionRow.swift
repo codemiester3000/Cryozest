@@ -30,38 +30,38 @@ struct SessionRow: View {
                     Label("\(formattedDuration)", systemImage: "clock")
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(Int(session.temperature))°F")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
+//                    Text("\(Int(session.temperature))°F")
+//                        .font(.subheadline)
+//                        .fontWeight(.medium)
+//                        .foregroundColor(.white)
                 }
 
-                HeartRateView(title: "Average Heart Rate", value: session.averageHeartRate)
-                HeartRateView(title: "Min Heart Rate", value: session.minHeartRate, maxValue: 1000)
-                HeartRateView(title: "Max Heart Rate", value: session.maxHeartRate)
+//                HeartRateView(title: "Average Heart Rate", value: session.averageHeartRate)
+//                HeartRateView(title: "Min Heart Rate", value: session.minHeartRate, maxValue: 1000)
+//                HeartRateView(title: "Max Heart Rate", value: session.maxHeartRate)
 
-                Divider().background(Color.white.opacity(0.8))
+                // Divider().background(Color.white.opacity(0.8))
 
                 // Daily Metrics
-                VStack(alignment: .leading, spacing: 8) {
-                    if averageHeartRateForDay != nil || averageHRVForDay != nil {
-                        Text("Daily Metrics")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                    }
-
-                    if let avgHeartRate = averageHeartRateForDay {
-                        Text("Average Heart Rate for the Day: \(Int(avgHeartRate)) bpm")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                    }
-
-                    if let avgHRV = averageHRVForDay {
-                        Text("Average HRV for the Day: \(String(format: "%.2f", avgHRV)) ms")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                    }
-                }
+//                VStack(alignment: .leading, spacing: 8) {
+//                    if averageHeartRateForDay != nil || averageHRVForDay != nil {
+//                        Text("Daily Metrics")
+//                            .font(.headline)
+//                            .foregroundColor(.white)
+//                    }
+//
+//                    if let avgHeartRate = averageHeartRateForDay {
+//                        Text("Average Heart Rate for the Day: \(Int(avgHeartRate)) bpm")
+//                            .font(.subheadline)
+//                            .foregroundColor(.white)
+//                    }
+//
+//                    if let avgHRV = averageHRVForDay {
+//                        Text("Average HRV for the Day: \(String(format: "%.2f", avgHRV)) ms")
+//                            .font(.subheadline)
+//                            .foregroundColor(.white)
+//                    }
+//                }
             }
             .padding()
             //.background(Color(.darkGray))
