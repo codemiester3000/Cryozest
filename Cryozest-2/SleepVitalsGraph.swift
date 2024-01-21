@@ -82,12 +82,12 @@ class SleepVitalsDataModel: ObservableObject {
     }
 }
 
-enum SleepVitalMetric: String {
+enum SleepVitalMetric: String, CaseIterable {
     case RestingHeartRate = "RHR"
     case HeartRateVariability = "HRV"
     case RespiratoryRate = "Resp Rate"
     case SP02 = "SPO2"
-
+    
     var displayTitle: String {
         return self.rawValue
     }
@@ -98,82 +98,85 @@ struct SleepVitalsGraph: View {
     @ObservedObject var model: SleepVitalsDataModel
     @Environment(\.managedObjectContext) var managedObjectContext
     
+    @State private var selectedMetric: SleepVitalMetric = .RestingHeartRate
+    
     var body: some View {
         VStack(alignment: .leading) {
-            CenteredDivider().padding(.bottom, 8)
+            Divider()
             
-            BarGraphView(
-                title: "Sleeping Resting Heart Rate",
-                baselineValue: model.baselineRestingHeartRate.isFinite ? model.baselineRestingHeartRate : 0,
-                exerciseValue: model.exerciseRestingHeartRate.isFinite ? model.exerciseRestingHeartRate : 0,
-                baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
-                exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
-                barColor: model.therapyType.color
-            )
-            .padding(.bottom)
+            Picker("Select Metric", selection: $selectedMetric) {
+                           ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
+                               Text(metric.displayTitle).tag(metric)
+                           }
+                       }
+                       .pickerStyle(SegmentedPickerStyle())
+                       .padding()
             
-            ParagraphText(SleepVitalMetric.RestingHeartRate,
-                          percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
-                                                                exercise: model.exerciseRestingHeartRate) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            CenteredDivider().padding(.bottom, 8)
-            
-            BarGraphView(
-                title: "Sleeping Heart Rate Variability",
-                baselineValue: model.baselineRestingHRV.isFinite ? model.baselineRestingHRV : 0,
-                exerciseValue: model.exerciseRestingHRV.isFinite ? model.exerciseRestingHRV : 0,
-                baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
-                exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
-                barColor: model.therapyType.color
-            )
-            .padding(.bottom)
-            
-            ParagraphText(SleepVitalMetric.HeartRateVariability,
-                          percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
-                                                                exercise: model.exerciseRestingHRV) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            CenteredDivider()
-                .padding(.bottom, 4)
-            
-            // Respiratory Rate Graph
-            BarGraphView(
-                title: "Sleeping Respiratory Rate",
-                baselineValue: model.baselineRespiratoryRate.isFinite ? model.baselineRespiratoryRate : 0,
-                exerciseValue: model.exerciseRespiratoryRate.isFinite ? model.exerciseRespiratoryRate : 0,
-                baselineLabel: "\(model.baselineRespiratoryRate.isFinite ? Int(model.baselineRespiratoryRate) : 0) br/min",
-                exerciseLabel: "\(model.exerciseRespiratoryRate.isFinite ? Int(model.exerciseRespiratoryRate) : 0) br/min",
-                barColor: model.therapyType.color
-            )
-            .padding(.bottom)
-            
-            ParagraphText(SleepVitalMetric.RespiratoryRate,
-                          percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
-                                                                exercise: model.exerciseRespiratoryRate) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            CenteredDivider().padding(.bottom, 4)
-            
-            // SPO2 Graph
-            BarGraphView(
-                title: "Sleeping SPO2",
-                baselineValue: model.baselineSPO2.isFinite ? model.baselineSPO2 * 100 : 0,
-                exerciseValue: model.exerciseSPO2.isFinite ? model.exerciseSPO2 * 100 : 0,
-                baselineLabel: "\(model.baselineSPO2.isFinite ? Int(model.baselineSPO2 * 100) : 0)%",
-                exerciseLabel: "\(model.exerciseSPO2.isFinite ? Int(model.exerciseSPO2 * 100) : 0)%",
-                barColor: model.therapyType.color
-            )
-            .padding(.bottom)
-            
-            ParagraphText(SleepVitalMetric.SP02,
-                          percentChange: calculatePercentChange(baseline: model.baselineSPO2,
-                                                                exercise: model.exerciseSPO2) ?? 0,
-                          therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
-            
-            //            VitalsGaugeView(model: model)
-            //                .padding(.bottom)
-            
+            switch selectedMetric {
+            case .RestingHeartRate:
+                BarGraphView(
+                    title: "Sleeping Resting Heart Rate",
+                    baselineValue: model.baselineRestingHeartRate.isFinite ? model.baselineRestingHeartRate : 0,
+                    exerciseValue: model.exerciseRestingHeartRate.isFinite ? model.exerciseRestingHeartRate : 0,
+                    baselineLabel: "\(model.baselineRestingHeartRate.isFinite ? Int(model.baselineRestingHeartRate) : 0) bpm",
+                    exerciseLabel: "\(model.exerciseRestingHeartRate.isFinite ? Int(model.exerciseRestingHeartRate) : 0) bpm",
+                    barColor: model.therapyType.color
+                )
+                .padding(.bottom)
+                
+                ParagraphText(SleepVitalMetric.RestingHeartRate,
+                              percentChange: calculatePercentChange(baseline: model.baselineRestingHeartRate,
+                                                                    exercise: model.exerciseRestingHeartRate) ?? 0,
+                              therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                
+            case .HeartRateVariability:
+                BarGraphView(
+                    title: "Sleeping Heart Rate Variability",
+                    baselineValue: model.baselineRestingHRV.isFinite ? model.baselineRestingHRV : 0,
+                    exerciseValue: model.exerciseRestingHRV.isFinite ? model.exerciseRestingHRV : 0,
+                    baselineLabel: "\(model.baselineRestingHRV.isFinite ? Int(model.baselineRestingHRV) : 0) bpm",
+                    exerciseLabel: "\(model.exerciseRestingHRV.isFinite ? Int(model.exerciseRestingHRV) : 0) bpm",
+                    barColor: model.therapyType.color
+                )
+                .padding(.bottom)
+                
+                ParagraphText(SleepVitalMetric.HeartRateVariability,
+                              percentChange: calculatePercentChange(baseline: model.baselineRestingHRV,
+                                                                    exercise: model.exerciseRestingHRV) ?? 0,
+                              therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                
+            case .RespiratoryRate:
+                BarGraphView(
+                    title: "Sleeping Respiratory Rate",
+                    baselineValue: model.baselineRespiratoryRate.isFinite ? model.baselineRespiratoryRate : 0,
+                    exerciseValue: model.exerciseRespiratoryRate.isFinite ? model.exerciseRespiratoryRate : 0,
+                    baselineLabel: "\(model.baselineRespiratoryRate.isFinite ? Int(model.baselineRespiratoryRate) : 0) br/min",
+                    exerciseLabel: "\(model.exerciseRespiratoryRate.isFinite ? Int(model.exerciseRespiratoryRate) : 0) br/min",
+                    barColor: model.therapyType.color
+                )
+                .padding(.bottom)
+                
+                ParagraphText(SleepVitalMetric.RespiratoryRate,
+                              percentChange: calculatePercentChange(baseline: model.baselineRespiratoryRate,
+                                                                    exercise: model.exerciseRespiratoryRate) ?? 0,
+                              therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+                
+            case .SP02:
+                BarGraphView(
+                    title: "Sleeping SPO2",
+                    baselineValue: model.baselineSPO2.isFinite ? model.baselineSPO2 * 100 : 0,
+                    exerciseValue: model.exerciseSPO2.isFinite ? model.exerciseSPO2 * 100 : 0,
+                    baselineLabel: "\(model.baselineSPO2.isFinite ? Int(model.baselineSPO2 * 100) : 0)%",
+                    exerciseLabel: "\(model.exerciseSPO2.isFinite ? Int(model.exerciseSPO2 * 100) : 0)%",
+                    barColor: model.therapyType.color
+                )
+                .padding(.bottom)
+                
+                ParagraphText(SleepVitalMetric.SP02,
+                              percentChange: calculatePercentChange(baseline: model.baselineSPO2,
+                                                                    exercise: model.exerciseSPO2) ?? 0,
+                              therapyTypeDisplayName: model.therapyType.displayName(managedObjectContext))
+            }
         }
     }
     
@@ -298,22 +301,6 @@ struct BarGraphView: View {
             // Trigger any necessary animations when the view appears
             withAnimation(.linear(duration: 3.0)) {
                 // Your animation code, if needed
-            }
-        }
-    }
-}
-
-struct CenteredDivider: View {
-    var body: some View {
-        GeometryReader { geometry in
-            VStack {
-                Spacer() // Pushes everything below to the middle
-                
-                Divider()
-                    .frame(width: geometry.size.width * 0.8) // 80% of screen's width
-                    .background(Color.white) // Set the color to white
-                
-                Spacer() // Centers the divider vertically
             }
         }
     }

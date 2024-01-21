@@ -179,7 +179,9 @@ struct DurationAnalysisView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     Spacer()
-                    Text("\(Int(viewModel.totalTime / 60)) mins")
+                    let totalHours = Int(viewModel.totalTime / 3600)
+                    let totalMinutes = Int(viewModel.totalTime / 60) % 60
+                    Text("\(totalHours) hr \(totalMinutes) min")
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)

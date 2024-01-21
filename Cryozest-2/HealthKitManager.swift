@@ -1177,9 +1177,65 @@ class HealthKitManager {
         }
     }
 
-    
-    
-    
+    func fetchWakingStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
+        let healthStore = HKHealthStore()
+        let group = DispatchGroup()
+
+        var totalRestingHeartRate = 0.0
+        var totalCaloriesBurned = 0.0
+        var totalStepsTaken = 0.0
+        var count = 0.0
+
+        for date in days {
+            group.enter()
+            count += 1
+
+            // Resting Heart Rate Query
+            let restingHeartRateType = HKObjectType.quantityType(forIdentifier: .restingHeartRate)!
+            let heartRatePredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
+            let heartRateQuery = HKStatisticsQuery(quantityType: restingHeartRateType, quantitySamplePredicate: heartRatePredicate, options: .discreteAverage) { _, result, _ in
+                defer { group.leave() }
+
+                if let result = result, let avgQuantity = result.averageQuantity() {
+                    totalRestingHeartRate += avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+                }
+            }
+            healthStore.execute(heartRateQuery)
+
+            // Total Calories Burned Query
+            let caloriesType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+            let caloriesPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
+            let caloriesQuery = HKStatisticsQuery(quantityType: caloriesType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
+                defer { group.leave() }
+
+                if let result = result, let sumQuantity = result.sumQuantity() {
+                    totalCaloriesBurned += sumQuantity.doubleValue(for: HKUnit.kilocalorie())
+                }
+            }
+            healthStore.execute(caloriesQuery)
+
+            // Steps Taken Query
+            let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount)!
+            let stepsPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
+            let stepsQuery = HKStatisticsQuery(quantityType: stepsType, quantitySamplePredicate: stepsPredicate, options: .cumulativeSum) { _, result, _ in
+                defer { group.leave() }
+
+                if let result = result, let sumQuantity = result.sumQuantity() {
+                    totalStepsTaken += sumQuantity.doubleValue(for: HKUnit.count())
+                }
+            }
+            healthStore.execute(stepsQuery)
+        }
+
+        group.notify(queue: .main) {
+            let averageRestingHeartRate = totalRestingHeartRate / count
+            let averageCaloriesBurned = totalCaloriesBurned / count
+            let averageStepsTaken = totalStepsTaken / count
+
+            completion(averageRestingHeartRate, averageCaloriesBurned, averageStepsTaken)
+        }
+    }
+
 
 
     // Return averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep

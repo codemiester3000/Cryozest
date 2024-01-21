@@ -107,11 +107,11 @@ struct AnalysisView: View {
                     RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.bottom)
                     
-                    
-                    
                     Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                     
-                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    
+//                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                     
                     // Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                     

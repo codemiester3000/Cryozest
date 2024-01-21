@@ -50,6 +50,7 @@
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
+		C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,7 @@
 		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
+		C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakingAnalysisView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +210,7 @@
 				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
 				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
 				C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */,
+				C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -399,6 +402,7 @@
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
 				C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */,
 				C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */,
+				C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */,
 				C57F62822B422E93004515EA /* ExertionView.swift in Sources */,
 				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
 				C576E6C22A510B880042C8A7 /* RecoveryAnalysisView.swift in Sources */,

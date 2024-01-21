@@ -148,7 +148,7 @@ struct RecoveryAnalysisView: View {
                 SleepVitalsGraph(model: SleepVitalsDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                     .padding(.top, 32)
                 
-                Divider().background(Color.darkBackground.opacity(0.8))
+                //Divider().background(Color.darkBackground.opacity(0.8))
                 
                 // Heart Rate Data
 //                VStack {
