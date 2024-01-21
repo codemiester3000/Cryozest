@@ -19,6 +19,12 @@ struct DailyView: View {
         return calculatedUpperBound
     }
     
+    func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
+
+    
     var body: some View {
         ScrollView {
             
@@ -34,11 +40,13 @@ struct DailyView: View {
                     title: "Readiness to Train",
                     progress: Float(model.recoveryScores.last ?? 0) / 100.0,
                     color: Color.green,
-                    action: { showingRecoveryPopover = true }
+                    action: {
+                        triggerHapticFeedback()
+                        showingRecoveryPopover = true
+                    }
                 )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
-                    //                    RecoveryGraphView(model: model)
                 }
                 
                 
@@ -46,7 +54,10 @@ struct DailyView: View {
                     title: "Daily Exertion",
                     progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
                     color: Color.orange,
-                    action: { showingExertionPopover = true }
+                    action: {
+                        triggerHapticFeedback()
+                        showingExertionPopover = true
+                    }
                 )
                 .popover(isPresented: $showingExertionPopover) {
                     ExertionView(exertionModel: exertionModel, recoveryModel: model)
@@ -59,7 +70,10 @@ struct DailyView: View {
                     title: "Sleep Quality",
                     progress: Float(dailySleepViewModel.sleepScore / 100), // Divide by 100 to scale it correctly
                     color: Color.yellow,
-                    action: { showingSleepPopover = true }
+                    action: {
+                        triggerHapticFeedback()
+                        showingSleepPopover = true
+                    }
                 )
                 .popover(isPresented: $showingSleepPopover) {
                     DailySleepView(dailySleepModel: DailySleepViewModel())
