@@ -413,10 +413,7 @@ struct CustomMetricsPicker: View {
             ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
                 MetricPickerItem(metric: metric, isSelected: selectedMetric == metric)
                     .onTapGesture {
-                        func triggerHapticFeedback() {
-                            let generator = UIImpactFeedbackGenerator(style: .light)
-                            generator.impactOccurred()
-                        }
+                        triggerHapticFeedback()
                         self.selectedMetric = metric
                     }
             }

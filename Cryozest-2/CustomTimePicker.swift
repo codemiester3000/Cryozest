@@ -13,10 +13,7 @@ struct CustomPicker: View {
             ForEach(TimeFrame.allCases, id: \.self) { timeFrame in
                 CustomPickerItem(timeFrame: timeFrame, isSelected: selectedTimeFrame == timeFrame)
                     .onTapGesture {
-                        func triggerHapticFeedback() {
-                            let generator = UIImpactFeedbackGenerator(style: .heavy)
-                            generator.impactOccurred()
-                        }
+                        triggerHapticFeedback()
                         self.selectedTimeFrame = timeFrame
                     }
             }
