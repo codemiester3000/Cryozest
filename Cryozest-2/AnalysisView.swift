@@ -110,18 +110,10 @@ struct AnalysisView: View {
                     Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                     
                     WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                    
-//                    AvgHeartRateComparisonView(heartRateViewModel: HeartRateViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                    
-                    // Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                    
-                    //                    RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                    //                        .padding(.bottom)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black)
-            //.navigationTitle("Analysis")
         }
     }
     

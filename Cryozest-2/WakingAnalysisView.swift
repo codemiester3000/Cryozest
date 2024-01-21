@@ -1,10 +1,3 @@
-//
-//  WakingAnalysisView.swift
-//  Cryozest-2
-//
-//  Created by Owen Khoury on 1/20/24.
-//
-
 import SwiftUI
 
 class WakingAnalysisDataModel: ObservableObject {
@@ -34,10 +27,13 @@ class WakingAnalysisDataModel: ObservableObject {
         exerciseRestingHR = 0.0
         
         // TODO: WHY IS THIS CAUSING A CRASH
-        // fetchData()
+        fetchData()
     }
     
     private func fetchData() {
+        
+        print("timeFrame: ", timeFrame)
+        
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
         HealthKitManager.shared.fetchWakingStatisticsForDays(days: baselineDates) { avgHeartRate, avgCalories, avgSteps in

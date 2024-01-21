@@ -141,57 +141,10 @@ struct RecoveryAnalysisView: View {
                         .cornerRadius(8)
                 }
                 
-                // Divider().background(Color.darkBackground.opacity(0.8))
-                
                 SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                 
                 SleepVitalsGraph(model: SleepVitalsDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))
                     .padding(.top, 32)
-                
-                //Divider().background(Color.darkBackground.opacity(0.8))
-                
-                // Heart Rate Data
-//                VStack {
-//                    HStack {
-//                        Text("Avg Sleeping HR")
-//                            .font(.footnote)
-//                            .fontWeight(.bold)
-//                            .foregroundColor(.white)
-//                        Spacer()
-//                        
-//                        Image(systemName: "heart.fill")
-//                            .foregroundColor(viewModel.therapyType.color)
-//                            .padding(.trailing, 10)
-//                    }
-//                    HStack {
-//                        HStack {
-//                            Text("\(viewModel.therapyType.displayName(managedObjectContext)) days")
-//                                .font(.footnote)
-//                                .foregroundColor(.white)
-//                            
-//                        }
-//                        Spacer()
-//                        Text((viewModel.sleepingHeartRateTherapyDays != 0 ? String(format: "%.1f", viewModel.sleepingHeartRateTherapyDays) + " BPM" : "N/A"))
-//                            .font(.footnote)
-//                            .foregroundColor(.white)
-//                            .padding(.trailing, 10)
-//                    }
-//                    .padding(.vertical, 5)
-//                    HStack {
-//                        HStack {
-//                            Text("baseline")
-//                                .font(.footnote)
-//                                .foregroundColor(.white)
-//                            
-//                        }
-//                        Spacer()
-//                        Text((viewModel.baselineSleepingHeartRate != 0 ? String(format: "%.1f", viewModel.baselineSleepingHeartRate) + " BPM" : "N/A"))
-//                            .font(.footnote)
-//                            .foregroundColor(.white)
-//                            .padding(.trailing, 10)
-//                    }
-//                }
-//                .padding(.top, 10)
             }
             .padding(.horizontal)
             .cornerRadius(16)

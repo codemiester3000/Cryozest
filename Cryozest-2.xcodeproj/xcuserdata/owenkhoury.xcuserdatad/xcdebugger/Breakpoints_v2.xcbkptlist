@@ -180,5 +180,259 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1F0EDC97-7202-469A-A1D7-FB058CF9C80D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/WakingAnalysisView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "fetchData()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2D98F390-A5B3-4E48-A506-DA092EBC81AC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/WakingAnalysisView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "39"
+            endingLineNumber = "39"
+            landmarkName = "fetchData()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "216F9E80-34A0-47D9-B3DD-67448ADA83E5"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/WakingAnalysisView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "6"
+            endingLineNumber = "6"
+            landmarkName = "timeFrame"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D98F6A30-5EA5-4155-827D-1F87013BAC44"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/SleepComparisonBarGraph.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "6"
+            endingLineNumber = "6"
+            landmarkName = "timeFrame"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D6F72B4D-B1CF-4A09-8ABA-D26100A57FE2"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/SleepComparisonBarGraph.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
+            landmarkName = "fetchSleepData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "D6F72B4D-B1CF-4A09-8ABA-D26100A57FE2 - a528bcf3a6f7802c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.SleepComparisonDataModel.fetchSleepData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/SleepComparisonBarGraph.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52"
+                  offsetFromSymbolStart = "112">
+               </Location>
+               <Location
+                  uuid = "D6F72B4D-B1CF-4A09-8ABA-D26100A57FE2 - a528bcf3a6f7802c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.SleepComparisonDataModel.fetchSleepData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/SleepComparisonBarGraph.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52"
+                  offsetFromSymbolStart = "132">
+               </Location>
+               <Location
+                  uuid = "D6F72B4D-B1CF-4A09-8ABA-D26100A57FE2 - a528bcf3a6f7802c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.SleepComparisonDataModel.fetchSleepData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/SleepComparisonBarGraph.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52"
+                  offsetFromSymbolStart = "128">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "311D1FE1-C35C-4FCC-AF79-61EC04F07B87"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/WakingAnalysisView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "fetchData()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/WakingAnalysisView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "fetchData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416 - 677d8abcb7af4b3b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.WakingAnalysisDataModel.init(therapyType: Cryozest_2.TherapyType, timeFrame: Cryozest_2.TimeFrame, sessions: SwiftUI.FetchedResults&lt;Cryozest_2.TherapySessionEntity&gt;) -&gt; Cryozest_2.WakingAnalysisDataModel"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/WakingAnalysisView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "38"
+                  endingLineNumber = "38"
+                  offsetFromSymbolStart = "592">
+               </Location>
+               <Location
+                  uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416 - 677d8abcb7af4b3b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.WakingAnalysisDataModel.init(therapyType: Cryozest_2.TherapyType, timeFrame: Cryozest_2.TimeFrame, sessions: SwiftUI.FetchedResults&lt;Cryozest_2.TherapySessionEntity&gt;) -&gt; Cryozest_2.WakingAnalysisDataModel"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/WakingAnalysisView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "38"
+                  endingLineNumber = "38"
+                  offsetFromSymbolStart = "576">
+               </Location>
+               <Location
+                  uuid = "FBA8C60C-DAAD-403E-976C-B43C169BC416 - 4e8dbacf7ff5bb8b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.WakingAnalysisDataModel.fetchData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/WakingAnalysisView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "172">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "61B84738-2322-4772-A251-9B1201D293EF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Cryozest-2/SleepVitalsGraph.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "fetchSleepVitalsData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "61B84738-2322-4772-A251-9B1201D293EF - d04866c6a847f641"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.SleepVitalsDataModel.fetchSleepVitalsData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/SleepVitalsGraph.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "50"
+                  endingLineNumber = "50"
+                  offsetFromSymbolStart = "112">
+               </Location>
+               <Location
+                  uuid = "61B84738-2322-4772-A251-9B1201D293EF - d04866c6a847f641"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.SleepVitalsDataModel.fetchSleepVitalsData() -&gt; ()"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/SleepVitalsGraph.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "50"
+                  endingLineNumber = "50"
+                  offsetFromSymbolStart = "132">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
