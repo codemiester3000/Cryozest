@@ -73,7 +73,7 @@ struct MainView: View {
     @State private var initialTimerDuration: TimeInterval = 0
     @State private var showCreateTimer = false
     
-    @State private var selectedMode = "Timer"
+    @State private var selectedMode = SessionFeature.STOPWATCH
     
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
@@ -103,15 +103,18 @@ struct MainView: View {
                 
                 Spacer()
                 
-                Picker("Select Mode", selection: $selectedMode) {
-                    Text("Timer").tag("Timer")
-                    Text("Quick Add").tag("Quick Add")
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(.bottom)
+//                Picker("Select Mode", selection: $selectedMode) {
+//                    Text("Timer").tag("Timer")
+//                    Text("Quick Add").tag("Quick Add")
+//                }
+//                .pickerStyle(SegmentedPickerStyle())
+//                .padding(.bottom)
+                
+                CustomSessionPicker(selectedFeature: $selectedMode)
+                    .padding(.bottom)
                 
                 Group {
-                    if selectedMode == "Timer" {
+                    if selectedMode == SessionFeature.STOPWATCH {
                         TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
                             .padding(.vertical)
                         
@@ -175,20 +178,20 @@ struct MainView: View {
                                 logSession()
                             }) {
                                 Text("Mark today as complete")
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .font(.title2) // Larger font size
-                                        .padding(.vertical, 15) // Increased vertical padding
-                                        .padding(.horizontal, 30) // Increased horizontal padding
-                                        .background(
-                                            LinearGradient(gradient: Gradient(colors: [therapyTypeSelection.selectedTherapyType.color, therapyTypeSelection.selectedTherapyType.color.opacity(0.4)]), startPoint: .leading, endPoint: .trailing) // Gradient background
-                                        )
-                                        .cornerRadius(15) // Smoothed corner radius
-                                        .shadow(color: .gray, radius: 10, x: 0, y: 5) // Shadow for depth
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 15)
-                                                .stroke(Color.white, lineWidth: 2) // White border
-                                        )
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .font(.title2) // Larger font size
+                                    .padding(.vertical, 15) // Increased vertical padding
+                                    .padding(.horizontal, 30) // Increased horizontal padding
+                                    .background(
+                                        LinearGradient(gradient: Gradient(colors: [therapyTypeSelection.selectedTherapyType.color, therapyTypeSelection.selectedTherapyType.color.opacity(0.4)]), startPoint: .leading, endPoint: .trailing) // Gradient background
+                                    )
+                                    .cornerRadius(15) // Smoothed corner radius
+                                    .shadow(color: .gray, radius: 10, x: 0, y: 5) // Shadow for depth
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .stroke(Color.white, lineWidth: 2) // White border
+                                    )
                             }
                         }
                         
@@ -434,7 +437,7 @@ struct StartStopButtonView: View {
                 .font(.system(size: 24, weight: .bold, design: .monospaced)) // Slightly smaller font
                 .foregroundColor(.white)
                 .padding(.horizontal, 60) // Reduced horizontal padding
-                .padding(.vertical, 20)   // Reduced vertical padding
+                .padding(.vertical, 16)   // Reduced vertical padding
                 .background(selectedColor)
                 .cornerRadius(30)         // Slightly smaller corner radius
                 .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 8) // Adjusted shadow
@@ -478,5 +481,67 @@ extension MainView {
                 showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
             }
         }
+    }
+}
+
+enum SessionFeature {
+    case STOPWATCH
+    case QUICK_ADD
+    
+    func displayString() -> String {
+        switch self {
+        case .STOPWATCH:
+            return "Stopwatch"
+        case .QUICK_ADD:
+            return "Quick Add"
+        }
+    }
+}
+
+
+struct CustomSessionPicker: View {
+    @Binding var selectedFeature: SessionFeature
+    
+    var body: some View {
+        HStack {
+            SessionPickerItem(
+                sessionFeature: SessionFeature.STOPWATCH,
+                isSelected: selectedFeature == SessionFeature.STOPWATCH
+                )
+                .onTapGesture {
+                    self.selectedFeature = SessionFeature.STOPWATCH
+                }
+            
+            SessionPickerItem(
+                sessionFeature: SessionFeature.QUICK_ADD,
+                isSelected: selectedFeature == SessionFeature.QUICK_ADD
+            )
+            .onTapGesture {
+                self.selectedFeature = SessionFeature.QUICK_ADD
+            }
+        }
+        .background(RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.black)
+                        .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
+    }
+}
+
+struct SessionPickerItem: View {
+    let sessionFeature: SessionFeature
+    let isSelected: Bool
+    
+    var body: some View {
+        Text(sessionFeature.displayString())
+            .font(.headline)
+            .fontWeight(isSelected ? .bold : .regular)
+            .foregroundColor(isSelected ? Color.orange : Color.white)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 20)
+            .background(isSelected ? Color.orange.opacity(0.2) : Color.clear)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isSelected ? Color.orange : Color.clear, lineWidth: 2)
+            )
     }
 }
