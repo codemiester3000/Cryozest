@@ -47,6 +47,15 @@ struct AppTabView: View {
                 .tag(3)
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
+            
+            MoreView()
+                .tabItem {
+                    Image(systemName: "ellipsis")
+                    Text("More")
+                }
+                .tag(4)
+                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
         }
         .accentColor(Color.white)
         .opacity(0.85)
