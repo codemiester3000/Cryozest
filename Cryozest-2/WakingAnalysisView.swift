@@ -26,7 +26,6 @@ class WakingAnalysisDataModel: ObservableObject {
         baselineRestingHR = 0.0
         exerciseRestingHR = 0.0
         
-        // TODO: WHY IS THIS CAUSING A CRASH
         fetchData()
     }
     
@@ -67,21 +66,10 @@ struct WakingAnalysisView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding(.bottom, 10)
-                    
                     Spacer()
-                    
-                    Text(model.therapyType.displayName(managedObjectContext))
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(model.therapyType.color)
-                        .cornerRadius(8)
                 }
                 
                 HStack {
-                    Spacer()
                     Text("baseline")
                         .font(.footnote)
                         .fontWeight(.semibold)
@@ -94,7 +82,17 @@ struct WakingAnalysisView: View {
                             endPoint: .bottom
                         ))
                         .cornerRadius(8)
+                    Spacer()
+                    Text(model.therapyType.displayName(managedObjectContext))
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(model.therapyType.color)
+                        .cornerRadius(8)
                 }
+                .padding(.bottom)
             }
             .padding(.horizontal)
             
@@ -103,7 +101,8 @@ struct WakingAnalysisView: View {
                 title: "RHR",
                 baselineValue: "\(Int(model.baselineRestingHR) ?? 0)",
                 exerciseValue: "\(Int(model.baselineRestingHR) ?? 0)",
-                unit: "bpm"
+                unit: "bpm",
+                color: model.therapyType.color
             )
         }
     }
@@ -116,10 +115,24 @@ struct ComparisonView: View {
     var baselineValue: String
     var exerciseValue: String
     var unit: String
+    var color: Color
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
+                Image(systemName: symbolName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 15, height: 15)
+                    .foregroundColor(.gray)
+                Text(title)
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                
+                Spacer()
+                
                 Image(systemName: symbolName)
                     .resizable()
                     .scaledToFit()
@@ -143,7 +156,7 @@ struct ComparisonView: View {
                     Text(unit)
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 2)
+                        .padding(.bottom, 4)
                 }
 
                 Spacer()
@@ -152,12 +165,12 @@ struct ComparisonView: View {
                     Text(exerciseValue)
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(color)
                     
                     Text(unit)
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 2)
+                        .padding(.bottom, 4)
                 }
             }
         }
