@@ -14,7 +14,7 @@ struct DailyView: View {
     
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
-        let upperBound = ceil(Double(recoveryScore) / 10.0) + 1
+        let upperBound = ceil(Double(recoveryScore) / 10.0)
         let calculatedUpperBound = max(upperBound, 1.0)
         return calculatedUpperBound
     }
