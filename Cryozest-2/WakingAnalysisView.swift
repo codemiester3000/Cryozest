@@ -37,20 +37,19 @@ class WakingAnalysisDataModel: ObservableObject {
         let baselineDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
         
         HealthKitManager.shared.fetchWakingStatisticsForDays(days: baselineDates) { avgHeartRate, avgCalories, avgSteps in
-            
             DispatchQueue.main.async {
-                self.baselineRestingHR = 75 //avgHeartRate
+                self.baselineRestingHR = avgHeartRate
             }
         }
-//        
-//        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
-//        
-//        HealthKitManager.shared.fetchWakingStatisticsForDays(days: completedSessionDates) { avgHeartRate, avgCalories, avgSteps in
-//            
-//            DispatchQueue.main.async {
-//                self.exerciseRestingHR = 50 //avgHeartRate
-//            }
-//        }
+        
+        let completedSessionDates = DateUtils.shared.completedSessionDatesForTimeFrame(sessions: sessions, therapyType: therapyType, timeFrame: timeFrame)
+        
+        HealthKitManager.shared.fetchWakingStatisticsForDays(days: completedSessionDates) { avgHeartRate, avgCalories, avgSteps in
+            
+            DispatchQueue.main.async {
+                self.exerciseRestingHR = avgHeartRate
+            }
+        }
     }
 }
 
@@ -102,8 +101,8 @@ struct WakingAnalysisView: View {
             ComparisonView(
                 symbolName: "arrow.down.heart",
                 title: "RHR",
-                baselineValue: "\(model.baselineRestingHR ?? 0)",
-                exerciseValue: "\(model.baselineRestingHR ?? 0)",
+                baselineValue: "\(Int(model.baselineRestingHR) ?? 0)",
+                exerciseValue: "\(Int(model.baselineRestingHR) ?? 0)",
                 unit: "bpm"
             )
         }

@@ -1184,7 +1184,10 @@ class HealthKitManager {
         var totalRestingHeartRate = 0.0
         var totalCaloriesBurned = 0.0
         var totalStepsTaken = 0.0
+        
         var count = 0.0
+        
+        var heartRateCount = 0.0
 
         for date in days {
             count += 1
@@ -1197,7 +1200,12 @@ class HealthKitManager {
                 defer { group.leave() }
 
                 if let result = result, let avgQuantity = result.averageQuantity() {
+                    var hrvalue = avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
                     totalRestingHeartRate += avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+                    
+                    if (hrvalue != 0) {
+                        heartRateCount += 1
+                    }
                 }
             }
             healthStore.execute(heartRateQuery)
@@ -1230,7 +1238,7 @@ class HealthKitManager {
         }
 
         group.notify(queue: .main) {
-            let averageRestingHeartRate = totalRestingHeartRate / count
+            let averageRestingHeartRate = totalRestingHeartRate / heartRateCount
             let averageCaloriesBurned = totalCaloriesBurned / count
             let averageStepsTaken = totalStepsTaken / count
 
