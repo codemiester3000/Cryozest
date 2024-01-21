@@ -1182,9 +1182,10 @@ class HealthKitManager {
         let group = DispatchGroup()
 
         var totalRestingHeartRate = 0.0
-        var totalCaloriesBurned = 0.0
+        var totalActiveCaloriesBurned = 0.0
+        var totalBasalCaloriesBurned = 0.0
         var totalStepsTaken = 0.0
-                
+
         var heartRateCount = 0.0
         var stepsCount = 0.0
         var caloriesCount = 0.0
@@ -1198,46 +1199,60 @@ class HealthKitManager {
                 defer { group.leave() }
 
                 if let result = result, let avgQuantity = result.averageQuantity() {
-                    var hrvalue = avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
-                    totalRestingHeartRate += avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+                    let hrValue = avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+                    totalRestingHeartRate += hrValue
                     
-                    if (hrvalue > 0) {
+                    if hrValue > 0 {
                         heartRateCount += 1
                     }
                 }
             }
             healthStore.execute(heartRateQuery)
 
-            // Total Calories Burned Query
+            // Total Active Calories Burned Query
             group.enter()
-            let caloriesType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+            let activeCaloriesType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
             let caloriesPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
-            let caloriesQuery = HKStatisticsQuery(quantityType: caloriesType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
+            let activeCaloriesQuery = HKStatisticsQuery(quantityType: activeCaloriesType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
                 defer { group.leave() }
 
                 if let result = result, let sumQuantity = result.sumQuantity() {
-                    var caloriesValue = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
-                    totalCaloriesBurned += caloriesValue
+                    let caloriesValue = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
+                    totalActiveCaloriesBurned += caloriesValue
                     
-                    if (caloriesValue > 0) {
+                    if caloriesValue > 0 {
                         caloriesCount += 1
                     }
                 }
             }
-            healthStore.execute(caloriesQuery)
+            healthStore.execute(activeCaloriesQuery)
+
+            // Total Basal Calories Burned Query
+            group.enter()
+            let basalCaloriesType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned)!
+            let basalCaloriesQuery = HKStatisticsQuery(quantityType: basalCaloriesType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
+                defer { group.leave() }
+
+                if let result = result, let sumQuantity = result.sumQuantity() {
+                    let basalCaloriesValue = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
+                    totalBasalCaloriesBurned += basalCaloriesValue
+                    
+                    // Basal calories are not counted separately as they are always present
+                }
+            }
+            healthStore.execute(basalCaloriesQuery)
 
             // Steps Taken Query
             group.enter()
             let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount)!
-            let stepsPredicate = HKQuery.predicateForSamples(withStart: date, end: Calendar.current.startOfDay(for: date).addingTimeInterval(24 * 3600), options: [])
-            let stepsQuery = HKStatisticsQuery(quantityType: stepsType, quantitySamplePredicate: stepsPredicate, options: .cumulativeSum) { _, result, _ in
+            let stepsQuery = HKStatisticsQuery(quantityType: stepsType, quantitySamplePredicate: caloriesPredicate, options: .cumulativeSum) { _, result, _ in
                 defer { group.leave() }
 
                 if let result = result, let sumQuantity = result.sumQuantity() {
-                    var stepsValue = sumQuantity.doubleValue(for: HKUnit.count())
+                    let stepsValue = sumQuantity.doubleValue(for: HKUnit.count())
                     totalStepsTaken += stepsValue
                     
-                    if (stepsValue > 0) {
+                    if stepsValue > 0 {
                         stepsCount += 1
                     }
                 }
@@ -1247,12 +1262,13 @@ class HealthKitManager {
 
         group.notify(queue: .main) {
             let averageRestingHeartRate = totalRestingHeartRate / heartRateCount
-            let averageCaloriesBurned = totalCaloriesBurned / caloriesCount
+            let averageTotalCaloriesBurned = (totalActiveCaloriesBurned + totalBasalCaloriesBurned) / caloriesCount
             let averageStepsTaken = totalStepsTaken / stepsCount
 
-            completion(averageRestingHeartRate, averageCaloriesBurned, averageStepsTaken)
+            completion(averageRestingHeartRate, averageTotalCaloriesBurned, averageStepsTaken)
         }
     }
+
 
 
 

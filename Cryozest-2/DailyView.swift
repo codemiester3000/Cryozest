@@ -20,7 +20,7 @@ struct DailyView: View {
     }
     
     func triggerHapticFeedback() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
     }
 
@@ -845,14 +845,14 @@ struct DailyGridMetrics: View {
         LazyVGrid(columns: columns, alignment: .leading, spacing: 17) { // Increased spacing between items
             GridItemView(
                 symbolName: "waveform.path.ecg",
-                title: "HRV",
+                title: "Avg HRV",
                 value: "\(model.lastKnownHRV)",
                 unit: "ms"
             )
             
             GridItemView(
                 symbolName: "arrow.down.heart",
-                title: "RHR",
+                title: "Avg RHR",
                 value: "\(model.averageDailyRHR ?? 0)", // Use averageDailyRHR here
                 unit: "bpm"
             )

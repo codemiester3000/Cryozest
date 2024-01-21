@@ -121,7 +121,7 @@ struct WakingAnalysisView: View {
             
             ComparisonView(
                 symbolName: "flame",
-                title: "Calories",
+                title: "Total Calories",
                 baselineValue: "\(Int(model.baselineRestingCalories.isFinite ? model.baselineRestingCalories : 0))",
                 exerciseValue: "\(Int(model.exerciseRestingCalories.isFinite ? model.exerciseRestingCalories : 0))",
                 unit: "kcal",
