@@ -30,6 +30,7 @@ class HealthKitManager {
         let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
         let stepCountType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
         let vo2MaxType = HKQuantityType.quantityType(forIdentifier: .vo2Max)!
+        let heightType = HKObjectType.quantityType(forIdentifier: .height)!
         
         // Add new types to the typesToRead set
         let typesToRead: Set<HKObjectType> = [
@@ -44,7 +45,8 @@ class HealthKitManager {
                restingEnergyType,
                dateOfBirthType,
                stepCountType,
-               vo2MaxType
+               vo2MaxType,
+               heightType
            ]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in

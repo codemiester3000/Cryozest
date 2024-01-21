@@ -20,8 +20,8 @@ struct MoreView: View {
     @State private var customRestingHR: Bool = false
     @State private var restingHeartRate: Int = 60
     @State private var userDateOfBirth: Date = Date()
-      @State private var userHeight: Double = 0
-      @State private var userWeight: Double = 0
+    @State private var userHeight: Double = 0
+    @State private var userWeight: Double = 0
     
     
     private var healthKitManager = HealthKitManager.shared
@@ -38,42 +38,46 @@ struct MoreView: View {
             }
         }
         
+        // Fetch Body Mass
         healthKitManager.fetchMostRecentBodyMass { bodyMass in
             DispatchQueue.main.async {
                 if let bodyMass = bodyMass {
-                    self.weight = "\(bodyMass)"
+                    // Update userWeight directly
+                    self.userWeight = bodyMass
                 }
             }
         }
-
+        
+        // Fetch Height
         healthKitManager.fetchMostRecentHeight { height, error in
             DispatchQueue.main.async {
                 if let height = height {
-                    self.height = "\(height)"
+                    // Update userHeight directly
+                    self.userHeight = height
                 }
             }
         }
     }
-
-
-
+    
+    
+    
     // Add other state variables as needed for HR zones, privacy policy, and feedback
     
     var body: some View {
-            NavigationView {
-                Form {
-                    Section(header: Text("Personal Details")) {
-                        TextField("Name", text: $name)
-                        // Use the fetched date of birth for the DatePicker
-                        DatePicker("Date of Birth", selection: $userDateOfBirth, displayedComponents: .date)
-                        Picker("Sex", selection: $sex) {
-                            ForEach(["Male", "Female", "Other"], id: \.self) { Text($0) }
-                        }
-                        // Use the fetched height and format it as needed
-                        Text("Height: \(userHeight, specifier: "%.2f") inches") // or meters, adjust accordingly
-                        // Use the fetched weight and format it as needed
-                        Text("Weight: \(userWeight, specifier: "%.2f") lbs") // or kilograms, adjust accordingly
+        NavigationView {
+            Form {
+                Section(header: Text("Personal Details")) {
+                    TextField("Name", text: $name)
+                    // Use the fetched date of birth for the DatePicker
+                    DatePicker("Date of Birth", selection: $userDateOfBirth, displayedComponents: .date)
+                    Picker("Sex", selection: $sex) {
+                        ForEach(["Male", "Female", "Other"], id: \.self) { Text($0) }
                     }
+                    // Format and display height in feet and inches
+                    Text("Height: \(Int(userHeight * 3.28084))' \(Int((userHeight * 3.28084 - Double(Int(userHeight * 3.28084))) * 12))\"")
+                    // Format and display weight in pounds
+                    Text("Weight: \(String(format: "%.2f lbs", userWeight))")
+                }
                 
                 Section(header: Text("Training Goal")) {
                     Picker("Intensity", selection: $trainingIntensity) {
@@ -113,20 +117,20 @@ struct MoreView: View {
                     }
                 }
             }
-                .navigationTitle("More")
-                .onAppear {
-                    fetchHealthData()
-                }
+            .navigationTitle("More")
+            .onAppear {
+                fetchHealthData()
+            }
+            
+        }
+    }
+}
 
-                           }
-                       }
-                   }
-               
 // Placeholder for Privacy Policy View
 struct PrivacyPolicyView: View {
     var body: some View {
         Text("Privacy Policy Details")
-            // Add the content of your Privacy Policy here
+        // Add the content of your Privacy Policy here
     }
 }
 
