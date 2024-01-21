@@ -100,7 +100,29 @@ class HealthKitManager {
         healthStore.execute(bodyMassQuery)
     }
     
-    
+    func fetchMostRecentHeight(completion: @escaping (Double?, Error?) -> Void) {
+        let heightType = HKSampleType.quantityType(forIdentifier: .height)!
+        let predicate = HKQuery.predicateForSamples(withStart: nil, end: Date(), options: .strictEndDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+
+        let query = HKSampleQuery(sampleType: heightType, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { (_, results, error) in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+
+            guard let heightSample = results?.first as? HKQuantitySample else {
+                completion(nil, nil)
+                return
+            }
+
+            let heightInMeters = heightSample.quantity.doubleValue(for: HKUnit.meter())
+            completion(heightInMeters, nil)
+        }
+
+        healthStore.execute(query)
+    }
+
     
     
     
