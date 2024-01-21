@@ -80,6 +80,23 @@ class HealthKitManager {
         }
     }
     
+    
+    func fetchUserDOB(completion: @escaping (Date?, Error?) -> Void) {
+        do {
+            let dateOfBirthComponents = try healthStore.dateOfBirthComponents()
+            guard let dateOfBirth = dateOfBirthComponents.date else {
+                // Date of birth is not available
+                completion(nil, nil)
+                return
+            }
+
+            completion(dateOfBirth, nil)
+        } catch {
+            completion(nil, error)
+        }
+    }
+
+    
     func fetchMostRecentBodyMass(completion: @escaping (Double?) -> Void) {
         // Don't limit by start date.
         let predicate = HKQuery.predicateForSamples(withStart: nil, end: Date(), options: .strictEndDate)

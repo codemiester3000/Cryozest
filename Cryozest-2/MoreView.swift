@@ -27,36 +27,33 @@ struct MoreView: View {
     private var healthKitManager = HealthKitManager.shared
     
     func fetchHealthData() {
-        healthKitManager.fetchUserAge { age, error in
-               if let age = age {
-                   let calendar = Calendar.current
-                   let currentDate = Date()
-                   let dateOfBirth = calendar.date(byAdding: .year, value: -age, to: currentDate)
-                   DispatchQueue.main.async {
-                       self.userDateOfBirth = dateOfBirth ?? self.userDateOfBirth
-                       print("Date of Birth: \(self.userDateOfBirth)")
-                   }
-               } else if let error = error {
-                   print("Error fetching age: \(error.localizedDescription)")
-               }
-           }
-        
-        healthKitManager.fetchMostRecentBodyMass { bodyMass in
-                DispatchQueue.main.async {
-                    if let bodyMass = bodyMass {
-                        self.weight = "\(bodyMass)"
-                    }
+        healthKitManager.fetchUserDOB { dateOfBirth, error in
+            DispatchQueue.main.async {
+                if let dateOfBirth = dateOfBirth {
+                    self.userDateOfBirth = dateOfBirth
+                    print("Date of Birth: \(self.userDateOfBirth)")
+                } else if let error = error {
+                    print("Error fetching date of birth: \(error.localizedDescription)")
                 }
             }
+        }
+        
+        healthKitManager.fetchMostRecentBodyMass { bodyMass in
+            DispatchQueue.main.async {
+                if let bodyMass = bodyMass {
+                    self.weight = "\(bodyMass)"
+                }
+            }
+        }
 
         healthKitManager.fetchMostRecentHeight { height, error in
-              DispatchQueue.main.async {
-                  if let height = height {
-                      self.height = "\(height)"
-                  }
-              }
-          }
-      }
+            DispatchQueue.main.async {
+                if let height = height {
+                    self.height = "\(height)"
+                }
+            }
+        }
+    }
 
 
 
