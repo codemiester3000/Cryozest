@@ -106,15 +106,15 @@ struct MoreView: View {
                     
                     Stepper("High Intensity Minutes: \(userSettings.highIntensityMinutesGoal)", value: $userSettings.highIntensityMinutesGoal, in: 0...120)
                     
-                    Stepper("Steps Goal: \(stepsGoal)", value: $stepsGoal, in: 0...50000)
+                    Stepper("Steps Goal: \(userSettings.stepsGoal)", value: $userSettings.stepsGoal, in: 0...50000)
                 }
                 
                 Section(header: Text("Sleep Goal")) {
-                    Stepper("REM Sleep Goal: \(remSleepGoal) minutes", value: $remSleepGoal, in: 0...360)
-                    Stepper("Deep Sleep Goal: \(deepSleepGoal) minutes", value: $deepSleepGoal, in: 0...360)
-                    Stepper("Core Sleep Goal: \(coreSleepGoal) minutes", value: $coreSleepGoal, in: 0...360)
-                    Stepper("Total Sleep Goal: \(totalSleepGoal) hours", value: $totalSleepGoal, in: 0...24)
-                }
+                                  Stepper("REM Sleep Goal: \(userSettings.remSleepGoal) minutes", value: $userSettings.remSleepGoal, in: 0...360)
+                                  Stepper("Deep Sleep Goal: \(userSettings.deepSleepGoal) minutes", value: $userSettings.deepSleepGoal, in: 0...360)
+                                  Stepper("Core Sleep Goal: \(userSettings.coreSleepGoal) minutes", value: $userSettings.coreSleepGoal, in: 0...360)
+                                  Stepper("Total Sleep Goal: \(userSettings.totalSleepGoal) hours", value: $userSettings.totalSleepGoal, in: 0...24)
+                              }
                 
                 Section(header: Text("Heart Rate Preferences")) {
                     Toggle("Use Custom Max Heart Rate", isOn: $customMaxHR)
