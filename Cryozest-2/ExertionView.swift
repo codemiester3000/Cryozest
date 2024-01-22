@@ -474,9 +474,24 @@ struct ExertionView: View {
                 Spacer(minLength: 10)
                 
                 VStack(alignment: .leading) {
-                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: Double(userSettings.recoveryMinutesGoal))
-                    ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                    ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+                    ExertionBarView(
+                        label: "RECOVERY \(userSettings.recoveryMinutesGoal)",
+                        minutes: exertionModel.recoveryMinutes,
+                        color: .teal,
+                        fullScaleTime: Double(userSettings.recoveryMinutesGoal)
+                    )
+                    ExertionBarView(
+                        label: "CONDITIONING \(userSettings.conditioningMinutesGoal)",
+                        minutes: exertionModel.conditioningMinutes,
+                        color: .green,
+                        fullScaleTime: Double(userSettings.conditioningMinutesGoal)
+                    )
+                    ExertionBarView(
+                        label: "HIGH INTENSITY \(userSettings.highIntensityMinutesGoal)",
+                        minutes: exertionModel.overloadMinutes,
+                        color: .red,
+                        fullScaleTime: Double(userSettings.highIntensityMinutesGoal)
+                    )
                 }
                 .padding(.top, 10)
                 .padding(.horizontal, 6)

@@ -3,19 +3,18 @@ import SwiftUI
 struct MoreView: View {
     @StateObject var userSettings = UserSettings()
     
+    // TODO: We wont need any of these as we move them into the userSettings struct
     @State private var name: String = ""
     @State private var dateOfBirth: Date = Date()
     @State private var sex: String = ""
     @State private var height: String = ""
     @State private var weight: String = ""
     @State private var trainingIntensity: String = "Maintaining"
-    @State private var conditioningMinutesGoal: Int = 30
-    @State private var highIntensityMinutesGoal: Int = 30
     @State private var stepsGoal: Int = 10000
     @State private var remSleepGoal: Int = 90
     @State private var deepSleepGoal: Int = 90
     @State private var coreSleepGoal: Int = 90
-    @State private var totalSleepGoal: Int = 8 
+    @State private var totalSleepGoal: Int = 8
     @State private var customMaxHR: Bool = false
     @State private var maxHeartRate: Int = 177
     @State private var customRestingHR: Bool = false
@@ -103,10 +102,9 @@ struct MoreView: View {
                     
                     Stepper("Recovery Minutes: \(userSettings.recoveryMinutesGoal)", value: $userSettings.recoveryMinutesGoal, in: 0...120)
 
+                    Stepper("Conditioning Minutes: \(userSettings.conditioningMinutesGoal)", value: $userSettings.conditioningMinutesGoal, in: 0...120)
                     
-                    Stepper("Conditioning Minutes: \(conditioningMinutesGoal)", value: $conditioningMinutesGoal, in: 0...120)
-                    
-                    Stepper("High Intensity Minutes: \(highIntensityMinutesGoal)", value: $highIntensityMinutesGoal, in: 0...120)
+                    Stepper("High Intensity Minutes: \(userSettings.highIntensityMinutesGoal)", value: $userSettings.highIntensityMinutesGoal, in: 0...120)
                     
                     Stepper("Steps Goal: \(stepsGoal)", value: $stepsGoal, in: 0...50000)
                 }
