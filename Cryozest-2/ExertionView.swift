@@ -1,5 +1,6 @@
 import SwiftUI
 import HealthKit
+import Combine
 
 class ExertionModel: ObservableObject {
     let healthStore = HKHealthStore()
@@ -19,9 +20,21 @@ class ExertionModel: ObservableObject {
         return maxTime == 0 ? 1 : maxTime
     }
     
+    private var cancellables = Set<AnyCancellable>()
+    
     init(userSettings: UserSettings) {
         self.userSettings = userSettings
         fetchExertionScoreAndTimes()
+        
+        setupSubscribers()
+    }
+    
+    private func setupSubscribers() {
+        userSettings.$trainingIntensity
+            .sink { [weak self] newIntensity in
+                self?.fetchExertionScoreAndTimes()
+            }
+            .store(in: &cancellables)
     }
     
     func calculateModifiedExertionScore() {
@@ -41,7 +54,7 @@ class ExertionModel: ObservableObject {
             print("Unknown training intensity: \(userSettings.trainingIntensity)")
         }
     }
-
+    
     
     func updateExertionCategories() {
         // This function will be called once the zoneTimes are updated
@@ -510,7 +523,7 @@ struct ExertionView: View {
                         fullScaleTime: Double(userSettings.conditioningMinutesGoal)
                     )
                     ExertionBarView(
-                        label: "HIGH INTENSITY \(userSettings.highIntensityMinutesGoal)",
+                        label: "HIGH INTENSITY \(userSettings.trainingIntensity)",
                         minutes: exertionModel.overloadMinutes,
                         color: .red,
                         fullScaleTime: Double(userSettings.highIntensityMinutesGoal)
