@@ -6,6 +6,9 @@ struct UserDefaultsKeys {
     static let conditioningMinutesGoal = "ConditioningMinutesGoal"
     
     static let highIntensityMinutesGoal = "HighIntensityMinutesGoal"
+    
+    static let trainingIntensity = "trainingIntensity"
+
     // Add more keys as static constants
     // static let anotherKey = "AnotherKey"
 }

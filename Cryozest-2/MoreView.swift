@@ -96,9 +96,9 @@ struct MoreView: View {
                 }
                 
                 Section(header: Text("Training Goal")) {
-                    Picker("Intensity", selection: $trainingIntensity) {
-                        ForEach(["Tapering", "Maintaining", "Building"], id: \.self) { Text($0) }
-                    }
+                                   Picker("Intensity", selection: $userSettings.trainingIntensity) {
+                                       ForEach(["Tapering", "Maintaining", "Building"], id: \.self) { Text($0) }
+                                   }
                     
                     Stepper("Recovery Minutes: \(userSettings.recoveryMinutesGoal)", value: $userSettings.recoveryMinutesGoal, in: 0...120)
 

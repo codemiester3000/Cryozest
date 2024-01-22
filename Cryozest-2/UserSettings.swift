@@ -22,6 +22,14 @@ class UserSettings: ObservableObject {
         }
     }
     
+    let trainingIntensityDefault = "Maintaining"
+       @Published var trainingIntensity: String {
+           didSet {
+               UserDefaults.standard.set(trainingIntensity, forKey: UserDefaultsKeys.trainingIntensity)
+           }
+       }
+
+    
     init() {
         let recoveryValue = UserDefaults.standard.integer(forKey: UserDefaultsKeys.recoveryMinutesGoal)
         recoveryMinutesGoal = recoveryValue != 0 ? recoveryValue : recoveryMinutesDefault
@@ -31,5 +39,7 @@ class UserSettings: ObservableObject {
         
         let highIntensityValue = UserDefaults.standard.integer(forKey: UserDefaultsKeys.highIntensityMinutesGoal)
         highIntensityMinutesGoal = highIntensityValue != 0 ? highIntensityValue : highIntensityMinutesDefault
+        
+        trainingIntensity = UserDefaults.standard.string(forKey: UserDefaultsKeys.trainingIntensity) ?? trainingIntensityDefault
     }
 }
