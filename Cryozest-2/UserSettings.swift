@@ -36,14 +36,14 @@ class UserSettings: ObservableObject {
         }
     }
     
-    let remSleepGoalDefault = 90
+    let remSleepGoalDefault = 120
     @Published var remSleepGoal: Int {
         didSet {
             UserDefaults.standard.set(remSleepGoal, forKey: UserDefaultsKeys.remSleepGoal)
         }
     }
     
-    let deepSleepGoalDefault = 90
+    let deepSleepGoalDefault = 60
     @Published var deepSleepGoal: Int {
         didSet {
             UserDefaults.standard.set(deepSleepGoal, forKey: UserDefaultsKeys.deepSleepGoal)

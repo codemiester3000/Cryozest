@@ -10,11 +10,11 @@ struct DailyView: View {
     @State private var showingSleepPopover = false
     @State private var dailySleepViewModel = DailySleepViewModel()
     @State private var calculatedUpperBound: Double = 8.0
-    
+    @State private var dataRefreshed = false
     
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
-        let upperBound = ceil(Double(recoveryScore) / 10.0) + 1
+        let upperBound = ceil(Double(recoveryScore) / 10.0)
         let calculatedUpperBound = max(upperBound, 1.0)
         return calculatedUpperBound
     }
@@ -83,10 +83,15 @@ struct DailyView: View {
             .padding(.top, 10)
         }
         .refreshable {
-            model.pullAllData()
-            exertionModel.fetchExertionScoreAndTimes()
-            dailySleepViewModel.refreshData()
-        }
+                 model.pullAllData()
+                 exertionModel.fetchExertionScoreAndTimes()
+                 dailySleepViewModel.refreshData()
+                 exertionModel.calculateModifiedExertionScore() // Make sure to recalculate based on updated settings
+                 dataRefreshed.toggle() // Toggle the state to force the view to update
+             }
+             .onChange(of: dataRefreshed) { _ in
+                 // You can add any additional logic here if needed when data is refreshed
+             }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
         .onAppear() {

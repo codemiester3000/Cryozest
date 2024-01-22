@@ -7,16 +7,17 @@ extension Color {
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
     @StateObject private var therapyTypeSelection = TherapyTypeSelection()
+    @StateObject var userSettings = UserSettings()  // Create a StateObject of UserSettings
     
     @State private var selectedTab: Int = 0
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel()) // Pass an instance of ExertionModel
-                .tabItem {
-                    Image(systemName: "moon")
-                    Text("Daily")
-                }
+                DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel(userSettings: userSettings))
+                    .tabItem {
+                        Image(systemName: "moon")
+                        Text("Daily")
+                    }
                 .tag(0)
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)

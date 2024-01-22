@@ -12,14 +12,36 @@ class ExertionModel: ObservableObject {
     @Published var avgRestingHeartRate: Double = 0
     @Published var heartRateZoneRanges: [(lowerBound: Double, upperBound: Double)] = []
     
+    var userSettings: UserSettings
+    
     var maxExertionTime: Double {
         let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
         return maxTime == 0 ? 1 : maxTime
     }
     
-    init() {
+    init(userSettings: UserSettings) {
+        self.userSettings = userSettings
         fetchExertionScoreAndTimes()
     }
+    
+    func calculateModifiedExertionScore() {
+        let baseScore = exertionScore
+        print("Original exertion score: \(baseScore)")
+        
+        switch userSettings.trainingIntensity {
+        case "Tapering":
+            exertionScore = baseScore * 1.15
+            print("Tapering: Adjusted exertion score: \(exertionScore)")
+        case "Building":
+            exertionScore = baseScore * 0.85
+            print("Building: Adjusted exertion score: \(exertionScore)")
+        case "Maintaining":
+            print("Maintaining: No adjustment needed")
+        default:
+            print("Unknown training intensity: \(userSettings.trainingIntensity)")
+        }
+    }
+
     
     func updateExertionCategories() {
         // This function will be called once the zoneTimes are updated
@@ -71,6 +93,7 @@ class ExertionModel: ObservableObject {
                             )
                             DispatchQueue.main.async {
                                 self.exertionScore = score
+                                self.calculateModifiedExertionScore() // Calculate modified score based on training intensity
                                 self.updateExertionCategories()
                             }
                         } catch {
@@ -436,22 +459,22 @@ struct ExertionView: View {
                         }
                         
                         VStack(alignment: .leading) {
-                                Text("Today's Exertion Target:")
-                                    .font(.footnote)
-                                    .foregroundColor(.gray)
-                                
-                                Text("\(targetExertionZone)")
-                                    .font(.system(size: 17))
-                                    .foregroundColor(.green)
-                                    .fontWeight(.bold)
-                            }
+                            Text("Today's Exertion Target:")
+                                .font(.footnote)
+                                .foregroundColor(.gray)
+                            
+                            Text("\(targetExertionZone)")
+                                .font(.system(size: 17))
+                                .foregroundColor(.green)
+                                .fontWeight(.bold)
                         }
-                        .padding(.vertical)
-                        .padding(.horizontal, 22)
-                        
-                        Spacer()
-                          
-                          Spacer()
+                    }
+                    .padding(.vertical)
+                    .padding(.horizontal, 22)
+                    
+                    Spacer()
+                    
+                    Spacer()
                     
                     ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
                         .frame(width: 120, height: 120)
@@ -459,7 +482,7 @@ struct ExertionView: View {
                 }
                 
                 Spacer(minLength: 10)
-
+                
                 VStack() {
                     let userStatement = recoveryModel.generateUserStatement()
                     Text(userStatement)
