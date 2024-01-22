@@ -36,15 +36,16 @@ struct DailyView: View {
             DailyGridMetrics(model: model)
             
             VStack(alignment: .leading, spacing: 10) {
-                ProgressButtonView(
+                ReadinessToTrainButtonView(
                     title: "Readiness to Train",
-                    progress: Float(model.recoveryScores.last ?? 0) / 100.0,
-                    color: Color.green,
+                       progress: Float(model.recoveryScores.last ?? 0) / 100.0,
+                       color: Color.green,
                     action: {
                         triggerHapticFeedback()
                         showingRecoveryPopover = true
-                    }
-                )
+                    }, hrvPercentage: model.hrvPercentageChange,
+                    bpmPercentage: model.bpmPercentageChange
+                   )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
                 }
@@ -213,10 +214,17 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentSteps: Double? = nil
     @Published var mostRecentVO2Max: Double? = nil
     @Published var averageDailyRHR: Int?
+    @Published var hrvPercentageChange: Int?
+        @Published var bpmPercentageChange: Int?
     
     private var dailySleepViewModel = DailySleepViewModel()
     
     var hrvReadings: [Date: Int] = [:]
+    
+    func updatePercentageChanges() {
+            calculateHrvPercentage()
+            calculateRestingHeartRatePercentage()
+        }
     
     func getClosestHRVReading(for date: Date) -> Int? {
         let calendar = Calendar.current
@@ -427,22 +435,23 @@ class RecoveryGraphModel: ObservableObject {
     
     
     private func calculateHrvPercentage() {
-        if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
-            let percentage = Double(avgSleep - avg60Days) / Double(avg60Days) * 100
-            hrvSleepPercentage = Int(percentage.rounded())
-        } else {
-            hrvSleepPercentage = nil
-        }
-    }
-    
-    private func calculateRestingHeartRatePercentage() {
-        if let mostRecentHr = mostRecentRestingHeartRate, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
-            let percentage = Double(mostRecentHr - avg60Days) / Double(avg60Days) * 100
-            restingHeartRatePercentage = Int(percentage.rounded())
-        } else {
-            restingHeartRatePercentage = nil
-        }
-    }
+          if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
+              let percentage = Double(avgSleep - avg60Days) / Double(avg60Days) * 100
+              hrvPercentageChange = Int(percentage.rounded())
+          } else {
+              hrvPercentageChange = nil
+          }
+      }
+      
+      private func calculateRestingHeartRatePercentage() {
+          if let mostRecentHr = mostRecentRestingHeartRate, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
+              let percentage = Double(mostRecentHr - avg60Days) / Double(avg60Days) * 100
+              bpmPercentageChange = Int(percentage.rounded())
+          } else {
+              bpmPercentageChange = nil
+          }
+      }
+
     
     func getLastSevenDaysDates() -> [Date] {
         var dates = [Date]()
@@ -1020,6 +1029,63 @@ struct ProgressButtonView: View {
                 
                 Spacer() // Push '>' to the right
             }
+        }
+        .background(
+            Image(systemName: "chevron.right") // System name for '>'
+                .foregroundColor(.gray)
+                .font(Font.system(size: 12).weight(.semibold))
+                .padding(.trailing, 20)
+                .padding(.top, 10),
+            alignment: .topTrailing
+        )
+    }
+}
+
+
+struct ReadinessToTrainButtonView: View {
+    let title: String
+    let progress: Float // A value between 0.0 and 1.0
+    let color: Color
+    let action: () -> Void
+    let hrvPercentage: Int? // Optional parameter
+    let bpmPercentage: Int? // Optional parameter
+
+
+    var body: some View {        Button(action: action) {
+            VStack(alignment: .leading) {
+                // Title Text
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.white)
+                    .fontWeight(.semibold)
+
+                // Horizontal Stack for progress bar and percentage
+                HStack {
+                    ProgressView(value: progress)
+                        .progressViewStyle(LinearProgressViewStyle(tint: color))
+                        .scaleEffect(x: 1, y: 2, anchor: .center)
+                        .frame(height: 20)
+
+                    VStack(alignment: .leading) {
+                        // If hrvPercentage is not nil, show the HRV percentage
+                        if let hrv = hrvPercentage {
+                            Text("HRV: \(hrv)%")
+                                .font(.footnote)
+                                .foregroundColor(.white)
+                        }
+                        // If bpmPercentage is not nil, show the BPM percentage
+                        if let bpm = bpmPercentage {
+                            Text("BPM: \(bpm)%")
+                                .font(.footnote)
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.gray.opacity(0.2)) // Button fill
+            .cornerRadius(10)
         }
         .background(
             Image(systemName: "chevron.right") // System name for '>'
