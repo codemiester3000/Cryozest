@@ -37,20 +37,18 @@ struct DailyView: View {
             
             VStack(alignment: .leading, spacing: 10) {
                 ReadinessToTrainButtonView(
-                    title: "Readiness to Train",
-                       progress: Float(model.recoveryScores.last ?? 0) / 100.0,
-                       color: Color.green,
+                    readinessToTrainProgress: Float(model.recoveryScores.last ?? 0) / 100.0,
+                    hrvChange: model.hrvPercentageChange,
+                    bpmChange: model.bpmPercentageChange,
                     action: {
                         triggerHapticFeedback()
                         showingRecoveryPopover = true
-                    }, hrvPercentage: model.hrvPercentageChange,
-                    bpmPercentage: model.bpmPercentageChange
-                   )
+                    }
+                )
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
                 }
-                
-                
+
                 ProgressButtonView(
                     title: "Daily Exertion",
                     progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
@@ -1043,49 +1041,68 @@ struct ProgressButtonView: View {
 
 
 struct ReadinessToTrainButtonView: View {
-    let title: String
-    let progress: Float // A value between 0.0 and 1.0
-    let color: Color
+    let readinessToTrainProgress: Float
+    let hrvChange: Int?
+    let bpmChange: Int?
     let action: () -> Void
-    let hrvPercentage: Int? // Optional parameter
-    let bpmPercentage: Int? // Optional parameter
 
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Readiness to Train")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .fontWeight(.semibold)
+                        .padding(.bottom, 4)
 
-    var body: some View {        Button(action: action) {
-            VStack(alignment: .leading) {
-                // Title Text
-                Text(title)
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(.white)
-                    .fontWeight(.semibold)
-
-                // Horizontal Stack for progress bar and percentage
-                HStack {
-                    ProgressView(value: progress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: color))
-                        .scaleEffect(x: 1, y: 2, anchor: .center)
-                        .frame(height: 20)
-
-                    VStack(alignment: .leading) {
-                        // If hrvPercentage is not nil, show the HRV percentage
-                        if let hrv = hrvPercentage {
-                            Text("HRV: \(hrv)%")
-                                .font(.footnote)
-                                .foregroundColor(.white)
+                    // HRV and BPM changes displayed underneath with smaller arrows
+                    HStack(spacing: 10) {
+                        if let hrv = hrvChange {
+                            Group {
+                                Text("HRV: \(hrv)%")
+                                Image(systemName: hrv >= 0 ? "arrow.up.forward" : "arrow.down.right")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(height: 12) // Smaller arrow
+                            }
+                            .font(.footnote) // Smaller font size
+                            .foregroundColor(.white)
                         }
-                        // If bpmPercentage is not nil, show the BPM percentage
-                        if let bpm = bpmPercentage {
-                            Text("BPM: \(bpm)%")
-                                .font(.footnote)
-                                .foregroundColor(.white)
+                        if let bpm = bpmChange {
+                            Group {
+                                Text("BPM: \(bpm)%")
+                                Image(systemName: bpm >= 0 ? "arrow.up.forward" : "arrow.down.right")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(height: 12) // Smaller arrow
+                            }
+                            .font(.footnote) // Smaller font size
+                            .foregroundColor(.white)
                         }
                     }
+                    .padding(.bottom, 5)
+
+                    // Horizontal Stack for progress bar and percentage
+                    HStack {
+                        ProgressView(value: readinessToTrainProgress)
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color.green))
+                            .scaleEffect(x: 1, y: 2, anchor: .center)
+                            .frame(height: 20)
+                        
+                        Text("\(Int(readinessToTrainProgress * 100))%")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .fontWeight(.semibold)
+                    }
                 }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.gray.opacity(0.2)) // Button fill
+                .cornerRadius(10)
+                
+                Spacer() // Push '>' to the right
             }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.gray.opacity(0.2)) // Button fill
-            .cornerRadius(10)
         }
         .background(
             Image(systemName: "chevron.right") // System name for '>'
