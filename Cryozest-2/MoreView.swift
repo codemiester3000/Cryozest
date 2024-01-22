@@ -1,20 +1,21 @@
 import SwiftUI
 
 struct MoreView: View {
+    @StateObject var userSettings = UserSettings()
+    
     @State private var name: String = ""
     @State private var dateOfBirth: Date = Date()
     @State private var sex: String = ""
     @State private var height: String = ""
     @State private var weight: String = ""
     @State private var trainingIntensity: String = "Maintaining"
-    @State private var recoveryMinutesGoal: Int = 30
     @State private var conditioningMinutesGoal: Int = 30
     @State private var highIntensityMinutesGoal: Int = 30
     @State private var stepsGoal: Int = 10000
     @State private var remSleepGoal: Int = 90
     @State private var deepSleepGoal: Int = 90
     @State private var coreSleepGoal: Int = 90
-    @State private var totalSleepGoal: Int = 8 // Assuming the goal is set in hours
+    @State private var totalSleepGoal: Int = 8 
     @State private var customMaxHR: Bool = false
     @State private var maxHeartRate: Int = 177
     @State private var customRestingHR: Bool = false
@@ -22,7 +23,6 @@ struct MoreView: View {
     @State private var userDateOfBirth: Date = Date()
     @State private var userHeight: Double = 0
     @State private var userWeight: Double = 0
-    
     
     private var healthKitManager = HealthKitManager.shared
     
@@ -65,44 +65,49 @@ struct MoreView: View {
     
     var body: some View {
         NavigationView {
-               Form {
-                   Section(header: Text("Personal Details")) {
-                       HStack {
-                           Text("Date of Birth")
-                           Spacer()
-                           Text("\(userDateOfBirth, formatter: dateFormatter)")
-                               .foregroundColor(.gray)
-                       }
-                       
-//                       HStack {
-//                           Text("Sex")
-//                           Spacer()
-//                           Text(sex)
-//                               .foregroundColor(.gray)
-//                       }
-                       
-                       HStack {
-                           Text("Height")
-                           Spacer()
-                           Text("\(Int(userHeight * 3.28084))' \(Int((userHeight * 3.28084 - Double(Int(userHeight * 3.28084))) * 12))\"")
-                               .foregroundColor(.gray)
-                       }
-                       
-                       HStack {
-                           Text("Weight")
-                           Spacer()
-                           Text("\(String(format: "%.0f lb", userWeight))")
-                               .foregroundColor(.gray)
-                       }
-                   }
+            Form {
+                Section(header: Text("Personal Details")) {
+                    HStack {
+                        Text("Date of Birth")
+                        Spacer()
+                        Text("\(userDateOfBirth, formatter: dateFormatter)")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    //                       HStack {
+                    //                           Text("Sex")
+                    //                           Spacer()
+                    //                           Text(sex)
+                    //                               .foregroundColor(.gray)
+                    //                       }
+                    
+                    HStack {
+                        Text("Height")
+                        Spacer()
+                        Text("\(Int(userHeight * 3.28084))' \(Int((userHeight * 3.28084 - Double(Int(userHeight * 3.28084))) * 12))\"")
+                            .foregroundColor(.gray)
+                    }
+                    
+                    HStack {
+                        Text("Weight")
+                        Spacer()
+                        Text("\(String(format: "%.0f lb", userWeight))")
+                            .foregroundColor(.gray)
+                    }
+                }
                 
                 Section(header: Text("Training Goal")) {
                     Picker("Intensity", selection: $trainingIntensity) {
                         ForEach(["Tapering", "Maintaining", "Building"], id: \.self) { Text($0) }
                     }
-                    Stepper("Recovery Minutes: \(recoveryMinutesGoal)", value: $recoveryMinutesGoal, in: 0...120)
+                    
+                    Stepper("Recovery Minutes: \(userSettings.recoveryMinutesGoal)", value: $userSettings.recoveryMinutesGoal, in: 0...120)
+
+                    
                     Stepper("Conditioning Minutes: \(conditioningMinutesGoal)", value: $conditioningMinutesGoal, in: 0...120)
+                    
                     Stepper("High Intensity Minutes: \(highIntensityMinutesGoal)", value: $highIntensityMinutesGoal, in: 0...120)
+                    
                     Stepper("Steps Goal: \(stepsGoal)", value: $stepsGoal, in: 0...50000)
                 }
                 

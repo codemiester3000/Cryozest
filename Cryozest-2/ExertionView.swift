@@ -12,13 +12,10 @@ class ExertionModel: ObservableObject {
     @Published var avgRestingHeartRate: Double = 0
     @Published var heartRateZoneRanges: [(lowerBound: Double, upperBound: Double)] = []
     
-    
     var maxExertionTime: Double {
         let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
         return maxTime == 0 ? 1 : maxTime
     }
-
-    
     
     init() {
         fetchExertionScoreAndTimes()
@@ -331,6 +328,8 @@ struct ExertionView: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @State private var isPopoverVisible = false
     
+    @StateObject var userSettings = UserSettings()
+    
     var exertionScore: Double {
         return exertionModel.exertionScore
     }
@@ -475,7 +474,7 @@ struct ExertionView: View {
                 Spacer(minLength: 10)
                 
                 VStack(alignment: .leading) {
-                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: Double(userSettings.recoveryMinutesGoal))
                     ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
                     ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
                 }
