@@ -1054,34 +1054,32 @@ struct ReadinessToTrainButtonView: View {
                         .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
                         .fontWeight(.semibold)
-                        .padding(.bottom, 4)
 
-                    // HRV and BPM changes displayed underneath with smaller arrows
-                    HStack(spacing: 10) {
+                    // HRV and BPM changes
+                    HStack(spacing: 2) {
                         if let hrv = hrvChange {
-                            Group {
-                                Text("HRV: \(hrv)%")
-                                Image(systemName: hrv >= 0 ? "arrow.up.forward" : "arrow.down.right")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(height: 12) // Smaller arrow
-                            }
-                            .font(.footnote) // Smaller font size
-                            .foregroundColor(.white)
+                            Text("HRV: \(hrv)%")
+                                .font(.footnote)
+                                .foregroundColor(.white)
+
+                            Image(systemName: hrv >= 0 ? "arrow.up.forward" : "arrow.down.right")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 10)
+                                .foregroundColor(.white)
                         }
                         if let bpm = bpmChange {
-                            Group {
-                                Text("BPM: \(bpm)%")
-                                Image(systemName: bpm >= 0 ? "arrow.up.forward" : "arrow.down.right")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(height: 12) // Smaller arrow
-                            }
-                            .font(.footnote) // Smaller font size
-                            .foregroundColor(.white)
+                            Text(" BPM: \(bpm)%")
+                                .font(.footnote)
+                                .foregroundColor(.white)
+                                
+                            Image(systemName: bpm >= 0 ? "arrow.up.forward" : "arrow.down.right")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 10)
+                                .foregroundColor(.white)
                         }
                     }
-                    .padding(.bottom, 5)
 
                     // Horizontal Stack for progress bar and percentage
                     HStack {
