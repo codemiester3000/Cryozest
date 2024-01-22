@@ -74,12 +74,12 @@ struct MoreView: View {
                                .foregroundColor(.gray)
                        }
                        
-                       HStack {
-                           Text("Sex")
-                           Spacer()
-                           Text(sex)
-                               .foregroundColor(.gray)
-                       }
+//                       HStack {
+//                           Text("Sex")
+//                           Spacer()
+//                           Text(sex)
+//                               .foregroundColor(.gray)
+//                       }
                        
                        HStack {
                            Text("Height")
