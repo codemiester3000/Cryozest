@@ -65,19 +65,36 @@ struct MoreView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Personal Details")) {
-                    TextField("Name", text: $name)
-                    // Use the fetched date of birth for the DatePicker
-                    DatePicker("Date of Birth", selection: $userDateOfBirth, displayedComponents: .date)
-                    Picker("Sex", selection: $sex) {
-                        ForEach(["Male", "Female", "Other"], id: \.self) { Text($0) }
-                    }
-                    // Format and display height in feet and inches
-                    Text("Height: \(Int(userHeight * 3.28084))' \(Int((userHeight * 3.28084 - Double(Int(userHeight * 3.28084))) * 12))\"")
-                    // Format and display weight in pounds
-                    Text("Weight: \(String(format: "%.2f lbs", userWeight))")
-                }
+               Form {
+                   Section(header: Text("Personal Details")) {
+                       HStack {
+                           Text("Date of Birth")
+                           Spacer()
+                           Text("\(userDateOfBirth, formatter: dateFormatter)")
+                               .foregroundColor(.gray)
+                       }
+                       
+                       HStack {
+                           Text("Sex")
+                           Spacer()
+                           Text(sex)
+                               .foregroundColor(.gray)
+                       }
+                       
+                       HStack {
+                           Text("Height")
+                           Spacer()
+                           Text("\(Int(userHeight * 3.28084))' \(Int((userHeight * 3.28084 - Double(Int(userHeight * 3.28084))) * 12))\"")
+                               .foregroundColor(.gray)
+                       }
+                       
+                       HStack {
+                           Text("Weight")
+                           Spacer()
+                           Text("\(String(format: "%.0f lb", userWeight))")
+                               .foregroundColor(.gray)
+                       }
+                   }
                 
                 Section(header: Text("Training Goal")) {
                     Picker("Intensity", selection: $trainingIntensity) {
@@ -124,6 +141,12 @@ struct MoreView: View {
             
         }
     }
+}
+// DateFormatter to format the date of birth
+private var dateFormatter: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .long
+    return formatter
 }
 
 // Placeholder for Privacy Policy View

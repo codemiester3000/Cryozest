@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
+		05AC82EC2B5DEF4E00561632 /* UserGoals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05AC82EB2B5DEF4E00561632 /* UserGoals.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
 		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
 		C53698092B5DC2E000B68171 /* MoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53698082B5DC2E000B68171 /* MoreView.swift */; };
@@ -75,6 +76,7 @@
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
+		05AC82EB2B5DEF4E00561632 /* UserGoals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserGoals.swift; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
 		C53698082B5DC2E000B68171 /* MoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreView.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				C598129F2B41007100C13C15 /* TherapyTypeClass.swift */,
 				C57F62812B422E93004515EA /* ExertionView.swift */,
 				C53817EC2B48A88600F42568 /* DailySleepView.swift */,
+				05AC82EB2B5DEF4E00561632 /* UserGoals.swift */,
 				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
 				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
 				C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */,
@@ -395,6 +398,7 @@
 				C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C53698092B5DC2E000B68171 /* MoreView.swift in Sources */,
+				05AC82EC2B5DEF4E00561632 /* UserGoals.swift in Sources */,
 				C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,
