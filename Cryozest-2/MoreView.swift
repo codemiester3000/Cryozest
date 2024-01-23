@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MoreView: View {
-    @StateObject var userSettings = UserSettings()
+    @ObservedObject var userSettings: UserSettings
     
     // TODO: We wont need any of these as we move them into the userSettings struct
     @State private var name: String = ""
@@ -24,6 +24,10 @@ struct MoreView: View {
     @State private var userWeight: Double = 0
     
     private var healthKitManager = HealthKitManager.shared
+    
+    init(userSettings: UserSettings) {
+        self.userSettings = userSettings
+    }
     
     func fetchHealthData() {
         healthKitManager.fetchUserDOB { dateOfBirth, error in
@@ -96,12 +100,12 @@ struct MoreView: View {
                 }
                 
                 Section(header: Text("Training Goal")) {
-                                   Picker("Intensity", selection: $userSettings.trainingIntensity) {
-                                       ForEach(["Tapering", "Maintaining", "Building"], id: \.self) { Text($0) }
-                                   }
+                    Picker("Intensity", selection: $userSettings.trainingIntensity) {
+                        ForEach(["Tapering", "Maintaining", "Building"], id: \.self) { Text($0) }
+                    }
                     
                     Stepper("Recovery Minutes: \(userSettings.recoveryMinutesGoal)", value: $userSettings.recoveryMinutesGoal, in: 0...120)
-
+                    
                     Stepper("Conditioning Minutes: \(userSettings.conditioningMinutesGoal)", value: $userSettings.conditioningMinutesGoal, in: 0...120)
                     
                     Stepper("High Intensity Minutes: \(userSettings.highIntensityMinutesGoal)", value: $userSettings.highIntensityMinutesGoal, in: 0...120)
@@ -110,11 +114,11 @@ struct MoreView: View {
                 }
                 
                 Section(header: Text("Sleep Goal")) {
-                                  Stepper("REM Sleep Goal: \(userSettings.remSleepGoal) minutes", value: $userSettings.remSleepGoal, in: 0...360)
-                                  Stepper("Deep Sleep Goal: \(userSettings.deepSleepGoal) minutes", value: $userSettings.deepSleepGoal, in: 0...360)
-                                  Stepper("Core Sleep Goal: \(userSettings.coreSleepGoal) minutes", value: $userSettings.coreSleepGoal, in: 0...360)
-                                  Stepper("Total Sleep Goal: \(userSettings.totalSleepGoal) hours", value: $userSettings.totalSleepGoal, in: 0...24)
-                              }
+                    Stepper("REM Sleep Goal: \(userSettings.remSleepGoal) minutes", value: $userSettings.remSleepGoal, in: 0...360)
+                    Stepper("Deep Sleep Goal: \(userSettings.deepSleepGoal) minutes", value: $userSettings.deepSleepGoal, in: 0...360)
+                    Stepper("Core Sleep Goal: \(userSettings.coreSleepGoal) minutes", value: $userSettings.coreSleepGoal, in: 0...360)
+                    Stepper("Total Sleep Goal: \(userSettings.totalSleepGoal) hours", value: $userSettings.totalSleepGoal, in: 0...24)
+                }
                 
                 Section(header: Text("Heart Rate Preferences")) {
                     Toggle("Use Custom Max Heart Rate", isOn: $customMaxHR)
@@ -175,12 +179,5 @@ struct FeedbackView: View {
             }
         }
         .navigationTitle("Feedback")
-    }
-}
-
-// Start the SwiftUI preview or main App with this view
-struct MoreView_Previews: PreviewProvider {
-    static var previews: some View {
-        MoreView()
     }
 }

@@ -49,7 +49,7 @@ struct AppTabView: View {
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-            MoreView()
+            MoreView(userSettings: userSettings)
                 .tabItem {
                     Image(systemName: "ellipsis")
                     Text("More")
