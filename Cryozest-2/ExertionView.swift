@@ -57,17 +57,19 @@ class ExertionModel: ObservableObject {
     
     
     func updateExertionCategories() {
-        // This function will be called once the zoneTimes are updated
-        if zoneTimes.count >= 3 {
-            let recoveryTime = zoneTimes[0]
-            let conditioningTime = zoneTimes[1] + zoneTimes[2]
-            let overloadTime = zoneTimes.count > 3 ? zoneTimes.dropFirst(3).reduce(0, +) : 0
-            
-            DispatchQueue.main.async {
-                self.recoveryMinutes = recoveryTime
-                self.conditioningMinutes = conditioningTime
-                self.overloadMinutes = overloadTime
-            }
+        // Ensure zoneTimes has at least 5 elements, pad with zeros if not
+        while zoneTimes.count < 5 {
+            zoneTimes.append(0)
+        }
+
+        let recoveryTime = zoneTimes[0]
+        let conditioningTime = zoneTimes[1] + zoneTimes[2]
+        let overloadTime = zoneTimes[3] + zoneTimes[4]
+        
+        DispatchQueue.main.async {
+            self.recoveryMinutes = recoveryTime
+            self.conditioningMinutes = conditioningTime
+            self.overloadMinutes = overloadTime
         }
     }
     

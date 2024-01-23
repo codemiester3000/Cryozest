@@ -7,7 +7,7 @@ extension Color {
 struct AppTabView: View {
     @State private var sessions: [TherapySession] = []
     @StateObject private var therapyTypeSelection = TherapyTypeSelection()
-    @StateObject var userSettings = UserSettings()  // Create a StateObject of UserSettings
+    @StateObject var userSettings = UserSettings()
     
     @State private var selectedTab: Int = 0
 
