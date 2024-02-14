@@ -81,9 +81,9 @@ struct MainView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
+            ScrollView {
                 HStack {
-                    Text("Record Session")
+                    Text("Record Habit")
                         .font(.system(size: 24, weight: .regular, design: .default))
                         .foregroundColor(.white)
                         .bold()
@@ -102,13 +102,6 @@ struct MainView: View {
                     .padding(.bottom)
                 
                 Spacer()
-                
-//                Picker("Select Mode", selection: $selectedMode) {
-//                    Text("Timer").tag("Timer")
-//                    Text("Quick Add").tag("Quick Add")
-//                }
-//                .pickerStyle(SegmentedPickerStyle())
-//                .padding(.bottom)
                 
                 CustomSessionPicker(selectedFeature: $selectedMode)
                     .padding(.bottom)
@@ -166,7 +159,7 @@ struct MainView: View {
                         Spacer()
                         
                         HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
-                            .padding(.bottom, 28)
+                            .padding(.vertical, 24)
                     } else {
                         if isSessionCompleteForToday {
                             Text("Already Complete for Today!")
@@ -193,11 +186,14 @@ struct MainView: View {
                                             .stroke(Color.white, lineWidth: 2) // White border
                                     )
                             }
+                            .padding(.vertical, 80)
                         }
                         
                         Spacer()
                     }
                 }.frame(maxHeight: .infinity)
+                
+                LogbookView(therapyTypeSelection: self.therapyTypeSelection)
                 
                 NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
@@ -218,15 +214,8 @@ struct MainView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.black
-                        //                LinearGradient(
-                        //                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                        //                    startPoint: .top,
-                        //                    endPoint: .bottom
-                        //                )
-            )
+            .background(.black)
             .onAppear() {
-                
                 // Add default timers if no custom ones are saved
                 if customTimers.isEmpty {
                     let defaultDurations = [5, 10, 15]
@@ -257,9 +246,6 @@ struct MainView: View {
                 CreateTimerView()
                     .environment(\.managedObjectContext, self.viewContext)
             }
-            //            .navigationBarItems(trailing: NavigationLink(destination: TherapyTypeSelectionView()) {
-            //                SettingsIconView().id(UUID())
-            //            })
         }
         .onChange(of: scenePhase) { newScenePhase in
             switch newScenePhase {
@@ -507,10 +493,10 @@ struct CustomSessionPicker: View {
             SessionPickerItem(
                 sessionFeature: SessionFeature.STOPWATCH,
                 isSelected: selectedFeature == SessionFeature.STOPWATCH
-                )
-                .onTapGesture {
-                    self.selectedFeature = SessionFeature.STOPWATCH
-                }
+            )
+            .onTapGesture {
+                self.selectedFeature = SessionFeature.STOPWATCH
+            }
             
             SessionPickerItem(
                 sessionFeature: SessionFeature.QUICK_ADD,
@@ -521,8 +507,8 @@ struct CustomSessionPicker: View {
             }
         }
         .background(RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.black)
-                        .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
+            .fill(Color.black)
+            .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
     }
 }
 

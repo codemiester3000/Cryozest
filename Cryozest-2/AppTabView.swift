@@ -24,7 +24,7 @@ struct AppTabView: View {
             MainView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
                     Image(systemName: "stopwatch")
-                    Text("Record Data")
+                    Text("Habits")
                 }
                 .tag(1)
                 .toolbarBackground(.black, for: .tabBar)
@@ -39,14 +39,14 @@ struct AppTabView: View {
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
             
-            LogbookView(therapyTypeSelection: therapyTypeSelection)
-                .tabItem {
-                    Image(systemName: "calendar")
-                    Text("Calendar")
-                }
-                .tag(3)
-                .toolbarBackground(.black, for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
+//            LogbookView(therapyTypeSelection: therapyTypeSelection)
+//                .tabItem {
+//                    Image(systemName: "calendar")
+//                    Text("Calendar")
+//                }
+//                .tag(3)
+//                .toolbarBackground(.black, for: .tabBar)
+//                .toolbarBackground(.visible, for: .tabBar)
         }
         .accentColor(Color.white)
         .opacity(0.85)

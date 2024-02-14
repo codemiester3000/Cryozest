@@ -38,7 +38,7 @@ struct ManuallyAddSession: View {
                 .foregroundColor(.red)
             }
             .background(Color.black)
-            .navigationBarTitle("Add Session", displayMode: .inline)
+            .navigationBarTitle("Add Habit Entry", displayMode: .inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })

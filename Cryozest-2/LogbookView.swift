@@ -72,9 +72,9 @@ struct LogbookView: View {
                                 showAddSession = true
                             }
                     }
-                    .padding(.top, 36)
+                    .padding(.top, 12)
                     
-                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
+//                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     
                     LazyVStack(alignment: .leading, spacing: 16) {
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
