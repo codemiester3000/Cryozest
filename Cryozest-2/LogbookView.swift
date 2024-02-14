@@ -54,7 +54,7 @@ struct LogbookView: View {
                 NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
                     EmptyView()
                 }
-                ScrollView {
+                VStack {
                     HStack {
                         Text("History")
                             .font(.system(size: 24, weight: .regular, design: .default))
