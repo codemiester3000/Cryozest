@@ -131,6 +131,7 @@ struct HeaderView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
+                    .padding(.top)
                 
                 if let lastRefreshDate = model.lastDataRefresh {
                     HStack(spacing: 2) { // Adjust the spacing as needed
