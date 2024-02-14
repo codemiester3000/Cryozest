@@ -11,6 +11,18 @@ struct DailyView: View {
     @State private var dailySleepViewModel = DailySleepViewModel()
     @State private var calculatedUpperBound: Double = 8.0
     
+    init(model: RecoveryGraphModel, exertionModel: ExertionModel) {
+        self.model = model
+        self.exertionModel = exertionModel
+        // Setup NotificationCenter observer
+        NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak model, weak exertionModel] _ in
+            model?.pullAllData()
+            exertionModel?.fetchExertionScoreAndTimes()
+            // Assuming you have a method to refresh dailySleepViewModel data
+            // dailySleepViewModel.refreshData()
+        }
+    }
+    
     
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
@@ -23,7 +35,7 @@ struct DailyView: View {
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
     }
-
+    
     
     var body: some View {
         ScrollView {
@@ -48,7 +60,6 @@ struct DailyView: View {
                 .popover(isPresented: $showingRecoveryPopover) {
                     RecoveryCardView(model: model)
                 }
-                
                 
                 ProgressButtonView(
                     title: "Daily Exertion",
@@ -93,6 +104,9 @@ struct DailyView: View {
             HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
                     HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                        model.pullAllData()
+                        exertionModel.fetchExertionScoreAndTimes()
+                        dailySleepViewModel.refreshData()
                     }
                 }
             }
@@ -646,9 +660,6 @@ struct RecoveryGraphView: View {
         }
     }
 }
-
-
-
 
 // Function to get color based on percentage
 func getColor(forPercentage percentage: Int) -> Color {
