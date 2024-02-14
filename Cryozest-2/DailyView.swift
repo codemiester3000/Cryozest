@@ -959,6 +959,19 @@ struct GridItemView: View {
     var value: String
     var unit: String
     
+    // Add state to manage the animation trigger
+    @State private var animate = true
+    @State private var cachedValue: String
+    
+    init(symbolName: String, title: String, value: String, unit: String) {
+            self.symbolName = symbolName
+            self.title = title
+            // Directly use _cachedValue to initialize the State variable
+            _cachedValue = State(initialValue: value)
+            self.value = value
+            self.unit = unit
+        }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -968,25 +981,42 @@ struct GridItemView: View {
                     .frame(width: 15, height: 15)
                     .foregroundColor(.gray)
                 Text(title)
-                    .font(.system(size: 16)) // Adjust the size as needed
+                    .font(.system(size: 16))
                     .foregroundColor(.white)
                     .lineLimit(1)
-                    .layoutPriority(1) // This tells SwiftUI to give priority to this text view to use available space
             }
             
             HStack(alignment: .lastTextBaseline) {
                 Text(value)
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    // Apply the animation color based on `animate` state
+                    .foregroundColor(animate ? Color.orange : .white)
                 Text(unit)
                     .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
             }
         }
-        .padding(.top,6)
-        .padding(.bottom,6)
-        .padding(.leading, 22) // Apply padding only to the leading (left
+        .onAppear {
+            // Trigger the animation when the view appears
+            withAnimation(.easeInOut(duration: 2)) {
+                animate = false
+            }
+        }
+        .onChange(of: value) { newValue in
+            // Trigger the animation whenever the value changes
+            
+            if newValue != cachedValue {
+                cachedValue = newValue
+                
+                animate = true // Reset animation state
+                withAnimation(.easeInOut(duration: 2)) {
+                    animate = false
+                }
+            }
+            
+        }
+        .padding()
         .background(Color.black)
         .cornerRadius(8)
         .shadow(radius: 3)
