@@ -118,7 +118,7 @@ struct MainView: View {
                 
                 Spacer()
                 
-                CustomSessionPicker(selectedFeature: $selectedMode)
+                CustomSessionPicker(selectedFeature: $selectedMode, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
                     .padding(.bottom)
                 
                 Group {
@@ -562,12 +562,14 @@ enum SessionFeature {
 
 struct CustomSessionPicker: View {
     @Binding var selectedFeature: SessionFeature
+    let backgroundColor: Color
     
     var body: some View {
         HStack {
             SessionPickerItem(
                 sessionFeature: SessionFeature.STOPWATCH,
-                isSelected: selectedFeature == SessionFeature.STOPWATCH
+                isSelected: selectedFeature == SessionFeature.STOPWATCH,
+                backgroundColor: backgroundColor
             )
             .onTapGesture {
                 self.selectedFeature = SessionFeature.STOPWATCH
@@ -575,7 +577,8 @@ struct CustomSessionPicker: View {
             
             SessionPickerItem(
                 sessionFeature: SessionFeature.QUICK_ADD,
-                isSelected: selectedFeature == SessionFeature.QUICK_ADD
+                isSelected: selectedFeature == SessionFeature.QUICK_ADD,
+                backgroundColor: backgroundColor
             )
             .onTapGesture {
                 self.selectedFeature = SessionFeature.QUICK_ADD
@@ -590,19 +593,20 @@ struct CustomSessionPicker: View {
 struct SessionPickerItem: View {
     let sessionFeature: SessionFeature
     let isSelected: Bool
+    let backgroundColor: Color
     
     var body: some View {
         Text(sessionFeature.displayString())
             .font(.headline)
             .fontWeight(isSelected ? .bold : .regular)
-            .foregroundColor(isSelected ? Color.orange : Color.white)
+            .foregroundColor(isSelected ? backgroundColor : Color.white)
             .padding(.vertical, 10)
             .padding(.horizontal, 20)
-            .background(isSelected ? Color.orange.opacity(0.2) : Color.clear)
+            .background(isSelected ? backgroundColor.opacity(0.2) : Color.clear)
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color.orange : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? backgroundColor : Color.clear, lineWidth: 2)
             )
     }
 }
