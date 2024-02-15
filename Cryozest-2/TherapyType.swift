@@ -206,7 +206,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "flame.fill"
         case .hotYoga:
             return "bolt.fill"
-        case .running:
+        case .walking, .running, .stairClimbing, .pickleball, .basketball, .elliptical, .barre:
             return "figure.walk"
         case .weightTraining:
             return "dumbbell.fill"
