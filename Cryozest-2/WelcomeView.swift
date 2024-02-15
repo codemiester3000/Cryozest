@@ -90,7 +90,9 @@ struct WelcomeView: View {
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.5)) {
                         showNext = true
-                        appState.hasLaunchedBefore = true
+                        
+                        // TODO:
+                        // appState.hasLaunchedBefore = true
                     }
                 }) {
                     Text("Get Started!")
@@ -109,8 +111,10 @@ struct WelcomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showNext) {
-            TherapyTypeSelectionView()
-                .environmentObject(appState)
+            SecondOnboardingPage(appState: appState)
+            
+//            TherapyTypeSelectionView()
+//                .environmentObject(appState)
         }
     }
 }

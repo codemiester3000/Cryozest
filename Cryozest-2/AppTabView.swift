@@ -2,9 +2,7 @@ import SwiftUI
 
 extension Color {
     static let customOrange = Color(red: 255 / 255, green: 140 / 255, blue: 0 / 255)
-    // static let appleLimeGreen = Color(red: 0.0 / 255, green: 255 / 255, blue: 0 / 255)
     static let appleLimeGreen = Color(red: 50.0 / 255, green: 205 / 255, blue: 50 / 255)
-
 }
 
 struct AppTabView: View {
@@ -43,15 +41,6 @@ struct AppTabView: View {
                 .tag(2)
                 .toolbarBackground(.black, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
-            
-//            LogbookView(therapyTypeSelection: therapyTypeSelection)
-//                .tabItem {
-//                    Image(systemName: "calendar")
-//                    Text("Calendar")
-//                }
-//                .tag(3)
-//                .toolbarBackground(.black, for: .tabBar)
-//                .toolbarBackground(.visible, for: .tabBar)
         }
         .accentColor(Color.white)
         .opacity(0.85)
