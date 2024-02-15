@@ -66,7 +66,7 @@ struct AnalysisView: View {
                     TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                         .padding(.bottom, 16)
                     
-                    CustomPicker(selectedTimeFrame: $selectedTimeFrame)
+                    CustomPicker(selectedTimeFrame: $selectedTimeFrame, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
                     
                     DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.horizontal)
@@ -205,26 +205,3 @@ enum TimeFrame: CaseIterable {
         }
     }
 }
-
-//struct CustomPicker: View {
-//    @Binding var selectedTimeFrame: TimeFrame
-//
-//    var body: some View {
-//        HStack {
-//            ForEach(timeFrames, id: \.self) { timeFrame in
-//                Text(timeFrame.displayText)
-//                    .foregroundColor(selectedTimeFrame == timeFrame ? .orange : .white)
-//                    .padding(.vertical, 10)
-//                    .padding(.horizontal, 20)
-//                    .background(selectedTimeFrame == timeFrame ? Color.orange.opacity(0.2) : Color.clear)
-//                    .cornerRadius(10)
-//                    .onTapGesture {
-//                        self.selectedTimeFrame = timeFrame
-//                    }
-//            }
-//        }
-//        .padding(.horizontal)
-//        .background(Color.black)
-//        .cornerRadius(15)
-//    }
-//}

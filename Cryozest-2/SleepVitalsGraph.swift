@@ -106,7 +106,7 @@ struct SleepVitalsGraph: View {
             
             HStack {
                 Spacer()
-                CustomMetricsPicker(selectedMetric: $selectedMetric)
+                CustomMetricsPicker(selectedMetric: $selectedMetric, backgroundColor: model.therapyType.color)
                 Spacer()
             }
             .padding(.top)
@@ -402,6 +402,7 @@ struct VitalsGaugeView: View {
 
 struct CustomMetricsPicker: View {
     @Binding var selectedMetric: SleepVitalMetric
+    let backgroundColor: Color
     
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .light)
@@ -411,7 +412,7 @@ struct CustomMetricsPicker: View {
     var body: some View {
         HStack(spacing: 10) {
             ForEach(SleepVitalMetric.allCases, id: \.self) { metric in
-                MetricPickerItem(metric: metric, isSelected: selectedMetric == metric)
+                MetricPickerItem(metric: metric, isSelected: selectedMetric == metric, backgroundColor: backgroundColor)
                     .onTapGesture {
                         triggerHapticFeedback()
                         self.selectedMetric = metric
@@ -429,19 +430,20 @@ struct CustomMetricsPicker: View {
 struct MetricPickerItem: View {
     let metric: SleepVitalMetric
     let isSelected: Bool
+    let backgroundColor: Color
     
     var body: some View {
         Text(metric.displayTitle)
             .font(.system(size: 12, weight: .regular, design: .default))
             .fontWeight(isSelected ? .bold : .regular)
-            .foregroundColor(isSelected ? Color.orange : Color.white)
+            .foregroundColor(isSelected ? backgroundColor : Color.white)
             .padding(.vertical, 10)
             .padding(.horizontal, 20)
-            .background(isSelected ? Color.orange.opacity(0.2) : Color.clear)
+            .background(isSelected ? backgroundColor.opacity(0.2) : Color.clear)
             .cornerRadius(10)
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color.orange : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? backgroundColor : Color.clear, lineWidth: 2)
             )
     }
 }
