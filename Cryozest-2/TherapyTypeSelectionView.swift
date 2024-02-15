@@ -36,7 +36,7 @@ struct TherapyTypeSelectionView: View {
                     HStack {
                         Spacer()
                         
-                        Text("Habits to Track")
+                        Text("Choose your habits")
                             .font(.system(size: 20, weight: .bold, design: .default))
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
@@ -47,6 +47,15 @@ struct TherapyTypeSelectionView: View {
                 
                     CategoryPillsView(selectedCategory: $selectedCategory)
                         .padding(.bottom, 60)
+                    
+                    if selectedCategory == Category.category0 {
+                        Text("Habits in the workout category link to your apple watch. Sessions recorded on Apple Watch automatically show up in CryoZest")
+                            .font(.system(size: 16, weight: .bold, design: .default))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(5)
+                            .padding(.bottom, 30)
+                    }
                     
                     ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
                         Button(action: {

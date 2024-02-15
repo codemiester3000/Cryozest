@@ -390,11 +390,11 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 enum Category: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
     
-    case category0 = "All"
-    case category1 = "Heat-Based"
-    case category2 = "Cold-Based"
-    case category3 = "Recovery"
-    case category4 = "Workouts"
+    case category0 = "Workouts"
+    case category1 = "All"
+    case category2 = "Heat-Based"
+    case category3 = "Cold-Based"
+    case category4 = "Recovery"
     case category5 = "Supplements"
     case category6 = "Diet"
     case category7 = "Custom"

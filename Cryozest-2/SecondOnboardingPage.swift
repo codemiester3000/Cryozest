@@ -13,6 +13,9 @@ struct SecondOnboardingPage: View {
     
     @State private var showNext = false
     @State private var requestedAccess = false
+    @State private var firstTextOpacity = 0.0
+    @State private var secondTextOpacity = 0.0
+    @State private var thirdTextOpacity = 0.0
     
     init(appState: AppState) {
         self.appState = appState
@@ -32,7 +35,7 @@ struct SecondOnboardingPage: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                
+                Spacer()
                 if requestedAccess {
                     Text("Great! Now let's select the Habits and exercises you want to track and get insights for")
                         .font(.system(size: 16, weight: .bold, design: .default))
@@ -41,6 +44,8 @@ struct SecondOnboardingPage: View {
                         .lineLimit(5)
                         .padding(.bottom)
                         .padding(.horizontal)
+                        .padding(.bottom, 30)
+                        .opacity(thirdTextOpacity)
                 } else {
                     Text("Before we begin. We need your permission to access HealthKit data")
                         .font(.system(size: 16, weight: .bold, design: .default))
@@ -49,12 +54,15 @@ struct SecondOnboardingPage: View {
                         .lineLimit(5)
                         .padding(.bottom)
                         .padding(.horizontal)
+                        .opacity(firstTextOpacity)
                     
                     Text("Your data is your own. Cryozest does not store any of your data, it is all saved on your own device. We read this data solely to provide you with valuable insights")
                         .font(.system(size: 16, weight: .bold, design: .default))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
                         .lineLimit(5)
+                        .opacity(secondTextOpacity)
+                        .padding(.bottom, 30)
                 }
                 
                 Button(action: {
@@ -64,6 +72,10 @@ struct SecondOnboardingPage: View {
                             appState.hasLaunchedBefore = true
                         } else {
                             requestHealthKitAccess()
+                            
+                            withAnimation(Animation.easeIn(duration: 1.0).delay(0.3)) {
+                                thirdTextOpacity = 1.0
+                            }
                         }
                         
                         // TODO:
@@ -82,15 +94,16 @@ struct SecondOnboardingPage: View {
                 }
                 .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 10)
                 
-                // TODO: Add a button here that when pressed triggers the auth request for healthkit. need a bool value to know if they gave us full auth or not.
-                
-                // TODO: If the user gave full auth then lets look at their workouts recorded on apple watch to preselect some therapy types for them.
+                Spacer()
             }
-            
+            .onAppear {
+                withAnimation(.easeIn(duration: 1.0)) {
+                    firstTextOpacity = 1.0
+                }
+                withAnimation(Animation.easeIn(duration: 1.0).delay(0.3)) {
+                    secondTextOpacity = 1.0
+                }
+            }
         }
-//        .fullScreenCover(isPresented: $showNext) {
-//            TherapyTypeSelectionView()
-//                .environmentObject(appState)
-//        }
     }
 }

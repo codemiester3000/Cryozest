@@ -5,6 +5,8 @@ struct WelcomeView: View {
     @State private var icon1Opacity = 0.0
     @State private var icon2Opacity = 0.0
     @State private var icon3Opacity = 0.0
+    @State private var textOpacity = 0.0
+    @State private var buttonOpacity = 0.0
     @EnvironmentObject var appState: AppState
     
     var body: some View {
@@ -65,6 +67,12 @@ struct WelcomeView: View {
                     withAnimation(Animation.easeIn(duration: 1.0).delay(0.6)) {
                         icon3Opacity = 1.0
                     }
+                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.9)) {
+                        textOpacity = 1.0
+                    }
+                    withAnimation(Animation.easeIn(duration: 1.0).delay(1.2)) {
+                        buttonOpacity = 1.0
+                    }
                 }
                 
                 Spacer()
@@ -72,11 +80,12 @@ struct WelcomeView: View {
                 HStack {
                     Spacer()
                     
-                    Text("CryoZest connects to your Apple Watch to see how your health and sleep change as you record your exercises")
+                    Text("CryoZest connects to your Apple Watch to see how your health and sleep change as you develop new habits")
                         .font(.system(size: 16, weight: .bold, design: .default))
                         .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.center)
                         .lineLimit(5)
+                        .opacity(textOpacity)
 
                     Spacer()
                 }
@@ -106,6 +115,7 @@ struct WelcomeView: View {
                         .padding(.vertical, 20)
                 }
                 .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 10)
+                .opacity(buttonOpacity)
                 
                 Spacer()
             }
