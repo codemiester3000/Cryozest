@@ -363,16 +363,16 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     static func therapies(forCategory category: Category) -> [TherapyType] {
         switch category {
-        case .category0: // All
-            return TherapyType.allCases
-        case .category1: // Heat-Based
-            return [.drySauna, .hotYoga]
-        case .category2: // Cold-Based
-            return [.coldPlunge, .coldShower, .iceBath]
-        case .category3: // Recovery
-            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise]
-        case .category4: // Workouts
+        case .category0: // Workouts
             return [.running, .weightTraining, .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing]
+        case .category1: // All
+            return TherapyType.allCases
+        case .category2: // Heat-Based
+            return [.drySauna, .hotYoga]
+        case .category3: // Cold-Based
+            return [.coldPlunge, .coldShower, .iceBath]
+        case .category4: // Recovery
+            return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise]
         case .category5: // Supplements
             return [.magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin]
         case .category6: // Diet

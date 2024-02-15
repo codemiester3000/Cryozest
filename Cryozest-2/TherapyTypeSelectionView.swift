@@ -49,12 +49,13 @@ struct TherapyTypeSelectionView: View {
                         .padding(.bottom, 60)
                     
                     if selectedCategory == Category.category0 {
-                        Text("Habits in the workout category link to your apple watch. Sessions recorded on Apple Watch automatically show up in CryoZest")
+                        Text("CryoZest instantly updates with Apple Watch workout sessions.")
                             .font(.system(size: 16, weight: .bold, design: .default))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.leading)
                             .lineLimit(5)
                             .padding(.bottom, 30)
+                            .padding(.horizontal)
                     }
                     
                     ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
@@ -400,7 +401,7 @@ struct PillView: View {
     let isSelected: Binding<Bool>
     
     var body: some View {
-        Text(category.rawValue)
+        Text(category == Category.category0 ? "⭐️ \(category.rawValue)" : category.rawValue)
             .padding(.horizontal)
             .padding(.vertical, 5)
             .background(isSelected.wrappedValue ? Color.blue : Color.clear)
