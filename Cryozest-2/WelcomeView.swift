@@ -2,88 +2,88 @@ import SwiftUI
 
 struct WelcomeView: View {
     @State private var showNext = false
+    @State private var icon1Opacity = 0.0
+    @State private var icon2Opacity = 0.0
+    @State private var icon3Opacity = 0.0
     @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
-            // Gradient background
             LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
                 .edgesIgnoringSafeArea(.all)
             
-            // Content overlay
-            VStack(spacing: 30) { // Increased spacing
-                
-//                Image("TestLogo")
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 250) // adjust this to change the logo size
-//                    .padding(.vertical, 20)
-                
+            VStack(spacing: 30) {
                 HardcodedGraph()
                 
                 Text("Welcome to CryoZest")
-                    .font(.system(size: 30, weight: .bold, design: .default)) // Custom larger font size
-                    .foregroundColor(.white) // Retaining the white color
-                    .shadow(color: .gray.opacity(0.5), radius: 2, x: 0, y: 2) // Keeping the subtle shadow for depth
-                    .padding(.top, 20) // Retaining the top padding
-                    .multilineTextAlignment(.center) // Center alignment
+                    .font(.system(size: 30, weight: .bold, design: .default))
+                    .foregroundColor(.white)
+                    .shadow(color: .gray.opacity(0.5), radius: 2, x: 0, y: 2)
+                    .padding(.top, 20)
+                    .multilineTextAlignment(.center)
                 
                 Divider().background(Color.darkBackground.opacity(0.8))
+                
+                HStack {
+                    Spacer()
                     
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 50))
+                        .padding(.trailing, 8)
+                        .opacity(icon1Opacity)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 50))
+                        .padding(.trailing, 8)
+                        .opacity(icon2Opacity)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "lock.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 50))
+                        .padding(.leading, 8)
+                        .opacity(icon3Opacity)
+
+                    Spacer()
+                }
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.2))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .onAppear {
+                    withAnimation(.easeIn(duration: 1.0)) {
+                        icon1Opacity = 1.0
+                    }
+                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.3)) {
+                        icon2Opacity = 1.0
+                    }
+                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.6)) {
+                        icon3Opacity = 1.0
+                    }
+                }
+                
                 Spacer()
                 
                 HStack {
-                    Spacer() // For center alignment
+                    Spacer()
                     
-                    Image(systemName: "heart.text.square.fill")
-                        .foregroundColor(.red)
-                        .imageScale(.medium) // Slightly reduced size for balance
-                        .padding(.trailing, 8) // Spacing between icon and text
-                    
-                    Text("See your health metrics evolve as you develop new habits")
+                    Text("CryoZest connects to your Apple Watch to see how your health and sleep change as you record your exercises")
                         .font(.system(size: 16, weight: .bold, design: .default))
                         .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2) // To prevent text overflow
-                    
-                    Image(systemName: "heart.text.square.fill")
-                        .foregroundColor(.red)
-                        .imageScale(.medium) // Synchronized with left icon
-                        .padding(.leading, 8) // Consistent spacing
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(5)
 
-                    Spacer() // For center alignment
+                    Spacer()
                 }
                 .padding(.vertical, 10)
-                .background(Color.black.opacity(0.2)) // Subtle background for emphasis
-                .cornerRadius(10) // Rounded corners for a softer look
-                .padding(.horizontal) // Ensures padding from screen edges
-
-                
-                HStack {
-                    Spacer() // For center alignment
-                    
-                    Image(systemName: "lock.fill")
-                        .foregroundColor(.red)
-                        .imageScale(.medium) // Slightly reduced size for balance
-                        .padding(.trailing, 8) // Spacing between icon and text
-                    
-                    Text("No data collected, ever")
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2) // To prevent text overflow
-                    
-                    Image(systemName: "lock.fill")
-                        .foregroundColor(.red)
-                        .imageScale(.medium) // Synchronized with left icon
-                        .padding(.leading, 8) // Consistent spacing
-
-                    Spacer() // For center alignment
-                }
-                .padding(.vertical, 10)
-                .background(Color.black.opacity(0.2)) // Subtle background for emphasis
-                .cornerRadius(10) // Rounded corners for a softer look
-                .padding(.horizontal) // Ensures padding from screen edges
+                .background(Color.black.opacity(0.2))
+                .cornerRadius(10)
+                .padding(.horizontal)
                 
                 Spacer()
                 
@@ -123,29 +123,13 @@ struct HardcodedGraph: View {
     var body: some View {
         ZStack {
             VStack {
-//                HStack {
-//                    Text("Recovery Per Day")
-//                        .font(.headline)
-//                        .foregroundColor(.white)
-//                        .padding(.horizontal)
-//                    Spacer()
-//                }
-//                .padding(.horizontal)
-//                .padding(.vertical)
-                
                 HStack(alignment: .bottom) {
                     ForEach(Array(zip(lastSevenDays, recoveryScores)), id: \.0) { (day, percentage) in
                         VStack {
-//                            Text("\(percentage)%")
-//                                .font(.caption)
-//                                .foregroundColor(.white)
                             Rectangle()
                                 .fill(getColor(forPercentage: percentage))
                                 .frame(width: 40, height: CGFloat(percentage))
                                 .cornerRadius(5)
-//                            Text(day)
-//                                .font(.caption)
-//                                .foregroundColor(.white)
                         }
                     }
                 }
