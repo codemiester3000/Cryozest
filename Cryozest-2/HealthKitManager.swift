@@ -30,6 +30,7 @@ class HealthKitManager {
         let dateOfBirthType = HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!
         let stepCountType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
         let vo2MaxType = HKQuantityType.quantityType(forIdentifier: .vo2Max)!
+        let workoutType = HKObjectType.workoutType()
         
         // Add new types to the typesToRead set
         let typesToRead: Set<HKObjectType> = [
@@ -44,7 +45,8 @@ class HealthKitManager {
                restingEnergyType,
                dateOfBirthType,
                stepCountType,
-               vo2MaxType
+               vo2MaxType,
+               workoutType
            ]
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
@@ -79,6 +81,35 @@ class HealthKitManager {
             }
         }
     }
+    
+    func fetchWorkoutsLast90Days(completion: @escaping ([HKWorkout]?, Error?) -> Void) {
+            let ninetyDaysAgo = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
+            let endDate = Date() // Today
+            let predicate = HKQuery.predicateForSamples(withStart: ninetyDaysAgo, end: endDate, options: .strictStartDate)
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            
+            let query = HKSampleQuery(sampleType: .workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+                DispatchQueue.main.async {
+                    guard let workouts = samples as? [HKWorkout], error == nil else {
+                        completion(nil, error)
+                        return
+                    }
+                    
+                    // Iterate through and print details of each workout
+                    for workout in workouts {
+                        let durationInMinutes = workout.duration / 60
+                        let totalDistance = workout.totalDistance?.description ?? "N/A"
+                        let totalEnergyBurned = workout.totalEnergyBurned?.description ?? "N/A"
+                        
+                        print("Workout Type: \(workout.workoutActivityType), Start Date: \(workout.startDate), End Date: \(workout.endDate), Duration: \(durationInMinutes) minutes, Total Distance: \(totalDistance), Total Energy Burned: \(totalEnergyBurned)")
+                    }
+                    
+                    completion(workouts, nil)
+                }
+            }
+            
+            healthStore.execute(query)
+        }
     
     func fetchMostRecentBodyMass(completion: @escaping (Double?) -> Void) {
         // Don't limit by start date.

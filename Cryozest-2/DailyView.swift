@@ -1,9 +1,10 @@
 import SwiftUI
+import CoreData
 
 struct DailyView: View {
     @ObservedObject var model: RecoveryGraphModel
     @ObservedObject var exertionModel: ExertionModel
-    
+    var appleWorkoutsService: AppleWorkoutsService
     
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
@@ -11,9 +12,12 @@ struct DailyView: View {
     @State private var dailySleepViewModel = DailySleepViewModel()
     @State private var calculatedUpperBound: Double = 8.0
     
-    init(model: RecoveryGraphModel, exertionModel: ExertionModel) {
+    init(model: RecoveryGraphModel, exertionModel: ExertionModel, context: NSManagedObjectContext) {
         self.model = model
         self.exertionModel = exertionModel
+        
+        appleWorkoutsService = AppleWorkoutsService(context: context)
+        
         // Setup NotificationCenter observer
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak model, weak exertionModel] _ in
             model?.pullAllData()
@@ -23,6 +27,25 @@ struct DailyView: View {
         }
     }
     
+    func getWorkouts() {
+           HealthKitManager.shared.fetchWorkoutsLast90Days { (workouts, error) in
+               if let error = error {
+                   print("Error fetching workouts: \(error.localizedDescription)")
+                   return
+               }
+               
+               guard let workouts = workouts else {
+                   print("No workouts were found.")
+                   return
+               }
+               
+               // Process the fetched workouts
+               for workout in workouts {
+                   // For example, print out the workout's start date
+                   print("Fetched workout with start date: \(workout.startDate)")
+               }
+           }
+       }
     
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
@@ -107,6 +130,8 @@ struct DailyView: View {
                         model.pullAllData()
                         exertionModel.fetchExertionScoreAndTimes()
                         dailySleepViewModel.refreshData()
+                        
+                        appleWorkoutsService.fetchAndSaveWorkouts()
                     }
                 }
             }
@@ -1025,12 +1050,13 @@ struct GridItemView: View {
 
 struct ProgressButtonView: View {
     let title: String
-    let progress: Float // A value between 0.0 and 1.0
+    let progress: Float
     let color: Color
     let action: () -> Void
     
     @State private var cachedProgress: Float
     @State private var hasNewData = false
+    @State private var animateIcon = false // State to control the icon animation
     
     init(title: String, progress: Float, color: Color, action: @escaping () -> Void) {
         self.title = title
@@ -1043,7 +1069,7 @@ struct ProgressButtonView: View {
     var body: some View {
         Button(action: {
             action()
-            hasNewData = false
+            hasNewData = false // Reset the new data indicator on button press
         }) {
             HStack {
                 VStack(alignment: .leading) {
@@ -1055,23 +1081,29 @@ struct ProgressButtonView: View {
                             .padding(.bottom, 5)
                         
                         if hasNewData {
-                            Text("New Data!")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.green)
-                                .transition(.scale.combined(with: .opacity))
-                                .padding(.bottom, 5)
-                                .padding(.leading, 4)
+                            // Animated icon next to "Data Available"
+                            HStack {
+                                Image(systemName: "bell.fill") // Example icon
+                                    .foregroundColor(.green)
+                                    .font(.system(size: 14))
+                                
+                                Text("New data!")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.green)
+                                    .transition(.scale.combined(with: .opacity))
+                                    .padding(.leading, -1)
+                            }
+                            .padding(.leading, 4)
                         }
                     }
                     
-                    // Horizontal Stack for progress bar and percentage
                     HStack {
                         ProgressView(value: progress)
                             .progressViewStyle(LinearProgressViewStyle(tint: color))
                             .scaleEffect(x: 1, y: 2, anchor: .center)
                             .frame(height: 20)
                         
-                        Text("\(Int(progress * 100))%") // Shows the percentage
+                        Text("\(Int(progress * 100))%")
                             .font(.headline)
                             .foregroundColor(.white)
                             .fontWeight(.semibold)
@@ -1079,14 +1111,14 @@ struct ProgressButtonView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.gray.opacity(0.2)) // Button fill
+                .background(hasNewData ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
                 .cornerRadius(10)
                 
-                Spacer() // Push '>' to the right
+                Spacer()
             }
         }
         .background(
-            Image(systemName: "chevron.right") // System name for '>'
+            Image(systemName: "chevron.right")
                 .foregroundColor(.gray)
                 .font(Font.system(size: 12).weight(.semibold))
                 .padding(.trailing, 20)
@@ -1103,4 +1135,5 @@ struct ProgressButtonView: View {
         }
     }
 }
+
 

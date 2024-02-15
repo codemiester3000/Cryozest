@@ -47,6 +47,7 @@
 		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
 		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
+		C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
 		C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */; };
@@ -113,6 +114,7 @@
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
 		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
+		C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleWorkoutsService.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
 		C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakingAnalysisView.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
 				C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */,
 				C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */,
+				C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
+				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,

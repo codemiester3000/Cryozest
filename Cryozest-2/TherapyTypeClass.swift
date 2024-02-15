@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 class TherapyTypeClass: Identifiable, Codable {
     var id: UUID
     var name: String

@@ -2,9 +2,12 @@ import SwiftUI
 
 extension Color {
     static let customOrange = Color(red: 255 / 255, green: 140 / 255, blue: 0 / 255)
+    static let appleLimeGreen = Color(red: 0.0 / 255, green: 255 / 255, blue: 0 / 255) 
 }
 
 struct AppTabView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    
     @State private var sessions: [TherapySession] = []
     @StateObject private var therapyTypeSelection = TherapyTypeSelection()
     
@@ -12,7 +15,7 @@ struct AppTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel()) // Pass an instance of ExertionModel
+            DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel(), context: viewContext) // Pass an instance of ExertionModel
                 .tabItem {
                     Image(systemName: "moon")
                     Text("Daily")

@@ -2,6 +2,74 @@ import SwiftUI
 import CoreData
 
 enum TherapyType: String, Codable, Identifiable, CaseIterable {
+    // Apple-Watch Workouts
+//    case appleAmericanFootball = "American Football"
+//    case appleArchery = "Archery"
+//    case appleAustralianFootball = "Australian Football"
+//    case appleBadminton = "Badminton"
+//    case appleBarre = "Barre"
+//    case appleBaseball = "Baseball"
+//    case appleBasketball = "Basketball"
+//    case appleBowling = "Bowling"
+//    case appleBoxing = "Boxing" // Traditional boxing, not fitness or shadow boxing
+//    case appleClimbing = "Climbing"
+//    case appleCricket = "Cricket"
+//    case appleCrossCountrySkiing = "Cross Country Skiing"
+//    case appleCrossTraining = "Cross Training" // Used when none of the other types apply
+//    case appleCurling = "Curling"
+//    case appleCycling = "Cycling"
+//    case appleDance = "Dance"
+//    case appleDanceInspiredTraining = "Dance Inspired Training"
+//    case appleDownhillSkiing = "Downhill Skiing"
+//    case appleElliptical = "Elliptical"
+//    case appleEquestrianSports = "Equestrian Sports" // Riding, jumping
+//    case appleFencing = "Fencing"
+//    case appleFishing = "Fishing"
+//    case appleFunctionalStrengthTraining = "Functional Strength Training"
+//    case appleGolf = "Golf"
+//    case appleGymnastics = "Gymnastics"
+//    case appleHandball = "Handball"
+//    case appleHiking = "Hiking"
+//    case appleHockey = "Hockey"
+//    case appleHunting = "Hunting"
+//    case appleIceSkating = "Ice Skating"
+//    case appleJumpRope = "Jump Rope"
+//    case appleKickboxing = "Kickboxing"
+//    case appleLacrosse = "Lacrosse"
+//    case appleMartialArts = "Martial Arts"
+//    case appleMindAndBody = "Mind And Body" // Yoga, tai chi, and similar
+//    case appleMixedCardio = "Mixed Cardio" // Any mix of cardio workout types
+//    case applePaddleSports = "Paddle Sports"
+//    case applePilates = "Pilates"
+//    case applePlay = "Play" // Physical activity without a specific fitness goal, such as playing with kids
+//    case applePreparationAndRecovery = "Preparation And Recovery"
+//    case appleRacquetball = "Racquetball"
+//    case appleRowing = "Rowing"
+//    case appleRugby = "Rugby"
+//    case appleRunning = "Running"
+//    case appleSailing = "Sailing"
+//    case appleSkatingSports = "Skating Sports" // Ice skating, speed skating, figure skating
+//    case appleSnowboarding = "Snowboarding"
+//    case appleSnowSports = "Snow Sports" // Skiing, snowboarding, and other snow sports
+//    case appleSoccer = "Soccer"
+//    case appleSoftball = "Softball"
+//    case appleSquash = "Squash"
+//    case appleStairClimbing = "Stair Climbing" // Machine-based or actual stairs
+//    case appleSurfingSports = "Surfing Sports" // Surfing, bodyboarding, paddleboarding
+//    case appleSwimming = "Swimming"
+//    case appleTableTennis = "Table Tennis"
+//    case appleTaiChi = "Tai Chi"
+//    case appleTennis = "Tennis"
+//    case appleTrackAndField = "Track And Field" // Discus, javelin, shot put, steeplechase, etc.
+//    case appleTraditionalStrengthTraining = "Traditional Strength Training"
+//    case appleVolleyball = "Volleyball"
+//    case appleWalking = "Walking"
+//    case appleWaterFitness = "Water Fitness"
+//    case appleWaterPolo = "Water Polo"
+//    case appleWaterSports = "Water Sports" // Water skiing, wakeboarding
+//    case appleWrestling = "Wrestling"
+//    case appleYoga = "Yoga"
+    
     // Hot-Based
     case drySauna = "Sauna"
     case hotYoga = "Hot Yoga"
@@ -216,7 +284,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "bolt.horizontal.fill"
         case .surfing:
             return "wave.3.right"
-            
         default:
             return ""
         }
@@ -229,8 +296,8 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.orange
         case .coldPlunge, .coldShower, .iceBath:
             return Color.blue
-        case .running, .weightTraining:
-            return Color.red
+        case .running, .weightTraining, .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing:
+            return Color.appleLimeGreen
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
             return Color(red: 0.0, green: 0.5, blue: 0.0)
         case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin:
@@ -242,9 +309,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             
         case .custom1, .custom2, .custom3, .custom4, .custom5, .custom6, .custom7, .custom8:
             return Color.purple
-            
-        case .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing:
-            return Color.red
             
         default:
             return Color.gray
@@ -325,7 +389,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 
 enum Category: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
-    
     
     case category0 = "All"
     case category1 = "Heat-Based"
