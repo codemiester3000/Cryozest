@@ -75,8 +75,23 @@ struct MainView: View {
     
     @State private var selectedMode = SessionFeature.STOPWATCH
     
+    @State private var showAddSession = false
+    
+    @State private var sessionDates = [Date]()
+    
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
+    }
+    
+    private var sortedSessions: [TherapySessionEntity] {
+        let therapyTypeSessions = sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
+        return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
+    }
+    
+    private func updateSessionDates() {
+        self.sessionDates = sessions
+            .filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
+            .compactMap { $0.date }
     }
     
     var body: some View {
@@ -193,7 +208,66 @@ struct MainView: View {
                     }
                 }.frame(maxHeight: .infinity)
                 
-                LogbookView(therapyTypeSelection: self.therapyTypeSelection)
+                // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
+                
+                //NavigationView {
+                    VStack(alignment: .leading) {
+                        NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
+                            EmptyView()
+                        }
+                        VStack {
+                            HStack {
+                                Text("History")
+                                    .font(.system(size: 24, weight: .regular, design: .default))
+                                    .foregroundColor(.white)
+                                    .bold()
+                                    .padding(.leading, 24)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "plus")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.white)
+                                    .padding(.trailing, 24)
+                                    .onTapGesture {
+                                        showAddSession = true
+                                    }
+                            }
+                            .padding(.top, 24)
+                            
+                            VStack(alignment: .leading, spacing: 16) {
+                                CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
+                                    .background(Color(UIColor.darkGray))
+                                    .frame(height: 300) // Set a fixed height for the calendar
+                                    .cornerRadius(16)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical)
+                                
+                                if sortedSessions.isEmpty {
+                                    Text("Begin recording sessions to see data here")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 18, design: .rounded))
+                                        .padding()
+                                } else {
+                                    // Iterate over the sorted sessions
+                                    ForEach(sortedSessions, id: \.self) { session in
+                                        SessionRow(session: session, therapyTypeSelection: therapyTypeSelection, therapyTypeName: therapyTypeSelection.selectedTherapyType.displayName(viewContext))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 100)
+                        }
+                        .onAppear {
+                            updateSessionDates()
+                        }
+                        .onChange(of: therapyTypeSelection.selectedTherapyType) { _ in
+                            updateSessionDates()
+                        }
+                    }
+                    .background(.black)
+               // }
                 
                 NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
@@ -401,7 +475,7 @@ struct TimerDisplayView: View {
         Text(timerLabel)
             .font(.system(size: 72, weight: .bold, design: .monospaced)) // Keep the font design as monospaced
             .foregroundColor(.white) // Change text color to match the border
-            .padding(EdgeInsets(top: 18, leading: 36, bottom: 18, trailing: 36))
+            .padding(EdgeInsets(top: 18, leading: 60, bottom: 18, trailing: 60))
             .background(Color.clear) // Set background to transparent
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

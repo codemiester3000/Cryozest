@@ -72,11 +72,9 @@ struct LogbookView: View {
                                 showAddSession = true
                             }
                     }
-                    .padding(.top, 12)
+                    .padding(.top, 170)
                     
-//                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    
-                    LazyVStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 16) {
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                             .background(Color(UIColor.darkGray))
                             .frame(height: 300) // Set a fixed height for the calendar
@@ -98,7 +96,7 @@ struct LogbookView: View {
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 100)
                 }
                 .onAppear {
                     updateSessionDates()
@@ -107,8 +105,7 @@ struct LogbookView: View {
                     updateSessionDates()
                 }
             }
-            .background(.black
-            )
+            .background(.black)
         }
     }
 }
