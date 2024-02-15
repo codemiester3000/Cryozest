@@ -81,20 +81,23 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     // Workouts
     case running = "Running"
-    case weightTraining = "Lifting"
-    case lowIntensityCardio = "Low Intensity Cardio"
-    case hiit = "HIIT"
     case cycling = "Cycling"
-    case swimming = "Swimming"
-    case boxing = "Boxing"
     case pilates = "Pilates"
-    case crossfit = "CrossFit"
-    case dance = "Dance"
-    case rockClimbing = "Rock Climbing"
+    case basketball = "Basketball"
+    case elliptical = "Elliptical"
+    case swimming = "Swimming"
     case hiking = "Hiking"
     case rowing = "Rowing"
-    case skateboarding = "Skateboarding"
+    case walking = "Walking"
+    case weightTraining = "Lifting"
+    case barre = "Barre"
+    case rockClimbing = "Rock Climbing"
     case surfing = "Surfing"
+    case pickleball = "Pickleball"
+    case boxing = "Boxing"
+    case crossfit = "CrossFit"
+    case dance = "Dance"
+    case stairClimbing = "StairClimbing"
     
     // Recovery
     case coldYoga = "Yoga"
@@ -258,10 +261,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "tray.fill"
             
             // Icons for new workouts
-        case .lowIntensityCardio:
-            return "hare.fill"
-        case .hiit:
-            return "flame.fill"
         case .cycling:
             return "bicycle"
         case .swimming:
@@ -280,8 +279,6 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return "map.fill"
         case .rowing:
             return "arrow.triangle.2.circlepath.circle.fill"
-        case .skateboarding:
-            return "bolt.horizontal.fill"
         case .surfing:
             return "wave.3.right"
         default:
@@ -296,7 +293,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return Color.orange
         case .coldPlunge, .coldShower, .iceBath:
             return Color.blue
-        case .running, .weightTraining, .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing:
+        case .running, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre, .walking, .stairClimbing:
             return Color.appleLimeGreen
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
             return Color(red: 0.0, green: 0.5, blue: 0.0)
@@ -364,7 +361,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     static func therapies(forCategory category: Category) -> [TherapyType] {
         switch category {
         case .category0: // Workouts
-            return [.running, .weightTraining, .lowIntensityCardio, .hiit, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .skateboarding, .surfing]
+            return [.running, .walking, .stairClimbing, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre, .boxing, .dance, .crossfit]
         case .category1: // All
             return TherapyType.allCases
         case .category2: // Heat-Based

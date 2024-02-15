@@ -82,6 +82,22 @@ class AppleWorkoutsService {
         switch workout.workoutActivityType {
         case .running: return .running
         case .swimming: return .swimming
+        case .cycling: return .cycling
+        case .pilates: return .pilates
+        case .basketball: return .basketball
+        case .elliptical: return .elliptical
+        case .hiking: return .hiking
+        case .rowing: return .rowing
+        case .walking: return .walking
+        case .functionalStrengthTraining: return .weightTraining
+        case .barre: return .barre
+        case .boxing: return .boxing
+        case .surfingSports: return .surfing
+        case .pickleball: return .pickleball
+        case .dance: return .dance
+        case .crossTraining: return .crossfit
+        case .stairClimbing: return .stairClimbing
+            
         // Add more mappings as needed
         default: return .custom1 // or another default value
         }
