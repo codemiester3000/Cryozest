@@ -253,6 +253,7 @@ struct MainView: View {
                                     ForEach(sortedSessions, id: \.self) { session in
                                         SessionRow(session: session, therapyTypeSelection: therapyTypeSelection, therapyTypeName: therapyTypeSelection.selectedTherapyType.displayName(viewContext))
                                             .foregroundColor(.white)
+                                            .padding(.bottom)
                                     }
                                 }
                             }
