@@ -93,8 +93,8 @@ struct WelcomeView: View {
                         appState.hasLaunchedBefore = true
                     }
                 }) {
-                    Text("Get Started")
-                        .font(.footnote)
+                    Text("Get Started!")
+                        .font(.system(size: 14))
                         .fontWeight(.medium)
                         .padding()
                         .frame(maxWidth: .infinity)
