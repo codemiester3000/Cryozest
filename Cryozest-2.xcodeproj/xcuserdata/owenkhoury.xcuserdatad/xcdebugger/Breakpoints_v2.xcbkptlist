@@ -587,42 +587,10 @@
             filePath = "Cryozest-2/AppleWorkoutsService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
             landmarkName = "createOrUpdateTherapySessionEntity(from:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "42F3FDFF-7607-4325-81A8-EC95FE10FC26 - ec002fe3199cb58d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Cryozest_2.AppleWorkoutsService.therapyTypeForWorkout(__C.HKWorkout) -&gt; Cryozest_2.TherapyType"
-                  moduleName = "Cryozest-2"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/AppleWorkoutsService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "73"
-                  endingLineNumber = "73"
-                  offsetFromSymbolStart = "48">
-               </Location>
-               <Location
-                  uuid = "42F3FDFF-7607-4325-81A8-EC95FE10FC26 - 580551bae09d2c9a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Cryozest_2.AppleWorkoutsService.createOrUpdateTherapySessionEntity(from: __C.HKWorkout) -&gt; ()"
-                  moduleName = "Cryozest-2"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/AppleWorkoutsService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "72"
-                  endingLineNumber = "72"
-                  offsetFromSymbolStart = "2132">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

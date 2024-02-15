@@ -63,6 +63,7 @@ class AppleWorkoutsService {
                 newSession.id = UUID()
                 newSession.date = workout.startDate
                 newSession.duration = workout.duration
+                newSession.isAppleWatch = true
                 newSession.therapyType = therapyTypeForWorkout(workout).rawValue
                 // Assuming you have a way to fetch average heart rate
                 // newSession.averageHeartRate = fetchAverageHeartRate(for: workout)

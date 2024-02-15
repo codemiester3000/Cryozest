@@ -15,8 +15,19 @@ struct SessionRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Date and Therapy Type
             VStack {
+                if session.isAppleWatch {
+                    HStack {
+                        Image(systemName: "applewatch.watchface")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 14))
+                            .padding(.leading, 5)
+                        Text("Recorded on your Apple Watch")
+                            .font(.system(size: 12))
+                        
+                        Spacer()
+                    }
+                }
                 HStack {
                     Text("Completed")
                         .font(.subheadline)
@@ -31,25 +42,20 @@ struct SessionRow: View {
                 .padding(.vertical, 2)
                 
                 HStack {
-                    Label("\(formattedDuration)", systemImage: "clock")
+                    Text(formattedDuration)
+                        .font(.system(size: 12))
                         .foregroundColor(.white)
-                        .font(.system(size: 10))
                     Spacer()
                 }
+                .padding(.vertical, 2)
             }
             
-            // Divider().background(Color.white.opacity(0.8))
-            
             HStack {
-//                Label("\(formattedDuration)", systemImage: "clock")
-//                    .foregroundColor(.white)
-                
                 Text(formattedDate)
-                    .font(.system(size: 10))
+                    .font(.system(size: 12))
                     .foregroundColor(.white)
                 Spacer()
                 
-                // Delete button
                 Button(action: {
                     self.showingDeleteAlert = true
                 }) {
@@ -61,9 +67,9 @@ struct SessionRow: View {
         .padding()
         .cornerRadius(32)
         .shadow(radius: 5)
-        .background(RoundedRectangle(cornerRadius: 20) // Use a larger corner radius here
-                    .stroke(Color.gray, lineWidth: 2)) // This creates the border effect
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.gray, lineWidth: 2))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .alert(isPresented: $showingDeleteAlert) {
             Alert(
                 title: Text("Confirm Deletion"),
@@ -93,4 +99,3 @@ struct SessionRow: View {
         return minutes == 0 ? "\(seconds) secs" : "\(minutes) mins \(seconds) secs"
     }
 }
-
