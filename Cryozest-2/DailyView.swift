@@ -49,19 +49,6 @@ struct DailyView: View {
             
             VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
-                    title: "Readiness to Train",
-                    progress: Float(model.recoveryScores.last ?? 0) / 100.0,
-                    color: Color.green,
-                    action: {
-                        triggerHapticFeedback()
-                        showingRecoveryPopover = true
-                    }
-                )
-                .popover(isPresented: $showingRecoveryPopover) {
-                    RecoveryCardView(model: model)
-                }
-                
-                ProgressButtonView(
                     title: "Daily Exertion",
                     progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
                     color: Color.orange,
@@ -88,6 +75,19 @@ struct DailyView: View {
                 )
                 .popover(isPresented: $showingSleepPopover) {
                     DailySleepView(dailySleepModel: DailySleepViewModel())
+                }
+                
+                ProgressButtonView(
+                    title: "Readiness to Train",
+                    progress: Float(model.recoveryScores.last ?? 0) / 100.0,
+                    color: Color.green,
+                    action: {
+                        triggerHapticFeedback()
+                        showingRecoveryPopover = true
+                    }
+                )
+                .popover(isPresented: $showingRecoveryPopover) {
+                    RecoveryCardView(model: model)
                 }
             }
             .padding(.horizontal,22)
@@ -1015,7 +1015,6 @@ struct GridItemView: View {
                     animate = false
                 }
             }
-            
         }
         .padding()
         .background(Color.black)
@@ -1024,23 +1023,46 @@ struct GridItemView: View {
     }
 }
 
-
 struct ProgressButtonView: View {
     let title: String
     let progress: Float // A value between 0.0 and 1.0
     let color: Color
     let action: () -> Void
     
+    @State private var cachedProgress: Float
+    @State private var hasNewData = false
+    
+    init(title: String, progress: Float, color: Color, action: @escaping () -> Void) {
+        self.title = title
+        self.progress = progress
+        self.color = color
+        self.action = action
+        _cachedProgress = State(initialValue: progress)
+    }
+    
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            action()
+            hasNewData = false
+        }) {
             HStack {
                 VStack(alignment: .leading) {
-                    // Title Text
-                    Text(title)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .fontWeight(.semibold)
-                        .padding(.bottom, 5) // Adjust padding for spacing between title and progress bar
+                    HStack {
+                        Text(title)
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .fontWeight(.semibold)
+                            .padding(.bottom, 5)
+                        
+                        if hasNewData {
+                            Text("New Data!")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.green)
+                                .transition(.scale.combined(with: .opacity))
+                                .padding(.bottom, 5)
+                                .padding(.leading, 4)
+                        }
+                    }
                     
                     // Horizontal Stack for progress bar and percentage
                     HStack {
@@ -1071,5 +1093,14 @@ struct ProgressButtonView: View {
                 .padding(.top, 10),
             alignment: .topTrailing
         )
+        .onChange(of: progress) { newValue in
+            if newValue > cachedProgress {
+                withAnimation {
+                    cachedProgress = newValue
+                    hasNewData = true
+                }
+            }
+        }
     }
 }
+
