@@ -20,7 +20,7 @@ struct SecondOnboardingPage: View {
                 
                 // TODO: Add a button here that when pressed triggers the auth request for healthkit. need a bool value to know if they gave us full auth or not.
                 
-                // TODO: If the user gave full auth then lets look at their workouts recorded on apple watch to preselect some therapy types for them. 
+                // TODO: If the user gave full auth then lets look at their workouts recorded on apple watch to preselect some therapy types for them.
             }
         }
     }

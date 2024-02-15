@@ -12,14 +12,11 @@ class ExertionModel: ObservableObject {
     @Published var avgRestingHeartRate: Double = 0
     @Published var heartRateZoneRanges: [(lowerBound: Double, upperBound: Double)] = []
     
-    
     var maxExertionTime: Double {
         let maxTime = max(recoveryMinutes, conditioningMinutes, overloadMinutes)
         return maxTime == 0 ? 1 : maxTime
     }
 
-    
-    
     init() {
         fetchExertionScoreAndTimes()
     }
@@ -51,7 +48,10 @@ class ExertionModel: ObservableObject {
                     return
                 }
                 
-                self.avgRestingHeartRate = avgRestingHeartRate
+                DispatchQueue.main.async {
+                    self.avgRestingHeartRate = avgRestingHeartRate
+                }
+                
                 self.calculateHeartRateZoneRanges(userAge: userAge, avgRestingHeartRate: avgRestingHeartRate)
                 
                 let startDate = Calendar.current.startOfDay(for: Date())
