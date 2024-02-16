@@ -22,8 +22,6 @@ struct DailyView: View {
         NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak model, weak exertionModel] _ in
             model?.pullAllData()
             exertionModel?.fetchExertionScoreAndTimes()
-            // Assuming you have a method to refresh dailySleepViewModel data
-            // dailySleepViewModel.refreshData()
         }
     }
     
@@ -59,10 +57,8 @@ struct DailyView: View {
         generator.impactOccurred()
     }
     
-    
     var body: some View {
         ScrollView {
-            
             HeaderView(model: model)
                 .padding(.top)
                 .padding(.bottom, 5)
@@ -89,7 +85,7 @@ struct DailyView: View {
                 
                 ProgressButtonView(
                     title: "Sleep Quality",
-                    progress: Float(dailySleepViewModel.sleepScore / 100), // Divide by 100 to scale it correctly
+                    progress: Float(dailySleepViewModel.sleepScore / 100),
                     color: Color.yellow,
                     action: {
                         triggerHapticFeedback()
@@ -495,6 +491,8 @@ class RecoveryGraphModel: ObservableObject {
         }
         // At this point, 'dates' contains the last seven days including today,
         // each normalized to start at midnight
+        
+        print("dates: ", dates)
         return dates
     }
     
@@ -512,18 +510,6 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
         return daysArray
-    }
-    
-    func calculateRecoveryScore(hrvPercentage: Int, restingHRPercentage: Int) -> Int {
-        var score = 0
-        
-        score += max(0, hrvPercentage)
-        
-        score += max(0, -restingHRPercentage)
-        
-        let normalizedScore = min(max(score, 0), 100)
-        
-        return normalizedScore
     }
     
     func performMultipleHealthKitOperations(date: Date, completion: @escaping (Int?, Int?, Int?, Int?) -> Void) {
@@ -547,8 +533,22 @@ class RecoveryGraphModel: ObservableObject {
             DispatchQueue.main.async {
                 if let avgHrv = avgHrv {
                     self.hrvReadings[date] = Int(avgHrv)
+                    avgHrvForDate = Int(avgHrv)
                 }
                 group.leave()
+            }
+        }
+        
+        if avgHrvForDate == nil {
+            group.enter()
+            HealthKitManager.shared.fetchMostRecentHRVForToday(before: Date()) { avgHrv in
+                DispatchQueue.main.async {
+                    if let avgHrv = avgHrv {
+                        self.hrvReadings[date] = Int(avgHrv)
+                        avgHrvForDate = Int(avgHrv)
+                    }
+                    group.leave()
+                }
             }
         }
         
@@ -561,7 +561,7 @@ class RecoveryGraphModel: ObservableObject {
         }
         
         group.enter()
-        HealthKitManager.shared.fetchAvgRestingHeartRateForDays(days: [date]) { restingHeartRate in
+        HealthKitManager.shared.fetchAverageDailyRHR { restingHeartRate in
             if let heartRate = restingHeartRate {
                 avgRestingHeartRateForDay = Int(heartRate)
             }
@@ -583,7 +583,6 @@ class RecoveryGraphModel: ObservableObject {
             group.enter()
             
             performMultipleHealthKitOperations(date: date) { avgHrvLast10days, avgHrvForDate, avgHeartRate30day, avgRestingHeartRateForDay in
-                
                 // Now calling calculateRecoveryScore with the correct parameters
                 let score = self.calculateRecoveryScore(
                     date: date,
@@ -699,7 +698,6 @@ func getColor(forPercentage percentage: Int) -> Color {
     }
 }
 
-
 struct RecoveryCardView: View {
     @ObservedObject var model: RecoveryGraphModel
     
@@ -722,20 +720,9 @@ struct RecoveryCardView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                        
-                        //                        if let lastRefreshDate = model.lastDataRefresh {
-                        //                            Text("Updated HealthKit data:")
-                        //                                .font(.caption)
-                        //                                .foregroundColor(.gray)
-                        //                                .padding(.top, 0)
-                        //                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-                        //                                .font(.caption)
-                        //                                .foregroundColor(.green)
-                        //                        }
                     }
                     
                     Spacer()
-                    
                     
                     ZStack {
                         Circle()
@@ -806,8 +793,6 @@ struct RecoveryCardView: View {
                 .padding(.horizontal, 4)
                 .padding(.vertical, 32)
             }
-            
-            //            DailyGridMetrics(model: model)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
@@ -824,7 +809,6 @@ private func formatVO2MaxValue(_ vo2Max: Double?) -> String {
     // If vo2Max is nil, return "0"
     return vo2Max != nil ? String(format: "%.1f", vo2Max!) : "0"
 }
-
 
 private func formatSPO2Value(_ spo2: Double?) -> String {
     guard let spo2 = spo2 else { return "N/A" }
