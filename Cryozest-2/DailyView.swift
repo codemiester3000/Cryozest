@@ -25,26 +25,6 @@ struct DailyView: View {
         }
     }
     
-    func getWorkouts() {
-           HealthKitManager.shared.fetchWorkoutsLast90Days { (workouts, error) in
-               if let error = error {
-                   print("Error fetching workouts: \(error.localizedDescription)")
-                   return
-               }
-               
-               guard let workouts = workouts else {
-                   print("No workouts were found.")
-                   return
-               }
-               
-               // Process the fetched workouts
-               for workout in workouts {
-                   // For example, print out the workout's start date
-                   print("Fetched workout with start date: \(workout.startDate)")
-               }
-           }
-       }
-    
     var calculatedUpperBoundDailyView: Double {
         let recoveryScore = model.recoveryScores.last ?? 8
         let upperBound = ceil(Double(recoveryScore) / 10.0)
@@ -80,7 +60,6 @@ struct DailyView: View {
                     ExertionView(exertionModel: exertionModel, recoveryModel: model)
                 }
                 .onAppear {
-                    print("Exertion Score: \(exertionModel.exertionScore)")
                 }
                 
                 ProgressButtonView(
@@ -489,10 +468,6 @@ class RecoveryGraphModel: ObservableObject {
                 dates.insert(date, at: 0) // Insert at the beginning to reverse the order
             }
         }
-        // At this point, 'dates' contains the last seven days including today,
-        // each normalized to start at midnight
-        
-        print("dates: ", dates)
         return dates
     }
     

@@ -365,8 +365,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -381,8 +381,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "116"
-            endingLineNumber = "116"
+            startingLineNumber = "95"
+            endingLineNumber = "95"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>
@@ -677,14 +677,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "9C1C22F2-CB3D-483F-94B7-DE4785EF6916"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "614"
-            endingLineNumber = "614"
+            startingLineNumber = "589"
+            endingLineNumber = "589"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
             <Locations>
@@ -718,6 +718,21 @@
                   endingLineNumber = "614"
                   offsetFromSymbolStart = "1848">
                </Location>
+               <Location
+                  uuid = "9C1C22F2-CB3D-483F-94B7-DE4785EF6916 - 275899b97b0f7cd8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.RecoveryGraphModel.calculateRecoveryScore(date: Foundation.Date, avgHrvLast10days: Swift.Optional&lt;Swift.Int&gt;, avgHrvForDate: Swift.Optional&lt;Swift.Int&gt;, avgHeartRate30day: Swift.Optional&lt;Swift.Int&gt;, avgRestingHeartRateForDay: Swift.Optional&lt;Swift.Int&gt;) -&gt; Swift.Int"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/DailyView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "614"
+                  endingLineNumber = "614"
+                  offsetFromSymbolStart = "1804">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -725,14 +740,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "59ADBE72-196B-4B7E-9BB8-E50EA75C58B7"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "621"
-            endingLineNumber = "621"
+            startingLineNumber = "596"
+            endingLineNumber = "596"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
             <Locations>
@@ -766,6 +781,21 @@
                   endingLineNumber = "621"
                   offsetFromSymbolStart = "1800">
                </Location>
+               <Location
+                  uuid = "59ADBE72-196B-4B7E-9BB8-E50EA75C58B7 - 275899b97b0f7ba3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Cryozest_2.RecoveryGraphModel.calculateRecoveryScore(date: Foundation.Date, avgHrvLast10days: Swift.Optional&lt;Swift.Int&gt;, avgHrvForDate: Swift.Optional&lt;Swift.Int&gt;, avgHeartRate30day: Swift.Optional&lt;Swift.Int&gt;, avgRestingHeartRateForDay: Swift.Optional&lt;Swift.Int&gt;) -&gt; Swift.Int"
+                  moduleName = "Cryozest-2"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/DailyView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "621"
+                  endingLineNumber = "621"
+                  offsetFromSymbolStart = "1756">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -779,10 +809,10 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "625"
-            endingLineNumber = "625"
-            landmarkName = "RecoveryGraphView"
-            landmarkType = "14">
+            startingLineNumber = "600"
+            endingLineNumber = "600"
+            landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -795,10 +825,10 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "624"
-            endingLineNumber = "624"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            startingLineNumber = "599"
+            endingLineNumber = "599"
+            landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
+            landmarkType = "7">
             <Locations>
                <Location
                   uuid = "5F8BA9D5-E92C-48E8-B62D-0A69C882FD2F - 143f5e69689ada8"
