@@ -180,19 +180,25 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil {
         didSet {
-            calculateSleepScorePercentage()
+            DispatchQueue.main.async {
+                self.calculateSleepScorePercentage()
+            }
         }
     }
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
         didSet {
-            calculateHrvPercentage()
+            DispatchQueue.main.async {
+                self.calculateHrvPercentage()
+            }
         }
     }
     @Published var avgHrvDuringSleep60Days: Int? {
         didSet {
-            calculateHrvPercentage()
+            DispatchQueue.main.async {
+                self.calculateHrvPercentage()
+            }
         }
     }
     @Published var hrvSleepPercentage: Int?
@@ -200,20 +206,26 @@ class RecoveryGraphModel: ObservableObject {
     // MARK -- Heart Rate variables
     @Published var mostRecentRestingHeartRate: Int? {
         didSet {
-            calculateRestingHeartRatePercentage()
+            DispatchQueue.main.async {
+                self.calculateRestingHeartRatePercentage()
+            }
         }
     }
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
-            calculateRestingHeartRatePercentage()
+            DispatchQueue.main.async {
+                self.calculateRestingHeartRatePercentage()
+            }
         }
     }
     @Published var restingHeartRatePercentage: Int?
     
     @Published var recoveryScores = [Int]() {
         didSet {
-            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
-            self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
+            DispatchQueue.main.async {
+                let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
+                self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
+            }
         }
     }
     
@@ -420,15 +432,11 @@ class RecoveryGraphModel: ObservableObject {
                 self.averageDailyRHR = averageRHR // Update your property with the fetched value
             }
         }
-        
-        
-        
     }
     
     private func calculateSleepScorePercentage() {
         guard let sleepDurationString = previousNightSleepDuration,
               let sleepDuration = Double(sleepDurationString) else {
-            print("calculateSleepScorePercentage: No sleep duration data available or conversion to Double failed")
             sleepScorePercentage = nil
             return
         }
@@ -437,9 +445,6 @@ class RecoveryGraphModel: ObservableObject {
         let sleepScore = (sleepDuration / idealSleepDuration) * 100
         sleepScorePercentage = Int(sleepScore.rounded())
     }
-    
-    
-    
     
     private func calculateHrvPercentage() {
         if let avgSleep = avgHrvDuringSleep, let avg60Days = avgHrvDuringSleep60Days, avg60Days > 0 {
@@ -497,8 +502,10 @@ class RecoveryGraphModel: ObservableObject {
         
         group.enter()
         HealthKitManager.shared.fetchAvgHRVForLastDays(numberOfDays: 10) { avgHrv in
-            if let avgHrv = avgHrv {
-                avgHrvLast10days = Int(avgHrv)
+            DispatchQueue.main.async {
+                if let avgHrv = avgHrv {
+                    avgHrvLast10days = Int(avgHrv)
+                }
             }
             group.leave()
         }
@@ -529,16 +536,20 @@ class RecoveryGraphModel: ObservableObject {
         
         group.enter()
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 30) { restingHeartRate in
-            if let restingHeartRate = restingHeartRate {
-                avgHeartRate30day = restingHeartRate
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate {
+                    avgHeartRate30day = restingHeartRate
+                }
             }
             group.leave()
         }
         
         group.enter()
         HealthKitManager.shared.fetchAverageDailyRHR { restingHeartRate in
-            if let heartRate = restingHeartRate {
-                avgRestingHeartRateForDay = Int(heartRate)
+            DispatchQueue.main.async {
+                if let heartRate = restingHeartRate {
+                    avgRestingHeartRateForDay = Int(heartRate)
+                }
             }
             group.leave()
         }
@@ -949,14 +960,14 @@ struct GridItemView: View {
     @State private var cachedValue: String
     
     init(symbolName: String, title: String, value: String, unit: String) {
-            self.symbolName = symbolName
-            self.title = title
-            // Directly use _cachedValue to initialize the State variable
-            _cachedValue = State(initialValue: value)
-            self.value = value
-            self.unit = unit
-        }
-
+        self.symbolName = symbolName
+        self.title = title
+        // Directly use _cachedValue to initialize the State variable
+        _cachedValue = State(initialValue: value)
+        self.value = value
+        self.unit = unit
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -975,7 +986,7 @@ struct GridItemView: View {
                 Text(value)
                     .font(.title)
                     .fontWeight(.bold)
-                    // Apply the animation color based on `animate` state
+                // Apply the animation color based on `animate` state
                     .foregroundColor(animate ? Color.orange : .white)
                 Text(unit)
                     .font(.caption)
@@ -1094,5 +1105,3 @@ struct ProgressButtonView: View {
         }
     }
 }
-
-

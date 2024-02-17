@@ -73,9 +73,7 @@ class SleepViewModel: ObservableObject {
     
     private func fetchDataForTherapyDays(group: DispatchGroup) {
         let completedSessionDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        
-        print("fetchDataForTherapyDays ", completedSessionDates)
-        
+    
         group.enter()
         healthKitManager.fetchAvgHeartRateDuringSleepForDays(days: completedSessionDates) { avgHeartRate in
             if let avgHeartRate = avgHeartRate {

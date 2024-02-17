@@ -406,54 +406,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BEA2E406-ED54-4AD5-8BAD-D700441C22C7"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Cryozest-2/AppleWorkoutsService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
-            landmarkName = "fetchAndSaveWorkouts()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "BEA2E406-ED54-4AD5-8BAD-D700441C22C7 - d5132fe4a619aa33"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Array&lt;__C.HKWorkout&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Cryozest_2.AppleWorkoutsService.fetchAndSaveWorkouts() -&gt; ()"
-                  moduleName = "Cryozest-2"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/AppleWorkoutsService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "27"
-                  endingLineNumber = "27"
-                  offsetFromSymbolStart = "504">
-               </Location>
-               <Location
-                  uuid = "BEA2E406-ED54-4AD5-8BAD-D700441C22C7 - d5132fe4a619aa33"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Array&lt;__C.HKWorkout&gt;&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in Cryozest_2.AppleWorkoutsService.fetchAndSaveWorkouts() -&gt; ()"
-                  moduleName = "Cryozest-2"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/owenkhoury/MyProjects/Cryozest/Cryozest-2/AppleWorkoutsService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "27"
-                  endingLineNumber = "27"
-                  offsetFromSymbolStart = "1544">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "A5725A91-07A5-459F-8DD3-CA409F73E937"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -587,25 +539,9 @@
             filePath = "Cryozest-2/AppleWorkoutsService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "73"
-            endingLineNumber = "73"
+            startingLineNumber = "69"
+            endingLineNumber = "69"
             landmarkName = "createOrUpdateTherapySessionEntity(from:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "2BE4D186-A619-4F7C-A00C-5F190C0FD080"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Cryozest-2/AppleWorkoutsService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "28"
-            endingLineNumber = "28"
-            landmarkName = "fetchAndSaveWorkouts()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -651,8 +587,8 @@
             filePath = "Cryozest-2/AppleWorkoutsService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
             landmarkName = "createOrUpdateTherapySessionEntity(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -667,8 +603,8 @@
             filePath = "Cryozest-2/AppleWorkoutsService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "61"
-            endingLineNumber = "61"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
             landmarkName = "createOrUpdateTherapySessionEntity(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -683,8 +619,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "589"
-            endingLineNumber = "589"
+            startingLineNumber = "600"
+            endingLineNumber = "600"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
             <Locations>
@@ -746,8 +682,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "596"
-            endingLineNumber = "596"
+            startingLineNumber = "607"
+            endingLineNumber = "607"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
             <Locations>
@@ -809,8 +745,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "600"
-            endingLineNumber = "600"
+            startingLineNumber = "611"
+            endingLineNumber = "611"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -825,8 +761,8 @@
             filePath = "Cryozest-2/DailyView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "599"
-            endingLineNumber = "599"
+            startingLineNumber = "610"
+            endingLineNumber = "610"
             landmarkName = "calculateRecoveryScore(date:avgHrvLast10days:avgHrvForDate:avgHeartRate30day:avgRestingHeartRateForDay:)"
             landmarkType = "7">
             <Locations>

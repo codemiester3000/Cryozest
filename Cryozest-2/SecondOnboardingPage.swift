@@ -63,6 +63,7 @@ struct SecondOnboardingPage: View {
                         .lineLimit(5)
                         .opacity(secondTextOpacity)
                         .padding(.bottom, 30)
+                        .padding(.horizontal)
                 }
                 
                 Button(action: {

@@ -195,7 +195,7 @@ class HealthKitManager {
         }
         
         let query = HKStatisticsQuery(quantityType: restingEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
-            if let error = error {
+            if error != nil {
                 completion(nil)
                 return
             }
@@ -984,7 +984,6 @@ class HealthKitManager {
             
             // Identify the primary sleep session by finding the longest session
             guard let primarySleepSession = asleepSamples.max(by: { $0.endDate.timeIntervalSince($0.startDate) < $1.endDate.timeIntervalSince($1.startDate) }) else {
-                print("No significant sleep session found.")
                 completion(nil, nil)
                 return
             }
@@ -1081,7 +1080,6 @@ class HealthKitManager {
 
             getSleepTimes(for: date) { sleepStart, sleepEnd in
                 guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
-                    print("Error getting sleep times.")
                     group.leave()
                     return
                 }
@@ -1147,7 +1145,6 @@ class HealthKitManager {
 
             getSleepTimes(for: date) { sleepStart, sleepEnd in
                 guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
-                    print("Error getting sleep times for date: \(date)")
                     group.leave()
                     return
                 }

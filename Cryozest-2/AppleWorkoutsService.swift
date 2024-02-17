@@ -23,10 +23,6 @@ class AppleWorkoutsService {
             }
             
             for workout in workouts {
-                // Check if the workout is a running workout
-                if workout.workoutActivityType == .running {
-                    print("Found a running workout: \(workout)")
-                }
                 self?.createOrUpdateTherapySessionEntity(from: workout)
             }
         }
