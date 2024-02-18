@@ -1896,7 +1896,7 @@ class HealthKitManager {
     }
     
     
-    func fetchSleepData(completion: @escaping ([HKCategorySample]?, Error?) -> Void) {
+    func fetchSleepData(for date: Date, completion: @escaping ([HKCategorySample]?, Error?) -> Void) {
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             completion(nil, nil)
             return
@@ -1905,7 +1905,7 @@ class HealthKitManager {
         let calendar = Calendar.current
         
         // Get 7 PM of the previous day
-        let startOfToday = calendar.startOfDay(for: Date())
+        let startOfToday = calendar.startOfDay(for: date)
         guard let startOfSleepPeriod = calendar.date(byAdding: .hour, value: -5, to: startOfToday) else {
             completion(nil,nil)
             return

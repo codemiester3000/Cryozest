@@ -67,7 +67,7 @@ class DailySleepViewModel: ObservableObject {
     func fetchSleepData(forDate date: Date) {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
             if authorized {
-                HealthKitManager.shared.fetchSleepData { samples, error in
+                HealthKitManager.shared.fetchSleepData(for: date) { samples, error in
                     guard let self = self, let fetchedSamples = samples as? [HKCategorySample], error == nil else {
                         return
                     }
@@ -340,8 +340,6 @@ class DailySleepViewModel: ObservableObject {
     }
 }
 
-
-
 func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remSleep: TimeInterval) -> Double {
     let totalSleepTarget: TimeInterval = 420 * 60 // 7 hours in seconds
     let deepSleepTarget: TimeInterval = 60 * 60  // 1 hour in seconds
@@ -352,24 +350,6 @@ func calculateSleepScore(totalSleep: TimeInterval, deepSleep: TimeInterval, remS
     let remSleepScore = min(remSleep / remSleepTarget, 1.0) * 20 // 20% of the score
     
     return totalSleepScore + deepSleepScore + remSleepScore
-}
-
-func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
-    HealthKitManager.shared.fetchSleepData { samples, error in
-        guard let samples = samples, error == nil else {
-            completion(0)
-            return
-        }
-        
-        let sleepData = HealthKitManager.shared.processSleepData(samples: samples)
-        let totalSleep = sleepData["Total Sleep"] ?? 0
-        let deepSleep = sleepData["Deep Sleep"] ?? 0
-        let remSleep = sleepData["REM Sleep"] ?? 0
-        
-        let sleepScore = calculateSleepScore(totalSleep: totalSleep, deepSleep: deepSleep, remSleep: remSleep)
-        completion(sleepScore)
-        
-    }
 }
 
 struct DailySleepView: View {
