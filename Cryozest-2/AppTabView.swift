@@ -15,7 +15,11 @@ struct AppTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            DailyView(model: RecoveryGraphModel(), exertionModel: ExertionModel(), context: viewContext) // Pass an instance of ExertionModel
+            DailyView(
+                recoveryModel: RecoveryGraphModel(selectedDate: Date()),
+                exertionModel: ExertionModel(selectedDate: Date()),
+                sleepModel: DailySleepViewModel(selectedDate: Date()),
+                context: viewContext)
                 .tabItem {
                     Image(systemName: "moon")
                     Text("Daily")

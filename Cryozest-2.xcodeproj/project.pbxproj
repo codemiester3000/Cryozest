@@ -12,6 +12,9 @@
 		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
 		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
+		C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */; };
+		C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22D2B8123810001F88C /* RecoveryCardView.swift */; };
+		C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22F2B8124CE0001F88C /* ExertionModel.swift */; };
 		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
 		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
 		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
@@ -79,6 +82,9 @@
 		C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingPage.swift; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
+		C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryGraphModel.swift; sourceTree = "<group>"; };
+		C526A22D2B8123810001F88C /* RecoveryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryCardView.swift; sourceTree = "<group>"; };
+		C526A22F2B8124CE0001F88C /* ExertionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExertionModel.swift; sourceTree = "<group>"; };
 		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
 		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
@@ -214,6 +220,9 @@
 				C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */,
 				C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */,
 				C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */,
+				C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */,
+				C526A22D2B8123810001F88C /* RecoveryCardView.swift */,
+				C526A22F2B8124CE0001F88C /* ExertionModel.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -394,10 +403,13 @@
 				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
+				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
+				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
 				C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */,
 				C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
+				C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */,
 				C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,

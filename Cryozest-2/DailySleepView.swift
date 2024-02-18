@@ -3,6 +3,7 @@ import SwiftUI
 import HealthKit
 
 class DailySleepViewModel: ObservableObject {
+    @Published var selectedDate: Date
     @Published var totalTimeInBed: String = "N/A"
     @Published var totalTimeAsleep: String = "N/A"
     @Published var totalDeepSleep: String = "N/A"
@@ -37,30 +38,11 @@ class DailySleepViewModel: ObservableObject {
         }
     }
     
-    
-    //    var heartRateDifferencePercentage: Double {
-    //        let averageWakingHeartRate = self.averageWakingHeartRate
-    //        let averageHeartRateDuringSleep = self.averageHeartRateDuringSleep
-    //
-    //
-    //        // Calculate the percentage difference
-    //        if averageWakingHeartRate != 0 {
-    //            let difference =  averageWakingHeartRate - averageHeartRateDuringSleep
-    //            let percentageDifference = (difference / averageWakingHeartRate) * 100.0
-    //
-    //            // Additional debugging statement to check the final calculated value
-    //
-    //            return percentageDifference
-    //        } else {
-    //            // Handling the case where averageWakingHeartRate is zero
-    //            return 0.0
-    //        }
-    //    }
-    
     private var sleepSamples: [HKCategorySample] = []
     
-    init() {
-        fetchSleepData()
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
+        fetchSleepData(forDate: selectedDate)
         fetchAverageWakingHeartRate { bpm, _ in
             if let bpm = bpm, bpm.isFinite {
                 DispatchQueue.main.async {
@@ -82,12 +64,7 @@ class DailySleepViewModel: ObservableObject {
         }
     }
     
-    func refreshData() {
-           fetchSleepData()
-       }
-   
-    
-    private func fetchSleepData() {
+    func fetchSleepData(forDate date: Date) {
         HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
             if authorized {
                 HealthKitManager.shared.fetchSleepData { samples, error in
@@ -184,33 +161,33 @@ class DailySleepViewModel: ObservableObject {
     }
     
     
-        private func fetchAverageWakingHeartRate(completion: @escaping (Double?, Error?) -> Void) {
+    private func fetchAverageWakingHeartRate(completion: @escaping (Double?, Error?) -> Void) {
         guard HKHealthStore.isHealthDataAvailable() else {
             completion(nil, NSError(domain: "com.yourapp.healthkit", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."]))
             return
         }
-
+        
         let healthStore = HKHealthStore()
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-
+        
         let calendar = Calendar.current
         let yesterday = calendar.startOfDay(for: Date()).addingTimeInterval(-24 * 60 * 60)
         let startTime = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: yesterday)!
         let endTime = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: yesterday)!
-
+        
         let predicate = HKQuery.predicateForSamples(withStart: startTime, end: endTime, options: .strictEndDate)
-
+        
         let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, results, error) in
             if let error = error {
                 completion(nil, error)
                 return
             }
-
+            
             guard let heartRateSamples = results as? [HKQuantitySample], !heartRateSamples.isEmpty else {
                 completion(0.0, nil)  // Return 0 if there are no samples
                 return
             }
-
+            
             let restingHeartRateSamples = heartRateSamples.filter { $0.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())) < 80 }
             
             // Check if there are filtered samples; if not, return 0
@@ -229,7 +206,7 @@ class DailySleepViewModel: ObservableObject {
         
         healthStore.execute(query)
     }
-
+    
     private func getSleepStartTimeForNextDay(completion: @escaping (Date?) -> Void) {
         let healthStore = HKHealthStore()
         
@@ -265,10 +242,6 @@ class DailySleepViewModel: ObservableObject {
         healthStore.execute(query)
     }
     
-    
-    
-    
-    
     private func fetchAverageHeartRateDuringSleep(completion: @escaping (Double?, Error?) -> Void) {
         guard HKHealthStore.isHealthDataAvailable() else {
             completion(nil, NSError(domain: "com.yourapp.healthkit", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."]))
@@ -283,8 +256,6 @@ class DailySleepViewModel: ObservableObject {
                 completion(nil, nil)
                 return
             }
-            
-            
             // Create a predicate for heart rate samples during sleep
             let predicate = HKQuery.predicateForSamples(withStart: sleepStartTime, end: sleepEndTime, options: .strictStartDate)
             
@@ -310,10 +281,6 @@ class DailySleepViewModel: ObservableObject {
             healthStore.execute(query)
         }
     }
- 
-
-    
-    
     
     private func updateSleepData(with samples: [HKCategorySample]) {
         let awakeDuration = calculateTotalDuration(samples: samples, for: .awake)
@@ -405,10 +372,8 @@ func fetchAndCalculateSleepScore(completion: @escaping (Double) -> Void) {
     }
 }
 
-
 struct DailySleepView: View {
-    @ObservedObject var dailySleepModel = DailySleepViewModel()
-    
+    @ObservedObject var dailySleepModel: DailySleepViewModel
     
     @State private var sleepStartTime: String = "N/A"
     @State private var sleepEndTime: String = "N/A"
@@ -445,17 +410,17 @@ struct DailySleepView: View {
                         }
                         
                         // Conditional Display of Sleep Start and End Times
-                                     if sleepStartTime != "N/A" && sleepEndTime != "N/A" {
-                                         Text("\(sleepStartTime) to \(sleepEndTime)")
-                                             .font(.footnote)
-                                             .fontWeight(.medium)
-                                             .foregroundColor(.gray)
-                                     }
-                                 }
-                                 .padding(.horizontal, 22)
-                                 .padding(.top, 16)
-                                 
-                                 Spacer()
+                        if sleepStartTime != "N/A" && sleepEndTime != "N/A" {
+                            Text("\(sleepStartTime) to \(sleepEndTime)")
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.horizontal, 22)
+                    .padding(.top, 16)
+                    
+                    Spacer()
                     
                     ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
                                      ringSize: 120)
@@ -486,14 +451,13 @@ struct DailySleepView: View {
                 
             }
             
-            
             .onAppear {
                 fetchSleepTimes()
             }
         }
         .background(Color.black)
-    } 
-
+    }
+    
     
     private func fetchSleepTimes() {
         getSleepTimesYesterday { (start, end) in
@@ -510,6 +474,7 @@ struct DailySleepView: View {
         }
     }
 }
+
 struct SleepSession {
     var start: Date
     var end: Date
