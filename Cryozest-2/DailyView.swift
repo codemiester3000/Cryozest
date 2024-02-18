@@ -64,8 +64,6 @@ struct DailyView: View {
                 .popover(isPresented: $showingExertionPopover) {
                     ExertionView(exertionModel: exertionModel, recoveryModel: recoveryModel)
                 }
-                .onAppear {
-                }
                 
                 ProgressButtonView(
                     title: "Sleep Quality",
@@ -80,6 +78,8 @@ struct DailyView: View {
                     DailySleepView(dailySleepModel: sleepModel)
                 }
                 
+                // TODO: (owen) THIS ONE isn't updating automatically
+                // TODO: instead of checking .last get the index based on the selected day
                 ProgressButtonView(
                     title: "Readiness to Train",
                     progress: Float(recoveryModel.recoveryScores.last ?? 0) / 100.0,
@@ -119,6 +119,8 @@ struct DailyView: View {
         .onChange(of: selectedDate) { newValue in
             print("updated date: ", selectedDate)
             recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+            exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+            sleepModel.fetchSleepData(forDate: selectedDate)
             // Any other actions needed when the date changes
         }
     }
@@ -168,7 +170,7 @@ struct HeaderView: View {
                     // Code to handle the date change if necessary
                 }
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal)
     }
 }
 
