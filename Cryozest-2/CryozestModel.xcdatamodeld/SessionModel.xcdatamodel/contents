@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23D60" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="22G436" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CustomTherapy" representedClassName="CustomTherapy" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -7,12 +7,26 @@
     <entity name="CustomTimer" representedClassName="CustomTimer" syncable="YES" codeGenerationType="class">
         <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
+    <entity name="DailyHealthEntity" representedClassName="DailyHealthEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="averageSleepingRHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageWakingHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageWakingHRV" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageWakingRespRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageWakingRHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageWakingSPO2" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="caloriesBurned" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sleepEnd" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sleepStart" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="stepsTaken" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="SelectedTherapy" representedClassName="SelectedTherapy" syncable="YES" codeGenerationType="class">
         <attribute name="therapyType" optional="YES" attributeType="String"/>
     </entity>
     <entity name="TherapySessionEntity" representedClassName="TherapySessionEntity" syncable="YES" codeGenerationType="class">
         <attribute name="averageHeartRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageRespirationRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageSleepingRHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageSpo2" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="bodyWeight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -21,6 +35,8 @@
         <attribute name="isAppleWatch" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="maxHeartRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="minHeartRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="sleepEnd" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sleepStart" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="therapyType" optional="YES" attributeType="String"/>
     </entity>
