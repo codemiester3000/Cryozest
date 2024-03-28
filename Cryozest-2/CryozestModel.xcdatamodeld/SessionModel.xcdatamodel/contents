@@ -9,6 +9,8 @@
     </entity>
     <entity name="DailyHealthEntity" representedClassName="DailyHealthEntity" syncable="YES" codeGenerationType="class">
         <attribute name="averageSleepingHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageSleepingRespRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageSleepingSPO2" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingHRV" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingRespRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
