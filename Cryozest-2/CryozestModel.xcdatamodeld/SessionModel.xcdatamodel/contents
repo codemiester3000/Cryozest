@@ -8,7 +8,7 @@
         <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="DailyHealthEntity" representedClassName="DailyHealthEntity" syncable="YES" codeGenerationType="class">
-        <attribute name="averageSleepingRHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageSleepingHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingHRV" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="averageWakingRespRate" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -16,6 +16,8 @@
         <attribute name="averageWakingSPO2" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="caloriesBurned" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="lastSleepingHRV" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="lowestSleepHR" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="sleepEnd" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="sleepStart" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="stepsTaken" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>

@@ -4,6 +4,7 @@ import HealthKit
 class DailyHealthService {
     private let managedContext: NSManagedObjectContext
     private let healthStore = HKHealthStore()
+    private let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
     
     init(managedContext: NSManagedObjectContext) {
         self.managedContext = managedContext
@@ -25,8 +26,14 @@ class DailyHealthService {
                                    self.fetchAverageWakingRHR(from: sleepEnd, to: date) { averageWakingRHR in
                                        self.fetchAverageWakingHRV(from: sleepEnd, to: date) { averageWakingHRV in
                                            self.fetchAverageWakingSPO2(from: sleepEnd, to: date) { averageWakingSPO2 in
-                                               self.saveDailyHealthEntity(date: date, sleepStart: sleepStart, sleepEnd: sleepEnd, averageHeartRate: averageHeartRate, calories: calories, steps: steps, averageWakingRespRate: averageWakingRespRate, averageWakingHR: averageWakingHR, averageWakingRHR: averageWakingRHR, averageWakingHRV: averageWakingHRV, averageWakingSPO2: averageWakingSPO2)
-                                               completion(true)
+                                               self.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { lastSleepingHRV in
+                                                   self.fetchAverageSleepingHR(from: sleepStart, to: sleepEnd) { averageSleepingHR in
+                                                       self.fetchLowestSleepHR(from: sleepStart, to: sleepEnd) { lowestSleepHR in
+                                                           self.saveDailyHealthEntity(date: date, sleepStart: sleepStart, sleepEnd: sleepEnd, averageHeartRate: averageHeartRate, calories: calories, steps: steps, averageWakingRespRate: averageWakingRespRate, averageWakingHR: averageWakingHR, averageWakingRHR: averageWakingRHR, averageWakingHRV: averageWakingHRV, averageWakingSPO2: averageWakingSPO2, lastSleepingHRV: lastSleepingHRV, averageSleepingHR: averageSleepingHR, lowestSleepHR: lowestSleepHR)
+                                                           completion(true)
+                                                       }
+                                                   }
+                                               }
                                            }
                                        }
                                    }
@@ -37,7 +44,6 @@ class DailyHealthService {
                }
            }
        }
-    
     
     
     private func fetchSleepTimes(for date: Date, completion: @escaping (Date?, Date?) -> Void) {
@@ -247,25 +253,121 @@ class DailyHealthService {
         healthStore.execute(query)
     }
     
-    private func saveDailyHealthEntity(date: Date, sleepStart: Date, sleepEnd: Date, averageHeartRate: Double, calories: Double, steps: Double, averageWakingRespRate: Double, averageWakingHR: Double, averageWakingRHR: Double, averageWakingHRV: Double, averageWakingSPO2: Double) {
-        let newDailyHealth = DailyHealthEntity(context: managedContext)
-        newDailyHealth.date = date
-        newDailyHealth.sleepStart = sleepStart
-        newDailyHealth.sleepEnd = sleepEnd
-        newDailyHealth.averageSleepingRHR = averageHeartRate
-        newDailyHealth.caloriesBurned = calories
-        newDailyHealth.stepsTaken = steps
-        newDailyHealth.averageWakingRespRate = averageWakingRespRate
-        newDailyHealth.averageWakingHR = averageWakingHR
-        newDailyHealth.averageWakingRHR = averageWakingRHR
-        newDailyHealth.averageWakingHRV = averageWakingHRV
-        newDailyHealth.averageWakingSPO2 = averageWakingSPO2
-        
-        do {
-            try managedContext.save()
-            print("Successfully saved daily health data for date: \(date)")
-        } catch {
-            print("Failed to save daily health data: \(error.localizedDescription)")
-        }
-    }
-}
+    
+    //This function finds the last HRV reading of your sleeep period
+    private func fetchAvgHRVDuringSleepForNightEndingOn(date: Date, completion: @escaping (Double?) -> Void) {
+          let calendar = Calendar.current
+          
+          var endOfNightComponents = calendar.dateComponents([.year, .month, .day], from: date)
+          endOfNightComponents.hour = 14 // 2 PM, assuming this is the end of the sleep period
+          
+          // Creating endOfNight for 2 PM of the passed-in date
+          let endOfNight = calendar.date(from: endOfNightComponents)!
+          let previousDay = calendar.date(byAdding: .day, value: -1, to: endOfNight)!
+          let startOfPreviousDay = calendar.startOfDay(for: previousDay)
+          let startOfNight = calendar.date(byAdding: .hour, value: 21, to: startOfPreviousDay)! // Assuming 9 PM is the start of the sleep period
+          
+          // Create a predicate for sleep analysis in the time range
+          let sleepPredicate = HKQuery.predicateForSamples(withStart: startOfNight, end: endOfNight, options: .strictStartDate)
+          let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+          
+          // Query sleep analysis data
+          let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: sleepPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, sleepSamples, error in
+              guard let sleepSamples = sleepSamples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                  completion(nil)
+                  return
+              }
+              
+              // Assuming sleepSamples are sorted by start date, get the first and last sample to determine the sleep period
+              let sleepStart = sleepSamples.first!.startDate
+              let sleepEnd = sleepSamples.last!.endDate
+              
+              // Create a predicate for HRV data during the sleep period
+              let hrvPredicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictStartDate)
+              
+              // Query HRV data
+              let hrvQuery = HKSampleQuery(sampleType: self.hrvType, predicate: hrvPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, hrvSamples, error in
+                  guard let hrvSamples = hrvSamples as? [HKQuantitySample], !hrvSamples.isEmpty else {
+                      completion(nil)
+                      return
+                  }
+                  
+                  // Calculate average HRV
+                  let totalHRV = hrvSamples.reduce(0) { $0 + $1.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli)) }
+                  let averageHRV = totalHRV / Double(hrvSamples.count)
+                  completion(averageHRV)
+              }
+              
+              self.healthStore.execute(hrvQuery)
+          }
+          
+          self.healthStore.execute(sleepQuery)
+      }
+      
+    private func fetchAverageSleepingHR(from startDate: Date, to endDate: Date, completion: @escaping (Double) -> Void) {
+         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
+         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+         
+         let query = HKStatisticsQuery(quantityType: heartRateType,
+                                       quantitySamplePredicate: predicate,
+                                       options: .discreteAverage) { (query, statistics, error) in
+             guard let averageSleepingHR = statistics?.averageQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())),
+                   error == nil else {
+                 print("Error fetching average sleeping heart rate: \(error?.localizedDescription ?? "")")
+                 completion(0.0)
+                 return
+             }
+             
+             print("Average sleeping heart rate: \(averageSleepingHR) for date range: \(startDate) - \(endDate)")
+             completion(averageSleepingHR)
+         }
+         
+         healthStore.execute(query)
+     }
+     
+     private func fetchLowestSleepHR(from startDate: Date, to endDate: Date, completion: @escaping (Double) -> Void) {
+         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
+         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+         
+         let query = HKStatisticsQuery(quantityType: heartRateType,
+                                       quantitySamplePredicate: predicate,
+                                       options: .discreteMin) { (query, statistics, error) in
+             guard let lowestSleepHR = statistics?.minimumQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute())),
+                   error == nil else {
+                 print("Error fetching lowest sleep heart rate: \(error?.localizedDescription ?? "")")
+                 completion(0.0)
+                 return
+             }
+             
+             print("Lowest sleep heart rate: \(lowestSleepHR) for date range: \(startDate) - \(endDate)")
+             completion(lowestSleepHR)
+         }
+         
+         healthStore.execute(query)
+     }
+     
+     private func saveDailyHealthEntity(date: Date, sleepStart: Date, sleepEnd: Date, averageHeartRate: Double, calories: Double, steps: Double, averageWakingRespRate: Double, averageWakingHR: Double, averageWakingRHR: Double, averageWakingHRV: Double, averageWakingSPO2: Double, lastSleepingHRV: Double?, averageSleepingHR: Double, lowestSleepHR: Double) {
+         let newDailyHealth = DailyHealthEntity(context: managedContext)
+         newDailyHealth.date = date
+         newDailyHealth.sleepStart = sleepStart
+         newDailyHealth.sleepEnd = sleepEnd
+         newDailyHealth.averageSleepingHR = averageHeartRate
+         newDailyHealth.caloriesBurned = calories
+         newDailyHealth.stepsTaken = steps
+         newDailyHealth.averageWakingRespRate = averageWakingRespRate
+         newDailyHealth.averageWakingHR = averageWakingHR
+         newDailyHealth.averageWakingRHR = averageWakingRHR
+         newDailyHealth.averageWakingHRV = averageWakingHRV
+         newDailyHealth.averageWakingSPO2 = averageWakingSPO2
+         newDailyHealth.lastSleepingHRV = lastSleepingHRV ?? 0.0
+         newDailyHealth.averageSleepingHR = averageSleepingHR
+         newDailyHealth.lowestSleepHR = lowestSleepHR
+         
+         do {
+             try managedContext.save()
+             print("Successfully saved daily health data for date: \(date)")
+         } catch {
+             print("Failed to save daily health data: \(error.localizedDescription)")
+         }
+     }
+ }
