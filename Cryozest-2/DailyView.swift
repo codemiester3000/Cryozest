@@ -43,13 +43,38 @@ struct DailyView: View {
     }
     
     var body: some View {
-        ScrollView {
-            HeaderView(model: recoveryModel, selectedDate: $selectedDate)
-                .padding(.top)
-                .padding(.bottom, 5)
-                .padding(.leading,10)
-            
-            DailyGridMetrics(model: recoveryModel)
+        ZStack {
+            // Modern gradient background matching app theme
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            ScrollView {
+                HeaderView(model: recoveryModel, selectedDate: $selectedDate)
+                    .padding(.top)
+                    .padding(.bottom, 5)
+                    .padding(.leading,10)
+
+                DailyGridMetrics(model: recoveryModel)
             
             VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
@@ -95,14 +120,14 @@ struct DailyView: View {
             }
             .padding(.horizontal,22)
             .padding(.top, 10)
-        }
-        .refreshable {
-            recoveryModel.pullAllRecoveryData(forDate: selectedDate)
-            exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
-            sleepModel.fetchSleepData(forDate: selectedDate)
+            }
+            .refreshable {
+                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                sleepModel.fetchSleepData(forDate: selectedDate)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.black)
         .onAppear() {
             HealthKitManager.shared.requestAuthorization { success, error in
                 if success {
@@ -368,9 +393,15 @@ struct GridItemView: View {
             }
         }
         .padding()
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -437,8 +468,14 @@ struct ProgressButtonView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(hasNewData ? Color.green.opacity(0.3) : Color.gray.opacity(0.2))
-                .cornerRadius(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(hasNewData ? Color.green.opacity(0.15) : Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(hasNewData ? Color.green.opacity(0.3) : Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
                 
                 Spacer()
             }

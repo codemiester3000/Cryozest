@@ -50,42 +50,79 @@ struct LogbookView: View {
     
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading) {
-                NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
-                    EmptyView()
-                }
-                VStack {
-                    HStack {
-                        Text("History")
-                            .font(.system(size: 24, weight: .regular, design: .default))
-                            .foregroundColor(.white)
-                            .bold()
-                            .padding(.leading, 24)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "plus")
-                            .font(.system(size: 30))
-                            .foregroundColor(.white)
+            ZStack {
+                // Modern gradient background matching app theme
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                // Subtle gradient overlay
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.3),
+                        Color.clear
+                    ]),
+                    center: .topTrailing,
+                    startRadius: 100,
+                    endRadius: 500
+                )
+                .ignoresSafeArea()
+
+                VStack(alignment: .leading) {
+                    NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
+                        EmptyView()
+                    }
+                    VStack {
+                        HStack {
+                            Text("History")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.leading, 24)
+
+                            Spacer()
+
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.15))
+                                    .frame(width: 44, height: 44)
+
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.white)
+                            }
                             .padding(.trailing, 24)
                             .onTapGesture {
                                 showAddSession = true
                             }
-                    }
-                    .padding(.top, 170)
+                        }
+                        .padding(.top, 170)
                     
                     VStack(alignment: .leading, spacing: 16) {
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
-                            .background(Color(UIColor.darkGray))
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white.opacity(0.08))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
+                            )
                             .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical)
-                        
+
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
-                                .foregroundColor(.white)
-                                .font(.system(size: 18, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
                                 .padding()
                         } else {
                             // Iterate over the sorted sessions
@@ -104,8 +141,8 @@ struct LogbookView: View {
                 .onChange(of: therapyTypeSelection.selectedTherapyType) { _ in
                     updateSessionDates()
                 }
+                }
             }
-            .background(.black)
         }
     }
 }

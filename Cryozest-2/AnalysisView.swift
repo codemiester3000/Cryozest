@@ -45,23 +45,55 @@ struct AnalysisView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                ScrollView {
-                    HStack {
-                        Text("Metrics Comparisons")
-                            .font(.system(size: 24, weight: .regular, design: .default))
-                            .foregroundColor(.white)
-                            .bold()
-                            .padding(.leading, 24)
-                        
-                        Spacer()
-                        
-                        NavigationLink(destination: TherapyTypeSelectionView()) {
-                            SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
+            ZStack {
+                // Modern gradient background matching app theme
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                // Subtle gradient overlay
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.3),
+                        Color.clear
+                    ]),
+                    center: .topTrailing,
+                    startRadius: 100,
+                    endRadius: 500
+                )
+                .ignoresSafeArea()
+
+                VStack {
+                    ScrollView {
+                        HStack {
+                            Text("Metrics Comparisons")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.leading, 24)
+
+                            Spacer()
+
+                            NavigationLink(destination: TherapyTypeSelectionView()) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.15))
+                                        .frame(width: 44, height: 44)
+
+                                    Image(systemName: "gearshape.fill")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                                }
                                 .padding(.trailing, 25)
+                            }
                         }
-                    }
-                    .padding(.top, 36)
+                        .padding(.top, 36)
                     
                     TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                         .padding(.bottom, 16)
@@ -80,10 +112,10 @@ struct AnalysisView: View {
                     Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
                     
                     WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.black)
         }
     }
     
