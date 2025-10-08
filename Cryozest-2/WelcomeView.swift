@@ -2,165 +2,199 @@ import SwiftUI
 
 struct WelcomeView: View {
     @State private var showNext = false
-    @State private var icon1Opacity = 0.0
-    @State private var icon2Opacity = 0.0
-    @State private var icon3Opacity = 0.0
-    @State private var textOpacity = 0.0
-    @State private var buttonOpacity = 0.0
+    @State private var animateContent = false
     @EnvironmentObject var appState: AppState
-    
+
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .topLeading, endPoint: .bottomTrailing)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 30) {
-                HardcodedGraph()
-                
-                Text("Welcome to CryoZest")
-                    .font(.system(size: 30, weight: .bold, design: .default))
-                    .foregroundColor(.white)
-                    .shadow(color: .gray.opacity(0.5), radius: 2, x: 0, y: 2)
-                    .padding(.top, 20)
-                    .multilineTextAlignment(.center)
-                
-                Divider().background(Color.darkBackground.opacity(0.8))
-                
-                HStack {
-                    Spacer()
-                    
-                    Image(systemName: "lock.fill")
-                        .foregroundColor(.red)
-                        .font(.system(size: 50))
-                        .padding(.trailing, 8)
-                        .opacity(icon1Opacity)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(.red)
-                        .font(.system(size: 50))
-                        .padding(.trailing, 8)
-                        .opacity(icon2Opacity)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "lock.fill")
-                        .foregroundColor(.red)
-                        .font(.system(size: 50))
-                        .padding(.leading, 8)
-                        .opacity(icon3Opacity)
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
 
-                    Spacer()
-                }
-                .padding(.vertical, 10)
-                .background(Color.black.opacity(0.2))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                .onAppear {
-                    withAnimation(.easeIn(duration: 1.0)) {
-                        icon1Opacity = 1.0
-                    }
-                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.3)) {
-                        icon2Opacity = 1.0
-                    }
-                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.6)) {
-                        icon3Opacity = 1.0
-                    }
-                    withAnimation(Animation.easeIn(duration: 1.0).delay(0.9)) {
-                        textOpacity = 1.0
-                    }
-                    withAnimation(Animation.easeIn(duration: 1.0).delay(1.2)) {
-                        buttonOpacity = 1.0
-                    }
-                }
-                
-                Spacer()
-                
-                HStack {
-                    Spacer()
-                    
-                    Text("CryoZest connects to your Apple Watch to see how your health and sleep change as you develop new habits")
-                        .font(.system(size: 16, weight: .bold, design: .default))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(5)
-                        .opacity(textOpacity)
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
 
-                    Spacer()
-                }
-                .padding(.vertical, 10)
-                .background(Color.black.opacity(0.2))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                
+            VStack(spacing: 0) {
                 Spacer()
-                
+
+                // Logo section with animation
+                VStack(spacing: 24) {
+                    Image("TestLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 140)
+                        .shadow(color: .white.opacity(0.2), radius: 20, x: 0, y: 10)
+                        .scaleEffect(animateContent ? 1.0 : 0.8)
+                        .opacity(animateContent ? 1.0 : 0)
+
+                    VStack(spacing: 12) {
+                        Text("Welcome to")
+                            .font(.system(size: 22, weight: .light, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
+                            .opacity(animateContent ? 1.0 : 0)
+
+                        Text("Cryozest")
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .opacity(animateContent ? 1.0 : 0)
+
+                        Text("Your wellness journey starts here")
+                            .font(.system(size: 16, weight: .regular, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 4)
+                            .opacity(animateContent ? 1.0 : 0)
+                    }
+                }
+                .padding(.bottom, 60)
+
+                // Feature cards
+                VStack(spacing: 20) {
+                    FeatureCard(
+                        icon: "waveform.path.ecg.rectangle.fill",
+                        title: "Track Your Progress",
+                        description: "Monitor health metrics and watch your wellness evolve",
+                        accentColor: .cyan
+                    )
+                    .opacity(animateContent ? 1.0 : 0)
+                    .offset(y: animateContent ? 0 : 20)
+
+                    FeatureCard(
+                        icon: "chart.line.uptrend.xyaxis",
+                        title: "Build Healthy Habits",
+                        description: "Develop lasting routines with data-driven insights",
+                        accentColor: .green
+                    )
+                    .opacity(animateContent ? 1.0 : 0)
+                    .offset(y: animateContent ? 0 : 20)
+
+                    FeatureCard(
+                        icon: "lock.shield.fill",
+                        title: "Privacy First",
+                        description: "Your data stays on your device, always",
+                        accentColor: .orange
+                    )
+                    .opacity(animateContent ? 1.0 : 0)
+                    .offset(y: animateContent ? 0 : 20)
+                }
+                .padding(.horizontal, 24)
+
+                Spacer()
+
+                // Get Started button
                 Button(action: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                         showNext = true
-                        
-                        // TODO:
-                        // appState.hasLaunchedBefore = true
                     }
                 }) {
-                    Text("Get Started!")
-                        .font(.system(size: 14))
-                        .fontWeight(.medium)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Capsule().fill(Color.white))
-                        .foregroundColor(.black)
-                        .padding(.horizontal, 50)
-                        .padding(.vertical, 20)
+                    HStack(spacing: 12) {
+                        Text("Get Started")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(16)
+                    .shadow(color: .white.opacity(0.3), radius: 20, x: 0, y: 10)
                 }
-                .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 10)
-                .opacity(buttonOpacity)
-                
-                Spacer()
+                .padding(.horizontal, 32)
+                .padding(.bottom, 50)
+                .opacity(animateContent ? 1.0 : 0)
+                .offset(y: animateContent ? 0 : 20)
+            }
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 1.0)) {
+                animateContent = true
             }
         }
         .fullScreenCover(isPresented: $showNext) {
             SecondOnboardingPage(appState: appState)
-            
-//            TherapyTypeSelectionView()
-//                .environmentObject(appState)
         }
     }
 }
 
-struct HardcodedGraph: View {
-    // Hardcoded data for the last seven days and their recovery scores
-    let lastSevenDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    let recoveryScores = [70, 50, 30, 80, 60, 90, 40]
+// Feature card component
+struct FeatureCard: View {
+    let icon: String
+    let title: String
+    let description: String
+    let accentColor: Color
 
     var body: some View {
-        ZStack {
-            VStack {
-                HStack(alignment: .bottom) {
-                    ForEach(Array(zip(lastSevenDays, recoveryScores)), id: \.0) { (day, percentage) in
-                        VStack {
-                            Rectangle()
-                                .fill(getColor(forPercentage: percentage))
-                                .frame(width: 40, height: CGFloat(percentage))
-                                .cornerRadius(5)
-                        }
-                    }
-                }
+        HStack(spacing: 16) {
+            // Icon container
+            ZStack {
+                Circle()
+                    .fill(accentColor.opacity(0.15))
+                    .frame(width: 56, height: 56)
+
+                Image(systemName: icon)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(accentColor)
             }
+
+            // Text content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+
+                Text(description)
+                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer()
         }
-        .frame(height: 200) // Adjust the height as needed
-    }
-    
-    // Function to get color based on percentage
-    func getColor(forPercentage percentage: Int) -> Color {
-        switch percentage {
-        case let x where x > 50:
-            return .green
-        case let x where x > 30:
-            return .yellow
-        default:
-            return .red
-        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+        )
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            accentColor.opacity(0.1),
+                            Color.clear
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
     }
 }

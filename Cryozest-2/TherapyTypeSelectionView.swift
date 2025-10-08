@@ -21,29 +21,49 @@ struct TherapyTypeSelectionView: View {
         sortDescriptors: []
     ) private var selectedTherapies: FetchedResults<SelectedTherapy>
     
+    @State private var animateContent = false
+
     var body: some View {
         ZStack {
+            // Modern gradient background matching welcome screen
             LinearGradient(
-                gradient: Gradient(colors: [.black, .black]),
-                startPoint: .top,
-                endPoint: .bottom
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-            .edgesIgnoringSafeArea(.all)
-            
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
             VStack {
-                ScrollView {
-                
+                ScrollView(showsIndicators: false) {
+
                     HStack {
                         Spacer()
-                        
+
                         Text("Choose your habits")
-                            .font(.system(size: 20, weight: .bold, design: .default))
-                            .fontWeight(.semibold)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                        
+
                         Spacer()
                     }
-                    .padding(.top, 12)
+                    .padding(.top, 60)
+                    .padding(.bottom, 8)
+                    .opacity(animateContent ? 1.0 : 0)
                 
                     CategoryPillsView(selectedCategory: $selectedCategory)
                         .padding(.bottom, 60)
@@ -96,37 +116,25 @@ struct TherapyTypeSelectionView: View {
                                 isCustomTypeViewPresented = false
                             }
                         }) {
-                            HStack {
-                                Image(systemName: therapyType.icon)
-                                    .foregroundColor(selectedTypes.contains(therapyType) ? .white : therapyType.color) // Dynamic icon color
-                                    .imageScale(.large) // Larger icon for better visibility
-                                Text(getDisplayName(therapyType: therapyType))
-                                    .fontWeight(.medium) // Slightly bolder text for better readability
-                                    .foregroundColor(.white) // Use primary color for better adaptability to dark/light mode
-                                Spacer()
-                            }
-                            .padding(.horizontal)
-                            .padding(.vertical, 8) // Balanced padding
-                            .background(selectedTypes.contains(therapyType) ? therapyType.color : .clear) //
-                            .cornerRadius(8) // Rounded corners
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(therapyType.color, lineWidth: 2) // Colored border
+                            ModernTherapyCard(
+                                therapyType: therapyType,
+                                displayName: getDisplayName(therapyType: therapyType),
+                                isSelected: selectedTypes.contains(therapyType)
                             )
-                            .shadow(color: .gray.opacity(0.3), radius: 3, x: 0, y: 2) // Subtle shadow for depth
-                            .animation(.easeInOut, value: selectedTypes.contains(therapyType)) // Smooth animation for selection changes
-                            .accessibility(label: Text("Therapy type: \(therapyType.displayName(managedObjectContext))")) // Accessibility label for better UI/UX
                         }
-                        .padding(.vertical, 2)
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
                     }
                 }
                 
                 Spacer()
+
+                // Modern Continue button
                 Button(action: {
-                    // Action handling logic
                     if selectedTypes.count < 2 {
-                        alertTitle = "Too Few Types"
-                        alertMessage = "Please select at least two types."
+                        alertTitle = "Select More Types"
+                        alertMessage = "Please select at least 2 habits to continue."
                         showAlert = true
                     } else {
                         saveSelectedTherapies(therapyTypes: selectedTypes, context: managedObjectContext)
@@ -134,22 +142,40 @@ struct TherapyTypeSelectionView: View {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }) {
-                    Text("Done")
-                        .font(.footnote) // Updated font for better readability
-                        .foregroundColor(.black)
-                        .frame(minWidth: 0, maxWidth: .infinity) // Make the button width responsive
-                        .padding(.vertical, 15)
-                        .background(Color.white)
-                        .cornerRadius(40)
-                        .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4) // Refined shadow for depth
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 40)
-                                .stroke(Color.white.opacity(0.4), lineWidth: 1) // Subtle border for added detail
-                        )
+                    HStack(spacing: 12) {
+                        Text("Continue")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .foregroundColor(selectedTypes.count >= 2 ? Color(red: 0.05, green: 0.15, blue: 0.25) : .white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(
+                        Group {
+                            if selectedTypes.count >= 2 {
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            } else {
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.15)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            }
+                        }
+                    )
+                    .cornerRadius(16)
+                    .shadow(color: selectedTypes.count >= 2 ? .white.opacity(0.3) : .clear, radius: 20, x: 0, y: 10)
                 }
-                .padding(.horizontal, 20) // Padding to ensure the button does not touch the screen edges
-                .padding(.bottom, 10) // Bottom padding for spacing from other elements
-                .alert(isPresented: $showAlert) { // Alert for validation
+                .disabled(selectedTypes.count < 2)
+                .padding(.horizontal, 32)
+                .padding(.bottom, 50)
+                .opacity(animateContent ? 1.0 : 0)
+                .alert(isPresented: $showAlert) {
                     Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 }
                 
@@ -157,8 +183,10 @@ struct TherapyTypeSelectionView: View {
             .onAppear {
                 selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
                 fetchCustomTherapyNames()
+                withAnimation(.easeOut(duration: 0.8)) {
+                    animateContent = true
+                }
             }
-            .padding(.horizontal, 12)
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -244,6 +272,86 @@ struct TherapyTypeSelectionView: View {
         for type in therapyTypes {
             saveTherapyType(type: type, context: context)
         }
+    }
+}
+
+// Modern therapy card component
+struct ModernTherapyCard: View {
+    let therapyType: TherapyType
+    let displayName: String
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                therapyType.color.opacity(0.8),
+                                therapyType.color.opacity(0.6)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 56, height: 56)
+
+                Image(systemName: therapyType.icon)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.white)
+            }
+
+            // Therapy type name
+            Text(displayName)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
+
+            Spacer()
+
+            // Selection indicator
+            ZStack {
+                Circle()
+                    .strokeBorder(isSelected ? Color.cyan : Color.white.opacity(0.3), lineWidth: 2)
+                    .frame(width: 28, height: 28)
+
+                if isSelected {
+                    Circle()
+                        .fill(Color.cyan)
+                        .frame(width: 28, height: 28)
+
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    isSelected
+                        ? Color.white.opacity(0.12)
+                        : Color.white.opacity(0.06)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(
+                            isSelected
+                                ? Color.cyan.opacity(0.5)
+                                : Color.white.opacity(0.1),
+                            lineWidth: isSelected ? 2 : 1
+                        )
+                )
+        )
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .shadow(
+            color: isSelected ? therapyType.color.opacity(0.3) : .clear,
+            radius: 12,
+            x: 0,
+            y: 6
+        )
     }
 }
 
