@@ -51,6 +51,7 @@
 		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
 		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
+		387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */; };
 		C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
@@ -122,6 +123,7 @@
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
 		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
+		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
 		C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleWorkoutsService.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				C5B6FD7E2A53586F00933029 /* DateUtils.swift */,
 				0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */,
 				C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */,
+				670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */,
 				C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */,
 				C57EE35A29CA8FBF002A4875 /* SessionRow.swift */,
 				C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */,
@@ -406,6 +409,7 @@
 				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
 				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
+				387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */,
 				C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */,
 				C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */,
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,

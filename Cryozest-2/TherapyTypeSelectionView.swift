@@ -64,6 +64,30 @@ struct TherapyTypeSelectionView: View {
                     .padding(.top, 60)
                     .padding(.bottom, 8)
                     .opacity(animateContent ? 1.0 : 0)
+
+                    // Device safety notice
+                    HStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(.orange)
+
+                        Text("Safety: Never bring your iPhone into extreme temperatures (saunas, cold plunges)")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.orange.opacity(0.15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 12)
+                    .opacity(animateContent ? 1.0 : 0)
                 
                     CategoryPillsView(selectedCategory: $selectedCategory)
                         .padding(.bottom, 60)

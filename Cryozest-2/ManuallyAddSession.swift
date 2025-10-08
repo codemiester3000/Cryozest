@@ -15,6 +15,10 @@ struct ManuallyAddSession: View {
     // New property for average heart rate
     @State private var averageHeartRate: Int = 70 // Default value
 
+    // Safety warning
+    @State private var showSafetyWarning: Bool = false
+    @State private var pendingSave: Bool = false
+
     var body: some View {
         NavigationView {
             Form {
@@ -33,7 +37,12 @@ struct ManuallyAddSession: View {
                 Stepper("Average Heart Rate: \(averageHeartRate) bpm", value: $averageHeartRate, in: 40...200) // Adjust range as needed
 
                 Button("Save Session") {
-                    saveSession()
+                    if requiresSafetyWarning(therapyType) {
+                        showSafetyWarning = true
+                        pendingSave = true
+                    } else {
+                        saveSession()
+                    }
                 }
                 .foregroundColor(.red)
             }
@@ -44,6 +53,27 @@ struct ManuallyAddSession: View {
             })
         }
         .background(Color.black.edgesIgnoringSafeArea(.all))
+        .fullScreenCover(isPresented: $showSafetyWarning) {
+            DeviceSafetyWarningView(
+                isPresented: $showSafetyWarning,
+                therapyType: therapyType,
+                onContinue: {
+                    if pendingSave {
+                        saveSession()
+                        pendingSave = false
+                    }
+                }
+            )
+        }
+    }
+
+    func requiresSafetyWarning(_ type: TherapyType) -> Bool {
+        switch type {
+        case .drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath:
+            return true
+        default:
+            return false
+        }
     }
 
     private func saveSession() {
