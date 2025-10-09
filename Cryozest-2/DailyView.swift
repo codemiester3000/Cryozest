@@ -6,17 +6,20 @@ struct DailyView: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var sleepModel: DailySleepViewModel
-    
+
     var appleWorkoutsService: AppleWorkoutsService
-    
+
     @State private var selectedDate: Date = Date()
-    
+
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
     @State private var showingMetricConfig = false
     @State private var calculatedUpperBound: Double = 8.0
     @ObservedObject var metricConfig = MetricConfigurationManager.shared
+
+    // Metric expansion state
+    @State private var expandedMetric: MetricType? = nil
     
     init(
         recoveryModel: RecoveryGraphModel,
@@ -75,7 +78,7 @@ struct DailyView: View {
                     .padding(.bottom, 5)
                     .padding(.leading,10)
 
-                DailyGridMetrics(model: recoveryModel, configManager: metricConfig)
+                DailyGridMetrics(model: recoveryModel, configManager: metricConfig, expandedMetric: $expandedMetric)
             
             VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
@@ -284,72 +287,119 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     @ObservedObject var configManager: MetricConfigurationManager
-
-    let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2)
+    @Binding var expandedMetric: MetricType?
+    @Namespace private var animation
 
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-            if configManager.isEnabled(.hrv) {
-                GridItemView(
-                    symbolName: "waveform.path.ecg",
-                    title: "Avg HRV",
-                    value: "\(model.lastKnownHRV)",
-                    unit: "ms"
-                )
-            }
+        VStack(spacing: 12) {
+            if expandedMetric == nil {
+                // Grid layout when nothing is expanded
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
+                    if configManager.isEnabled(.hrv) {
+                        GridItemView(
+                            symbolName: "waveform.path.ecg",
+                            title: "Avg HRV",
+                            value: "\(model.lastKnownHRV)",
+                            unit: "ms",
+                            metricType: .hrv,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.rhr) {
-                GridItemView(
-                    symbolName: "arrow.down.heart",
-                    title: "Avg RHR",
-                    value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                    unit: "bpm"
-                )
-            }
+                    if configManager.isEnabled(.rhr) {
+                        GridItemView(
+                            symbolName: "arrow.down.heart",
+                            title: "Avg RHR",
+                            value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                            unit: "bpm",
+                            metricType: .rhr,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.spo2) {
-                GridItemView(
-                    symbolName: "drop",
-                    title: "Blood Oxygen",
-                    value: formatSPO2Value(model.mostRecentSPO2),
-                    unit: "%"
-                )
-            }
+                    if configManager.isEnabled(.spo2) {
+                        GridItemView(
+                            symbolName: "drop",
+                            title: "Blood Oxygen",
+                            value: formatSPO2Value(model.mostRecentSPO2),
+                            unit: "%",
+                            metricType: .spo2,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.respiratoryRate) {
-                GridItemView(
-                    symbolName: "lungs",
-                    title: "Respiratory Rate",
-                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
-                    unit: "BrPM"
-                )
-            }
+                    if configManager.isEnabled(.respiratoryRate) {
+                        GridItemView(
+                            symbolName: "lungs",
+                            title: "Respiratory Rate",
+                            value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                            unit: "BrPM",
+                            metricType: .respiratoryRate,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.calories) {
-                GridItemView(
-                    symbolName: "flame",
-                    title: "Calories Burned",
-                    value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
-                    unit: "kcal"
-                )
-            }
+                    if configManager.isEnabled(.calories) {
+                        GridItemView(
+                            symbolName: "flame",
+                            title: "Calories Burned",
+                            value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+                            unit: "kcal",
+                            metricType: .calories,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.steps) {
-                GridItemView(
-                    symbolName: "figure.walk",
-                    title: "Steps",
-                    value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
-                    unit: "steps"
-                )
-            }
+                    if configManager.isEnabled(.steps) {
+                        GridItemView(
+                            symbolName: "figure.walk",
+                            title: "Steps",
+                            value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
+                            unit: "steps",
+                            metricType: .steps,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
 
-            if configManager.isEnabled(.vo2Max) {
-                GridItemView(
-                    symbolName: "lungs",
-                    title: "VO2 Max",
-                    value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
-                    unit: "ml/kg/min"
-                )
+                    if configManager.isEnabled(.vo2Max) {
+                        GridItemView(
+                            symbolName: "lungs",
+                            title: "VO2 Max",
+                            value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
+                            unit: "ml/kg/min",
+                            metricType: .vo2Max,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
+                }
+            } else {
+                // Expanded single tile view
+                if let metric = expandedMetric {
+                    ExpandedGridItemView(
+                        symbolName: iconFor(metric),
+                        title: titleFor(metric),
+                        value: valueFor(metric),
+                        unit: unitFor(metric),
+                        metricType: metric,
+                        model: model,
+                        expandedMetric: $expandedMetric,
+                        namespace: animation
+                    )
+                }
             }
         }
         .padding([.horizontal, .top])
@@ -369,6 +419,54 @@ struct DailyGridMetrics: View {
         guard let respRate = respRate else { return "N/A" }
         return String(format: "%.1f", respRate) // One decimal place
     }
+
+    private func iconFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "waveform.path.ecg"
+        case .rhr: return "arrow.down.heart"
+        case .spo2: return "drop"
+        case .respiratoryRate: return "lungs"
+        case .calories: return "flame"
+        case .steps: return "figure.walk"
+        case .vo2Max: return "lungs"
+        }
+    }
+
+    private func titleFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "Avg HRV"
+        case .rhr: return "Avg RHR"
+        case .spo2: return "Blood Oxygen"
+        case .respiratoryRate: return "Respiratory Rate"
+        case .calories: return "Calories Burned"
+        case .steps: return "Steps"
+        case .vo2Max: return "VO2 Max"
+        }
+    }
+
+    private func valueFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "\(model.lastKnownHRV)"
+        case .rhr: return "\(model.mostRecentRestingHeartRate ?? 0)"
+        case .spo2: return formatSPO2Value(model.mostRecentSPO2)
+        case .respiratoryRate: return formatRespRateValue(model.mostRecentRespiratoryRate)
+        case .calories: return formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories)
+        case .steps: return "\(model.mostRecentSteps.map(Int.init) ?? 0)"
+        case .vo2Max: return String(format: "%.1f", model.mostRecentVO2Max ?? 0.0)
+        }
+    }
+
+    private func unitFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "ms"
+        case .rhr: return "bpm"
+        case .spo2: return "%"
+        case .respiratoryRate: return "BrPM"
+        case .calories: return "kcal"
+        case .steps: return "steps"
+        case .vo2Max: return "ml/kg/min"
+        }
+    }
 }
 
 struct GridItemView: View {
@@ -376,16 +474,25 @@ struct GridItemView: View {
     var title: String
     var value: String
     var unit: String
+    var metricType: MetricType
+    var model: RecoveryGraphModel
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
 
     @State private var animate = true
     @State private var cachedValue: String
+    @State private var isPressed = false
 
-    init(symbolName: String, title: String, value: String, unit: String) {
+    init(symbolName: String, title: String, value: String, unit: String, metricType: MetricType, model: RecoveryGraphModel, expandedMetric: Binding<MetricType?>, namespace: Namespace.ID) {
         self.symbolName = symbolName
         self.title = title
         _cachedValue = State(initialValue: value)
         self.value = value
         self.unit = unit
+        self.metricType = metricType
+        self.model = model
+        self._expandedMetric = expandedMetric
+        self.namespace = namespace
     }
 
     var body: some View {
@@ -450,6 +557,118 @@ struct GridItemView: View {
                 )
         )
         .shadow(color: animate ? Color.cyan.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace)
+        .onTapGesture {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                expandedMetric = metricType
+            }
+        }
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+    }
+}
+
+struct ExpandedGridItemView: View {
+    var symbolName: String
+    var title: String
+    var value: String
+    var unit: String
+    var metricType: MetricType
+    var model: RecoveryGraphModel
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Header section (similar to collapsed)
+            HStack {
+                HStack(spacing: 10) {
+                    Image(systemName: symbolName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(metricType.color)
+                        .frame(width: 36, height: 36)
+                        .background(
+                            Circle()
+                                .fill(metricType.color.opacity(0.15))
+                        )
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack(alignment: .lastTextBaseline, spacing: 3) {
+                            Text(value)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            Text(unit)
+                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
+                }
+
+                Spacer()
+
+                Button(action: {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                        expandedMetric = nil
+                    }
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+            }
+
+            // Chart section
+            detailView
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.12),
+                            Color.white.opacity(0.08)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(metricType.color.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+        .shadow(color: metricType.color.opacity(0.3), radius: 12, x: 0, y: 6)
+        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace)
+    }
+
+    @ViewBuilder
+    private var detailView: some View {
+        switch metricType {
+        case .hrv:
+            HRVDetailView(model: model)
+        case .rhr:
+            RHRDetailView(model: model)
+        case .spo2:
+            SpO2DetailView(model: model)
+        case .respiratoryRate:
+            RespiratoryRateDetailView(model: model)
+        case .calories:
+            CaloriesDetailView(model: model)
+        case .steps:
+            StepsDetailView(model: model)
+        case .vo2Max:
+            VO2MaxDetailView(model: model)
+        }
     }
 }
 

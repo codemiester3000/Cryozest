@@ -37,6 +37,15 @@
 		C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC02E97E8280052946A /* ProjectionWidget.swift */; };
 		C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC22E97EC560052946A /* GoalSettings.swift */; };
 		C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */; };
+		C56DDCC72E9809100052946A /* ExpandedMetricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC62E9809100052946A /* ExpandedMetricView.swift */; };
+		C56DDCCA2E9809AE0052946A /* HRVDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC92E9809AE0052946A /* HRVDetailView.swift */; };
+		C56DDCCC2E9809BB0052946A /* RHRDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */; };
+		C56DDCCE2E9809C90052946A /* SpO2DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */; };
+		C56DDCD02E9809D30052946A /* RespiratoryRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */; };
+		C56DDCD22E9809E00052946A /* CaloriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */; };
+		C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD32E9809EB0052946A /* StepsDetailView.swift */; };
+		C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */; };
+		C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD72E980A020052946A /* MetricChartView.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
 		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
@@ -123,6 +132,15 @@
 		C56DDCC02E97E8280052946A /* ProjectionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionWidget.swift; sourceTree = "<group>"; };
 		C56DDCC22E97EC560052946A /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
 		C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalConfigurationView.swift; sourceTree = "<group>"; };
+		C56DDCC62E9809100052946A /* ExpandedMetricView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandedMetricView.swift; sourceTree = "<group>"; };
+		C56DDCC92E9809AE0052946A /* HRVDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVDetailView.swift; sourceTree = "<group>"; };
+		C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RHRDetailView.swift; sourceTree = "<group>"; };
+		C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpO2DetailView.swift; sourceTree = "<group>"; };
+		C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespiratoryRateDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaloriesDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD32E9809EB0052946A /* StepsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VO2MaxDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD72E980A020052946A /* MetricChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricChartView.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
@@ -187,6 +205,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C56DDCC82E9809960052946A /* MetricDetailViews */ = {
+			isa = PBXGroup;
+			children = (
+				C56DDCC92E9809AE0052946A /* HRVDetailView.swift */,
+				C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */,
+				C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */,
+				C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */,
+				C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */,
+				C56DDCD32E9809EB0052946A /* StepsDetailView.swift */,
+				C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */,
+			);
+			path = MetricDetailViews;
+			sourceTree = "<group>";
+		};
 		C57EE32029CA8E31002A4875 = {
 			isa = PBXGroup;
 			children = (
@@ -210,6 +242,7 @@
 		C57EE32B29CA8E31002A4875 /* Cryozest-2 */ = {
 			isa = PBXGroup;
 			children = (
+				C56DDCC82E9809960052946A /* MetricDetailViews */,
 				0543F28B29D0078200620A55 /* Cryozest-2.entitlements */,
 				0543F28A29D003B600620A55 /* Info.plist */,
 				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
@@ -271,6 +304,8 @@
 				C56DDCC02E97E8280052946A /* ProjectionWidget.swift */,
 				C56DDCC22E97EC560052946A /* GoalSettings.swift */,
 				C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */,
+				C56DDCC62E9809100052946A /* ExpandedMetricView.swift */,
+				C56DDCD72E980A020052946A /* MetricChartView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -452,15 +487,20 @@
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C56DDCB72E97E7D30052946A /* PersonalBestsView.swift in Sources */,
+				C56DDCCA2E9809AE0052946A /* HRVDetailView.swift in Sources */,
 				C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */,
 				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
+				C56DDCC72E9809100052946A /* ExpandedMetricView.swift in Sources */,
 				C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */,
+				C56DDCCC2E9809BB0052946A /* RHRDetailView.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
 				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
 				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
+				C56DDCCE2E9809C90052946A /* SpO2DetailView.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
 				387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */,
+				C56DDCD22E9809E00052946A /* CaloriesDetailView.swift in Sources */,
 				C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */,
 				C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */,
 				C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */,
@@ -476,7 +516,9 @@
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
+				C56DDCD02E9809D30052946A /* RespiratoryRateDetailView.swift in Sources */,
 				C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */,
+				C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */,
 				C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */,
 				C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */,
 				C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */,
@@ -490,7 +532,9 @@
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
 				C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
+				C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */,
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
+				C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
 				C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */,

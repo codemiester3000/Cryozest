@@ -495,7 +495,7 @@ class HealthKitManager {
         }
         
         // Assuming 'healthStore' is previously initialized and available
-        HKHealthStore().execute(query)
+        self.healthStore.execute(query)
     }
 
     func fetchAverageRestingHeartRate(for date: Date, completion: @escaping (Int?) -> Void) {
@@ -506,7 +506,6 @@ class HealthKitManager {
             return
         }
 
-        let healthStore = HKHealthStore()
         guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
             completion(nil) // Health data type for heart rate not available
             return
@@ -534,7 +533,7 @@ class HealthKitManager {
             }
         }
 
-        healthStore.execute(query)
+        self.healthStore.execute(query)
     }
 
     
@@ -1037,11 +1036,11 @@ class HealthKitManager {
                 completion(sleepStart, sleepEnd)
             }
         }
-        
-        HKHealthStore().execute(query)
+
+        self.healthStore.execute(query)
     }
 
-    
+
     func fetchAverageRHRDuringSleep(for date: Date, completion: @escaping (Double?) -> Void) {
         getSleepTimes(for: date) { sleepStart, sleepEnd in
             guard let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
@@ -1067,8 +1066,8 @@ class HealthKitManager {
                     completion(averageHeartRate)
                 }
             }
-            
-            HKHealthStore().execute(query)
+
+            self.healthStore.execute(query)
         }
     }
 
@@ -1105,7 +1104,6 @@ class HealthKitManager {
 
     func fetchAverageSleepVitalsForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
         let calendar = Calendar.current
-        let healthStore = HKHealthStore()
         let group = DispatchGroup()
 
         var dailyVitalsResults: [(averageHeartRate: Double, averageHRV: Double)] = []
@@ -1153,10 +1151,10 @@ class HealthKitManager {
                         group.leave()
                     }
 
-                    healthStore.execute(hrvQuery)
+                    self.healthStore.execute(hrvQuery)
                 }
 
-                healthStore.execute(heartRateQuery)
+                self.healthStore.execute(heartRateQuery)
             }
         }
 
@@ -1170,7 +1168,6 @@ class HealthKitManager {
     }
 
     func fetchAverageRespiratoryRateAndSPO2ForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
-        let healthStore = HKHealthStore()
         let group = DispatchGroup()
 
         var dailyVitalsResults: [(averageRespiratoryRate: Double, averageSPO2: Double)] = []
@@ -1220,11 +1217,11 @@ class HealthKitManager {
                     }
 
                     // Execute the SPO2 Query
-                    healthStore.execute(spo2Query)
+                    self.healthStore.execute(spo2Query)
                 }
 
                 // Execute the Respiratory Rate Query
-                healthStore.execute(respiratoryRateQuery)
+                self.healthStore.execute(respiratoryRateQuery)
             }
         }
 
@@ -1241,7 +1238,6 @@ class HealthKitManager {
     }
 
     func fetchWakingStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double) -> Void) {
-        let healthStore = HKHealthStore()
         let group = DispatchGroup()
 
         var totalRestingHeartRate = 0.0
@@ -1270,7 +1266,7 @@ class HealthKitManager {
                     }
                 }
             }
-            healthStore.execute(heartRateQuery)
+            self.healthStore.execute(heartRateQuery)
 
             // Total Active Calories Burned Query
             group.enter()
@@ -1282,13 +1278,13 @@ class HealthKitManager {
                 if let result = result, let sumQuantity = result.sumQuantity() {
                     let caloriesValue = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
                     totalActiveCaloriesBurned += caloriesValue
-                    
+
                     if caloriesValue > 0 {
                         caloriesCount += 1
                     }
                 }
             }
-            healthStore.execute(activeCaloriesQuery)
+            self.healthStore.execute(activeCaloriesQuery)
 
             // Total Basal Calories Burned Query
             group.enter()
@@ -1299,11 +1295,11 @@ class HealthKitManager {
                 if let result = result, let sumQuantity = result.sumQuantity() {
                     let basalCaloriesValue = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
                     totalBasalCaloriesBurned += basalCaloriesValue
-                    
+
                     // Basal calories are not counted separately as they are always present
                 }
             }
-            healthStore.execute(basalCaloriesQuery)
+            self.healthStore.execute(basalCaloriesQuery)
 
             // Steps Taken Query
             group.enter()
@@ -1314,13 +1310,13 @@ class HealthKitManager {
                 if let result = result, let sumQuantity = result.sumQuantity() {
                     let stepsValue = sumQuantity.doubleValue(for: HKUnit.count())
                     totalStepsTaken += stepsValue
-                    
+
                     if stepsValue > 0 {
                         stepsCount += 1
                     }
                 }
             }
-            healthStore.execute(stepsQuery)
+            self.healthStore.execute(stepsQuery)
         }
 
         group.notify(queue: .main) {
@@ -1338,7 +1334,6 @@ class HealthKitManager {
     // Return averageTotalSleep, averageREMSleep, averageDeepSleep, averageCoreSleep
     func fetchAverageSleepStatisticsForDays(days: [Date], completion: @escaping (Double, Double, Double, Double) -> Void) {
         let calendar = Calendar.current
-        let healthStore = HKHealthStore()
         let group = DispatchGroup()
 
         var dailySleepResults: [(totalSleep: Double, remSleep: Double, deepSleep: Double, coreSleep: Double)] = []
@@ -1390,7 +1385,7 @@ class HealthKitManager {
                 // Debugging statement to print total sleep duration for the current day
             }
 
-            healthStore.execute(sleepQuery)
+            self.healthStore.execute(sleepQuery)
         }
 
         group.notify(queue: .main) {
@@ -1613,10 +1608,16 @@ class HealthKitManager {
                 completion(nil)
                 return
             }
-            
-            // Assuming sleepSamples are sorted by start date, get the first and last sample to determine the sleep period
-            let sleepStart = sleepSamples.first!.startDate
-            let sleepEnd = sleepSamples.last!.endDate
+
+            // Get the first and last sample to determine the sleep period
+            guard let firstSample = sleepSamples.first,
+                  let lastSample = sleepSamples.last else {
+                completion(nil)
+                return
+            }
+
+            let sleepStart = firstSample.startDate
+            let sleepEnd = lastSample.endDate
             
             // Create a predicate for HRV data during the sleep period
             let hrvPredicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictStartDate)
@@ -1688,14 +1689,20 @@ class HealthKitManager {
                 completion(nil)
                 return
             }
-            
-            // Assuming sleepSamples are sorted by start date, get the first and last sample to determine the sleep period
-            let sleepStart = sleepSamples.first!.startDate
-            let sleepEnd = sleepSamples.last!.endDate
-            
+
+            // Get the first and last sample to determine the sleep period
+            guard let firstSample = sleepSamples.first,
+                  let lastSample = sleepSamples.last else {
+                completion(nil)
+                return
+            }
+
+            let sleepStart = firstSample.startDate
+            let sleepEnd = lastSample.endDate
+
             // Create a predicate for HRV data during the sleep period
             let hrvPredicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictStartDate)
-            
+
             // Query HRV data
             let hrvQuery = HKSampleQuery(sampleType: self.hrvType, predicate: hrvPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, hrvSamples, error in
                 guard let hrvSamples = hrvSamples as? [HKQuantitySample], !hrvSamples.isEmpty else {
@@ -1705,14 +1712,14 @@ class HealthKitManager {
                 // Calculate average HRV
                 let totalHRV = hrvSamples.reduce(0) { $0 + $1.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli)) }
                 let averageHRV = totalHRV / Double(hrvSamples.count)
-                
+
                 completion(averageHRV)
             }
             self.healthStore.execute(hrvQuery)
         }
         self.healthStore.execute(sleepQuery)
     }
-    
+
     func fetchAvgHRVDuring60DaysSleep(completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let now = Date()
@@ -1773,100 +1780,136 @@ class HealthKitManager {
     
     
     func fetchMaxHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
-        let calendar = Calendar.current
-        
-        // Convert dates into just the day component
-        var includedDays: [Int] = []
-        for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+        guard !days.isEmpty else {
+            completion(nil)
+            return
         }
-        
-        // Create a predicate to fetch all HRV samples
-        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
-        
+
+        let calendar = Calendar.current
+
+        // Convert dates to start of day for accurate comparison
+        var includedDays: Set<Date> = []
+        for date in days {
+            if let startOfDay = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: date)) {
+                includedDays.insert(startOfDay)
+            }
+        }
+
+        // Use earliest date instead of Date.distantPast for performance
+        guard let earliestDate = days.min() else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
+
         let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-            
+
             guard let samples = samples as? [HKQuantitySample] else {
                 DispatchQueue.main.async {
                     completion(nil)
                 }
                 return
             }
-            
+
             var hrvValues: [Double] = []
-            
+
             for sample in samples {
-                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
-                
-                // Only include the sample if its day component is in the includedDays array
-                if includedDays.contains(sampleDayComponent) {
-                    let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
-                    hrvValues.append(hrvValue)
+                // Convert sample date to start of day for comparison
+                if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sample.endDate)) {
+                    if includedDays.contains(sampleDayStart) {
+                        let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
+                        hrvValues.append(hrvValue)
+                    }
                 }
             }
-            
+
             DispatchQueue.main.async {
                 let maxHRV = hrvValues.max()
                 completion(maxHRV)
             }
         }
-        
-        healthStore.execute(hrvQuery)
+
+        self.healthStore.execute(hrvQuery)
     }
     
     func fetchMinHRVForDays(days: [Date], completion: @escaping (Double?) -> Void) {
-        let calendar = Calendar.current
-        
-        // Convert dates into just the day component
-        var includedDays: [Int] = []
-        for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+        guard !days.isEmpty else {
+            completion(nil)
+            return
         }
-        
-        // Create a predicate to fetch all HRV samples
-        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
-        
+
+        let calendar = Calendar.current
+
+        // Convert dates to start of day for accurate comparison
+        var includedDays: Set<Date> = []
+        for date in days {
+            if let startOfDay = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: date)) {
+                includedDays.insert(startOfDay)
+            }
+        }
+
+        // Use earliest date instead of Date.distantPast for performance
+        guard let earliestDate = days.min() else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
+
         let hrvQuery = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-            
+
             guard let samples = samples as? [HKQuantitySample] else {
                 DispatchQueue.main.async {
                     completion(nil)
                 }
                 return
             }
-            
+
             var hrvValues: [Double] = []
-            
+
             for sample in samples {
-                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
-                
-                // Only include the sample if its day component is in the includedDays array
-                if includedDays.contains(sampleDayComponent) {
-                    let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
-                    hrvValues.append(hrvValue)
+                // Convert sample date to start of day for comparison
+                if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sample.endDate)) {
+                    if includedDays.contains(sampleDayStart) {
+                        let hrvValue = sample.quantity.doubleValue(for: HKUnit(from: "ms"))
+                        hrvValues.append(hrvValue)
+                    }
                 }
             }
-            
+
             DispatchQueue.main.async {
                 let minHRV = hrvValues.min()
                 completion(minHRV)
             }
         }
-        
-        healthStore.execute(hrvQuery)
+
+        self.healthStore.execute(hrvQuery)
     }
     
     func fetchHRVTrendForDays(days: [Date], completion: @escaping (Trend?) -> Void) {
-        let calendar = Calendar.current
-        var includedDays: [Int] = []
-        for date in days {
-            let dayComponent = calendar.component(.day, from: date)
-            includedDays.append(dayComponent)
+        guard !days.isEmpty else {
+            completion(nil)
+            return
         }
-        
-        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: Date(), options: .strictStartDate)
+
+        let calendar = Calendar.current
+
+        // Convert dates to start of day for accurate comparison
+        var includedDays: Set<Date> = []
+        for date in days {
+            if let startOfDay = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: date)) {
+                includedDays.insert(startOfDay)
+            }
+        }
+
+        // Use earliest date instead of Date.distantPast for performance
+        guard let earliestDate = days.min() else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
         let query = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
             guard let samples = samples as? [HKQuantitySample] else {
                 DispatchQueue.main.async {
@@ -1874,16 +1917,18 @@ class HealthKitManager {
                 }
                 return
             }
-            
+
             var hrvValuesForIncludedDays: [Double] = []
             for sample in samples {
-                let sampleDayComponent = calendar.component(.day, from: sample.endDate)
-                if includedDays.contains(sampleDayComponent) {
-                    let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
-                    hrvValuesForIncludedDays.append(hrvValue)
+                // Convert sample date to start of day for comparison
+                if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sample.endDate)) {
+                    if includedDays.contains(sampleDayStart) {
+                        let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                        hrvValuesForIncludedDays.append(hrvValue)
+                    }
                 }
             }
-            
+
             DispatchQueue.main.async {
                 guard let firstValue = hrvValuesForIncludedDays.first, let lastValue = hrvValuesForIncludedDays.last else {
                     completion(nil)
@@ -1892,7 +1937,7 @@ class HealthKitManager {
                 completion(firstValue < lastValue ? .increasing : .decreasing)
             }
         }
-        healthStore.execute(query)
+        self.healthStore.execute(query)
     }
     
     
