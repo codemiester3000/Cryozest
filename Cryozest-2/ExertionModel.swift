@@ -97,12 +97,10 @@ class ExertionModel: ObservableObject {
     private func calculateExertionScore(userAge: Int, heartRateData: [HKQuantitySample], avgRestingHeartRate: Double) throws -> Double {
         let zoneMultipliers: [Double] = [0.0668, 0.1198, 0.13175, 0.1581, 0.18975].map { $0 * 1 } // ROB: Working on scaling exertion score
         let zoneUpperBoundaries: [Double] = [0.6, 0.7, 0.8, 0.9, 1.1]
-        
+
         var exertionScore = 0.0
-        DispatchQueue.main.async {
-            self.zoneTimes = []
-        }
-        
+        var tempZoneTimes: [Double] = []
+
         for (index, upperBoundary) in zoneUpperBoundaries.enumerated() {
             let lowerBoundary = index == 0 ? 0.4 : zoneUpperBoundaries[index - 1]
             let timeInZone = calculateTimeInZone(
@@ -113,12 +111,13 @@ class ExertionModel: ObservableObject {
                 avgRestingHeartRate: avgRestingHeartRate
             )
             exertionScore += timeInZone * zoneMultipliers[index]
-            
-            DispatchQueue.main.async {
-                self.zoneTimes.append(timeInZone)
-            }
+            tempZoneTimes.append(timeInZone)
         }
-        
+
+        DispatchQueue.main.async {
+            self.zoneTimes = tempZoneTimes
+        }
+
         return exertionScore
     }
     

@@ -148,8 +148,10 @@ class RecoveryGraphModel: ObservableObject {
     
     func pullAllRecoveryData(forDate date: Date) {
         print("pull all recovery data for: ", date)
-        
-        lastDataRefresh = Date()
+
+        DispatchQueue.main.async {
+            self.lastDataRefresh = Date()
+        }
         self.getLastSevenDaysOfRecoveryScores()
         
         // HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
@@ -329,54 +331,48 @@ class RecoveryGraphModel: ObservableObject {
         
         group.enter()
         HealthKitManager.shared.fetchAvgHRVForLastDays(numberOfDays: 10) { avgHrv in
-            DispatchQueue.main.async {
-                if let avgHrv = avgHrv {
-                    avgHrvLast10days = Int(avgHrv)
-                }
+            if let avgHrv = avgHrv {
+                avgHrvLast10days = Int(avgHrv)
             }
             group.leave()
         }
         
         group.enter()
         HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { avgHrv in
-            DispatchQueue.main.async {
-                if let avgHrv = avgHrv {
+            if let avgHrv = avgHrv {
+                DispatchQueue.main.async {
                     self.hrvReadings[date] = Int(avgHrv)
+                }
+                avgHrvForDate = Int(avgHrv)
+            }
+            group.leave()
+        }
+        
+        if avgHrvForDate == nil {
+            group.enter()
+            HealthKitManager.shared.fetchMostRecentHRVForToday(before: Date()) { avgHrv in
+                if let avgHrv = avgHrv {
+                    DispatchQueue.main.async {
+                        self.hrvReadings[date] = Int(avgHrv)
+                    }
                     avgHrvForDate = Int(avgHrv)
                 }
                 group.leave()
             }
         }
         
-        if avgHrvForDate == nil {
-            group.enter()
-            HealthKitManager.shared.fetchMostRecentHRVForToday(before: Date()) { avgHrv in
-                DispatchQueue.main.async {
-                    if let avgHrv = avgHrv {
-                        self.hrvReadings[date] = Int(avgHrv)
-                        avgHrvForDate = Int(avgHrv)
-                    }
-                    group.leave()
-                }
-            }
-        }
-        
         group.enter()
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 30) { restingHeartRate in
-            DispatchQueue.main.async {
-                if let restingHeartRate = restingHeartRate {
-                    avgHeartRate30day = restingHeartRate
-                }
+            if let restingHeartRate = restingHeartRate {
+                avgHeartRate30day = restingHeartRate
             }
             group.leave()
         }
         
         group.enter()
         HealthKitManager.shared.fetchAverageDailyRHR { restingHeartRate in
-            DispatchQueue.main.async {
-                if let heartRate = restingHeartRate {
-                    avgRestingHeartRateForDay = Int(heartRate)
-                }
+            if let heartRate = restingHeartRate {
+                avgRestingHeartRateForDay = Int(heartRate)
             }
             group.leave()
         }

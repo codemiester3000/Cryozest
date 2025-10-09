@@ -823,23 +823,6 @@ struct ScoreCardView: View {
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
                     .lineLimit(1)
-
-                // Apple Watch indicator (if required and score is 0)
-                if requiresAppleWatch && score == 0 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "applewatch")
-                            .font(.system(size: 8, weight: .medium))
-                        Text("Required")
-                            .font(.system(size: 8, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(.white.opacity(0.5))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
-                    .background(
-                        Capsule()
-                            .fill(Color.white.opacity(0.1))
-                    )
-                }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
