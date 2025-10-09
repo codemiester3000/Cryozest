@@ -8,8 +8,8 @@ struct CreateTimerView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \CustomTimer.duration, ascending: true)]
     ) private var timers: FetchedResults<CustomTimer>
     
-    @State private var durations = [5, 10, 15]
-    
+    @State private var durations = [10, 15]
+
     var body: some View {
         ZStack {
             // Modern gradient background
@@ -36,52 +36,65 @@ struct CreateTimerView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                ForEach(0..<3) { index in
-                    VStack {  // Added VStack for each picker and title
-                        Text("Timer \(index + 1)") // Titles for each picker
-                            .font(.headline)
-                            .fontWeight(.medium)
-                            .foregroundColor(.white)
+            VStack(spacing: 24) {
+                Text("Customize Timer Durations")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.top, 40)
+
+                ForEach(0..<2) { index in
+                    VStack(spacing: 12) {
+                        Text("Timer \(index + 1)")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
                         Picker(selection: $durations[index], label: Text("Duration")) {
                             ForEach(1...60, id: \.self) {
                                 Text("\($0) min")
+                                    .foregroundColor(.white)
                             }
                         }
                         .pickerStyle(WheelPickerStyle())
-                        .background(Color.white.opacity(0.2))
-                        .cornerRadius(15)
-                        .frame(height: 100) // Reduced height for pickers
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.08))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                )
+                        )
+                        .frame(height: 120)
                         .foregroundColor(.white)
                         .labelsHidden()
                     }
-                    .padding(.top, 20)
                 }
                 
                 Spacer()
-                
+
                 Button(action: {
                     saveDurations()
                     self.presentationMode.wrappedValue.dismiss()
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         Text("Save Timers")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 17, weight: .semibold, design: .rounded))
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 16))
+                            .font(.system(size: 18))
                     }
-                    .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .background(
                         LinearGradient(
-                            gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                            gradient: Gradient(colors: [
+                                Color.cyan,
+                                Color.cyan.opacity(0.8)
+                            ]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                     .cornerRadius(14)
-                    .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
+                    .shadow(color: Color.cyan.opacity(0.4), radius: 12, x: 0, y: 6)
                 }
                 .padding(.horizontal, 32)
                 .padding(.bottom, 40)

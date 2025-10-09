@@ -15,7 +15,7 @@ struct HabitsEmptyStateView: View {
     @State private var showContent = false
 
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 28) {
             Spacer()
 
             // Animated icon
@@ -31,7 +31,7 @@ struct HabitsEmptyStateView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 100, height: 100)
+                    .frame(width: 120, height: 120)
                     .scaleEffect(animatePulse ? 1.15 : 1.0)
                     .opacity(animatePulse ? 0.5 : 1.0)
                     .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: animatePulse)
@@ -40,6 +40,7 @@ struct HabitsEmptyStateView: View {
                     .font(.system(size: 45, weight: .regular))
                     .foregroundColor(therapyColor)
             }
+            .padding(.top, 40)
 
             VStack(spacing: 12) {
                 Text("Start Your First Session")

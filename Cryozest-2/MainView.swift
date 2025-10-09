@@ -138,36 +138,28 @@ struct MainView: View {
                     }
                     .frame(maxWidth: .infinity)
 
-                    // Quick timer badges - vertical stack
+                    // Quick timer badges - vertical stack with customize button first
                     VStack(spacing: 8) {
-                        ForEach(customTimers.prefix(3), id: \.self) { timer in
-                            compactTimerBadge(for: timer)
-                        }
-                        if customTimers.count > 3 || customTimers.isEmpty {
-                            compactAddButton
-                        }
+                        compactAddButton
+                        compactTimerBadge(for: 10)
+                        compactTimerBadge(for: 15)
                     }
                 }
 
                 // Start/Stop button - full width but compact
                 StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-
-                // Health status - compact
-                if !isHealthDataAvailable {
-                    HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
-                }
             }
         } else {
             quickAddContent
         }
     }
 
-    private func compactTimerBadge(for timer: CustomTimer) -> some View {
+    private func compactTimerBadge(for duration: Int) -> some View {
         Button(action: {
-            startCountdown(for: Double(timer.duration) * 60)
+            startCountdown(for: Double(duration) * 60)
         }) {
             HStack(spacing: 8) {
-                Text("\(timer.duration)")
+                Text("\(duration)")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 Text("min")
@@ -191,15 +183,15 @@ struct MainView: View {
 
     private var compactAddButton: some View {
         Button(action: { showCreateTimer = true }) {
-            HStack(spacing: 8) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16))
+            HStack(spacing: 6) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 14))
                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                Text("Add")
+                Text("Custom")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundColor(.white.opacity(0.7))
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 12)
@@ -462,6 +454,12 @@ struct MainView: View {
                         OnboardingManager.shared.markStopwatchTooltipSeen()
                     }
                 )
+
+                // Health status - below timer area
+                if !isHealthDataAvailable {
+                    HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
+                        .padding(.bottom, 16)
+                }
                 
                 // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
                 
@@ -601,7 +599,7 @@ struct MainView: View {
 
                 // Add default timers if no custom ones are saved
                 if customTimers.isEmpty {
-                    let defaultDurations = [5, 10, 15]
+                    let defaultDurations = [10, 15]
                     for duration in defaultDurations {
                         let newTimer = CustomTimer(context: viewContext)
                         newTimer.duration = Int32(duration)

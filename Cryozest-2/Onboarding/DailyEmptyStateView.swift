@@ -15,7 +15,9 @@ struct DailyEmptyStateView: View {
     @State private var showContent = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 28) {
+            Spacer()
+
             // Animated icon
             ZStack {
                 Circle()
@@ -34,7 +36,7 @@ struct DailyEmptyStateView: View {
                     .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: animateIcon)
 
                 Image(systemName: "heart.text.square.fill")
-                    .font(.system(size: 50, weight: .light))
+                    .font(.system(size: 45, weight: .light))
                     .foregroundColor(.cyan)
             }
             .padding(.top, 40)

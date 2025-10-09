@@ -1,7 +1,11 @@
 import SwiftUI
 
 class TherapyTypeSelection: ObservableObject {
-    @Published var selectedTherapyType: TherapyType = .drySauna
+    @Published var selectedTherapyType: TherapyType
+
+    init(initialTherapyType: TherapyType = .drySauna) {
+        self.selectedTherapyType = initialTherapyType
+    }
 }
 
 struct TherapyTypeGrid: View {

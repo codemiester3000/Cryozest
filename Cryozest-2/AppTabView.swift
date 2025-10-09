@@ -7,11 +7,36 @@ extension Color {
 
 struct AppTabView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
+
+    @FetchRequest(
+        entity: SelectedTherapy.entity(),
+        sortDescriptors: []
+    )
+    private var selectedTherapies: FetchedResults<SelectedTherapy>
+
     @State private var sessions: [TherapySession] = []
-    @StateObject private var therapyTypeSelection = TherapyTypeSelection()
-    
+    @StateObject private var therapyTypeSelection: TherapyTypeSelection
+
     @State private var selectedTab: Int = 0
+
+    init() {
+        // Create a temporary fetch request to get selected therapies for initialization
+        let request = SelectedTherapy.fetchRequest()
+        request.sortDescriptors = []
+
+        let context = PersistenceController.shared.container.viewContext
+        let results = (try? context.fetch(request)) ?? []
+
+        let therapyTypes: [TherapyType]
+        if results.isEmpty {
+            therapyTypes = [.drySauna, .weightTraining, .coldPlunge, .meditation]
+        } else {
+            therapyTypes = results.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+        }
+
+        let initialTherapy = therapyTypes.first ?? .drySauna
+        _therapyTypeSelection = StateObject(wrappedValue: TherapyTypeSelection(initialTherapyType: initialTherapy))
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {

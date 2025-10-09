@@ -32,14 +32,14 @@ struct AnalysisEmptyStateView: View {
                             endRadius: 80
                         )
                     )
-                    .frame(width: 140, height: 140)
+                    .frame(width: 120, height: 120)
                     .scaleEffect(animateChart ? 1.2 : 1.0)
                     .opacity(animateChart ? 0 : 1)
                     .animation(.easeOut(duration: 2).repeatForever(autoreverses: false), value: animateChart)
 
                 VStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
-                        .font(.system(size: 40, weight: .regular))
+                        .font(.system(size: 45, weight: .regular))
                         .foregroundColor(therapyColor)
 
                     HStack(spacing: 4) {
@@ -58,7 +58,7 @@ struct AnalysisEmptyStateView: View {
                     }
                 }
             }
-            .padding(.top, 20)
+            .padding(.top, 40)
 
             VStack(spacing: 12) {
                 Text("Your Insights Await")
