@@ -70,6 +70,16 @@ struct AppTabView: View {
                 .tag(2)
                 .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
+
+            InsightsView()
+                .environment(\.managedObjectContext, viewContext)
+                .tabItem {
+                    Image(systemName: "lightbulb.fill")
+                    Text("Insights")
+                }
+                .tag(3)
+                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
         }
         .accentColor(.cyan)
         .onAppear {

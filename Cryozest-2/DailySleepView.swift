@@ -79,8 +79,6 @@ class DailySleepViewModel: ObservableObject {
         }
     }
     
-    
-    
     private func fetchWakeUpTimePreviousDay(completion: @escaping (Date?) -> Void) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
