@@ -460,11 +460,11 @@ struct ProgressButtonView: View {
     let progress: Float
     let color: Color
     let action: () -> Void
-    
+
     @State private var cachedProgress: Float
     @State private var hasNewData = false
-    @State private var animateIcon = false // State to control the icon animation
-    
+    @State private var isPressed = false
+
     init(title: String, progress: Float, color: Color, action: @escaping () -> Void) {
         self.title = title
         self.progress = progress
@@ -472,58 +472,66 @@ struct ProgressButtonView: View {
         self.action = action
         _cachedProgress = State(initialValue: progress)
     }
-    
+
+    private var iconName: String {
+        switch title {
+        case "Daily Exertion": return "flame.fill"
+        case "Sleep Quality": return "moon.fill"
+        default: return "bolt.fill"
+        }
+    }
+
     var body: some View {
         Button(action: {
             action()
             hasNewData = false
         }) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    ZStack {
-                        Circle()
-                            .fill(color.opacity(0.2))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: title == "Daily Exertion" ? "flame.fill" : title == "Sleep Quality" ? "moon.fill" : "bolt.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(color)
-                    }
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 10) {
+                    // Icon with gradient background
+                    Image(systemName: iconName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            color.opacity(0.8),
+                                            color.opacity(0.6)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        )
 
                     Text(title)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
 
                     Spacer()
 
                     if hasNewData {
-                        HStack(spacing: 4) {
-                            Image(systemName: "bell.fill")
-                                .foregroundColor(.green)
-                                .font(.system(size: 12))
-                            Text("New!")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                .foregroundColor(.green)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.green.opacity(0.15))
-                        )
+                        Circle()
+                            .fill(color)
+                            .frame(width: 8, height: 8)
                     }
 
                     Text("\(Int(progress * 100))%")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(color)
                 }
 
+                // Progress bar
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
-                            .frame(height: 8)
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.white.opacity(0.08))
+                            .frame(height: 6)
 
-                        RoundedRectangle(cornerRadius: 8)
+                        RoundedRectangle(cornerRadius: 6)
                             .fill(
                                 LinearGradient(
                                     gradient: Gradient(colors: [color, color.opacity(0.7)]),
@@ -531,31 +539,39 @@ struct ProgressButtonView: View {
                                     endPoint: .trailing
                                 )
                             )
-                            .frame(width: geometry.size.width * CGFloat(progress), height: 8)
+                            .frame(width: geometry.size.width * CGFloat(progress), height: 6)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
                     }
                 }
-                .frame(height: 8)
+                .frame(height: 6)
             }
-            .padding(16)
+            .padding(14)
             .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(hasNewData ? color.opacity(0.08) : Color.white.opacity(0.08))
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.06)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(hasNewData ? color.opacity(0.3) : Color.white.opacity(0.15), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(color.opacity(0.4), lineWidth: 1)
                     )
             )
-            .shadow(color: hasNewData ? color.opacity(0.2) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 4)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
-        .background(
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
-                .font(Font.system(size: 12).weight(.semibold))
-                .padding(.trailing, 20)
-                .padding(.top, 10),
-            alignment: .topTrailing
-        )
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
         .onChange(of: progress) { newValue in
             if newValue > cachedProgress {
                 withAnimation {

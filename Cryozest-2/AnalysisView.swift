@@ -94,9 +94,12 @@ struct AnalysisView: View {
                             }
                         }
                         .padding(.top, 36)
-                    
-                    TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                        .padding(.bottom, 16)
+
+                    HorizontalHabitSelector(
+                        therapyTypeSelection: therapyTypeSelection,
+                        selectedTherapyTypes: selectedTherapies
+                    )
+                    .padding(.bottom, 16)
                     
                     CustomPicker(selectedTimeFrame: $selectedTimeFrame, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
                     

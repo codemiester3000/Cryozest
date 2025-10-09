@@ -389,10 +389,14 @@ struct MainView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                     headerView
-                
-                TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
-                    .padding(.bottom)
-                
+
+                // Horizontal scrolling habit selector
+                HorizontalHabitSelector(
+                    therapyTypeSelection: therapyTypeSelection,
+                    selectedTherapyTypes: selectedTherapies
+                )
+                .padding(.bottom, 16)
+
                 Spacer()
 
                 // Consolidated Timer Section
