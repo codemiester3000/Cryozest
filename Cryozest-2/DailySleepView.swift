@@ -42,58 +42,39 @@ class DailySleepViewModel: ObservableObject {
     
     init(selectedDate: Date) {
         self.selectedDate = selectedDate
-        fetchSleepData(forDate: selectedDate)
-        fetchAverageWakingHeartRate { bpm, _ in
-            if let bpm = bpm, bpm.isFinite {
-                DispatchQueue.main.async {
-                    self.averageWakingHeartRate = bpm
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.averageWakingHeartRate = 0.0
-                }
-            }
-        }
-        
-        fetchAverageHeartRateDuringSleep { bpm, _ in
-            if let bpm = bpm {
-                DispatchQueue.main.async {
-                    self.averageHeartRateDuringSleep = bpm
-                }
-            }
-        }
+        // Don't fetch data in init - wait until user grants permission
+        // Data will be fetched when needed in DailyView's onAppear
     }
     
     func fetchSleepData(forDate date: Date) {
-        HealthKitManager.shared.requestAuthorization { [weak self] authorized, error in
-            if authorized {
-                HealthKitManager.shared.fetchSleepData(for: date) { samples, error in
-                    guard let self = self, let fetchedSamples = samples as? [HKCategorySample], error == nil else {
-                        return
+        // Check if already authorized instead of requesting
+        HealthKitManager.shared.areHealthMetricsAuthorized() { [weak self] authorized in
+            guard authorized else { return }
+
+            HealthKitManager.shared.fetchSleepData(for: date) { samples, error in
+                guard let self = self, let fetchedSamples = samples as? [HKCategorySample], error == nil else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    self.sleepSamples = fetchedSamples
+                    self.updateSleepData(with: self.sleepSamples)
+
+                    // Pass completion handlers to the functions
+                    self.fetchAverageWakingHeartRate { bpm, error in
+                        if let bpm = bpm, bpm.isFinite {
+                            self.averageWakingHeartRate = bpm
+                        } else {
+                            self.averageWakingHeartRate = 0.0
+                        }
+
                     }
-                    DispatchQueue.main.async {
-                        self.sleepSamples = fetchedSamples
-                        self.updateSleepData(with: self.sleepSamples)
-                        
-                        // Pass completion handlers to the functions
-                        self.fetchAverageWakingHeartRate { bpm, error in
-                            if let bpm = bpm, bpm.isFinite {
-                                self.averageWakingHeartRate = bpm
-                            } else {
-                                self.averageWakingHeartRate = 0.0
-                            }
-                            
+                    self.fetchAverageHeartRateDuringSleep { bpm, error in
+                        if let bpm = bpm {
+                            self.averageHeartRateDuringSleep = bpm
                         }
-                        self.fetchAverageHeartRateDuringSleep { bpm, error in
-                            if let bpm = bpm {
-                                self.averageHeartRateDuringSleep = bpm
-                            }
-                            // Handle error if needed
-                        }
+                        // Handle error if needed
                     }
                 }
-            } else {
-                // Handle authorization error
             }
         }
     }
