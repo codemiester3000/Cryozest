@@ -66,7 +66,7 @@ struct AnalysisEmptyStateView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
 
-                Text("Complete at least 3 sessions to unlock personalized analytics and track your progress over time")
+                Text("Complete your first session to unlock personalized analytics and track your progress over time")
                     .font(.system(size: 15, weight: .regular, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)

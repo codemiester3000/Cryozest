@@ -54,7 +54,7 @@ struct AnalysisView: View {
     }
 
     private var hasEnoughData: Bool {
-        filteredSessions.count >= 3
+        filteredSessions.count >= 1
     }
     
     var body: some View {
