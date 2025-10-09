@@ -145,6 +145,7 @@ class InsightsViewModel: ObservableObject {
 
     private func fetchHealthTrends(completion: @escaping ([HealthTrend]) -> Void) {
         let group = DispatchGroup()
+        let trendsQueue = DispatchQueue(label: "com.cryozest.trends", attributes: .concurrent)
         var trends: [HealthTrend] = []
 
         // Compare last 7 days to previous 7 days
@@ -183,7 +184,9 @@ class InsightsViewModel: ObservableObject {
                         ? (recent < previous ? "Your RHR has improved this week" : "Your RHR has elevated this week")
                         : "Your RHR is stable this week"
                 )
-                trends.append(trend)
+                trendsQueue.async(flags: .barrier) {
+                    trends.append(trend)
+                }
                 print("✅ InsightsViewModel: Added RHR trend")
             }
         }
@@ -220,7 +223,9 @@ class InsightsViewModel: ObservableObject {
                         ? (recent > previous ? "Your HRV has improved this week" : "Your HRV has declined this week")
                         : "Your HRV is stable this week"
                 )
-                trends.append(trend)
+                trendsQueue.async(flags: .barrier) {
+                    trends.append(trend)
+                }
                 print("✅ InsightsViewModel: Added HRV trend")
             }
         }
@@ -260,7 +265,9 @@ class InsightsViewModel: ObservableObject {
                         ? (recent > previous ? "You're sleeping more this week" : "You're sleeping less this week")
                         : "Your sleep duration is consistent"
                 )
-                trends.append(trend)
+                trendsQueue.async(flags: .barrier) {
+                    trends.append(trend)
+                }
                 print("✅ InsightsViewModel: Added Sleep trend")
             }
         }
@@ -297,7 +304,9 @@ class InsightsViewModel: ObservableObject {
                         ? (recent > previous ? "You're walking more this week" : "You're walking less this week")
                         : "Your step count is consistent"
                 )
-                trends.append(trend)
+                trendsQueue.async(flags: .barrier) {
+                    trends.append(trend)
+                }
                 print("✅ InsightsViewModel: Added Steps trend")
             }
         }
@@ -334,20 +343,24 @@ class InsightsViewModel: ObservableObject {
                         ? (recent > previous ? "You're burning more calories this week" : "You're burning fewer calories this week")
                         : "Your calorie burn is consistent"
                 )
-                trends.append(trend)
+                trendsQueue.async(flags: .barrier) {
+                    trends.append(trend)
+                }
                 print("✅ InsightsViewModel: Added Calories trend")
             }
         }
 
         group.notify(queue: .main) {
-            print("📊 InsightsViewModel: Health trends fetched - \(trends.count) trends available")
-            if trends.isEmpty {
-                print("⚠️ InsightsViewModel: No health trends available. Please ensure:")
-                print("   - Motion & Fitness tracking is enabled for Steps/Calories")
-                print("   - Apple Watch is connected for RHR and HRV data")
-                print("   - Sleep tracking is enabled in Health app for Sleep data")
+            trendsQueue.sync {
+                print("📊 InsightsViewModel: Health trends fetched - \(trends.count) trends available")
+                if trends.isEmpty {
+                    print("⚠️ InsightsViewModel: No health trends available. Please ensure:")
+                    print("   - Motion & Fitness tracking is enabled for Steps/Calories")
+                    print("   - Apple Watch is connected for RHR and HRV data")
+                    print("   - Sleep tracking is enabled in Health app for Sleep data")
+                }
+                completion(trends)
             }
-            completion(trends)
         }
     }
 
