@@ -45,35 +45,56 @@ struct ExertionBarView: View {
     var minutes: Double
     var color: Color
     var fullScaleTime: Double
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ZStack {
-                Rectangle()
-                    .opacity(0.3)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(label)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+                Spacer()
+                Text("\(Int(minutes)) min")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(color)
-                    .cornerRadius(9)
-                GeometryReader { geometry in
-                    Rectangle()
-                        .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width))
-                        .foregroundColor(color)
-                        .cornerRadius(9)
-                }
-                
-                HStack {
-                    Text(label)
-                        .foregroundColor(.white)
-                        .bold()
-                    Spacer()
-                    Text("\(Int(minutes)) min")
-                        .foregroundColor(.white)
-                        .bold()
-                }
-                .padding(.horizontal, 22)
             }
-            .padding(.horizontal, 16)
-            .frame(height: 50)
+
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 8)
+
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [color, color.opacity(0.7)]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: min(geometry.size.width * CGFloat(minutes / fullScaleTime), geometry.size.width), height: 8)
+                }
+            }
+            .frame(height: 8)
         }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.10),
+                            Color.white.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(color.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
 }
 
@@ -88,49 +109,53 @@ struct ZoneItemView: View {
     var zoneInfo: ZoneInfo
     var zoneRange: String
     var maxTime: Double
-    
+
     var body: some View {
-        HStack(spacing: 4) {
-            Text("Zone \(zoneInfo.zoneNumber)")
-                .foregroundColor(zoneInfo.color)
-                .padding(.leading, 5)
-            
+        HStack(spacing: 12) {
+            // Zone label with icon
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(zoneInfo.color)
+                    .frame(width: 8, height: 8)
+                Text("Zone \(zoneInfo.zoneNumber)")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+                    .frame(width: 60, alignment: .leading)
+            }
+
+            // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 6)
+
                     let fillWidth: CGFloat = zoneInfo.timeInMinutes > 0 ?
-                    CGFloat(zoneInfo.timeInMinutes / maxTime) * geometry.size.width * 0.6 : 5
-                    
-                    if fillWidth > 5 {
-                        Rectangle()
-                            .frame(width: fillWidth, height: 5)
-                            .foregroundColor(zoneInfo.color)
-                            .cornerRadius(2.5)
-                        
-                        Text(zoneInfo.timeSpent)
-                            .foregroundColor(.white)
-                            .position(x: fillWidth + 30, y: geometry.size.height / 2)
-                    } else {
-                        // If no time or very short time, only show the circle
-                        Circle()
+                        CGFloat(zoneInfo.timeInMinutes / maxTime) * geometry.size.width : 0
+
+                    if fillWidth > 0 {
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(zoneInfo.color)
-                            .frame(width: 5, height: 5)
-                            .position(x: 0, y: geometry.size.height / 2)
+                            .frame(width: max(fillWidth, 6), height: 6)
                     }
                 }
             }
-            .frame(height: 5)
-            
-            Spacer()
-            
+            .frame(height: 6)
+
+            // Time spent
+            Text(zoneInfo.timeSpent)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
+                .frame(width: 50, alignment: .trailing)
+
+            // Heart rate range
             Text(zoneRange)
-                .foregroundColor(.gray)
-                .padding(.trailing, 5)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.5))
+                .frame(width: 80, alignment: .trailing)
         }
-        .padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
-        .background(
-            RoundedRectangle(cornerRadius: 5)
-                .fill(Color.white.opacity(0.08))
-        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
@@ -259,8 +284,134 @@ struct ExertionView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Modern gradient background
+        ScrollView {
+            ZStack {
+                // Modern gradient background
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: 20) {
+                    // Header with ring
+                    HStack(alignment: .top, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 8) {
+                                Text("Daily Exertion")
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+
+                                Button(action: {
+                                    isPopoverVisible.toggle()
+                                }) {
+                                    Image(systemName: "info.circle.fill")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(.orange.opacity(0.8))
+                                }
+                                .popover(isPresented: $isPopoverVisible) {
+                                    ExertionInfoPopoverView()
+                                        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+                                }
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Today's Target")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .textCase(.uppercase)
+                                    .tracking(0.5)
+
+                                Text(targetExertionZone)
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundColor(.green)
+                            }
+                        }
+
+                        Spacer()
+
+                        ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
+                            .frame(width: 100, height: 100)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+
+                    // User statement card
+                    let userStatement = recoveryModel.generateUserStatement()
+                    Text(userStatement)
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(16)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white.opacity(0.12),
+                                            Color.white.opacity(0.06)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 20)
+
+                    // Exertion categories
+                    VStack(spacing: 10) {
+                        ExertionBarView(label: "Recovery", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
+                        ExertionBarView(label: "Conditioning", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
+                        ExertionBarView(label: "High Intensity", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Heart rate zones section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Heart Rate Zones")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+
+                        let maxTime = exertionModel.zoneTimes.max() ?? 1
+
+                        VStack(spacing: 1) {
+                            ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
+                                if index < exertionModel.heartRateZoneRanges.count {
+                                    let range = exertionModel.heartRateZoneRanges[index]
+                                    let rangeString = "\(Int(range.lowerBound))-\(Int(range.upperBound)) BPM"
+                                    ZoneItemView(zoneInfo: zoneInfo, zoneRange: rangeString, maxTime: maxTime)
+                                } else {
+                                    ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
+                                }
+                            }
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.08))
+                        )
+                        .padding(.horizontal, 20)
+
+                        Text("Estimated time in each zone")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal, 20)
+                    }
+                }
+                .padding(.bottom, 30)
+            }
+        }
+        .background(
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(red: 0.05, green: 0.15, blue: 0.25),
@@ -270,119 +421,6 @@ struct ExertionView: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                Spacer()
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack() {
-                            Text("Daily Exertion")
-                                .font(.system(size: 20)) // Adjust the font size here
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                            
-                            Button(action: {
-                                isPopoverVisible.toggle()
-                            }) {
-                                Image(systemName: "questionmark.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(Color.blue)
-                            }
-                            .padding(.leading, 8)
-                            .popover(isPresented: $isPopoverVisible) {
-                                ExertionInfoPopoverView()
-                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-                            }
-                        }
-                        
-                        VStack(alignment: .leading) {
-                                Text("Today's Exertion Target:")
-                                    .font(.footnote)
-                                    .foregroundColor(.gray)
-                                
-                                Text("\(targetExertionZone)")
-                                    .font(.system(size: 17))
-                                    .foregroundColor(.green)
-                                    .fontWeight(.bold)
-                            }
-                        }
-                        .padding(.vertical)
-                        .padding(.horizontal, 22)
-                        
-                        Spacer()
-                          
-                          Spacer()
-                    
-                    ExertionRingView(exertionScore: exertionModel.exertionScore, targetExertionUpperBound: calculatedUpperBound)
-                        .frame(width: 120, height: 120)
-                        .padding(.horizontal, 22)
-                }
-                
-                Spacer(minLength: 10)
-
-                VStack() {
-                    // TODO: (Owen) This seems like a bug. why is the exertionView
-                    // pulling this value off the recovery model?
-                    let userStatement = recoveryModel.generateUserStatement()
-                    Text(userStatement)
-                        .foregroundColor(.white)
-                        .padding(.top, 8)
-                        .padding(.horizontal, 20)
-                }
-                .padding(.vertical, 1)
-                
-                let maxTime = exertionModel.zoneTimes.max() ?? 1
-                
-                Spacer(minLength: 10)
-                
-                VStack(alignment: .leading) {
-                    ExertionBarView(label: "RECOVERY", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                    ExertionBarView(label: "CONDITIONING", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                    ExertionBarView(label: "HIGH INTENSITY", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
-                }
-                .padding(.top, 10)
-                .padding(.horizontal, 6)
-                .padding(.bottom, 20)
-                
-                ForEach(Array(zip(zoneInfos.indices, zoneInfos)), id: \.1.zoneNumber) { index, zoneInfo in
-                    VStack(spacing: 0.1) {
-                        HStack {
-                            if index < exertionModel.heartRateZoneRanges.count {
-                                let range = exertionModel.heartRateZoneRanges[index]
-                                let rangeString = "\(Int(range.lowerBound))-\(Int(range.upperBound))BPM"
-                                ZoneItemView(zoneInfo: zoneInfo, zoneRange: rangeString, maxTime: maxTime)
-                            } else {
-                                ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
-                            }
-                        }
-                        .padding(.horizontal, 19)
-                        .frame(maxWidth: .infinity)
-                        
-                        if index < zoneInfos.count - 1 {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(height: 1)
-                                .padding(.horizontal, 22)
-                                .padding(.vertical, 6.0)
-                        }
-                    }
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.08))
-                    )
-                }
-                
-                HStack {
-                    Text("Estimated time in each heart rate zone")
-                        .font(.footnote)
-                        .foregroundColor(.gray)
-                        .padding(.leading, 24)
-                    Spacer()
-                }
-                .padding(.top)
-                .padding(.bottom, 30)
-            }
-        }
+        )
     }
 }

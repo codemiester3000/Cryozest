@@ -362,75 +362,73 @@ struct DailySleepView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                Spacer()
-                HStack {
-                    // "Sleep Performance" Text and "?" Button
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack {
-                            
+            VStack(alignment: .leading, spacing: 20) {
+                // Header with ring
+                HStack(alignment: .top, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
                             Text("Sleep Quality")
-                                .font(.title2)
-                                .fontWeight(.semibold)
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                            
-                            
+
                             Button(action: {
                                 isPopoverVisible.toggle()
                             }) {
-                                Image(systemName: "questionmark.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(Color.blue)
+                                Image(systemName: "info.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.yellow.opacity(0.8))
                             }
-                            .padding(.leading, 8)
                             .popover(isPresented: $isPopoverVisible) {
                                 SleepInfoPopoverView()
                                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
                             }
                         }
-                        
-                        // Conditional Display of Sleep Start and End Times
+
+                        // Sleep time range
                         if sleepStartTime != "N/A" && sleepEndTime != "N/A" {
-                            Text("\(sleepStartTime) to \(sleepEndTime)")
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                                .foregroundColor(.gray)
+                            Text("\(sleepStartTime) - \(sleepEndTime)")
+                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.6))
                         }
                     }
-                    .padding(.horizontal, 22)
-                    .padding(.top, 16)
-                    
+
                     Spacer()
-                    
-                    ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .green,
-                                     ringSize: 120)
-                    .frame(width: 120, height: 120)
-                    .padding(.top, 16)
-                    .padding(.bottom, 16)
-                    .padding(.horizontal, 22)
+
+                    ProgressRingView(progress: dailySleepModel.sleepScore / 100, progressColor: .yellow, ringSize: 100)
+                        .frame(width: 100, height: 100)
                 }
-                
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+
+                // Sleep graph
                 if let sleepData = dailySleepModel.sleepData {
-                    Spacer(minLength: 20)
                     SleepGraphView(sleepData: sleepData)
-                        .frame(height: 200)
                 } else {
-                    Spacer(minLength: 20)
                     Text("Sleep data is not available yet.")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.08))
+                        )
+                        .padding(.horizontal, 20)
                 }
-                
-                Spacer(minLength: 20)
-                
+
+                // Restorative sleep card
                 RestorativeSleepView(viewModel: dailySleepModel)
-                
-                
-                HeartRateDifferenceProgressCircle(heartRateDifferencePercentage: dailySleepModel.heartRateDifferencePercentage,
-                                                  averageWakingHeartRate: dailySleepModel.averageWakingHeartRate,
-                                                  averageHeartRateDuringSleep: dailySleepModel.averageHeartRateDuringSleep)
-                .padding(.bottom,16)
-                
+                    .padding(.horizontal, 20)
+
+                // Heart rate dip card
+                HeartRateDifferenceProgressCircle(
+                    heartRateDifferencePercentage: dailySleepModel.heartRateDifferencePercentage,
+                    averageWakingHeartRate: dailySleepModel.averageWakingHeartRate,
+                    averageHeartRateDuringSleep: dailySleepModel.averageHeartRateDuringSleep
+                )
+                .padding(.horizontal, 20)
             }
-            
+            .padding(.bottom, 30)
             .onAppear {
                 fetchSleepTimes()
             }
@@ -526,41 +524,56 @@ struct SleepData {
 
 struct SleepGraphView: View {
     var sleepData: SleepData
-    
+
     private var totalSleepTime: TimeInterval {
         max(sleepData.awake + sleepData.rem + sleepData.core + sleepData.deep, 1)
     }
-    
+
     private func formatTimeInterval(_ interval: TimeInterval) -> String {
         let hours = Int(interval) / 3600
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
-    
+
     var body: some View {
         VStack(spacing: 16) {
+            Text("Sleep Stages")
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
             HStack(alignment: .bottom, spacing: 12) {
                 GraphBarView(color: Color(red: 0.90, green: 0.29, blue: 0.33), heightFraction: sleepData.awake / totalSleepTime, label: "Awake", value: sleepData.awake)
                 GraphBarView(color: Color(red: 0.48, green: 0.60, blue: 0.48), heightFraction: sleepData.rem / totalSleepTime, label: "REM", value: sleepData.rem)
                 GraphBarView(color: Color(red: 1.00, green: 0.70, blue: 0.00), heightFraction: sleepData.core / totalSleepTime, label: "Core", value: sleepData.core)
                 GraphBarView(color: Color(red: 0.31, green: 0.61, blue: 0.87), heightFraction: sleepData.deep / totalSleepTime, label: "Deep", value: sleepData.deep)
             }
-            .frame(height: 150)
-            .padding(.horizontal, 16)
-            
-            Text("Total Sleep Time: \(formatTimeInterval(totalSleepTime))")
-                .font(.footnote)
-                .fontWeight(.medium)
-                .foregroundColor(.gray)
+            .frame(height: 140)
+
+            Text("Total: \(formatTimeInterval(totalSleepTime))")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.5))
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
         }
-        .padding(.vertical, 20)
+        .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.08))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.10),
+                            Color.white.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
         )
-        .padding([.horizontal, .bottom])
+        .padding(.horizontal, 20)
     }
 }
 
@@ -569,29 +582,35 @@ struct GraphBarView: View {
     var heightFraction: CGFloat
     var label: String
     var value: TimeInterval
-    
+
     private var barHeight: CGFloat {
-        max(150 * heightFraction, 10)
+        max(140 * heightFraction, 8)
     }
-    
+
     private func formatTimeInterval(_ interval: TimeInterval) -> String {
         let hours = Int(interval) / 3600
         let minutes = Int(interval) % 3600 / 60
         return "\(hours)h \(minutes)m"
     }
-    
+
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             Spacer()
-            RoundedRectangle(cornerRadius: 7)
-                .fill(color)
+            RoundedRectangle(cornerRadius: 8)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [color, color.opacity(0.7)]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .frame(height: barHeight)
             Text(label)
-                .font(.caption)
-                .foregroundColor(.gray)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.7))
             Text(formatTimeInterval(value))
-                .font(.caption2)
-                .foregroundColor(.gray)
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.5))
         }
     }
 }
@@ -637,45 +656,61 @@ struct ProgressRingView: View {
 
 struct RestorativeSleepView: View {
     @ObservedObject var viewModel: DailySleepViewModel
-    
+
     var body: some View {
-        HStack {
-            // Full Stroke Blue Circle with Text Inside
+        HStack(spacing: 16) {
+            // Circular percentage indicator
             ZStack {
                 Circle()
-                    .stroke(Color.blue, lineWidth: 10)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 8)
                     .frame(width: 70, height: 70)
-                
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(viewModel.restorativeSleepPercentage / 100))
+                    .stroke(Color.blue, lineWidth: 8)
+                    .frame(width: 70, height: 70)
+                    .rotationEffect(.degrees(-90))
+
                 Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
-                    .font(.title3)
-                    .bold()
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
             }
-            .padding(.leading, 22)
-            
-            VStack(alignment: .leading) {
-                HStack(spacing: 0) {
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 4) {
                     Text(viewModel.formattedRestorativeSleepTime)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    Text(" of Restorative Sleep")
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.blue)
+                    Text("Restorative")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
                 }
-                
+
                 Text(viewModel.restorativeSleepDescription)
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+                    .lineLimit(3)
             }
-            .padding(.leading, 10)
-            
-            
+
             Spacer()
         }
-        .padding(.vertical, 10)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.08))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.10),
+                            Color.white.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                )
         )
     }
 }
@@ -684,97 +719,99 @@ struct HeartRateDifferenceProgressCircle: View {
     var heartRateDifferencePercentage: Double
     var averageWakingHeartRate: Double
     var averageHeartRateDuringSleep: Double
-    
-    // Determine if the watch was worn based on averageHeartRateDuringSleep
+
     private var watchWasWorn: Bool {
         averageHeartRateDuringSleep != 0
     }
-    
-    // Computed property to get the title with the appropriate status and color
-    private var heartRateDipTitle: (Text, Text) {
-        if watchWasWorn {
-            let titleText = Text("Heart Rate Dip is ")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-            
-            if heartRateDifferencePercentage > 20 {
-                let statusText = Text("Good")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.green)
-                return (titleText, statusText)
-            } else if heartRateDifferencePercentage >= 10 {
-                let statusText = Text("Average")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.yellow)
-                return (titleText, statusText)
-            } else {
-                let statusText = Text("Suboptimal")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.red)
-                return (titleText, statusText)
-            }
-        } else {
-            // When the watch was not worn, display "Heart Rate Dip" without a status
-            let titleText = Text("Heart Rate Dip")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-            return (titleText, Text(""))
-        }
+
+    private var statusColor: Color {
+        if !watchWasWorn { return .red }
+        if heartRateDifferencePercentage > 20 { return .green }
+        if heartRateDifferencePercentage >= 10 { return .yellow }
+        return .red
     }
-    
+
+    private var statusText: String {
+        if !watchWasWorn { return "No Data" }
+        if heartRateDifferencePercentage > 20 { return "Good" }
+        if heartRateDifferencePercentage >= 10 { return "Average" }
+        return "Suboptimal"
+    }
+
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
+            // Circular percentage indicator
             ZStack {
                 Circle()
-                    .stroke(Color.red, lineWidth: 10)
+                    .stroke(statusColor.opacity(0.3), lineWidth: 8)
                     .frame(width: 70, height: 70)
-                
-                // Adjust the display based on whether the watch was worn
-                Text(watchWasWorn ? "\(Int(heartRateDifferencePercentage))%" : "0%")
-                    .font(.title3)
-                    .bold()
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(min(heartRateDifferencePercentage / 100, 1.0)))
+                    .stroke(statusColor, lineWidth: 8)
+                    .frame(width: 70, height: 70)
+                    .rotationEffect(.degrees(-90))
+
+                Text(watchWasWorn ? "\(Int(heartRateDifferencePercentage))%" : "—")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
             }
-            .padding(.leading, 22)
-            
-            VStack(alignment: .leading) {
-                HStack {
-                    heartRateDipTitle.0 + heartRateDipTitle.1
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 4) {
+                    Text("Heart Rate Dip")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                    if watchWasWorn {
+                        Text(statusText)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(statusColor)
+                    }
                 }
-                
-                Text("Your Heart Rate Dip during sleep is the percentage difference between your waking non-active heart rate ")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                +
-                Text("\(Int(averageWakingHeartRate))")
-                    .font(.caption)
-                    .foregroundColor(.green)
-                    .bold()
-                +
-                Text(" BPM versus your average heart rate during sleep for the night before ")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                +
-                Text("\(Int(averageHeartRateDuringSleep))")
-                    .font(.caption)
-                    .foregroundColor(.green)
-                    .bold()
-                +
-                Text(" BPM.")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+
+                if watchWasWorn {
+                    Text("Waking: ")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                    +
+                    Text("\(Int(averageWakingHeartRate)) BPM")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(statusColor)
+                    +
+                    Text(" • Sleep: ")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                    +
+                    Text("\(Int(averageHeartRateDuringSleep)) BPM")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(statusColor)
+                } else {
+                    Text("Wear your watch during sleep to track heart rate dip")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                }
             }
-            .padding(.leading, 10)
-            .padding(.bottom, 10)
-            .padding(.top,10)
-            
+
             Spacer()
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.10),
+                            Color.white.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(statusColor.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
 }
 
