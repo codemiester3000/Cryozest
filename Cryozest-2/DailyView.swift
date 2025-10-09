@@ -291,7 +291,7 @@ struct DailyGridMetrics: View {
     @Namespace private var animation
 
     var body: some View {
-        VStack(spacing: 12) {
+        ZStack {
             if expandedMetric == nil {
                 // Grid layout when nothing is expanded
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
@@ -386,23 +386,30 @@ struct DailyGridMetrics: View {
                         )
                     }
                 }
-            } else {
-                // Expanded single tile view
-                if let metric = expandedMetric {
-                    ExpandedGridItemView(
-                        symbolName: iconFor(metric),
-                        title: titleFor(metric),
-                        value: valueFor(metric),
-                        unit: unitFor(metric),
-                        metricType: metric,
-                        model: model,
-                        expandedMetric: $expandedMetric,
-                        namespace: animation
-                    )
-                }
+                .transition(.opacity)
+            }
+
+            // Expanded single tile view
+            if let metric = expandedMetric {
+                ExpandedGridItemView(
+                    symbolName: iconFor(metric),
+                    title: titleFor(metric),
+                    value: valueFor(metric),
+                    unit: unitFor(metric),
+                    metricType: metric,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+                .transition(.asymmetric(
+                    insertion: .identity,
+                    removal: .identity
+                ))
+                .zIndex(1)
             }
         }
         .padding([.horizontal, .top])
+        .animation(.spring(response: 0.6, dampingFraction: 0.85), value: expandedMetric)
     }
     
     private func formatSPO2Value(_ spo2: Double?) -> String {
@@ -558,11 +565,9 @@ struct GridItemView: View {
         )
         .shadow(color: animate ? Color.cyan.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
         .scaleEffect(isPressed ? 0.95 : 1.0)
-        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace)
+        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace, properties: .frame)
         .onTapGesture {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
-                expandedMetric = metricType
-            }
+            expandedMetric = metricType
         }
         .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
@@ -583,53 +588,54 @@ struct ExpandedGridItemView: View {
     var namespace: Namespace.ID
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header section (similar to collapsed)
-            HStack {
-                HStack(spacing: 10) {
-                    Image(systemName: symbolName)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(metricType.color)
-                        .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(metricType.color.opacity(0.15))
-                        )
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header section (similar to collapsed)
+                HStack {
+                    HStack(spacing: 10) {
+                        Image(systemName: symbolName)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(metricType.color)
+                            .frame(width: 36, height: 36)
+                            .background(
+                                Circle()
+                                    .fill(metricType.color.opacity(0.15))
+                            )
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(title)
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.7))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(title)
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
 
-                        HStack(alignment: .lastTextBaseline, spacing: 3) {
-                            Text(value)
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                            Text(unit)
-                                .font(.system(size: 13, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.5))
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text(value)
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text(unit)
+                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
                         }
                     }
-                }
 
-                Spacer()
+                    Spacer()
 
-                Button(action: {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                    Button(action: {
                         expandedMetric = nil
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white.opacity(0.5))
                     }
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(.white.opacity(0.5))
                 }
-            }
 
-            // Chart section
-            detailView
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                // Chart section
+                detailView
+                    .opacity(expandedMetric != nil ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.2).delay(0.15), value: expandedMetric)
+            }
+            .padding(16)
         }
-        .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(
@@ -648,7 +654,7 @@ struct ExpandedGridItemView: View {
                 )
         )
         .shadow(color: metricType.color.opacity(0.3), radius: 12, x: 0, y: 6)
-        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace)
+        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace, properties: .frame)
     }
 
     @ViewBuilder
