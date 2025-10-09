@@ -36,6 +36,7 @@ enum HeroScore: String, CaseIterable, Identifiable {
     case exertion = "Exertion"
     case quality = "Sleep Quality"
     case readiness = "Readiness"
+    case sleep = "Sleep"
 
     var id: String { rawValue }
 
@@ -44,6 +45,7 @@ enum HeroScore: String, CaseIterable, Identifiable {
         case .exertion: return "flame.fill"
         case .quality: return "moon.fill"
         case .readiness: return "bolt.fill"
+        case .sleep: return "bed.double.fill"
         }
     }
 
@@ -52,6 +54,7 @@ enum HeroScore: String, CaseIterable, Identifiable {
         case .exertion: return .orange
         case .quality: return .yellow
         case .readiness: return .green
+        case .sleep: return .purple
         }
     }
 }

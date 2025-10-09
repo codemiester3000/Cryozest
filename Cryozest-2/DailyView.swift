@@ -107,18 +107,23 @@ struct DailyView: View {
                     exertionScore: exertionModel.exertionScore,
                     sleepScore: sleepModel.sleepScore,
                     readinessScore: recoveryModel.recoveryScores.last ?? 0,
+                    sleepDuration: recoveryModel.previousNightSleepDuration,
                     calculatedUpperBound: calculatedUpperBoundDailyView,
                     onExertionTap: {
                         triggerHapticFeedback()
                         showingExertionPopover = true
                     },
-                    onSleepTap: {
+                    onSleepQualityTap: {
                         triggerHapticFeedback()
                         showingSleepPopover = true
                     },
                     onReadinessTap: {
                         triggerHapticFeedback()
                         showingRecoveryPopover = true
+                    },
+                    onSleepTap: {
+                        triggerHapticFeedback()
+                        showingSleepPopover = true
                     }
                 )
                 .padding(.horizontal)
@@ -715,15 +720,27 @@ struct HeroScoresView: View {
     let exertionScore: Double
     let sleepScore: Double
     let readinessScore: Int
+    let sleepDuration: String?
     let calculatedUpperBound: Double
     let onExertionTap: () -> Void
-    let onSleepTap: () -> Void
+    let onSleepQualityTap: () -> Void
     let onReadinessTap: () -> Void
+    let onSleepTap: () -> Void
 
     @ObservedObject var configManager = MetricConfigurationManager.shared
 
     private var enabledScores: [HeroScore] {
         HeroScore.allCases.filter { configManager.isEnabled($0) }
+    }
+
+    private var sleepDurationScore: Int {
+        guard let durationString = sleepDuration,
+              let duration = Double(durationString) else {
+            return 0
+        }
+        // 8 hours = 100%, scale linearly
+        let score = (duration / 8.0) * 100
+        return min(Int(score), 100)
     }
 
     var body: some View {
@@ -765,7 +782,7 @@ struct HeroScoresView: View {
                     icon: "moon.fill",
                     color: .yellow,
                     requiresAppleWatch: true,
-                    action: onSleepTap
+                    action: onSleepQualityTap
                 )
             }
         case .readiness:
@@ -777,6 +794,17 @@ struct HeroScoresView: View {
                     color: .green,
                     requiresAppleWatch: true,
                     action: onReadinessTap
+                )
+            }
+        case .sleep:
+            if configManager.isEnabled(.sleep) {
+                ScoreCardView(
+                    title: "Sleep",
+                    score: sleepDurationScore,
+                    icon: "bed.double.fill",
+                    color: .purple,
+                    requiresAppleWatch: true,
+                    action: onSleepTap
                 )
             }
         }
