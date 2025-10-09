@@ -27,6 +27,16 @@
 		C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EAC62B2FCEC200F583C7 /* DailyView.swift */; };
 		C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */; };
 		C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB02E97E5150052946A /* ShimmerEffect.swift */; };
+		C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */; };
+		C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB42E97E7C40052946A /* TrendIndicator.swift */; };
+		C56DDCB72E97E7D30052946A /* PersonalBestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */; };
+		C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */; };
+		C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */; };
+		C56DDCBD2E97E8090052946A /* TimeOfDayAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */; };
+		C56DDCBF2E97E81B0052946A /* ConsistencyScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */; };
+		C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC02E97E8280052946A /* ProjectionWidget.swift */; };
+		C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC22E97EC560052946A /* GoalSettings.swift */; };
+		C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
 		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
@@ -103,6 +113,16 @@
 		C549EAC62B2FCEC200F583C7 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
 		C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepComparisonBarGraph.swift; sourceTree = "<group>"; };
 		C56DDCB02E97E5150052946A /* ShimmerEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerEffect.swift; sourceTree = "<group>"; };
+		C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyHeatmapView.swift; sourceTree = "<group>"; };
+		C56DDCB42E97E7C40052946A /* TrendIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendIndicator.swift; sourceTree = "<group>"; };
+		C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalBestsView.swift; sourceTree = "<group>"; };
+		C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFrequencyChart.swift; sourceTree = "<group>"; };
+		C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageDurationTrendGraph.swift; sourceTree = "<group>"; };
+		C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeOfDayAnalysisView.swift; sourceTree = "<group>"; };
+		C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencyScoreCard.swift; sourceTree = "<group>"; };
+		C56DDCC02E97E8280052946A /* ProjectionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionWidget.swift; sourceTree = "<group>"; };
+		C56DDCC22E97EC560052946A /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
+		C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalConfigurationView.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
@@ -241,6 +261,16 @@
 				C50659F72E97485900031B6B /* MetricConfigurationView.swift */,
 				C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */,
 				C56DDCB02E97E5150052946A /* ShimmerEffect.swift */,
+				C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */,
+				C56DDCB42E97E7C40052946A /* TrendIndicator.swift */,
+				C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */,
+				C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */,
+				C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */,
+				C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */,
+				C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */,
+				C56DDCC02E97E8280052946A /* ProjectionWidget.swift */,
+				C56DDCC22E97EC560052946A /* GoalSettings.swift */,
+				C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -412,16 +442,20 @@
 				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
 				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
+				C56DDCBD2E97E8090052946A /* TimeOfDayAnalysisView.swift in Sources */,
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
+				C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */,
 				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
+				C56DDCB72E97E7D30052946A /* PersonalBestsView.swift in Sources */,
 				C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */,
 				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
+				C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
 				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
 				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
@@ -435,10 +469,14 @@
 				C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */,
 				C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
+				C56DDCBF2E97E81B0052946A /* ConsistencyScoreCard.swift in Sources */,
+				C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */,
 				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,
+				C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
+				C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */,
 				C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */,
 				C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */,
 				C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */,
@@ -450,10 +488,12 @@
 				C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */,
 				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
 				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
+				C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */,
 				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
+				C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

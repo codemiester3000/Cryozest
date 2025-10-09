@@ -32,6 +32,7 @@ struct AnalysisView: View {
     let gridItems = [GridItem(.flexible()), GridItem(.flexible())]
     
     @State private var selectedTimeFrame: TimeFrame = .week
+    @State private var showingGoalConfiguration = false
     
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
@@ -80,6 +81,19 @@ struct AnalysisView: View {
 
                             Spacer()
 
+                            // Goal configuration button
+                            Button(action: { showingGoalConfiguration = true }) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.white.opacity(0.15))
+                                        .frame(width: 44, height: 44)
+
+                                    Image(systemName: "target")
+                                        .font(.system(size: 20, weight: .semibold))
+                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                                }
+                            }
+
                             NavigationLink(destination: TherapyTypeSelectionView()) {
                                 ZStack {
                                     Circle()
@@ -102,22 +116,62 @@ struct AnalysisView: View {
                     .padding(.bottom, 16)
                     
                     CustomPicker(selectedTimeFrame: $selectedTimeFrame, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
-                    
+
+                    // Personal Bests
+                    PersonalBestsView(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+
+                    // Consistency Score
+                    ConsistencyScoreCard(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Monthly Projection
+                    ProjectionWidget(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Duration Analysis with existing view
                     DurationAnalysisView(viewModel: DurationAnalysisViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.horizontal)
-                        .padding(.top)
-                    
-                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                    
+                        .padding(.top, 12)
+
+                    // Average Duration Trend
+                    AverageDurationTrendGraph(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType, timeframe: .month)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Weekly Consistency Heatmap
+                    WeeklyHeatmapView(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Session Frequency by Day
+                    SessionFrequencyChart(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    // Time of Day Analysis
+                    TimeOfDayAnalysisView(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+
+                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 16).padding(.horizontal)
+
                     RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.bottom)
-                    
+
                     Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-                    
+
                     WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
+                        .padding(.bottom, 20)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .sheet(isPresented: $showingGoalConfiguration) {
+                GoalConfigurationView(selectedTherapyTypes: selectedTherapyTypes)
             }
         }
     }
