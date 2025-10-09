@@ -176,15 +176,6 @@ struct AnalysisView: View {
                     TimeOfDayAnalysisView(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
                         .padding(.horizontal)
                         .padding(.top, 12)
-
-                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 16).padding(.horizontal)
-
-                    RecoveryAnalysisView(viewModel: SleepViewModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
-                        .padding(.bottom)
-
-                    Divider().background(Color.white.opacity(0.8)).padding(.vertical, 8)
-
-                    WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.bottom, 20)
                     }
                     }
