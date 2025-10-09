@@ -146,7 +146,7 @@ struct DailyView: View {
                 ExertionView(exertionModel: exertionModel, recoveryModel: recoveryModel)
             }
             .sheet(isPresented: $showingSleepPopover) {
-                DailySleepView(dailySleepModel: sleepModel)
+                ModernSleepView(dailySleepModel: sleepModel)
             }
             .sheet(isPresented: $showingRecoveryPopover) {
                 RecoveryCardView(model: recoveryModel)
