@@ -108,209 +108,311 @@ struct MainView: View {
             .compactMap { $0.date }
     }
     
-    var body: some View {
-        ZStack {
-            // Modern gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+    @ViewBuilder
+    private var timerSectionContent: some View {
+        if selectedMode == SessionFeature.STOPWATCH {
+            VStack(spacing: 12) {
+                // Compact timer with controls side-by-side
+                HStack(spacing: 16) {
+                    // Timer display - more compact
+                    VStack(spacing: 4) {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(timer != nil ? therapyTypeSelection.selectedTherapyType.color : Color.white.opacity(0.3))
+                                .frame(width: 6, height: 6)
+                            Text(timer != nil ? "ACTIVE" : "READY")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(timer != nil ? therapyTypeSelection.selectedTherapyType.color : .white.opacity(0.5))
+                                .tracking(1)
+                        }
 
-            // Subtle gradient overlay
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color.blue.opacity(0.3),
-                    Color.clear
-                ]),
-                center: .topTrailing,
-                startRadius: 100,
-                endRadius: 500
-            )
-            .ignoresSafeArea()
-
-            NavigationView {
-                ScrollView {
-                    VStack(spacing: 0) {
-                    HStack {
-                        Text("Record Habit")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                        Text(timerLabel)
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                            .padding(.leading, 24)
+                            .monospacedDigit()
+                    }
+                    .frame(maxWidth: .infinity)
 
-                        Spacer()
-
-                        NavigationLink(destination: TherapyTypeSelectionView()) {
-                            SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
-                                .padding(.trailing, 25)
+                    // Quick timer badges - vertical stack
+                    VStack(spacing: 8) {
+                        ForEach(customTimers.prefix(3), id: \.self) { timer in
+                            compactTimerBadge(for: timer)
+                        }
+                        if customTimers.count > 3 || customTimers.isEmpty {
+                            compactAddButton
                         }
                     }
-                    .padding(.top, 33)
-                    .padding(.bottom, 16)
+                }
+
+                // Start/Stop button - full width but compact
+                StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
+
+                // Health status - compact
+                if !isHealthDataAvailable {
+                    HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
+                }
+            }
+        } else {
+            quickAddContent
+        }
+    }
+
+    private func compactTimerBadge(for timer: CustomTimer) -> some View {
+        Button(action: {
+            startCountdown(for: Double(timer.duration) * 60)
+        }) {
+            HStack(spacing: 8) {
+                Text("\(timer.duration)")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                Text("min")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.4), lineWidth: 1)
+                    )
+            )
+        }
+        .disabled(self.timer != nil)
+        .opacity(self.timer != nil ? 0.4 : 1)
+    }
+
+    private var compactAddButton: some View {
+        Button(action: { showCreateTimer = true }) {
+            HStack(spacing: 8) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                Text("Add")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.6), lineWidth: 1.5)
+                    )
+            )
+        }
+        .disabled(timer != nil)
+        .opacity(timer != nil ? 0.4 : 1)
+    }
+
+    private var timerBadges: some View {
+        HStack(spacing: 10) {
+            ForEach(customTimers, id: \.self) { timer in
+                timerBadge(for: timer)
+            }
+            addTimerButton
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func timerBadge(for timer: CustomTimer) -> some View {
+        Button(action: {
+            startCountdown(for: Double(timer.duration) * 60)
+        }) {
+            VStack(spacing: 6) {
+                Text("\(timer.duration)")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                Text("min")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .textCase(.uppercase)
+                    .tracking(1)
+            }
+            .frame(width: 70, height: 80)
+            .background(timerBadgeBackground)
+            .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.25), radius: 8, x: 0, y: 4)
+        }
+        .disabled(self.timer != nil)
+        .opacity(self.timer != nil ? 0.3 : 1)
+    }
+
+    private var timerBadgeBackground: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.white.opacity(0.15),
+                        Color.white.opacity(0.08)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        therapyTypeSelection.selectedTherapyType.color.opacity(0.5),
+                        lineWidth: 1.5
+                    )
+            )
+    }
+
+    private var addTimerButton: some View {
+        Button(action: { showCreateTimer = true }) {
+            VStack(spacing: 6) {
+                Image(systemName: "plus")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                Text("add")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .textCase(.uppercase)
+                    .tracking(1)
+            }
+            .frame(width: 70, height: 80)
+            .background(addTimerButtonBackground)
+        }
+        .disabled(timer != nil)
+        .opacity(timer != nil ? 0.3 : 1)
+    }
+
+    private var addTimerButtonBackground: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.white.opacity(0.1),
+                        Color.white.opacity(0.05)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.6), lineWidth: 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            .padding(1)
+                    )
+            )
+    }
+
+    @ViewBuilder
+    private var quickAddContent: some View {
+        if isSessionCompleteForToday {
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.2))
+                        .frame(width: 80, height: 80)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(.green)
+                }
+                Text("Already Complete for Today!")
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+            }
+            .padding()
+        } else {
+            markCompleteButton
+        }
+    }
+
+    private var markCompleteButton: some View {
+        Button(action: { logSession() }) {
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20))
+                Text("Mark today as complete")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        therapyTypeSelection.selectedTherapyType.color,
+                        therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .cornerRadius(14)
+            .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.3), radius: 8, x: 0, y: 4)
+        }
+        .padding(.vertical, 20)
+    }
+
+    private var headerView: some View {
+        HStack {
+            Text("Record Habit")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .padding(.leading, 24)
+
+            Spacer()
+
+            NavigationLink(destination: TherapyTypeSelectionView()) {
+                SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
+                    .padding(.trailing, 25)
+            }
+        }
+        .padding(.top, 33)
+        .padding(.bottom, 16)
+    }
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                ScrollView {
+                    VStack(spacing: 0) {
+                    headerView
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom)
                 
                 Spacer()
-                
-                CustomSessionPicker(selectedFeature: $selectedMode, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
-                    .padding(.bottom)
-                
-                Group {
-                    if selectedMode == SessionFeature.STOPWATCH {
-                        VStack(spacing: 32) {
-                            TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color, isRunning: timer != nil)
-                                .padding(.top, 20)
 
-                        Spacer()
-                        
-                        HStack(spacing: 10) {
-                            ForEach(customTimers, id: \.self) { timer in
-                                Button(action: {
-                                    startCountdown(for: Double(timer.duration) * 60)
-                                }) {
-                                    VStack(spacing: 6) {
-                                        Text("\(timer.duration)")
-                                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                                            .foregroundColor(.white)
-                                        Text("min")
-                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.7))
-                                            .textCase(.uppercase)
-                                            .tracking(1)
-                                    }
-                                    .frame(width: 70, height: 80)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(
-                                                LinearGradient(
-                                                    gradient: Gradient(colors: [
-                                                        Color.white.opacity(0.15),
-                                                        Color.white.opacity(0.08)
-                                                    ]),
-                                                    startPoint: .topLeading,
-                                                    endPoint: .bottomTrailing
-                                                )
-                                            )
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 16)
-                                                    .stroke(
-                                                        self.therapyTypeSelection.selectedTherapyType.color.opacity(0.5),
-                                                        lineWidth: 1.5
-                                                    )
-                                            )
-                                    )
-                                    .shadow(color: self.therapyTypeSelection.selectedTherapyType.color.opacity(0.25), radius: 8, x: 0, y: 4)
-                                }
-                                .disabled(self.timer != nil)
-                                .opacity(self.timer != nil ? 0.3 : 1)
-                            }
-                            Button(action: {
-                                showCreateTimer = true
-                            }) {
-                                VStack(spacing: 6) {
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 24, weight: .semibold))
-                                        .foregroundColor(self.therapyTypeSelection.selectedTherapyType.color)
-                                    Text("add")
-                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.7))
-                                        .textCase(.uppercase)
-                                        .tracking(1)
-                                }
-                                .frame(width: 70, height: 80)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    Color.white.opacity(0.1),
-                                                    Color.white.opacity(0.05)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .stroke(
-                                                    self.therapyTypeSelection.selectedTherapyType.color.opacity(0.6),
-                                                    lineWidth: 2
-                                                )
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 16)
-                                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                                        .padding(1)
-                                                )
-                                        )
-                                )
-                            }
-                            .disabled(self.timer != nil)
-                            .opacity(self.timer != nil ? 0.3 : 1)
-                        }
-                        .padding(.bottom, 18)
-                        
-                        StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                            .padding(.bottom, 20)
+                // Consolidated Timer Section
+                VStack(spacing: 0) {
+                    CustomSessionPicker(selectedFeature: $selectedMode, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
+                        .padding(.bottom, 12)
 
-                        HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
-                            .padding(.bottom, 32)
-                        }
-
-                        Spacer()
-                    } else {
-                        if isSessionCompleteForToday {
-                            VStack(spacing: 16) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.green.opacity(0.2))
-                                        .frame(width: 80, height: 80)
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 50))
-                                        .foregroundColor(.green)
-                                }
-                                Text("Already Complete for Today!")
-                                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.white)
-                            }
-                            .padding()
-                        } else {
-                            Button(action: {
-                                logSession()
-                            }) {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 22))
-                                    Text("Mark today as complete")
-                                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.vertical, 18)
-                                .padding(.horizontal, 32)
-                                .background(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            therapyTypeSelection.selectedTherapyType.color,
-                                            therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .cornerRadius(16)
-                                .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.4), radius: 12, x: 0, y: 6)
-                            }
-                            .padding(.vertical, 80)
-                        }
-
-                        Spacer()
-                    }
-                }.frame(maxHeight: .infinity)
+                    timerSectionContent
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.white.opacity(0.05))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        )
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
                 
                 // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
                 
@@ -413,12 +515,9 @@ struct MainView: View {
                 ) {
                     EmptyView()
                 }
-            }  // Close ScrollView
-            .background(Color.clear)
+                }  // Close ScrollView
+            }  // Close ZStack
             }  // Close NavigationView
-            .background(Color.clear)
-        }  // Close ZStack
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear() {
                 // Make NavigationView background transparent
                 let appearance = UINavigationBarAppearance()
@@ -426,6 +525,9 @@ struct MainView: View {
                 appearance.backgroundColor = .clear
                 UINavigationBar.appearance().standardAppearance = appearance
                 UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
+                // Make ScrollView background transparent
+                UIScrollView.appearance().backgroundColor = .clear
 
                 // Add default timers if no custom ones are saved
                 if customTimers.isEmpty {

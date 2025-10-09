@@ -335,21 +335,13 @@ struct ModernTherapyCard: View {
             Spacer()
 
             // Selection indicator
-            ZStack {
-                Circle()
-                    .strokeBorder(isSelected ? Color.cyan : Color.white.opacity(0.3), lineWidth: 2)
-                    .frame(width: 28, height: 28)
-
-                if isSelected {
+            Circle()
+                .strokeBorder(isSelected ? Color.cyan : Color.white.opacity(0.3), lineWidth: 2)
+                .background(
                     Circle()
-                        .fill(Color.cyan)
-                        .frame(width: 28, height: 28)
-
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
-                }
-            }
+                        .fill(isSelected ? Color.cyan : Color.clear)
+                )
+                .frame(width: 28, height: 28)
         }
         .padding(20)
         .background(

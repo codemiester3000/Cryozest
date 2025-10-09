@@ -14,8 +14,9 @@ struct DailyView: View {
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
-    // @State private var dailySleepViewModel = DailySleepViewModel()
+    @State private var showingMetricConfig = false
     @State private var calculatedUpperBound: Double = 8.0
+    @ObservedObject var metricConfig = MetricConfigurationManager.shared
     
     init(
         recoveryModel: RecoveryGraphModel,
@@ -69,12 +70,12 @@ struct DailyView: View {
             .ignoresSafeArea()
 
             ScrollView {
-                HeaderView(model: recoveryModel, selectedDate: $selectedDate)
+                HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig)
                     .padding(.top)
                     .padding(.bottom, 5)
                     .padding(.leading,10)
 
-                DailyGridMetrics(model: recoveryModel)
+                DailyGridMetrics(model: recoveryModel, configManager: metricConfig)
             
             VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
@@ -126,6 +127,9 @@ struct DailyView: View {
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
             }
+            .sheet(isPresented: $showingMetricConfig) {
+                MetricConfigurationView()
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear() {
@@ -154,46 +158,69 @@ struct DailyView: View {
 struct HeaderView: View {
     @ObservedObject var model: RecoveryGraphModel
     @Binding var selectedDate: Date
-    
+    @Binding var showingMetricConfig: Bool
+
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateStyle = .none
         formatter.timeStyle = .medium
         return formatter
     }
-    
+
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Daily Summary")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.top)
-                
-                if let lastRefreshDate = model.lastDataRefresh {
-                    HStack(spacing: 2) { // Adjust the spacing as needed
-                        Text("Updated HealthKit data:")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("\(lastRefreshDate, formatter: dateFormatter)")
-                            .font(.caption)
-                            .foregroundColor(.green)
+        VStack(spacing: 12) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("Daily Summary")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+
+                    if let lastRefreshDate = model.lastDataRefresh {
+                        HStack(spacing: 2) {
+                            Text("Updated HealthKit data:")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+
+                            Text("\(lastRefreshDate, formatter: dateFormatter)")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
                     }
-                    .padding(.top, 0)
-                    
                 }
+
+                Spacer()
+
+                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .colorScheme(.dark)
             }
-            
-            Spacer()
-            
-            DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                .labelsHidden()
-                .colorScheme(.dark)
-                .onChange(of: selectedDate) { newValue in
-                    // Code to handle the date change if necessary
+
+            // Settings button for metric configuration
+            HStack {
+                Button(action: {
+                    showingMetricConfig = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("Customize Metrics")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                    }
+                    .foregroundColor(.cyan)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.cyan.opacity(0.15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                            )
+                    )
                 }
+                Spacer()
+            }
         }
         .padding(.horizontal)
     }
@@ -258,58 +285,74 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
 
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
-    
-    let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2) // Ensure minimum width for items
-    
+    @ObservedObject var configManager: MetricConfigurationManager
+
+    let columns: [GridItem] = Array(repeating: .init(.flexible(minimum: 150)), count: 2)
+
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing: 17) { // Increased spacing between items
-            GridItemView(
-                symbolName: "waveform.path.ecg",
-                title: "Avg HRV",
-                value: "\(model.lastKnownHRV)",
-                unit: "ms"
-            )
-            
-            GridItemView(
-                symbolName: "arrow.down.heart",
-                title: "Avg RHR",
-                value: "\(model.mostRecentRestingHeartRate ?? 0)", // Use averageDailyRHR here
-                unit: "bpm"
-            )
-            
-            GridItemView(
-                symbolName: "drop",
-                title: "Blood Oxygen",
-                value: formatSPO2Value(model.mostRecentSPO2),
-                unit: "%"
-            )
-            
-            GridItemView(
-                symbolName: "lungs",
-                title: "Respiratory Rate",
-                value: formatRespRateValue(model.mostRecentRespiratoryRate),
-                unit: "BrPM"
-            )
-            
-            GridItemView(
-                symbolName: "flame",
-                title: "Calories Burned",
-                value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
-                unit: "kcal"
-            )
-            GridItemView(
-                symbolName: "figure.walk",
-                title: "Steps",
-                value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
-                unit: "steps"
-            )
-            
-            GridItemView(
-                symbolName: "lungs",
-                title: "VO2 Max",
-                value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
-                unit: "ml/kg/min"
-            )
+        LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+            if configManager.isEnabled(.hrv) {
+                GridItemView(
+                    symbolName: "waveform.path.ecg",
+                    title: "Avg HRV",
+                    value: "\(model.lastKnownHRV)",
+                    unit: "ms"
+                )
+            }
+
+            if configManager.isEnabled(.rhr) {
+                GridItemView(
+                    symbolName: "arrow.down.heart",
+                    title: "Avg RHR",
+                    value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                    unit: "bpm"
+                )
+            }
+
+            if configManager.isEnabled(.spo2) {
+                GridItemView(
+                    symbolName: "drop",
+                    title: "Blood Oxygen",
+                    value: formatSPO2Value(model.mostRecentSPO2),
+                    unit: "%"
+                )
+            }
+
+            if configManager.isEnabled(.respiratoryRate) {
+                GridItemView(
+                    symbolName: "lungs",
+                    title: "Respiratory Rate",
+                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                    unit: "BrPM"
+                )
+            }
+
+            if configManager.isEnabled(.calories) {
+                GridItemView(
+                    symbolName: "flame",
+                    title: "Calories Burned",
+                    value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+                    unit: "kcal"
+                )
+            }
+
+            if configManager.isEnabled(.steps) {
+                GridItemView(
+                    symbolName: "figure.walk",
+                    title: "Steps",
+                    value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
+                    unit: "steps"
+                )
+            }
+
+            if configManager.isEnabled(.vo2Max) {
+                GridItemView(
+                    symbolName: "lungs",
+                    title: "VO2 Max",
+                    value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
+                    unit: "ml/kg/min"
+                )
+            }
         }
         .padding([.horizontal, .top])
     }
@@ -335,76 +378,80 @@ struct GridItemView: View {
     var title: String
     var value: String
     var unit: String
-    
-    // Add state to manage the animation trigger
+
     @State private var animate = true
     @State private var cachedValue: String
-    
+
     init(symbolName: String, title: String, value: String, unit: String) {
         self.symbolName = symbolName
         self.title = title
-        // Directly use _cachedValue to initialize the State variable
         _cachedValue = State(initialValue: value)
         self.value = value
         self.unit = unit
     }
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle()
-                        .fill(Color.cyan.opacity(0.15))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: symbolName)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.cyan)
-                }
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: symbolName)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.cyan)
+                    .frame(width: 24, height: 24)
+                    .background(
+                        Circle()
+                            .fill(Color.cyan.opacity(0.15))
+                    )
+
                 Text(title)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
                     .lineLimit(1)
                 Spacer()
             }
 
-            HStack(alignment: .lastTextBaseline, spacing: 4) {
+            HStack(alignment: .lastTextBaseline, spacing: 3) {
                 Text(value)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(animate ? Color.cyan : .white)
                 Text(unit)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.6))
-                    .padding(.bottom, 2)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.5))
+                    .padding(.bottom, 1)
             }
         }
         .onAppear {
-            // Trigger the animation when the view appears
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false
             }
         }
         .onChange(of: value) { newValue in
-            // Trigger the animation whenever the value changes
-            
             if newValue != cachedValue {
                 cachedValue = newValue
-                
-                animate = true // Reset animation state
+                animate = true
                 withAnimation(.easeInOut(duration: 2)) {
                     animate = false
                 }
             }
         }
-        .padding(16)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color.white.opacity(0.08))
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(animate ? Color.cyan.opacity(0.4) : Color.white.opacity(0.15), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(animate ? Color.cyan.opacity(0.5) : Color.white.opacity(0.12), lineWidth: 1)
                 )
         )
-        .shadow(color: animate ? Color.cyan.opacity(0.2) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .shadow(color: animate ? Color.cyan.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
     }
 }
 

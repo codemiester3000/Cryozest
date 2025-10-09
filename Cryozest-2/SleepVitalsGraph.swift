@@ -285,7 +285,7 @@ struct BarGraphView: View {
             BarView2(label: exerciseLabel, color: barColor, width: $exerciseBarWidth)
         }
         .padding()
-        .background(Color.black.opacity(0.8))
+        .background(Color.white.opacity(0.08))
         .cornerRadius(15)
         .shadow(radius: 10)
         .onAppear {
@@ -421,7 +421,7 @@ struct CustomMetricsPicker: View {
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 20)
-            .fill(Color.black)
+            .fill(Color.white.opacity(0.08))
             .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
     }
 }

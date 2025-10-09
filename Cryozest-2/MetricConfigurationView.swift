@@ -1,0 +1,146 @@
+//
+//  MetricConfigurationView.swift
+//  Cryozest-2
+//
+//  Created by Owen Khoury on 10/8/25.
+//
+
+import SwiftUI
+
+struct MetricConfigurationView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var configManager = MetricConfigurationManager.shared
+
+    var body: some View {
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+
+                    Spacer()
+
+                    Text("Metrics")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    // Invisible placeholder for symmetry
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 28))
+                        .opacity(0)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 60)
+                .padding(.bottom, 20)
+
+                Text("Select which metrics to display")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+                    .padding(.bottom, 24)
+
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(HealthMetric.allCases) { metric in
+                            MetricToggleRow(
+                                metric: metric,
+                                isEnabled: configManager.isEnabled(metric)
+                            ) {
+                                withAnimation(.spring(response: 0.3)) {
+                                    configManager.toggle(metric)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                }
+            }
+        }
+    }
+}
+
+struct MetricToggleRow: View {
+    let metric: HealthMetric
+    let isEnabled: Bool
+    let onToggle: () -> Void
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: 16) {
+                // Icon
+                Image(systemName: metric.icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(isEnabled ? .cyan : .white.opacity(0.4))
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(isEnabled ? Color.cyan.opacity(0.2) : Color.white.opacity(0.05))
+                    )
+
+                // Metric name
+                Text(metric.rawValue)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
+
+                Spacer()
+
+                // Toggle indicator
+                ZStack {
+                    Circle()
+                        .strokeBorder(isEnabled ? Color.cyan : Color.white.opacity(0.3), lineWidth: 2)
+                        .frame(width: 24, height: 24)
+
+                    if isEnabled {
+                        Circle()
+                            .fill(Color.cyan)
+                            .frame(width: 24, height: 24)
+
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        isEnabled
+                            ? Color.white.opacity(0.12)
+                            : Color.white.opacity(0.06)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(
+                                isEnabled ? Color.cyan.opacity(0.4) : Color.white.opacity(0.1),
+                                lineWidth: 1
+                            )
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+#Preview {
+    MetricConfigurationView()
+}

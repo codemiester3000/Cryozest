@@ -33,11 +33,6 @@ struct TherapyTypeGrid: View {
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
                         Spacer()
-                        if therapyTypeSelection.selectedTherapyType == therapyType {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.white)
-                                .font(.system(size: 18))
-                        }
                     }
                     .padding(12)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 60)
