@@ -764,6 +764,18 @@ struct ExpandedGridItemView: View {
             StepsDetailView(model: model)
         case .vo2Max:
             VO2MaxDetailView(model: model)
+        case .deepSleep, .remSleep, .coreSleep:
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Sleep stage data")
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.9))
+
+                Text("Tap on the Sleep hero card or visit the Sleep tab for detailed sleep analysis and trends.")
+                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .lineSpacing(4)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

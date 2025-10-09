@@ -207,19 +207,12 @@ struct SessionSummary: View {
         newSession.bodyWeight = bodyWeight
         
         do {
-            do {
-                try viewContext.save()
-                presentationMode.wrappedValue.dismiss()
-            } catch {
-                // Handle the error here, e.g., display an error message or log the error
-                print("Failed to save session: \(error.localizedDescription)")
-            }
+            try viewContext.save()
+            presentationMode.wrappedValue.dismiss()
         } catch {
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            // Handle the error here, e.g., display an error message or log the error
+            print("Failed to save session: \(error.localizedDescription)")
         }
-        
-        presentationMode.wrappedValue.dismiss()
     }
     
     private func discardSession() {
