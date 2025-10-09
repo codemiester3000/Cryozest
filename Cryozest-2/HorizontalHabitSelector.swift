@@ -74,6 +74,12 @@ struct HabitPill: View {
 
     @State private var isPressed = false
 
+    // Check if this is a workout type (auto-syncs with Apple Watch)
+    private var isWorkout: Bool {
+        let workoutTypes = TherapyType.therapies(forCategory: .category0)
+        return workoutTypes.contains(therapy)
+    }
+
     var body: some View {
         Button(action: {
             onTap()
@@ -107,10 +113,31 @@ struct HabitPill: View {
                             )
                     )
 
-                // Name
-                Text(therapy.displayName(managedObjectContext))
-                    .font(.system(size: isSelected ? 16 : 15, weight: isSelected ? .bold : .semibold, design: .rounded))
-                    .foregroundColor(isSelected ? .white : .white.opacity(0.7))
+                // Name and badge
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(therapy.displayName(managedObjectContext))
+                        .font(.system(size: isSelected ? 16 : 15, weight: isSelected ? .bold : .semibold, design: .rounded))
+                        .foregroundColor(isSelected ? .white : .white.opacity(0.7))
+
+                    // Apple Watch badge for workout types
+                    if isWorkout && isSelected {
+                        HStack(spacing: 3) {
+                            Image(systemName: "applewatch")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(.green)
+
+                            Text("Auto-Sync")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
+                                .foregroundColor(.green)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.15))
+                        )
+                    }
+                }
             }
             .padding(.horizontal, isSelected ? 20 : 16)
             .padding(.vertical, isSelected ? 14 : 12)

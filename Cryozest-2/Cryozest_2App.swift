@@ -27,6 +27,7 @@ struct Cryozest_2App: App {
                         }
                     } else {
                         WelcomeView()
+                            .environment(\.managedObjectContext, persistenceController.container.viewContext)
                             .environmentObject(appState)
                     }
                 }

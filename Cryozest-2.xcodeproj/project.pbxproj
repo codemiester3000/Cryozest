@@ -46,6 +46,11 @@
 		C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD32E9809EB0052946A /* StepsDetailView.swift */; };
 		C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */; };
 		C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD72E980A020052946A /* MetricChartView.swift */; };
+		C56DDCDB2E9811A50052946A /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDA2E9811A50052946A /* OnboardingManager.swift */; };
+		C56DDCDD2E9811B10052946A /* ContextualTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */; };
+		C56DDCDF2E9811C30052946A /* DailyEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */; };
+		C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */; };
+		C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
 		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
@@ -141,6 +146,11 @@
 		C56DDCD32E9809EB0052946A /* StepsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsDetailView.swift; sourceTree = "<group>"; };
 		C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VO2MaxDetailView.swift; sourceTree = "<group>"; };
 		C56DDCD72E980A020052946A /* MetricChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricChartView.swift; sourceTree = "<group>"; };
+		C56DDCDA2E9811A50052946A /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
+		C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextualTooltip.swift; sourceTree = "<group>"; };
+		C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyEmptyStateView.swift; sourceTree = "<group>"; };
+		C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsEmptyStateView.swift; sourceTree = "<group>"; };
+		C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEmptyStateView.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
@@ -219,6 +229,18 @@
 			path = MetricDetailViews;
 			sourceTree = "<group>";
 		};
+		C56DDCD92E9811930052946A /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				C56DDCDA2E9811A50052946A /* OnboardingManager.swift */,
+				C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */,
+				C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */,
+				C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */,
+				C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		C57EE32029CA8E31002A4875 = {
 			isa = PBXGroup;
 			children = (
@@ -242,6 +264,7 @@
 		C57EE32B29CA8E31002A4875 /* Cryozest-2 */ = {
 			isa = PBXGroup;
 			children = (
+				C56DDCD92E9811930052946A /* Onboarding */,
 				C56DDCC82E9809960052946A /* MetricDetailViews */,
 				0543F28B29D0078200620A55 /* Cryozest-2.entitlements */,
 				0543F28A29D003B600620A55 /* Info.plist */,
@@ -481,6 +504,7 @@
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
+				C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */,
 				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
@@ -498,6 +522,7 @@
 				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
 				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
 				C56DDCCE2E9809C90052946A /* SpO2DetailView.swift in Sources */,
+				C56DDCDB2E9811A50052946A /* OnboardingManager.swift in Sources */,
 				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
 				387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */,
 				C56DDCD22E9809E00052946A /* CaloriesDetailView.swift in Sources */,
@@ -512,6 +537,7 @@
 				C56DDCBF2E97E81B0052946A /* ConsistencyScoreCard.swift in Sources */,
 				C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */,
 				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,
+				C56DDCDD2E9811B10052946A /* ContextualTooltip.swift in Sources */,
 				C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
 				C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */,
@@ -536,9 +562,11 @@
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
 				C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
+				C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
 				C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
+				C56DDCDF2E9811C30052946A /* DailyEmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

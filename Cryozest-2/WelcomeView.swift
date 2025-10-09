@@ -4,6 +4,7 @@ struct WelcomeView: View {
     @State private var showNext = false
     @State private var animateContent = false
     @EnvironmentObject var appState: AppState
+    @Environment(\.managedObjectContext) var managedObjectContext
 
     var body: some View {
         ZStack {
@@ -135,7 +136,13 @@ struct WelcomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showNext) {
-            SecondOnboardingPage(appState: appState)
+            TherapyTypeSelectionView()
+                .environment(\.managedObjectContext, managedObjectContext)
+                .environmentObject(appState)
+                .onAppear {
+                    // Mark as launched when they continue from welcome
+                    appState.hasLaunchedBefore = true
+                }
         }
     }
 }

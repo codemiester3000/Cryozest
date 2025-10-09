@@ -62,7 +62,7 @@ struct TherapyTypeSelectionView: View {
                         Spacer()
                     }
                     .padding(.top, 60)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 20)
                     .opacity(animateContent ? 1.0 : 0)
 
                     // Device safety notice
@@ -86,23 +86,101 @@ struct TherapyTypeSelectionView: View {
                             )
                     )
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 24)
                     .opacity(animateContent ? 1.0 : 0)
-                
+
                     CategoryPillsView(selectedCategory: $selectedCategory)
-                        .padding(.bottom, 60)
-                    
+                        .frame(height: 60)
+                        .padding(.bottom, 20)
+
+                    // Apple Watch sync info card
                     if selectedCategory == Category.category0 {
-                        Text("CryoZest instantly updates with Apple Watch workout sessions.")
-                            .font(.system(size: 16, weight: .bold, design: .default))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(5)
-                            .padding(.bottom, 30)
-                            .padding(.horizontal)
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.green.opacity(0.3),
+                                                Color.green.opacity(0.1)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 44, height: 44)
+
+                                Image(systemName: "applewatch.watchface")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.green)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Text("Auto-Sync Enabled")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.green)
+                                }
+
+                                Text("Workouts recorded on your Apple Watch automatically sync to the app")
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.green.opacity(0.12))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                    } else if selectedCategory != .category1 {
+                        // Manual entry info for other categories
+                        HStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.cyan.opacity(0.15))
+                                    .frame(width: 44, height: 44)
+
+                                Image(systemName: "hand.tap.fill")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.cyan)
+                            }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Manual Tracking")
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+
+                                Text("Use the in-app timer to track these habits")
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.white.opacity(0.06))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
                     }
-                    
+
                     ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
+                        let isWorkout = selectedCategory == .category0 || (selectedCategory == .category1 && Category.category0.therapies().contains(therapyType))
                         Button(action: {
                             switch therapyType {
                             case .custom1:
@@ -143,15 +221,20 @@ struct TherapyTypeSelectionView: View {
                             ModernTherapyCard(
                                 therapyType: therapyType,
                                 displayName: getDisplayName(therapyType: therapyType),
-                                isSelected: selectedTypes.contains(therapyType)
+                                isSelected: selectedTypes.contains(therapyType),
+                                isWorkout: isWorkout
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 8)
                     }
+
+                    // Bottom padding to ensure last card isn't cut off
+                    Spacer()
+                        .frame(height: 100)
                 }
-                
+
                 Spacer()
 
                 // Modern Continue button
@@ -299,11 +382,19 @@ struct TherapyTypeSelectionView: View {
     }
 }
 
+// Helper extension for Category
+extension Category {
+    func therapies() -> [TherapyType] {
+        return TherapyType.therapies(forCategory: self)
+    }
+}
+
 // Modern therapy card component
 struct ModernTherapyCard: View {
     let therapyType: TherapyType
     let displayName: String
     let isSelected: Bool
+    let isWorkout: Bool
 
     var body: some View {
         HStack(spacing: 16) {
@@ -327,10 +418,31 @@ struct ModernTherapyCard: View {
                     .foregroundColor(.white)
             }
 
-            // Therapy type name
-            Text(displayName)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+            // Therapy type name and badge
+            VStack(alignment: .leading, spacing: 4) {
+                Text(displayName)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+
+                // Apple Watch badge for workout types
+                if isWorkout {
+                    HStack(spacing: 4) {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.green)
+
+                        Text("Auto-Sync")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundColor(.green)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(Color.green.opacity(0.15))
+                    )
+                }
+            }
 
             Spacer()
 
@@ -605,18 +717,30 @@ struct CategoryPillsView: View {
 struct PillView: View {
     let category: Category
     let isSelected: Binding<Bool>
-    
+
     var body: some View {
-        Text(category == Category.category0 ? "⭐️ \(category.rawValue)" : category.rawValue)
-            .padding(.horizontal)
-            .padding(.vertical, 5)
-            .background(isSelected.wrappedValue ? Color.blue : Color.clear)
-            .foregroundColor(isSelected.wrappedValue ? .white : Color.blue)
-            .cornerRadius(9) // Updated corner radius
-            .overlay(
-                RoundedRectangle(cornerRadius: 9) // Updated corner radius for the border
-                    .stroke(Color.blue, lineWidth: 1)
-                    .opacity(isSelected.wrappedValue ? 0 : 1)
-            )
+        HStack(spacing: 6) {
+            if category == .category0 {
+                Image(systemName: "applewatch")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(isSelected.wrappedValue ? .white : .green)
+            }
+            Text(category.rawValue)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(
+            Capsule()
+                .fill(isSelected.wrappedValue ? Color.blue : Color.clear)
+        )
+        .foregroundColor(isSelected.wrappedValue ? .white : Color.blue)
+        .overlay(
+            Capsule()
+                .stroke(
+                    isSelected.wrappedValue ? Color.clear : (category == .category0 ? Color.green.opacity(0.5) : Color.blue),
+                    lineWidth: 1.5
+                )
+        )
     }
 }

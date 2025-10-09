@@ -88,11 +88,16 @@ struct MainView: View {
     @State private var showCreateTimer = false
     
     @State private var selectedMode = SessionFeature.STOPWATCH
-    
+
     @State private var showAddSession = false
-    
+
     @State private var sessionDates = [Date]()
-    
+
+    // Onboarding state
+    @State private var showEmptyState = false
+    @State private var showTherapySelectorTooltip = false
+    @State private var showStopwatchTooltip = false
+
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
     }
@@ -393,16 +398,39 @@ struct MainView: View {
                 )
                 .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 0) {
-                    headerView
+                // Show empty state or content
+                if showEmptyState {
+                    HabitsEmptyStateView(
+                        therapyColor: therapyTypeSelection.selectedTherapyType.color,
+                        onDismiss: {
+                            showEmptyState = false
+                            OnboardingManager.shared.markHabitsTabSeen()
+                            showTherapySelectorTooltip = true
+                        }
+                    )
+                } else {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                        headerView
 
-                // Horizontal scrolling habit selector
-                HorizontalHabitSelector(
-                    therapyTypeSelection: therapyTypeSelection,
-                    selectedTherapyTypes: selectedTherapies
-                )
-                .padding(.bottom, 16)
+                    // Horizontal scrolling habit selector
+                    HorizontalHabitSelector(
+                        therapyTypeSelection: therapyTypeSelection,
+                        selectedTherapyTypes: selectedTherapies
+                    )
+                    .padding(.bottom, 16)
+                    .contextualTooltip(
+                        message: "Swipe to explore different wellness habits",
+                        isShowing: showTherapySelectorTooltip,
+                        arrowPosition: .top,
+                        accentColor: therapyTypeSelection.selectedTherapyType.color,
+                        onDismiss: {
+                            showTherapySelectorTooltip = false
+                            OnboardingManager.shared.markTherapySelectorTooltipSeen()
+                            OnboardingManager.shared.markFirstTherapySelected()
+                            showStopwatchTooltip = true
+                        }
+                    )
 
                 Spacer()
 
@@ -424,6 +452,16 @@ struct MainView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+                .contextualTooltip(
+                    message: "Tap Start to begin tracking your first session",
+                    isShowing: showStopwatchTooltip,
+                    arrowPosition: .top,
+                    accentColor: therapyTypeSelection.selectedTherapyType.color,
+                    onDismiss: {
+                        showStopwatchTooltip = false
+                        OnboardingManager.shared.markStopwatchTooltipSeen()
+                    }
+                )
                 
                 // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
                 
@@ -528,9 +566,29 @@ struct MainView: View {
                     EmptyView()
                 }
                 }  // Close ScrollView
+                }  // Close else (empty state)
             }  // Close ZStack
             }  // Close NavigationView
         .onAppear() {
+                // Check if should show onboarding
+                if OnboardingManager.shared.shouldShowHabitsEmptyState {
+                    showEmptyState = true
+                } else {
+                    // Show therapy selector tooltip if not shown before
+                    if OnboardingManager.shared.shouldShowTherapySelectorTooltip {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            showTherapySelectorTooltip = true
+                        }
+                    }
+
+                    // Show stopwatch tooltip if appropriate
+                    if OnboardingManager.shared.shouldShowStopwatchTooltip {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                            showStopwatchTooltip = true
+                        }
+                    }
+                }
+
                 // Make NavigationView background transparent
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithTransparentBackground()
@@ -549,22 +607,17 @@ struct MainView: View {
                         newTimer.duration = Int32(duration)
                     }
                 }
-                
+
                 do {
                     try viewContext.save()
                 } catch {
                     // Handle the error appropriately
                     print("Failed to save new timers: \(error)")
                 }
-                
-                HealthKitManager.shared.requestAuthorization { success, error in
-                    if success {
-                        HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
-                            isHealthDataAvailable = isAuthorized
-                        }
-                    } else {
-                        presentAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-                    }
+
+                // Check HealthKit authorization status without prompting
+                HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                    isHealthDataAvailable = isAuthorized
                 }
         }
         .sheet(isPresented: $showCreateTimer) {
@@ -608,10 +661,12 @@ struct MainView: View {
         newSession.date = Date()
         newSession.therapyType = therapyTypeSelection.selectedTherapyType.rawValue
         newSession.id = UUID()
-        
+
         do {
             do {
                 try viewContext.save()
+                // Mark first session completed for onboarding
+                OnboardingManager.shared.markFirstSessionCompleted()
             } catch {
                 // Handle the error here, e.g., display an error message or log the error
                 print("Failed to save session: \(error.localizedDescription)")

@@ -20,7 +20,11 @@ struct DailyView: View {
 
     // Metric expansion state
     @State private var expandedMetric: MetricType? = nil
-    
+
+    // Onboarding state
+    @State private var showEmptyState = false
+    @State private var showMetricTooltip = false
+
     init(
         recoveryModel: RecoveryGraphModel,
         exertionModel: ExertionModel,
@@ -72,14 +76,45 @@ struct DailyView: View {
             )
             .ignoresSafeArea()
 
-            ScrollView {
+            // Show empty state or content
+            if showEmptyState {
+                DailyEmptyStateView(
+                    onEnableHealthKit: {
+                        HealthKitManager.shared.requestAuthorization { success, error in
+                            if success {
+                                showEmptyState = false
+                                OnboardingManager.shared.markDailyTabSeen()
+                                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                                sleepModel.fetchSleepData(forDate: selectedDate)
+                            }
+                        }
+                    },
+                    onDismiss: {
+                        showEmptyState = false
+                        OnboardingManager.shared.markDailyTabSeen()
+                        showMetricTooltip = true
+                    }
+                )
+            } else {
+                ScrollView {
                 HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig)
                     .padding(.top)
                     .padding(.bottom, 5)
                     .padding(.leading,10)
 
                 DailyGridMetrics(model: recoveryModel, configManager: metricConfig, expandedMetric: $expandedMetric)
-            
+                    .contextualTooltip(
+                        message: "Tap any metric to see detailed history and trends",
+                        isShowing: showMetricTooltip,
+                        arrowPosition: .top,
+                        accentColor: .cyan,
+                        onDismiss: {
+                            showMetricTooltip = false
+                            OnboardingManager.shared.markMetricTooltipSeen()
+                        }
+                    )
+
             VStack(alignment: .leading, spacing: 10) {
                 ProgressButtonView(
                     title: "Daily Exertion",
@@ -133,17 +168,29 @@ struct DailyView: View {
             .sheet(isPresented: $showingMetricConfig) {
                 MetricConfigurationView()
             }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear() {
-            HealthKitManager.shared.requestAuthorization { success, error in
-                if success {
-                    HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+            // Check if should show onboarding
+            if OnboardingManager.shared.shouldShowDailyEmptyState {
+                showEmptyState = true
+            } else {
+                // Only request HealthKit if user has already dismissed the empty state
+                // This means they've either granted permission or chosen to skip
+                HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                    if isAuthorized {
                         recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                         exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                         sleepModel.fetchSleepData(forDate: selectedDate)
-                        
                         appleWorkoutsService.fetchAndSaveWorkouts()
+                    }
+                }
+
+                // Show metric tooltip if not shown before
+                if OnboardingManager.shared.shouldShowMetricTooltip {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showMetricTooltip = true
                     }
                 }
             }

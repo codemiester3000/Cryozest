@@ -33,15 +33,26 @@ struct AnalysisView: View {
     
     @State private var selectedTimeFrame: TimeFrame = .week
     @State private var showingGoalConfiguration = false
-    
+
+    // Onboarding state
+    @State private var showEmptyState = false
+
     private let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateFormat = "MM/dd/yyyy"
         return df
     }()
-    
+
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
+    }
+
+    private var filteredSessions: [TherapySessionEntity] {
+        sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
+    }
+
+    private var hasEnoughData: Bool {
+        filteredSessions.count >= 3
     }
     
     var body: some View {
@@ -71,49 +82,59 @@ struct AnalysisView: View {
                 )
                 .ignoresSafeArea()
 
-                VStack {
-                    ScrollView {
-                        HStack {
-                            Text("Analytics")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-
-                            Spacer()
-
-                            // Goal configuration button
-                            Button(action: { showingGoalConfiguration = true }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-
-                                    Image(systemName: "target")
-                                        .font(.system(size: 20, weight: .semibold))
-                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                                }
-                            }
-
-                            NavigationLink(destination: TherapyTypeSelectionView()) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.white.opacity(0.15))
-                                        .frame(width: 44, height: 44)
-
-                                    Image(systemName: "gearshape.fill")
-                                        .font(.system(size: 20, weight: .semibold))
-                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                                }
-                            }
+                // Show empty state if not enough data, otherwise show analytics
+                if showEmptyState || (!OnboardingManager.shared.shouldShowAnalysisEmptyState && !hasEnoughData) {
+                    AnalysisEmptyStateView(
+                        therapyColor: therapyTypeSelection.selectedTherapyType.color,
+                        onDismiss: {
+                            showEmptyState = false
+                            OnboardingManager.shared.markAnalysisTabSeen()
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 16)
-
-                    HorizontalHabitSelector(
-                        therapyTypeSelection: therapyTypeSelection,
-                        selectedTherapyTypes: selectedTherapies
                     )
-                    .padding(.bottom, 16)
+                } else {
+                    VStack {
+                        ScrollView {
+                            HStack {
+                                Text("Analytics")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+
+                                Spacer()
+
+                                // Goal configuration button
+                                Button(action: { showingGoalConfiguration = true }) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.white.opacity(0.15))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(systemName: "target")
+                                            .font(.system(size: 20, weight: .semibold))
+                                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                                    }
+                                }
+
+                                NavigationLink(destination: TherapyTypeSelectionView()) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.white.opacity(0.15))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(systemName: "gearshape.fill")
+                                            .font(.system(size: 20, weight: .semibold))
+                                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 16)
+
+                        HorizontalHabitSelector(
+                            therapyTypeSelection: therapyTypeSelection,
+                            selectedTherapyTypes: selectedTherapies
+                        )
+                        .padding(.bottom, 16)
                     
                     CustomPicker(selectedTimeFrame: $selectedTimeFrame, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
 
@@ -167,11 +188,18 @@ struct AnalysisView: View {
                     WakingAnalysisView(model: WakingAnalysisDataModel(therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame, sessions: sessions))
                         .padding(.bottom, 20)
                     }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .sheet(isPresented: $showingGoalConfiguration) {
                 GoalConfigurationView(selectedTherapyTypes: selectedTherapyTypes)
+            }
+            .onAppear {
+                // Check if should show onboarding
+                if OnboardingManager.shared.shouldShowAnalysisEmptyState {
+                    showEmptyState = true
+                }
             }
         }
     }
