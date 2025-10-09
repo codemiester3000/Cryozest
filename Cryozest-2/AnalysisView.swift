@@ -2,9 +2,10 @@ import SwiftUI
 import CoreData
 
 struct AnalysisView: View {
-    
+
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
-    
+    @Binding var selectedTab: Int
+
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         entity: TherapySessionEntity.entity(),
@@ -43,8 +44,9 @@ struct AnalysisView: View {
         return df
     }()
 
-    init(therapyTypeSelection: TherapyTypeSelection) {
+    init(therapyTypeSelection: TherapyTypeSelection, selectedTab: Binding<Int>) {
         self.therapyTypeSelection = therapyTypeSelection
+        self._selectedTab = selectedTab
     }
 
     private var filteredSessions: [TherapySessionEntity] {
@@ -89,6 +91,8 @@ struct AnalysisView: View {
                         onDismiss: {
                             showEmptyState = false
                             OnboardingManager.shared.markAnalysisTabSeen()
+                            // Switch to Habits tab (tab index 1)
+                            selectedTab = 1
                         }
                     )
                 } else {

@@ -37,7 +37,7 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
 
-            AnalysisView(therapyTypeSelection: therapyTypeSelection)
+            AnalysisView(therapyTypeSelection: therapyTypeSelection, selectedTab: $selectedTab)
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Analysis")
