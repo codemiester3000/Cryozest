@@ -129,7 +129,7 @@ struct DailyView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 8)
 
-                DailyGridMetrics(model: recoveryModel, configManager: metricConfig, expandedMetric: $expandedMetric)
+                DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
                     .contextualTooltip(
                         message: "Tap any metric to see detailed history and trends",
                         isShowing: showMetricTooltip,
@@ -324,6 +324,7 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
 
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
+    @ObservedObject var sleepModel: DailySleepViewModel
     @ObservedObject var configManager: MetricConfigurationManager
     @Binding var expandedMetric: MetricType?
     @Namespace private var animation
@@ -423,6 +424,45 @@ struct DailyGridMetrics: View {
                             namespace: animation
                         )
                     }
+
+                    if configManager.isEnabled(.deepSleep) {
+                        GridItemView(
+                            symbolName: "bed.double.fill",
+                            title: "Deep Sleep",
+                            value: sleepModel.totalDeepSleep,
+                            unit: "hrs",
+                            metricType: .deepSleep,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
+
+                    if configManager.isEnabled(.remSleep) {
+                        GridItemView(
+                            symbolName: "moon.stars.fill",
+                            title: "REM Sleep",
+                            value: sleepModel.totalRemSleep,
+                            unit: "hrs",
+                            metricType: .remSleep,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
+
+                    if configManager.isEnabled(.coreSleep) {
+                        GridItemView(
+                            symbolName: "moon.fill",
+                            title: "Core Sleep",
+                            value: sleepModel.totalCoreSleep,
+                            unit: "hrs",
+                            metricType: .coreSleep,
+                            model: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
+                        )
+                    }
                 }
                 .transition(.opacity)
             }
@@ -474,6 +514,9 @@ struct DailyGridMetrics: View {
         case .calories: return "flame"
         case .steps: return "figure.walk"
         case .vo2Max: return "lungs"
+        case .deepSleep: return "bed.double.fill"
+        case .remSleep: return "moon.stars.fill"
+        case .coreSleep: return "moon.fill"
         }
     }
 
@@ -486,6 +529,9 @@ struct DailyGridMetrics: View {
         case .calories: return "Calories Burned"
         case .steps: return "Steps"
         case .vo2Max: return "VO2 Max"
+        case .deepSleep: return "Deep Sleep"
+        case .remSleep: return "REM Sleep"
+        case .coreSleep: return "Core Sleep"
         }
     }
 
@@ -498,6 +544,9 @@ struct DailyGridMetrics: View {
         case .calories: return formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories)
         case .steps: return "\(model.mostRecentSteps.map(Int.init) ?? 0)"
         case .vo2Max: return String(format: "%.1f", model.mostRecentVO2Max ?? 0.0)
+        case .deepSleep: return sleepModel.totalDeepSleep
+        case .remSleep: return sleepModel.totalRemSleep
+        case .coreSleep: return sleepModel.totalCoreSleep
         }
     }
 
@@ -510,6 +559,9 @@ struct DailyGridMetrics: View {
         case .calories: return "kcal"
         case .steps: return "steps"
         case .vo2Max: return "ml/kg/min"
+        case .deepSleep: return "hrs"
+        case .remSleep: return "hrs"
+        case .coreSleep: return "hrs"
         }
     }
 }

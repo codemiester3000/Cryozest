@@ -16,6 +16,9 @@ enum HealthMetric: String, CaseIterable, Identifiable {
     case calories = "Calories Burned"
     case steps = "Steps"
     case vo2Max = "VO2 Max"
+    case deepSleep = "Deep Sleep"
+    case remSleep = "REM Sleep"
+    case coreSleep = "Core Sleep"
 
     var id: String { rawValue }
 
@@ -28,6 +31,9 @@ enum HealthMetric: String, CaseIterable, Identifiable {
         case .calories: return "flame"
         case .steps: return "figure.walk"
         case .vo2Max: return "lungs"
+        case .deepSleep: return "bed.double.fill"
+        case .remSleep: return "moon.stars.fill"
+        case .coreSleep: return "moon.fill"
         }
     }
 }

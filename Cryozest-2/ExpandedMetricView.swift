@@ -15,6 +15,9 @@ enum MetricType: String, CaseIterable {
     case calories = "Calories"
     case steps = "Steps"
     case vo2Max = "VO2 Max"
+    case deepSleep = "Deep Sleep"
+    case remSleep = "REM Sleep"
+    case coreSleep = "Core Sleep"
 
     var icon: String {
         switch self {
@@ -25,6 +28,9 @@ enum MetricType: String, CaseIterable {
         case .calories: return "flame"
         case .steps: return "figure.walk"
         case .vo2Max: return "lungs"
+        case .deepSleep: return "bed.double.fill"
+        case .remSleep: return "moon.stars.fill"
+        case .coreSleep: return "moon.fill"
         }
     }
 
@@ -37,6 +43,9 @@ enum MetricType: String, CaseIterable {
         case .calories: return .orange
         case .steps: return .green
         case .vo2Max: return .pink
+        case .deepSleep: return .indigo
+        case .remSleep: return .purple
+        case .coreSleep: return .blue
         }
     }
 }
@@ -152,6 +161,27 @@ struct ExpandedMetricView: View {
             StepsDetailView(model: model)
         case .vo2Max:
             VO2MaxDetailView(model: model)
+        case .deepSleep, .remSleep, .coreSleep:
+            SleepMetricDetailView(metricType: metricType, model: model)
         }
+    }
+}
+
+struct SleepMetricDetailView: View {
+    let metricType: MetricType
+    let model: RecoveryGraphModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Sleep stage data")
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.9))
+
+            Text("Tap on the Sleep hero card or visit the Sleep tab for detailed sleep analysis and trends.")
+                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .foregroundColor(.white.opacity(0.7))
+                .lineSpacing(4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
