@@ -355,20 +355,27 @@ struct MainView: View {
 
     private var headerView: some View {
         HStack {
-            Text("Record Habit")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
+            Text("Sessions")
+                .font(.title2)
+                .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .padding(.leading, 24)
 
             Spacer()
 
             NavigationLink(destination: TherapyTypeSelectionView()) {
-                SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
-                    .padding(.trailing, 25)
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                }
             }
         }
-        .padding(.top, 33)
-        .padding(.bottom, 16)
+        .padding(.horizontal)
+        .padding(.top, 16)
     }
 
     var body: some View {
@@ -427,10 +434,11 @@ struct MainView: View {
                         }
                         VStack {
                             HStack {
-                                Text("History")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                Text("Session History")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .padding(.leading, 24)
+                                    .padding(.leading)
 
                                 Spacer()
 

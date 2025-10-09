@@ -73,10 +73,10 @@ struct AnalysisView: View {
                 VStack {
                     ScrollView {
                         HStack {
-                            Text("Metrics Comparisons")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text("Analytics")
+                                .font(.title2)
+                                .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .padding(.leading, 24)
 
                             Spacer()
 
@@ -90,10 +90,10 @@ struct AnalysisView: View {
                                         .font(.system(size: 20, weight: .semibold))
                                         .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                                 }
-                                .padding(.trailing, 25)
                             }
                         }
-                        .padding(.top, 36)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
 
                     HorizontalHabitSelector(
                         therapyTypeSelection: therapyTypeSelection,

@@ -13,6 +13,7 @@
 		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
 		C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F52E97484200031B6B /* MetricConfiguration.swift */; };
 		C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F72E97485900031B6B /* MetricConfigurationView.swift */; };
+		C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
 		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
 		C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */; };
@@ -87,6 +88,7 @@
 		C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingPage.swift; sourceTree = "<group>"; };
 		C50659F52E97484200031B6B /* MetricConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricConfiguration.swift; sourceTree = "<group>"; };
 		C50659F72E97485900031B6B /* MetricConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricConfigurationView.swift; sourceTree = "<group>"; };
+		C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalHabitSelector.swift; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
 		C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryGraphModel.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				C58619452E97206B0002428A /* SplashScreenView.swift */,
 				C50659F52E97484200031B6B /* MetricConfiguration.swift */,
 				C50659F72E97485900031B6B /* MetricConfigurationView.swift */,
+				C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -413,6 +416,7 @@
 				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
+				C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */,
 				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
 				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,

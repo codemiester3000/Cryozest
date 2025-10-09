@@ -169,34 +169,27 @@ struct HeaderView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Daily Summary")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-
-                    if let lastRefreshDate = model.lastDataRefresh {
-                        HStack(spacing: 2) {
-                            Text("Updated HealthKit data:")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-
-                            Text("\(lastRefreshDate, formatter: dateFormatter)")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
-                    }
-                }
+            HStack(alignment: .top) {
+                Text("Daily Summary")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
 
                 Spacer()
 
-                DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                    .labelsHidden()
-                    .colorScheme(.dark)
+                NavigationLink(destination: TherapyTypeSelectionView()) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 44, height: 44)
+
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.cyan)
+                    }
+                }
             }
 
-            // Settings button for metric configuration
             HStack {
                 Button(action: {
                     showingMetricConfig = true
@@ -219,7 +212,12 @@ struct HeaderView: View {
                             )
                     )
                 }
+
                 Spacer()
+
+                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .colorScheme(.dark)
             }
         }
         .padding(.horizontal)

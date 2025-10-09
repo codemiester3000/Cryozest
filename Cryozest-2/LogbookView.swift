@@ -81,10 +81,11 @@ struct LogbookView: View {
                     }
                     VStack {
                         HStack {
-                            Text("History")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                            Text("Activity")
+                                .font(.title2)
+                                .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .padding(.leading, 24)
+                                .padding(.leading)
 
                             Spacer()
 
