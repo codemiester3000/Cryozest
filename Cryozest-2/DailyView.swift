@@ -103,6 +103,27 @@ struct DailyView: View {
                     .padding(.bottom, 5)
                     .padding(.leading,10)
 
+                HeroScoresView(
+                    exertionScore: exertionModel.exertionScore,
+                    sleepScore: sleepModel.sleepScore,
+                    readinessScore: recoveryModel.recoveryScores.last ?? 0,
+                    calculatedUpperBound: calculatedUpperBoundDailyView,
+                    onExertionTap: {
+                        triggerHapticFeedback()
+                        showingExertionPopover = true
+                    },
+                    onSleepTap: {
+                        triggerHapticFeedback()
+                        showingSleepPopover = true
+                    },
+                    onReadinessTap: {
+                        triggerHapticFeedback()
+                        showingRecoveryPopover = true
+                    }
+                )
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+
                 DailyGridMetrics(model: recoveryModel, configManager: metricConfig, expandedMetric: $expandedMetric)
                     .contextualTooltip(
                         message: "Tap any metric to see detailed history and trends",
@@ -114,56 +135,21 @@ struct DailyView: View {
                             OnboardingManager.shared.markMetricTooltipSeen()
                         }
                     )
-
-            VStack(alignment: .leading, spacing: 10) {
-                ProgressButtonView(
-                    title: "Daily Exertion",
-                    progress: Float(exertionModel.exertionScore / calculatedUpperBoundDailyView),
-                    color: Color.orange,
-                    action: {
-                        triggerHapticFeedback()
-                        showingExertionPopover = true
-                    }
-                )
-                .popover(isPresented: $showingExertionPopover) {
-                    ExertionView(exertionModel: exertionModel, recoveryModel: recoveryModel)
-                }
-                
-                ProgressButtonView(
-                    title: "Sleep Quality",
-                    progress: Float(sleepModel.sleepScore / 100),
-                    color: Color.yellow,
-                    action: {
-                        triggerHapticFeedback()
-                        showingSleepPopover = true
-                    }
-                )
-                .popover(isPresented: $showingSleepPopover) {
-                    DailySleepView(dailySleepModel: sleepModel)
-                }
-                
-                // TODO: (owen) THIS ONE isn't updating automatically
-                // TODO: instead of checking .last get the index based on the selected day
-                ProgressButtonView(
-                    title: "Readiness to Train",
-                    progress: Float(recoveryModel.recoveryScores.last ?? 0) / 100.0,
-                    color: Color.green,
-                    action: {
-                        triggerHapticFeedback()
-                        showingRecoveryPopover = true
-                    }
-                )
-                .popover(isPresented: $showingRecoveryPopover) {
-                    RecoveryCardView(model: recoveryModel)
-                }
-            }
-            .padding(.horizontal,22)
-            .padding(.top, 10)
+                    .padding(.bottom, 20)
             }
             .refreshable {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
+            }
+            .sheet(isPresented: $showingExertionPopover) {
+                ExertionView(exertionModel: exertionModel, recoveryModel: recoveryModel)
+            }
+            .sheet(isPresented: $showingSleepPopover) {
+                DailySleepView(dailySleepModel: sleepModel)
+            }
+            .sheet(isPresented: $showingRecoveryPopover) {
+                RecoveryCardView(model: recoveryModel)
             }
             .sheet(isPresented: $showingMetricConfig) {
                 MetricConfigurationView()
@@ -722,6 +708,167 @@ struct ExpandedGridItemView: View {
         case .vo2Max:
             VO2MaxDetailView(model: model)
         }
+    }
+}
+
+struct HeroScoresView: View {
+    let exertionScore: Double
+    let sleepScore: Double
+    let readinessScore: Int
+    let calculatedUpperBound: Double
+    let onExertionTap: () -> Void
+    let onSleepTap: () -> Void
+    let onReadinessTap: () -> Void
+
+    @ObservedObject var configManager = MetricConfigurationManager.shared
+
+    private var enabledScores: [HeroScore] {
+        HeroScore.allCases.filter { configManager.isEnabled($0) }
+    }
+
+    var body: some View {
+        if enabledScores.isEmpty {
+            EmptyView()
+        } else if enabledScores.count == 1 {
+            // Single score: Full width card
+            scoreCard(for: enabledScores[0])
+                .frame(maxWidth: .infinity)
+        } else {
+            // Multiple scores: Horizontal layout
+            HStack(spacing: 12) {
+                ForEach(enabledScores) { heroScore in
+                    scoreCard(for: heroScore)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func scoreCard(for heroScore: HeroScore) -> some View {
+        switch heroScore {
+        case .exertion:
+            if configManager.isEnabled(.exertion) {
+                ScoreCardView(
+                    title: "Exertion",
+                    score: Int((exertionScore / calculatedUpperBound) * 100),
+                    icon: "flame.fill",
+                    color: .orange,
+                    requiresAppleWatch: true,
+                    action: onExertionTap
+                )
+            }
+        case .quality:
+            if configManager.isEnabled(.quality) {
+                ScoreCardView(
+                    title: "Quality",
+                    score: Int(sleepScore),
+                    icon: "moon.fill",
+                    color: .yellow,
+                    requiresAppleWatch: true,
+                    action: onSleepTap
+                )
+            }
+        case .readiness:
+            if configManager.isEnabled(.readiness) {
+                ScoreCardView(
+                    title: "Readiness",
+                    score: readinessScore,
+                    icon: "bolt.fill",
+                    color: .green,
+                    requiresAppleWatch: true,
+                    action: onReadinessTap
+                )
+            }
+        }
+    }
+}
+
+struct ScoreCardView: View {
+    let title: String
+    let score: Int
+    let icon: String
+    let color: Color
+    let requiresAppleWatch: Bool
+    let action: () -> Void
+
+    @State private var isPressed = false
+    @State private var showAppleWatchNotice = false
+
+    var body: some View {
+        Button(action: {
+            if requiresAppleWatch && score == 0 {
+                showAppleWatchNotice = true
+            }
+            action()
+        }) {
+            VStack(spacing: 10) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.2))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(color)
+                }
+
+                // Score
+                Text("\(score)")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+
+                // Title
+                Text(title)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .lineLimit(1)
+
+                // Apple Watch indicator (if required and score is 0)
+                if requiresAppleWatch && score == 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 8, weight: .medium))
+                        Text("Required")
+                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                    }
+                    .foregroundColor(.white.opacity(0.5))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.1))
+                    )
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.08)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(color.opacity(0.3), lineWidth: 1)
+                    )
+            )
+            .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 4)
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
     }
 }
 
