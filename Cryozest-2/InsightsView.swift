@@ -156,22 +156,23 @@ struct InsightsView: View {
                     }
                 }
 
-                // Show empty state only if both health trends AND habit impacts are empty
-                if viewModel.healthTrends.isEmpty && viewModel.topHabitImpacts.isEmpty {
-                    emptyStateView
-                }
+                // Top Performers Section (always show)
+                VStack(alignment: .leading, spacing: 16) {
+                    InsightsSectionHeader(
+                        title: "Top Performers",
+                        icon: "trophy.fill",
+                        color: .yellow
+                    )
+                    .padding(.horizontal)
 
-                // Show habit impacts section if available
-                if !viewModel.topHabitImpacts.isEmpty {
-                    // Top Performers Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        InsightsSectionHeader(
-                            title: "Top Performers",
-                            icon: "trophy.fill",
-                            color: .yellow
+                    if viewModel.topHabitImpacts.isEmpty {
+                        InsightsEmptyStateCard(
+                            title: "Track Your Habits",
+                            message: "Track your habits for at least 3 days to see which ones have the biggest positive impact on your health metrics.",
+                            icon: "chart.bar.fill"
                         )
                         .padding(.horizontal)
-
+                    } else {
                         VStack(spacing: 12) {
                             ForEach(Array(viewModel.topHabitImpacts.enumerated()), id: \.element.id) { index, impact in
                                 TopImpactCard(impact: impact, rank: index + 1)
@@ -179,65 +180,96 @@ struct InsightsView: View {
                             }
                         }
                     }
+                }
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
+                Divider()
+                    .background(Color.white.opacity(0.2))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
+
+                // Sleep Impact Section (always show)
+                VStack(alignment: .leading, spacing: 16) {
+                    InsightsSectionHeader(
+                        title: "Sleep Impact",
+                        icon: "bed.double.fill",
+                        color: .purple
+                    )
+                    .padding(.horizontal)
+
+                    if viewModel.sleepImpacts.isEmpty {
+                        InsightsEmptyStateCard(
+                            title: "Sleep Tracking Needed",
+                            message: "Enable sleep tracking in the Health app or wear an Apple Watch to see how your habits affect your sleep duration.",
+                            icon: "bed.double.fill"
+                        )
                         .padding(.horizontal)
-
-                    // Sleep Impact Section
-                    if !viewModel.sleepImpacts.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
-                            InsightsSectionHeader(
-                                title: "Sleep Impact",
-                                icon: "bed.double.fill",
-                                color: .purple
-                            )
-                            .padding(.horizontal)
-
-                            VStack(spacing: 10) {
-                                ForEach(viewModel.sleepImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
-                                }
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(viewModel.sleepImpacts) { impact in
+                                MetricImpactRow(impact: impact)
+                                    .padding(.horizontal)
                             }
                         }
                     }
+                }
 
-                    // HRV Impact Section
-                    if !viewModel.hrvImpacts.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
-                            InsightsSectionHeader(
-                                title: "HRV Impact",
-                                icon: "waveform.path.ecg",
-                                color: .green
-                            )
-                            .padding(.horizontal)
+                Divider()
+                    .background(Color.white.opacity(0.2))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
 
-                            VStack(spacing: 10) {
-                                ForEach(viewModel.hrvImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
-                                }
+                // HRV Impact Section (always show)
+                VStack(alignment: .leading, spacing: 16) {
+                    InsightsSectionHeader(
+                        title: "HRV Impact",
+                        icon: "waveform.path.ecg",
+                        color: .green
+                    )
+                    .padding(.horizontal)
+
+                    if viewModel.hrvImpacts.isEmpty {
+                        InsightsEmptyStateCard(
+                            title: "Apple Watch Required",
+                            message: "Wear an Apple Watch to track Heart Rate Variability and see how your habits improve your HRV.",
+                            icon: "applewatch"
+                        )
+                        .padding(.horizontal)
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(viewModel.hrvImpacts) { impact in
+                                MetricImpactRow(impact: impact)
+                                    .padding(.horizontal)
                             }
                         }
                     }
+                }
 
-                    // RHR Impact Section
-                    if !viewModel.rhrImpacts.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
-                            InsightsSectionHeader(
-                                title: "Resting Heart Rate Impact",
-                                icon: "heart.fill",
-                                color: .red
-                            )
-                            .padding(.horizontal)
+                Divider()
+                    .background(Color.white.opacity(0.2))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
 
-                            VStack(spacing: 10) {
-                                ForEach(viewModel.rhrImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
-                                }
+                // RHR Impact Section (always show)
+                VStack(alignment: .leading, spacing: 16) {
+                    InsightsSectionHeader(
+                        title: "Resting Heart Rate Impact",
+                        icon: "heart.fill",
+                        color: .red
+                    )
+                    .padding(.horizontal)
+
+                    if viewModel.rhrImpacts.isEmpty {
+                        InsightsEmptyStateCard(
+                            title: "Apple Watch Required",
+                            message: "Wear an Apple Watch to track Resting Heart Rate and see how your habits optimize your RHR.",
+                            icon: "applewatch"
+                        )
+                        .padding(.horizontal)
+                    } else {
+                        VStack(spacing: 10) {
+                            ForEach(viewModel.rhrImpacts) { impact in
+                                MetricImpactRow(impact: impact)
+                                    .padding(.horizontal)
                             }
                         }
                     }
