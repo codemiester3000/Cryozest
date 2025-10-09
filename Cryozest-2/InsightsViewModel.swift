@@ -265,7 +265,88 @@ class InsightsViewModel: ObservableObject {
             }
         }
 
+        // Steps Trend (works with iPhone motion sensors)
+        group.enter()
+        healthKitManager.fetchAvgStepsForLastNDays(numDays: 7) { recentSteps in
+            self.healthKitManager.fetchAvgStepsForLastNDays(numDays: 14) { last14Days in
+                defer { group.leave() }
+
+                guard let recent = recentSteps, let last14 = last14Days, recent > 0, last14 > 0 else {
+                    print("⚠️ InsightsViewModel: No Steps data available")
+                    return
+                }
+
+                // Approximate previous 7 days steps
+                let previous = last14 * 2 - recent
+                guard previous > 0 else {
+                    print("⚠️ InsightsViewModel: Invalid previous Steps calculation")
+                    return
+                }
+
+                let change = ((recent - previous) / previous) * 100
+                let trend = HealthTrend(
+                    title: "Daily Steps",
+                    metric: "Steps",
+                    currentValue: recent,
+                    previousValue: previous,
+                    changePercentage: change,
+                    isPositive: recent > previous,
+                    icon: "figure.walk",
+                    color: abs(change) > 10 ? (recent > previous ? .green : .red) : .cyan,
+                    description: abs(change) > 10
+                        ? (recent > previous ? "You're walking more this week" : "You're walking less this week")
+                        : "Your step count is consistent"
+                )
+                trends.append(trend)
+                print("✅ InsightsViewModel: Added Steps trend")
+            }
+        }
+
+        // Active Calories Trend (works with iPhone motion sensors)
+        group.enter()
+        healthKitManager.fetchAvgActiveEnergyForLastNDays(numDays: 7) { recentCalories in
+            self.healthKitManager.fetchAvgActiveEnergyForLastNDays(numDays: 14) { last14Days in
+                defer { group.leave() }
+
+                guard let recent = recentCalories, let last14 = last14Days, recent > 0, last14 > 0 else {
+                    print("⚠️ InsightsViewModel: No Active Calories data available")
+                    return
+                }
+
+                // Approximate previous 7 days calories
+                let previous = last14 * 2 - recent
+                guard previous > 0 else {
+                    print("⚠️ InsightsViewModel: Invalid previous Calories calculation")
+                    return
+                }
+
+                let change = ((recent - previous) / previous) * 100
+                let trend = HealthTrend(
+                    title: "Active Calories",
+                    metric: "Calories",
+                    currentValue: recent,
+                    previousValue: previous,
+                    changePercentage: change,
+                    isPositive: recent > previous,
+                    icon: "flame.fill",
+                    color: abs(change) > 10 ? (recent > previous ? .green : .red) : .orange,
+                    description: abs(change) > 10
+                        ? (recent > previous ? "You're burning more calories this week" : "You're burning fewer calories this week")
+                        : "Your calorie burn is consistent"
+                )
+                trends.append(trend)
+                print("✅ InsightsViewModel: Added Calories trend")
+            }
+        }
+
         group.notify(queue: .main) {
+            print("📊 InsightsViewModel: Health trends fetched - \(trends.count) trends available")
+            if trends.isEmpty {
+                print("⚠️ InsightsViewModel: No health trends available. Please ensure:")
+                print("   - Motion & Fitness tracking is enabled for Steps/Calories")
+                print("   - Apple Watch is connected for RHR and HRV data")
+                print("   - Sleep tracking is enabled in Health app for Sleep data")
+            }
             completion(trends)
         }
     }

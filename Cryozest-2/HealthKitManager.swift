@@ -155,30 +155,94 @@ class HealthKitManager {
         let now = Date()
         let startOfDay = Calendar.current.startOfDay(for: now)
         let startDate = Calendar.current.date(byAdding: .day, value: -numDays, to: startOfDay)
-        
+
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictEndDate)
-        
+
         guard let restingHeartRateType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else {
             completion(nil)
             return
         }
-        
+
         let query = HKStatisticsQuery(quantityType: restingHeartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
             if let error = error {
                 print("Error fetching average resting heart rate: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
-            
+
             guard let avgQuantity = statistics?.averageQuantity() else {
                 completion(nil)
                 return
             }
-            
+
             let avgRestingHeartRate = avgQuantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
             completion(avgRestingHeartRate)
         }
-        
+
+        healthStore.execute(query)
+    }
+
+    func fetchAvgStepsForLastNDays(numDays: Int, completion: @escaping (Double?) -> Void) {
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let startDate = Calendar.current.date(byAdding: .day, value: -numDays, to: startOfDay)
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictEndDate)
+
+        guard let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount) else {
+            completion(nil)
+            return
+        }
+
+        let query = HKStatisticsQuery(quantityType: stepsType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
+            if let error = error {
+                print("Error fetching average steps: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let sumQuantity = statistics?.sumQuantity() else {
+                completion(nil)
+                return
+            }
+
+            let totalSteps = sumQuantity.doubleValue(for: HKUnit.count())
+            let avgSteps = totalSteps / Double(numDays)
+            completion(avgSteps)
+        }
+
+        healthStore.execute(query)
+    }
+
+    func fetchAvgActiveEnergyForLastNDays(numDays: Int, completion: @escaping (Double?) -> Void) {
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let startDate = Calendar.current.date(byAdding: .day, value: -numDays, to: startOfDay)
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictEndDate)
+
+        guard let activeEnergyType = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned) else {
+            completion(nil)
+            return
+        }
+
+        let query = HKStatisticsQuery(quantityType: activeEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
+            if let error = error {
+                print("Error fetching average active energy: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            guard let sumQuantity = statistics?.sumQuantity() else {
+                completion(nil)
+                return
+            }
+
+            let totalCalories = sumQuantity.doubleValue(for: HKUnit.kilocalorie())
+            let avgCalories = totalCalories / Double(numDays)
+            completion(avgCalories)
+        }
+
         healthStore.execute(query)
     }
     
