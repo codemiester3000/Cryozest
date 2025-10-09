@@ -105,8 +105,8 @@ struct CreateTimerView: View {
     }
     
     private func loadTimers() {
-        if !timers.isEmpty {
-            durations = timers.map { Int($0.duration) }
+        if timers.count >= 2 {
+            durations = Array(timers.prefix(2).map { Int($0.duration) })
         }
     }
     

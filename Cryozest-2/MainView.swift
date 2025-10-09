@@ -141,8 +141,9 @@ struct MainView: View {
                     // Quick timer badges - vertical stack with customize button first
                     VStack(spacing: 8) {
                         compactAddButton
-                        compactTimerBadge(for: 10)
-                        compactTimerBadge(for: 15)
+                        ForEach(customTimers.prefix(2), id: \.self) { timer in
+                            compactTimerBadge(for: Int(timer.duration))
+                        }
                     }
                 }
 
@@ -470,7 +471,7 @@ struct MainView: View {
                         }
                         VStack {
                             HStack {
-                                Text("Session History")
+                                Text("\(therapyTypeSelection.selectedTherapyType.displayName(viewContext)) History")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)

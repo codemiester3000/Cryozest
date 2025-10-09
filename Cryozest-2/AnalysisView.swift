@@ -142,11 +142,6 @@ struct AnalysisView: View {
                     
                     CustomPicker(selectedTimeFrame: $selectedTimeFrame, backgroundColor: therapyTypeSelection.selectedTherapyType.color)
 
-                    // Personal Bests
-                    PersonalBestsView(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType)
-                        .padding(.horizontal)
-                        .padding(.top, 16)
-
                     // Consistency Score
                     ConsistencyScoreCard(sessions: Array(sessions), therapyType: therapyTypeSelection.selectedTherapyType, timeFrame: selectedTimeFrame)
                         .padding(.horizontal)

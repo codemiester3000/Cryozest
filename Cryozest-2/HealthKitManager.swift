@@ -1995,10 +1995,132 @@ class HealthKitManager {
         sleepDataResults["REM Sleep"] = totalRemSleepTime
         sleepDataResults["Unspecified Sleep"] = totalUnspecifiedSleepTime
         sleepDataResults["Awake"] = totalAwakeTime
-        
+
         return sleepDataResults
     }
-    
+
+    // MARK: - Session Health Data Methods
+
+    func fetchHRVData(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                completion(samples, nil)
+            }
+        }
+        healthStore.execute(query)
+    }
+
+    func fetchActiveEnergy(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let activeEnergyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: activeEnergyType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                completion(samples, nil)
+            }
+        }
+        healthStore.execute(query)
+    }
+
+    func fetchTotalCalories(from startDate: Date, to endDate: Date, completion: @escaping (Double?, Error?) -> Void) {
+        let dispatchGroup = DispatchGroup()
+        var activeTotal: Double = 0
+        var basalTotal: Double = 0
+        var fetchError: Error?
+
+        // Fetch active energy
+        dispatchGroup.enter()
+        fetchActiveEnergy(from: startDate, to: endDate) { samples, error in
+            if let samples = samples {
+                activeTotal = samples.reduce(0.0) { sum, sample in
+                    sum + sample.quantity.doubleValue(for: HKUnit.kilocalorie())
+                }
+            } else {
+                fetchError = error
+            }
+            dispatchGroup.leave()
+        }
+
+        // Fetch basal energy
+        dispatchGroup.enter()
+        let basalEnergyType = HKQuantityType.quantityType(forIdentifier: .basalEnergyBurned)!
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let query = HKSampleQuery(sampleType: basalEnergyType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            if let samples = samples as? [HKQuantitySample] {
+                basalTotal = samples.reduce(0.0) { sum, sample in
+                    sum + sample.quantity.doubleValue(for: HKUnit.kilocalorie())
+                }
+            } else {
+                fetchError = error
+            }
+            dispatchGroup.leave()
+        }
+        healthStore.execute(query)
+
+        dispatchGroup.notify(queue: .main) {
+            if let error = fetchError {
+                completion(nil, error)
+            } else {
+                completion(activeTotal + basalTotal, nil)
+            }
+        }
+    }
+
+    func fetchRespiratoryRate(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let respiratoryRateType = HKQuantityType.quantityType(forIdentifier: .respiratoryRate)!
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: respiratoryRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                completion(samples, nil)
+            }
+        }
+        healthStore.execute(query)
+    }
+
+    func fetchOxygenSaturation(from startDate: Date, to endDate: Date, completion: @escaping ([HKQuantitySample]?, Error?) -> Void) {
+        let spo2Type = HKQuantityType.quantityType(forIdentifier: .oxygenSaturation)!
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: spo2Type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            guard let samples = samples as? [HKQuantitySample] else {
+                DispatchQueue.main.async {
+                    completion(nil, error)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                completion(samples, nil)
+            }
+        }
+        healthStore.execute(query)
+    }
+
 }
 
 enum Trend: CustomStringConvertible {
