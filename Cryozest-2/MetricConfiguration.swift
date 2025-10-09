@@ -40,7 +40,6 @@ enum HealthMetric: String, CaseIterable, Identifiable {
 
 enum HeroScore: String, CaseIterable, Identifiable {
     case exertion = "Exertion"
-    case quality = "Sleep Quality"
     case readiness = "Readiness"
     case sleep = "Sleep"
 
@@ -49,7 +48,6 @@ enum HeroScore: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .exertion: return "flame.fill"
-        case .quality: return "moon.fill"
         case .readiness: return "bolt.fill"
         case .sleep: return "bed.double.fill"
         }
@@ -58,7 +56,6 @@ enum HeroScore: String, CaseIterable, Identifiable {
     var color: Color {
         switch self {
         case .exertion: return .orange
-        case .quality: return .yellow
         case .readiness: return .green
         case .sleep: return .purple
         }
@@ -84,12 +81,14 @@ class MetricConfigurationManager: ObservableObject {
     private let heroScoreConfigKey = "enabledHeroScores"
 
     private init() {
-        // Load saved metric configuration or default to all enabled
+        // Load saved metric configuration or default to enabled (except sleep metrics)
         if let saved = UserDefaults.standard.stringArray(forKey: metricConfigKey) {
             self.enabledMetrics = Set(saved.compactMap { HealthMetric(rawValue: $0) })
         } else {
-            // Default: enable all metrics
-            self.enabledMetrics = Set(HealthMetric.allCases)
+            // Default: enable all metrics except sleep metrics
+            self.enabledMetrics = Set(HealthMetric.allCases.filter {
+                $0 != .deepSleep && $0 != .remSleep && $0 != .coreSleep
+            })
         }
 
         // Load saved hero score configuration or default to all enabled

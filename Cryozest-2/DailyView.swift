@@ -105,17 +105,12 @@ struct DailyView: View {
 
                 HeroScoresView(
                     exertionScore: exertionModel.exertionScore,
-                    sleepScore: sleepModel.sleepScore,
                     readinessScore: recoveryModel.recoveryScores.last ?? 0,
                     sleepDuration: recoveryModel.previousNightSleepDuration,
                     calculatedUpperBound: calculatedUpperBoundDailyView,
                     onExertionTap: {
                         triggerHapticFeedback()
                         showingExertionPopover = true
-                    },
-                    onSleepQualityTap: {
-                        triggerHapticFeedback()
-                        showingSleepPopover = true
                     },
                     onReadinessTap: {
                         triggerHapticFeedback()
@@ -782,12 +777,10 @@ struct ExpandedGridItemView: View {
 
 struct HeroScoresView: View {
     let exertionScore: Double
-    let sleepScore: Double
     let readinessScore: Int
     let sleepDuration: String?
     let calculatedUpperBound: Double
     let onExertionTap: () -> Void
-    let onSleepQualityTap: () -> Void
     let onReadinessTap: () -> Void
     let onSleepTap: () -> Void
 
@@ -836,17 +829,6 @@ struct HeroScoresView: View {
                     color: .orange,
                     requiresAppleWatch: true,
                     action: onExertionTap
-                )
-            }
-        case .quality:
-            if configManager.isEnabled(.quality) {
-                ScoreCardView(
-                    title: "Quality",
-                    score: Int(sleepScore),
-                    icon: "moon.fill",
-                    color: .yellow,
-                    requiresAppleWatch: true,
-                    action: onSleepQualityTap
                 )
             }
         case .readiness:
