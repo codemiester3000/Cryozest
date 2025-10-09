@@ -45,36 +45,200 @@ struct ManuallyAddSession: View {
             )
             .ignoresSafeArea()
 
-            NavigationView {
-                Form {
-                Picker("Therapy Type", selection: $therapyType) {
-                    ForEach(TherapyType.allCases, id: \.self) { type in
-                        Text(type.displayName(viewContext)).tag(type)
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white.opacity(0.8))
                     }
+
+                    Spacer()
+
+                    Text("Add Session")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    // Invisible placeholder for symmetry
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 28))
+                        .opacity(0)
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 60)
+                .padding(.bottom, 20)
 
-                DatePicker("Session Date", selection: $sessionDate, displayedComponents: .date)
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Therapy Type Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Habit Type")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
 
-                Stepper("Hours: \(durationHours)", value: $durationHours, in: 0...23)
-                Stepper("Minutes: \(durationMinutes)", value: $durationMinutes, in: 0...59)
+                            Menu {
+                                ForEach(TherapyType.allCases, id: \.self) { type in
+                                    Button(action: { therapyType = type }) {
+                                        HStack {
+                                            Text(type.displayName(viewContext))
+                                            if therapyType == type {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(therapyType.displayName(viewContext))
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.cyan)
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        )
+                                )
+                            }
+                        }
 
-                // Stepper for average heart rate
-                Stepper("Average Heart Rate: \(averageHeartRate) bpm", value: $averageHeartRate, in: 40...200) // Adjust range as needed
+                        // Date Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Session Date")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
 
-                Button("Save Session") {
-                    if requiresSafetyWarning(therapyType) {
-                        showSafetyWarning = true
-                        pendingSave = true
-                    } else {
-                        saveSession()
+                            DatePicker("", selection: $sessionDate, displayedComponents: .date)
+                                .labelsHidden()
+                                .colorScheme(.dark)
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        )
+                                )
+                        }
+
+                        // Duration Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Duration")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            HStack(spacing: 12) {
+                                // Hours
+                                VStack {
+                                    Stepper("", value: $durationHours, in: 0...23)
+                                        .labelsHidden()
+                                    Text("\(durationHours) hr")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        )
+                                )
+
+                                // Minutes
+                                VStack {
+                                    Stepper("", value: $durationMinutes, in: 0...59)
+                                        .labelsHidden()
+                                    Text("\(durationMinutes) min")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        )
+                                )
+                            }
+                        }
+
+                        // Heart Rate Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Average Heart Rate")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            HStack {
+                                Stepper("", value: $averageHeartRate, in: 40...200)
+                                    .labelsHidden()
+                                Spacer()
+                                Text("\(averageHeartRate) bpm")
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundColor(.cyan)
+                            }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white.opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
+                            )
+                        }
+
+                        // Save Button
+                        Button(action: {
+                            if requiresSafetyWarning(therapyType) {
+                                showSafetyWarning = true
+                                pendingSave = true
+                            } else {
+                                saveSession()
+                            }
+                        }) {
+                            Text("Save Session")
+                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            therapyType.color,
+                                            therapyType.color.opacity(0.8)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(14)
+                                .shadow(color: therapyType.color.opacity(0.4), radius: 12, x: 0, y: 6)
+                        }
+                        .padding(.top, 8)
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 40)
                 }
-                .foregroundColor(.red)
-            }
-            .navigationBarTitle("Add Habit Entry", displayMode: .inline)
-            .navigationBarItems(leading: Button("Cancel") {
-                presentationMode.wrappedValue.dismiss()
-            })
             }
         }
         .fullScreenCover(isPresented: $showSafetyWarning) {

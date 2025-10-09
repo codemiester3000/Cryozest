@@ -104,27 +104,11 @@ struct RecoveryAnalysisView: View {
             LoadingView()
         } else {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text("Sleep \(viewModel.timeFrame.presentDisplayString())")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-
-                    Spacer()
-
-                    Text(viewModel.therapyType.displayName(managedObjectContext))
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(viewModel.therapyType.color.opacity(0.3))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(viewModel.therapyType.color.opacity(0.6), lineWidth: 1)
-                                )
-                        )
-                }
+                // Section Title
+                Text("Sleep Analysis")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
 
                 HStack {
                     Spacer()

@@ -379,47 +379,129 @@ struct CustomTherapyTypeNameView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.managedObjectContext) private var managedObjectContext
     @State private var customName: String = ""
-    
+
     var body: some View {
-        VStack {
-            // Title Section
-            Text("Custom")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding(.top, 20)
-            
-            Text("Enter a name for your custom therapy type.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-            
-            // Form Section
-            Form {
-                Section() {
-                    TextField("Enter Custom Name", text: $customName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                }
-                
-                Section {
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Header
+                HStack {
                     Button(action: {
-                        saveCustomTherapy()
                         presentationMode.wrappedValue.dismiss()
                     }) {
-                        Text("Save")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(minWidth: 0, maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(10)
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white.opacity(0.8))
                     }
+
+                    Spacer()
+
+                    Text("Custom Habit")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    // Invisible placeholder for symmetry
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 28))
+                        .opacity(0)
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 60)
+                .padding(.bottom, 20)
+
+                Text("Create a custom habit to track your unique wellness routine")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 40)
+
+                Spacer()
+
+                // Input Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Habit Name")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.7))
+
+                    TextField("", text: $customName, prompt: Text("e.g., Breathwork, Yoga, Stretching").foregroundColor(.white.opacity(0.4)))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                        .autocapitalization(.words)
+                }
+                .padding(.horizontal, 24)
+
+                Spacer()
+
+                // Save Button
+                Button(action: {
+                    saveCustomTherapy()
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Save Habit")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(customName.isEmpty ? .white.opacity(0.5) : .white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            Group {
+                                if !customName.isEmpty {
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.cyan,
+                                            Color.cyan.opacity(0.8)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                } else {
+                                    Color.white.opacity(0.15)
+                                }
+                            }
+                        )
+                        .cornerRadius(14)
+                        .shadow(color: customName.isEmpty ? .clear : Color.cyan.opacity(0.4), radius: 12, x: 0, y: 6)
+                }
+                .disabled(customName.isEmpty)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 50)
             }
         }
-        .navigationBarTitle("Set Custom Name", displayMode: .inline)
         .onAppear() {
             loadCustomTherapyName()
         }

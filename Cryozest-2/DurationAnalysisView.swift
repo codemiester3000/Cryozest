@@ -134,9 +134,15 @@ class DurationAnalysisViewModel: ObservableObject {
 
 struct DurationAnalysisView: View {
     @ObservedObject var viewModel: DurationAnalysisViewModel
-    
+
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 16) {
+            // Section Title
+            Text("Session Stats")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+
             VStack(spacing: 12) {
                 HStack(spacing: 12) {
                     ZStack {

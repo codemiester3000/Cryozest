@@ -73,12 +73,11 @@ struct WakingAnalysisView: View {
     var body: some View {
         VStack(spacing: 16) {
             VStack(spacing: 12) {
-                HStack {
-                    Text("Averages \(model.timeFrame.presentDisplayString())")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    Spacer()
-                }
+                // Section Title
+                Text("Daily Metrics")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
 
                 HStack(spacing: 12) {
                     Text("baseline")
@@ -159,11 +158,11 @@ struct ComparisonView: View {
             HStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .fill(Color.white.opacity(0.1))
+                        .fill(color.opacity(0.2))
                         .frame(width: 32, height: 32)
                     Image(systemName: symbolName)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(color)
                 }
                 Text(title)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
