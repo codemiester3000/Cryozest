@@ -2,6 +2,7 @@
 //  ShimmerEffect.swift
 //  Cryozest-2
 //
+//  Created by Owen Khoury on 10/9/25.
 //  Modern shimmer loading effect for skeleton screens
 //
 
@@ -102,5 +103,27 @@ struct SkeletonCircle: View {
             .fill(Color.white.opacity(0.15))
             .frame(width: size, height: size)
             .shimmer()
+    }
+}
+
+#Preview {
+    ZStack {
+        LinearGradient(
+            gradient: Gradient(colors: [
+                Color(red: 0.05, green: 0.15, blue: 0.25),
+                Color(red: 0.1, green: 0.2, blue: 0.35),
+                Color(red: 0.15, green: 0.25, blue: 0.4)
+            ]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+
+        VStack(spacing: 16) {
+            SkeletonCard(height: 100)
+            SkeletonLine(width: 200)
+            SkeletonCircle(size: 50)
+        }
+        .padding()
     }
 }

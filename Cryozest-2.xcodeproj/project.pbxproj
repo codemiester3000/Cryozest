@@ -26,6 +26,7 @@
 		C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */; };
 		C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EAC62B2FCEC200F583C7 /* DailyView.swift */; };
 		C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */; };
+		C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB02E97E5150052946A /* ShimmerEffect.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
 		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
@@ -101,6 +102,7 @@
 		C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManuallyAddSession.swift; sourceTree = "<group>"; };
 		C549EAC62B2FCEC200F583C7 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
 		C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepComparisonBarGraph.swift; sourceTree = "<group>"; };
+		C56DDCB02E97E5150052946A /* ShimmerEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerEffect.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 				C50659F52E97484200031B6B /* MetricConfiguration.swift */,
 				C50659F72E97485900031B6B /* MetricConfigurationView.swift */,
 				C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */,
+				C56DDCB02E97E5150052946A /* ShimmerEffect.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -430,6 +433,7 @@
 				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
 				C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */,
 				C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */,
+				C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */,
 				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
 				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,
 				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
