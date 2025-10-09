@@ -9,58 +9,118 @@ struct CustomDurationPickerView: View {
     @State private var seconds: Int = 0
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Text("Custom Duration")
-                    .font(.largeTitle)
-                    .bold()
-                    .padding()
-                
-                HStack {
-                    Picker("", selection: $minutes) {
-                        ForEach(0..<60) { minute in
-                            Text("\(minute) min")
-                        }
-                    }
-                    .pickerStyle(WheelPickerStyle())
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                    
-                    Picker("", selection: $seconds) {
-                        ForEach(0..<60) { second in
-                            Text("\(second) sec")
-                        }
-                    }
-                    .pickerStyle(WheelPickerStyle())
-                    .labelsHidden()
-                    .frame(maxWidth: .infinity)
-                }
-                .padding()
-
-                Button(action: {
-                    customDuration = TimeInterval(minutes * 60 + seconds)
-                    presentationMode.wrappedValue.dismiss()
-                    showTimerCountdownView = true
-                }) {
-                    Text("Set Timer")
-                        .font(.title2)
-                        .bold()
-                        .padding()
-                        .background(Color.orange)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .padding(.bottom, 8)
-            }
-            .navigationBarTitle("Custom Timer", displayMode: .inline)
-        }
-        .background(
+        ZStack {
+            // Modern gradient background
             LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-        )
-        .edgesIgnoringSafeArea(.all)
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            NavigationView {
+                VStack(spacing: 24) {
+                    Text("Custom Duration")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.top, 20)
+                
+                    HStack(spacing: 20) {
+                        VStack(spacing: 8) {
+                            Text("Minutes")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+                            Picker("", selection: $minutes) {
+                                ForEach(0..<60) { minute in
+                                    Text("\(minute)").tag(minute)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white.opacity(0.08))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
+                            )
+                        }
+
+                        VStack(spacing: 8) {
+                            Text("Seconds")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+                            Picker("", selection: $seconds) {
+                                ForEach(0..<60) { second in
+                                    Text("\(second)").tag(second)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.white.opacity(0.08))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    )
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 24)
+
+                    Spacer()
+
+                    Button(action: {
+                        customDuration = TimeInterval(minutes * 60 + seconds)
+                        presentationMode.wrappedValue.dismiss()
+                        showTimerCountdownView = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Text("Set Timer")
+                                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 16))
+                        }
+                        .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(14)
+                        .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 40)
+                }
+                .navigationBarTitle("Custom Timer", displayMode: .inline)
+            }
+        }
     }
 }

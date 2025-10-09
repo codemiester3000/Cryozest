@@ -11,14 +11,31 @@ struct CreateTimerView: View {
     @State private var durations = [5, 10, 15]
     
     var body: some View {
-        ZStack {  // Wrapping content in ZStack for full background coverage
+        ZStack {
+            // Modern gradient background
             LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-            .edgesIgnoringSafeArea(.all) // Now the gradient covers whole background
-            
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
             VStack(spacing: 20) {
                 ForEach(0..<3) { index in
                     VStack {  // Added VStack for each picker and title
@@ -47,17 +64,27 @@ struct CreateTimerView: View {
                     saveDurations()
                     self.presentationMode.wrappedValue.dismiss()
                 }) {
-                    Text("Done")
-                        .font(.system(size: 28, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 80)
-                        .padding(.vertical, 14)
-                        .background(.orange
+                    HStack(spacing: 8) {
+                        Text("Save Timers")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16))
+                    }
+                    .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                        .cornerRadius(40)
-                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
+                    )
+                    .cornerRadius(14)
+                    .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
                 }
-                .padding()
+                .padding(.horizontal, 32)
+                .padding(.bottom, 40)
             }
             .padding()
         }

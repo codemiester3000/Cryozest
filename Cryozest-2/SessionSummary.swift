@@ -64,22 +64,42 @@ struct SessionSummary: View {
     }
     
     var body: some View {
-        
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.black, Color.black]), startPoint: .top, endPoint: .bottom)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack() {
-                VStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Header
                     HStack {
-                        Text("Summary")
+                        Text("Session Summary")
                             .foregroundColor(.white)
-                            .font(.system(size: 24, weight: .regular, design: .default))
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
                             .padding(.top, 26)
-                        
+                        Spacer()
                     }
-                    Spacer()
-                }
+                    .padding(.horizontal)
                 
                 
                 TherapyTypeView(therapyType: $therapyType, temperature: $temperature)
@@ -102,40 +122,51 @@ struct SessionSummary: View {
                     HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
                     HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
                 }
-                
-                VStack {
-                    Spacer()
-                    HStack {
-                        
-                        Spacer()
-                        
+
+
+                    // Action buttons
+                    HStack(spacing: 12) {
                         Button(action: discardSession) {
                             Text("Discard")
-                                .padding()
+                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .background(Color.red)
-                                .foregroundColor(.black)
-                                .cornerRadius(8)
-                                .font(.footnote)
+                                .padding(.vertical, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.red.opacity(0.2))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.red.opacity(0.5), lineWidth: 1)
+                                        )
+                                )
                         }
-                        .padding([.leading, .bottom, .trailing])
-                        
+
                         Button(action: logSession) {
-                            Text("Save")
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.orange)
-                                .foregroundColor(.black)
-                                .cornerRadius(8)
-                                .font(.footnote)
+                            HStack(spacing: 8) {
+                                Text("Save Session")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 16))
+                            }
+                            .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing)
+                            )
+                            .cornerRadius(14)
+                            .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
                         }
-                        .padding([.leading, .bottom, .trailing])
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 32)
                 }
-                
             }
-            
-            .padding(.bottom, 26)
         }
         .onAppear {
             fetchBodyWeight()
@@ -200,40 +231,72 @@ struct SessionSummary: View {
     }
     
     struct NoHealthDataView: View {
-        
         var body: some View {
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.red)
-                Text("Wear Apple watch to get heartrate metrics. Min duration of ~3 min required.")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "applewatch")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 18))
+                }
+
+                Text("Wear Apple Watch to get heart rate metrics. Minimum 3 minute duration required.")
+                    .foregroundColor(.white.opacity(0.9))
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .fixedSize(horizontal: false, vertical: true)
+
                 Spacer()
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.orange.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
     
     struct HeartRateView: View {
         var label: String
         var heartRate: Int
-        
+
         var body: some View {
-            HStack {
-                Image(systemName: "heart.fill")
-                    .foregroundColor(.red)
-                Text("\(label): \(heartRate != 0 && heartRate != 1000 ? "\(heartRate) bpm" : "No Data Available")")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.red.opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.red)
+                        .font(.system(size: 18))
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .foregroundColor(.white.opacity(0.7))
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                    Text(heartRate != 0 && heartRate != 1000 ? "\(heartRate) bpm" : "No Data")
+                        .foregroundColor(.white)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                }
                 Spacer()
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
     
@@ -297,13 +360,19 @@ struct SessionSummary: View {
                     }
                 }
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
-    
+
     //Adding Body Weight output to Session Summary Screen
     struct BodyWeightView: View {
         @State var showWeightPicker = false
@@ -350,13 +419,19 @@ struct SessionSummary: View {
                     }
                 }
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
-    
+
     struct TemperatureView: View {
         @State var showTemperaturePicker = false
         @Binding var temperature: Int
@@ -430,13 +505,19 @@ struct SessionSummary: View {
                     }
                 }
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
-    
+
     struct TherapyTypeView: View {
         @Environment(\.managedObjectContext) private var managedObjectContext
         
@@ -484,15 +565,19 @@ struct SessionSummary: View {
                     }
                 })
             }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
             .padding(.horizontal)
-            
-            .cornerRadius(10)
-            
         }
     }
-    
-    
-    
+
     struct HydrationSuggestionView: View {
         @State var showHydrationSuggestion = false
         @State var waterLoss: Double = 0.0
@@ -526,13 +611,19 @@ struct SessionSummary: View {
                     .font(.system(size: 16))
                 Spacer()
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
-    
+
     struct CalorieLossEstimationView: View {
         @State var showCalorieLossEstimation = false
         @State var calorieLoss: Double = 0.0
@@ -602,11 +693,17 @@ struct SessionSummary: View {
                     .font(.system(size: 16))
                 Spacer()
             }
-            .padding()
-            
-            .cornerRadius(10)
-            
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal)
         }
     }
-    
+
 }

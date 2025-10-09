@@ -2,19 +2,24 @@ import SwiftUI
 import HealthKit
 import CoreData
 
-struct MainView: View {
-    
-    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
-    
-    var isSessionCompleteForToday: Bool {
-        sessions.contains { session in
-            let calendar = Calendar.current
-            let isSameDay = calendar.isDateInToday(session.date ?? Date())
-            let isSameTherapyType = session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
-            return isSameDay && isSameTherapyType
+enum SessionFeature {
+    case STOPWATCH
+    case QUICK_ADD
+
+    func displayString() -> String {
+        switch self {
+        case .STOPWATCH:
+            return "Stopwatch"
+        case .QUICK_ADD:
+            return "Quick Add"
         }
     }
-    
+}
+
+struct MainView: View {
+
+    @ObservedObject var therapyTypeSelection: TherapyTypeSelection
+
     @Environment(\.scenePhase) private var scenePhase
     
     @Environment(\.managedObjectContext) private var viewContext
@@ -51,7 +56,16 @@ struct MainView: View {
         entity: TherapySessionEntity.entity(),
         sortDescriptors: [])
     private var sessions: FetchedResults<TherapySessionEntity>
-    
+
+    var isSessionCompleteForToday: Bool {
+        sessions.contains { session in
+            let calendar = Calendar.current
+            let isSameDay = calendar.isDateInToday(session.date ?? Date())
+            let isSameTherapyType = session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
+            return isSameDay && isSameTherapyType
+        }
+    }
+
     @State private var timerLabel: String = "00:00"
     @State private var timer: Timer?
     @State private var healthDataTimer: Timer?
@@ -95,23 +109,49 @@ struct MainView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                HStack {
-                    Text("Record Habit")
-                        .font(.system(size: 24, weight: .regular, design: .default))
-                        .foregroundColor(.white)
-                        .bold()
-                        .padding(.leading, 24)
-                    
-                    Spacer() // This pushes the title and icon to opposite ends
-                    
-                    NavigationLink(destination: TherapyTypeSelectionView()) {
-                        SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
-                            .padding(.trailing, 25)
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 0) {
+                    HStack {
+                        Text("Record Habit")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.leading, 24)
+
+                        Spacer()
+
+                        NavigationLink(destination: TherapyTypeSelectionView()) {
+                            SettingsIconView(settingsColor: therapyTypeSelection.selectedTherapyType.color)
+                                .padding(.trailing, 25)
+                        }
                     }
-                }
-                .padding(.top, 33)
+                    .padding(.top, 33)
+                    .padding(.bottom, 16)
                 
                 TherapyTypeGrid(therapyTypeSelection: therapyTypeSelection, selectedTherapyTypes: selectedTherapyTypes)
                     .padding(.bottom)
@@ -123,9 +163,10 @@ struct MainView: View {
                 
                 Group {
                     if selectedMode == SessionFeature.STOPWATCH {
-                        TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                            .padding(.vertical)
-                        
+                        VStack(spacing: 32) {
+                            TimerDisplayView(timerLabel: $timerLabel, selectedColor: therapyTypeSelection.selectedTherapyType.color, isRunning: timer != nil)
+                                .padding(.top, 20)
+
                         Spacer()
                         
                         HStack(spacing: 10) {
@@ -133,36 +174,81 @@ struct MainView: View {
                                 Button(action: {
                                     startCountdown(for: Double(timer.duration) * 60)
                                 }) {
-                                    Text("\(timer.duration) min")
-                                        .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 10)
-                                        .background(self.therapyTypeSelection.selectedTherapyType.color)
-                                        .cornerRadius(40)
-                                        .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                                        .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
+                                    VStack(spacing: 6) {
+                                        Text("\(timer.duration)")
+                                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                                            .foregroundColor(.white)
+                                        Text("min")
+                                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .textCase(.uppercase)
+                                            .tracking(1)
+                                    }
+                                    .frame(width: 70, height: 80)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        Color.white.opacity(0.15),
+                                                        Color.white.opacity(0.08)
+                                                    ]),
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 16)
+                                                    .stroke(
+                                                        self.therapyTypeSelection.selectedTherapyType.color.opacity(0.5),
+                                                        lineWidth: 1.5
+                                                    )
+                                            )
+                                    )
+                                    .shadow(color: self.therapyTypeSelection.selectedTherapyType.color.opacity(0.25), radius: 8, x: 0, y: 4)
                                 }
                                 .disabled(self.timer != nil)
                                 .opacity(self.timer != nil ? 0.3 : 1)
-                                
                             }
                             Button(action: {
-                                // Navigate to a view for creating a new custom timer
                                 showCreateTimer = true
                             }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.white) // Change icon color to match the border
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 10)
-                                    .background(Color.clear) // Set background to transparent
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 40)
-                                            .stroke(self.therapyTypeSelection.selectedTherapyType.color, lineWidth: 3) // Create a border with the selected color
-                                    )
-                                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 10)
-                                    .animation(.easeInOut, value: self.therapyTypeSelection.selectedTherapyType.color)
+                                VStack(spacing: 6) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 24, weight: .semibold))
+                                        .foregroundColor(self.therapyTypeSelection.selectedTherapyType.color)
+                                    Text("add")
+                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .textCase(.uppercase)
+                                        .tracking(1)
+                                }
+                                .frame(width: 70, height: 80)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(
+                                            LinearGradient(
+                                                gradient: Gradient(colors: [
+                                                    Color.white.opacity(0.1),
+                                                    Color.white.opacity(0.05)
+                                                ]),
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .stroke(
+                                                    self.therapyTypeSelection.selectedTherapyType.color.opacity(0.6),
+                                                    lineWidth: 2
+                                                )
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 16)
+                                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                                        .padding(1)
+                                                )
+                                        )
+                                )
                             }
                             .disabled(self.timer != nil)
                             .opacity(self.timer != nil ? 0.3 : 1)
@@ -170,40 +256,58 @@ struct MainView: View {
                         .padding(.bottom, 18)
                         
                         StartStopButtonView(isRunning: timer != nil, action: startStopButtonPressed, selectedColor: therapyTypeSelection.selectedTherapyType.color)
-                        
-                        Spacer()
-                        
+                            .padding(.bottom, 20)
+
                         HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
-                            .padding(.vertical, 24)
+                            .padding(.bottom, 32)
+                        }
+
+                        Spacer()
                     } else {
                         if isSessionCompleteForToday {
-                            Text("Already Complete for Today!")
-                                .foregroundColor(.white)
-                                .fontWeight(.bold)
-                                .padding()
+                            VStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.green.opacity(0.2))
+                                        .frame(width: 80, height: 80)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 50))
+                                        .foregroundColor(.green)
+                                }
+                                Text("Already Complete for Today!")
+                                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
                         } else {
                             Button(action: {
                                 logSession()
                             }) {
-                                Text("Mark today as complete")
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .font(.title2) // Larger font size
-                                    .padding(.vertical, 15) // Increased vertical padding
-                                    .padding(.horizontal, 30) // Increased horizontal padding
-                                    .background(
-                                        LinearGradient(gradient: Gradient(colors: [therapyTypeSelection.selectedTherapyType.color, therapyTypeSelection.selectedTherapyType.color.opacity(0.4)]), startPoint: .leading, endPoint: .trailing) // Gradient background
+                                HStack(spacing: 12) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 22))
+                                    Text("Mark today as complete")
+                                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.vertical, 18)
+                                .padding(.horizontal, 32)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            therapyTypeSelection.selectedTherapyType.color,
+                                            therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
-                                    .cornerRadius(15) // Smoothed corner radius
-                                    .shadow(color: .gray, radius: 10, x: 0, y: 5) // Shadow for depth
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .stroke(Color.white, lineWidth: 2) // White border
-                                    )
+                                )
+                                .cornerRadius(16)
+                                .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.4), radius: 12, x: 0, y: 6)
                             }
                             .padding(.vertical, 80)
                         }
-                        
+
                         Spacer()
                     }
                 }.frame(maxHeight: .infinity)
@@ -218,36 +322,59 @@ struct MainView: View {
                         VStack {
                             HStack {
                                 Text("History")
-                                    .font(.system(size: 24, weight: .regular, design: .default))
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
-                                    .bold()
                                     .padding(.leading, 24)
-                                
+
                                 Spacer()
-                                
-                                Image(systemName: "plus")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.white)
-                                    .padding(.trailing, 24)
-                                    .onTapGesture {
-                                        showAddSession = true
+
+                                Button(action: {
+                                    showAddSession = true
+                                }) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.white.opacity(0.15))
+                                            .frame(width: 44, height: 44)
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 20, weight: .semibold))
+                                            .foregroundColor(.white)
                                     }
+                                }
+                                .padding(.trailing, 24)
                             }
                             .padding(.top, 24)
                             
                             VStack(alignment: .leading, spacing: 16) {
                                 CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
-                                    .background(Color(UIColor.darkGray))
-                                    .frame(height: 300) // Set a fixed height for the calendar
-                                    .cornerRadius(16)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color.white.opacity(0.08))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 16)
+                                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                            )
+                                    )
+                                    .frame(height: 300)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical)
                                 
                                 if sortedSessions.isEmpty {
-                                    Text("Begin recording sessions to see data here")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 18, design: .rounded))
-                                        .padding()
+                                    VStack(spacing: 16) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.cyan.opacity(0.15))
+                                                .frame(width: 80, height: 80)
+                                            Image(systemName: "clock.arrow.circlepath")
+                                                .font(.system(size: 40, weight: .light))
+                                                .foregroundColor(.cyan)
+                                        }
+                                        Text("Begin recording sessions to see data here")
+                                            .foregroundColor(.white.opacity(0.8))
+                                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                                            .multilineTextAlignment(.center)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 40)
                                 } else {
                                     // Iterate over the sorted sessions
                                     ForEach(sortedSessions, id: \.self) { session in
@@ -267,9 +394,8 @@ struct MainView: View {
                             updateSessionDates()
                         }
                     }
-                    .background(.black)
-               // }
-                
+                }  // Close VStack(spacing: 0)
+
                 NavigationLink(destination: LogbookView(therapyTypeSelection: self.therapyTypeSelection), isActive: $showLogbook) {
                     EmptyView()
                 }
@@ -287,10 +413,20 @@ struct MainView: View {
                 ) {
                     EmptyView()
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.black)
-            .onAppear() {
+            }  // Close ScrollView
+            .background(Color.clear)
+            }  // Close NavigationView
+            .background(Color.clear)
+        }  // Close ZStack
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear() {
+                // Make NavigationView background transparent
+                let appearance = UINavigationBarAppearance()
+                appearance.configureWithTransparentBackground()
+                appearance.backgroundColor = .clear
+                UINavigationBar.appearance().standardAppearance = appearance
+                UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
                 // Add default timers if no custom ones are saved
                 if customTimers.isEmpty {
                     let defaultDurations = [5, 10, 15]
@@ -313,14 +449,13 @@ struct MainView: View {
                             isHealthDataAvailable = isAuthorized
                         }
                     } else {
-                        showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                        presentAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                     }
                 }
-            }
-            .sheet(isPresented: $showCreateTimer) {
-                CreateTimerView()
-                    .environment(\.managedObjectContext, self.viewContext)
-            }
+        }
+        .sheet(isPresented: $showCreateTimer) {
+            CreateTimerView()
+                .environment(\.managedObjectContext, self.viewContext)
         }
         .onChange(of: scenePhase) { newScenePhase in
             switch newScenePhase {
@@ -331,7 +466,7 @@ struct MainView: View {
                 let initialTimerDuration = UserDefaults.standard.double(forKey: "timerDuration")
                 let elapsedTime = now.timeIntervalSince(timerStartDate)
                 let remainingTime = max(0, initialTimerDuration - elapsedTime)
-                
+
                 if remainingTime > 0 {
                     // Timer was running when app went to background
                     self.timerStartDate = timerStartDate
@@ -341,19 +476,19 @@ struct MainView: View {
                     // self.timerStartDate = nil
                     self.timerDuration = 0
                 }
-                
+
             case .inactive, .background:
                 // App has gone to the background, save timer state
                 UserDefaults.standard.set(self.timerStartDate, forKey: "timerStartDate")
                 UserDefaults.standard.set(self.initialTimerDuration, forKey: "timerDuration")
-                
+
             @unknown default:
                 // Future cases
                 break
             }
-        }
-    }
-    
+        }  // Close .onChange
+    }  // Close var body
+
     private func logSession() {
         let newSession = TherapySessionEntity(context: viewContext)
         newSession.date = Date()
@@ -390,7 +525,7 @@ struct MainView: View {
                         self.acceptedHealthKitPermissions = true
                     } else {
                         self.acceptedHealthKitPermissions = false
-                        showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+                        presentAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
                     }
                 }
             }
@@ -456,10 +591,33 @@ struct MainView: View {
         }
     }
     
-    func showAlert(title: String, message: String) {
+    func presentAlert(title: String, message: String) {
         alertTitle = title
         alertMessage = message
         showAlert = true
+    }
+
+    func setupView() {
+        // Add default timers if no custom ones are saved
+        if customTimers.isEmpty {
+            let defaultDurations = [5, 10, 15]
+            for duration in defaultDurations {
+                let newTimer = CustomTimer(context: viewContext)
+                newTimer.duration = Int32(duration)
+            }
+            try? viewContext.save()
+        }
+
+        // Request authorization for HealthKit
+        HealthKitManager.shared.requestAuthorization { success, _ in
+            if success {
+                HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
+                    isHealthDataAvailable = isAuthorized
+                }
+            } else {
+                presentAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
+            }
+        }
     }
 }
 
@@ -471,19 +629,71 @@ extension Color {
 struct TimerDisplayView: View {
     @Binding var timerLabel: String
     var selectedColor: Color
-    
+    var isRunning: Bool
+
+    @State private var glowAnimation = false
+
     var body: some View {
-        Text(timerLabel)
-            .font(.system(size: 72, weight: .bold, design: .monospaced)) // Keep the font design as monospaced
-            .foregroundColor(.white) // Change text color to match the border
-            .padding(EdgeInsets(top: 18, leading: 60, bottom: 18, trailing: 60))
-            .background(Color.clear) // Set background to transparent
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(selectedColor, lineWidth: 4) // Create a border with the selected color
-            )
-            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 8) // Keep the enhanced shadow effect
-            .animation(.easeInOut, value: selectedColor) // Smooth transition for color changes
+        VStack(spacing: 0) {
+            // Status indicator
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(isRunning ? selectedColor : Color.white.opacity(0.3))
+                    .frame(width: 8, height: 8)
+                    .scaleEffect(glowAnimation && isRunning ? 1.3 : 1.0)
+                    .opacity(glowAnimation && isRunning ? 0.5 : 1.0)
+                    .onAppear {
+                        if isRunning {
+                            withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                                glowAnimation = true
+                            }
+                        }
+                    }
+
+                Text(isRunning ? "ACTIVE SESSION" : "READY")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(isRunning ? selectedColor : .white.opacity(0.5))
+                    .tracking(1.5)
+            }
+            .padding(.bottom, 20)
+
+            // Timer display
+            Text(timerLabel)
+                .font(.system(size: 72, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .monospacedDigit()
+                .padding(.vertical, 32)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.12),
+                                    Color.white.opacity(0.06)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            selectedColor.opacity(isRunning ? 0.8 : 0.4),
+                                            selectedColor.opacity(isRunning ? 0.4 : 0.2)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 2
+                                )
+                        )
+                )
+                .shadow(color: selectedColor.opacity(isRunning ? 0.4 : 0.2), radius: 20, x: 0, y: 10)
+        }
+        .padding(.horizontal, 32)
     }
 }
 
@@ -491,81 +701,65 @@ struct StartStopButtonView: View {
     var isRunning: Bool
     var action: () -> Void
     var selectedColor: Color
-    
+
     var body: some View {
         Button(action: action) {
-            Text(isRunning ? "Stop" : "Start")
-                .font(.system(size: 24, weight: .bold, design: .monospaced)) // Slightly smaller font
-                .foregroundColor(.white)
-                .padding(.horizontal, 60) // Reduced horizontal padding
-                .padding(.vertical, 16)   // Reduced vertical padding
-                .background(selectedColor)
-                .cornerRadius(30)         // Slightly smaller corner radius
-                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 8) // Adjusted shadow
-                .animation(.easeInOut, value: selectedColor)
+            HStack(spacing: 10) {
+                Image(systemName: isRunning ? "stop.fill" : "play.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                Text(isRunning ? "Stop" : "Start")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 50)
+            .padding(.vertical, 18)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [selectedColor, selectedColor.opacity(0.8)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .cornerRadius(25)
+            .shadow(color: selectedColor.opacity(0.4), radius: 12, x: 0, y: 6)
+            .animation(.easeInOut, value: selectedColor)
         }
     }
-    
 }
 
 struct HealthDataStatusView: View {
     var isHealthDataAvailable: Bool
-    
+
     var body: some View {
-        Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for CryoZest to give you the full health tracking experience. Visit Settings --> Privacy --> Health to grant access.")
-            .foregroundColor(.white)
-            .font(.system(size: 12))
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 20)
+        HStack(spacing: 12) {
+            Image(systemName: isHealthDataAvailable ? "checkmark.circle.fill" : "info.circle.fill")
+                .font(.system(size: 16))
+                .foregroundColor(isHealthDataAvailable ? .green : .cyan)
+
+            Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "Enable HealthKit permissions for CryoZest to give you the full health tracking experience. Visit Settings → Privacy → Health to grant access.")
+                .foregroundColor(.white.opacity(0.8))
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .multilineTextAlignment(.leading)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, 24)
     }
 }
-
-extension MainView {
-    func setupView() {
-        // Add default timers if no custom ones are saved
-        if customTimers.isEmpty {
-            let defaultDurations = [5, 10, 15]
-            for duration in defaultDurations {
-                let newTimer = CustomTimer(context: viewContext)
-                newTimer.duration = Int32(duration)
-            }
-            try? viewContext.save()
-        }
-        
-        // Request authorization for HealthKit
-        HealthKitManager.shared.requestAuthorization { success, _ in
-            if success {
-                HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
-                    isHealthDataAvailable = isAuthorized
-                }
-            } else {
-                showAlert(title: "Authorization Failed", message: "Failed to authorize HealthKit access.")
-            }
-        }
-    }
-}
-
-enum SessionFeature {
-    case STOPWATCH
-    case QUICK_ADD
-    
-    func displayString() -> String {
-        switch self {
-        case .STOPWATCH:
-            return "Stopwatch"
-        case .QUICK_ADD:
-            return "Quick Add"
-        }
-    }
-}
-
 
 struct CustomSessionPicker: View {
     @Binding var selectedFeature: SessionFeature
     let backgroundColor: Color
-    
+
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             SessionPickerItem(
                 sessionFeature: SessionFeature.STOPWATCH,
                 isSelected: selectedFeature == SessionFeature.STOPWATCH,
@@ -574,7 +768,7 @@ struct CustomSessionPicker: View {
             .onTapGesture {
                 self.selectedFeature = SessionFeature.STOPWATCH
             }
-            
+
             SessionPickerItem(
                 sessionFeature: SessionFeature.QUICK_ADD,
                 isSelected: selectedFeature == SessionFeature.QUICK_ADD,
@@ -584,9 +778,16 @@ struct CustomSessionPicker: View {
                 self.selectedFeature = SessionFeature.QUICK_ADD
             }
         }
-        .background(RoundedRectangle(cornerRadius: 20)
-            .fill(Color.black)
-            .shadow(color: Color.gray.opacity(0.5), radius: 10, x: 0, y: 5))
+        .padding(4)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, 24)
     }
 }
 
@@ -594,19 +795,20 @@ struct SessionPickerItem: View {
     let sessionFeature: SessionFeature
     let isSelected: Bool
     let backgroundColor: Color
-    
+
     var body: some View {
         Text(sessionFeature.displayString())
-            .font(.headline)
-            .fontWeight(isSelected ? .bold : .regular)
-            .foregroundColor(isSelected ? backgroundColor : Color.white)
+            .font(.system(size: 15, weight: isSelected ? .semibold : .medium, design: .rounded))
+            .foregroundColor(isSelected ? .white : .white.opacity(0.6))
             .padding(.vertical, 10)
-            .padding(.horizontal, 20)
-            .background(isSelected ? backgroundColor.opacity(0.2) : Color.clear)
-            .cornerRadius(10)
+            .padding(.horizontal, 24)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isSelected ? backgroundColor.opacity(0.3) : Color.clear)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? backgroundColor : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? backgroundColor.opacity(0.6) : Color.clear, lineWidth: isSelected ? 2 : 0)
             )
     }
 }

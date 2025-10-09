@@ -136,94 +136,98 @@ struct DurationAnalysisView: View {
     @ObservedObject var viewModel: DurationAnalysisViewModel
     
     var body: some View {
-        VStack() {
-//            HStack(alignment: .center) {
-//                Text("Summary")
-//                    .font(.system(size: 24, weight: .regular, design: .default))
-//                    .fontWeight(.bold)
-//                    .foregroundColor(.white)
-//                    .padding(.bottom, 10)
-//                Spacer()
-////                Text(viewModel.timeFrame.displayString())
-////                    .font(.footnote)
-////                    .fontWeight(.semibold)
-////                    .foregroundColor(.white)
-////                    .padding(.horizontal, 8)
-////                    .padding(.vertical, 4)
-////                    .background(viewModel.therapyType.color)
-////                    .cornerRadius(8)
-//            }
-            
-            //Divider().background(Color.darkBackground.opacity(0.8))
-            
-            VStack {
-                HStack {
-                    Text("Completed")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(viewModel.therapyType.color)
+        VStack(spacing: 0) {
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(viewModel.therapyType.color.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(viewModel.therapyType.color)
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Completed")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+                        Text("\(viewModel.totalSessions) sessions")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
                     Spacer()
-                    Text("\(viewModel.totalSessions) sessions")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 4)
-                        .cornerRadius(8)
                 }
-                
-                Divider().background(Color.darkBackground.opacity(0.8))
-                
-                HStack {
-                    Text("Time spent")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
+
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.cyan.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "clock.fill")
+                            .foregroundColor(.cyan)
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Time spent")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+                        let totalHours = Int(viewModel.totalTime / 3600)
+                        let totalMinutes = Int(viewModel.totalTime / 60) % 60
+                        Text("\(totalHours) hr \(totalMinutes) min")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
                     Spacer()
-                    let totalHours = Int(viewModel.totalTime / 3600)
-                    let totalMinutes = Int(viewModel.totalTime / 60) % 60
-                    Text("\(totalHours) hr \(totalMinutes) min")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 4)
-                        .cornerRadius(15)
                 }
-                
-                Divider().background(Color.darkBackground.opacity(0.8))
-                
-                HStack {
-                    Text("Current streak")
-                        .font(.footnote)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
+
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.orange.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "flame.fill")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Current streak")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.7))
+                        Text("\(viewModel.currentStreak) days")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
                     Spacer()
-                    Text("\(viewModel.currentStreak) days")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.vertical, 4)
-                        .cornerRadius(15)
                 }
-//                
-//                Divider().background(Color.darkBackground.opacity(0.8))
-//                
-//                HStack {
-//                    Text("Longest streak")
-//                        .font(.footnote)
-//                        .fontWeight(.bold)
-//                        .foregroundColor(.white)
-//                    Spacer()
-//                    Text("\(viewModel.longestStreak) days")
-//                        .font(.footnote)
-//                        .fontWeight(.semibold)
-//                        .foregroundColor(.white)
-//                        .padding(.vertical, 4)
-//                        .cornerRadius(15)
-//                }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
             }
-            //.padding(.horizontal)
         }
-        .background(Color(.darkGray).opacity(0.0))
         .cornerRadius(16)
         .transition(.opacity)
         .animation(.easeIn)

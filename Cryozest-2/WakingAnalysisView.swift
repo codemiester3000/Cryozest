@@ -71,41 +71,44 @@ struct WakingAnalysisView: View {
     @Environment(\.managedObjectContext) private var managedObjectContext
     
     var body: some View {
-        VStack {
-            VStack {
+        VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 HStack {
                     Text("Averages \(model.timeFrame.presentDisplayString())")
-                        .font(.system(size: 24, weight: .regular, design: .default))
-                        .fontWeight(.bold)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.bottom, 10)
                     Spacer()
                 }
-                
-                HStack {
+
+                HStack(spacing: 12) {
                     Text("baseline")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(LinearGradient(
-                            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .cornerRadius(8)
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                     Spacer()
                     Text("\(model.therapyType.displayName(managedObjectContext)) days")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(model.therapyType.color)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(model.therapyType.color.opacity(0.3))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(model.therapyType.color.opacity(0.6), lineWidth: 1)
+                                )
+                        )
                 }
-                .padding(.bottom)
             }
             .padding(.horizontal)
             
@@ -152,67 +155,68 @@ struct ComparisonView: View {
     var color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Image(systemName: symbolName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 15, height: 15)
-                    .foregroundColor(.gray)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: symbolName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+                }
                 Text(title)
-                    .font(.system(size: 16))
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.white)
                     .lineLimit(1)
-                    .layoutPriority(1)
-                
-                Spacer()
-                
-//                Image(systemName: symbolName)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(width: 15, height: 15)
-//                    .foregroundColor(color)
-//                Text(title)
-//                    .font(.system(size: 16))
-//                    .foregroundColor(.white)
-//                    .lineLimit(1)
-//                    .layoutPriority(1)
-            }
-            .padding(.bottom, 2)
 
-            HStack {
-                HStack(alignment: .bottom) {
-                    Text(baselineValue)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text(unit)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 4)
+                Spacer()
+            }
+
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Baseline")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                    HStack(alignment: .bottom, spacing: 4) {
+                        Text(baselineValue)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                        Text(unit)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                            .padding(.bottom, 3)
+                    }
                 }
 
                 Spacer()
 
-                HStack(alignment: .bottom) {
-                    Text(exerciseValue)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(color)
-                    
-                    Text(unit)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.bottom, 4)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("With Therapy")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                    HStack(alignment: .bottom, spacing: 4) {
+                        Text(exerciseValue)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(color)
+                        Text(unit)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                            .padding(.bottom, 3)
+                    }
                 }
             }
         }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 22)
-        .background(Color.black)
-        .cornerRadius(8)
-        .shadow(radius: 3)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal)
     }
 }
 

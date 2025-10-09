@@ -20,8 +20,33 @@ struct ManuallyAddSession: View {
     @State private var pendingSave: Bool = false
 
     var body: some View {
-        NavigationView {
-            Form {
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            NavigationView {
+                Form {
                 Picker("Therapy Type", selection: $therapyType) {
                     ForEach(TherapyType.allCases, id: \.self) { type in
                         Text(type.displayName(viewContext)).tag(type)
@@ -46,13 +71,12 @@ struct ManuallyAddSession: View {
                 }
                 .foregroundColor(.red)
             }
-            .background(Color.black)
             .navigationBarTitle("Add Habit Entry", displayMode: .inline)
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
+            }
         }
-        .background(Color.black.edgesIgnoringSafeArea(.all))
         .fullScreenCover(isPresented: $showSafetyWarning) {
             DeviceSafetyWarningView(
                 isPresented: $showSafetyWarning,

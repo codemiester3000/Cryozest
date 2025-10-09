@@ -17,65 +17,141 @@ struct TimerCountdownView: View {
     
     var body: some View {
             ZStack {
+                // Modern gradient background
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
-                .edgesIgnoringSafeArea(.all)
-                
-                VStack {
-                    Text("Time Remaining")
-                        .font(.largeTitle)
-                        .bold()
-                        .padding()
-                    
-                    Text(formatDuration(remainingTime))
-                        .font(.system(size: 48, design: .monospaced))
-                        .padding()
+                .ignoresSafeArea()
 
-                    VStack {
-                        HStack {
+                // Subtle gradient overlay
+                RadialGradient(
+                    gradient: Gradient(colors: [
+                        Color.blue.opacity(0.3),
+                        Color.clear
+                    ]),
+                    center: .topTrailing,
+                    startRadius: 100,
+                    endRadius: 500
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: 40) {
+                    Spacer()
+
+                    // Time remaining title
+                    Text("Time Remaining")
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.7))
+                        .tracking(1)
+
+                    // Timer display with modern circle
+                    ZStack {
+                        Circle()
+                            .stroke(Color.white.opacity(0.1), lineWidth: 12)
+                            .frame(width: 280, height: 280)
+
+                        Circle()
+                            .trim(from: 0, to: CGFloat(remainingTime / timerDuration))
+                            .stroke(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.cyan, .blue]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                            )
+                            .frame(width: 280, height: 280)
+                            .rotationEffect(.degrees(-90))
+                            .animation(.linear(duration: 1), value: remainingTime)
+
+                        VStack(spacing: 8) {
+                            Text(formatDuration(remainingTime))
+                                .font(.system(size: 56, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+
+                            Text("\(Int((remainingTime / timerDuration) * 100))%")
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    }
+
+                    Spacer()
+
+                    // Control buttons
+                    VStack(spacing: 16) {
+                        HStack(spacing: 12) {
                             Button(action: {
                                 cancelTimer()
                             }) {
                                 Text("Cancel")
-                                    .font(.title2)
-                                    .bold()
-                                    .frame(width: 100, height: 50)
-                                    .background(Color.red)
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
                                     .foregroundColor(.white)
-                                    .cornerRadius(10)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .fill(Color.red.opacity(0.2))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(Color.red.opacity(0.5), lineWidth: 1)
+                                            )
+                                    )
                             }
-                            
+
                             Button(action: {
                                 pauseOrResumeTimer()
                             }) {
-                                Text(timer == nil ? "Resume" : "Pause")
-                                    .font(.title2)
-                                    .bold()
-                                    .frame(width: 100, height: 50)
-                                    .background(Color.orange)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
+                                HStack(spacing: 8) {
+                                    Image(systemName: timer == nil ? "play.fill" : "pause.fill")
+                                        .font(.system(size: 16))
+                                    Text(timer == nil ? "Resume" : "Pause")
+                                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color.cyan.opacity(0.2))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.cyan.opacity(0.5), lineWidth: 1)
+                                        )
+                                )
                             }
                         }
 
-                        // Finish now button centered underneath the Cancel and Pause/Resume buttons
                         Button(action: {
                             remainingTime = 0
                         }) {
-                            Text("Finish now")
-                                .font(.title2)
-                                .bold()
-                                .frame(width: 125, height: 50)
-                                .background(Color(red: 168/255, green: 191/255, blue: 135/255))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
+                            HStack(spacing: 8) {
+                                Text("Finish Now")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 16))
+                            }
+                            .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .cornerRadius(14)
+                            .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
                         }
-                        .padding(.top, 12)
                     }
-                    
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 50)
                 }
             }
             .onAppear {

@@ -127,8 +127,10 @@ struct ZoneItemView: View {
                 .padding(.trailing, 5)
         }
         .padding(EdgeInsets(top: 2, leading: 0, bottom: 2, trailing: 0))
-        .background(Color.black.opacity(0.8))
-        .cornerRadius(5)
+        .background(
+            RoundedRectangle(cornerRadius: 5)
+                .fill(Color.white.opacity(0.08))
+        )
     }
 }
 
@@ -156,7 +158,17 @@ struct ExertionInfoPopoverView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.8))
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .cornerRadius(20)
         .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
     }
@@ -248,7 +260,18 @@ struct ExertionView: View {
     
     var body: some View {
         ZStack {
-            Color.black.edgesIgnoringSafeArea(.all) // Set the background to black and ignore safe area
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 Spacer()
                 HStack {
@@ -329,10 +352,8 @@ struct ExertionView: View {
                                 let range = exertionModel.heartRateZoneRanges[index]
                                 let rangeString = "\(Int(range.lowerBound))-\(Int(range.upperBound))BPM"
                                 ZoneItemView(zoneInfo: zoneInfo, zoneRange: rangeString, maxTime: maxTime)
-                                    .background(Color.black) // Set the background of ZoneItemView to black
                             } else {
                                 ZoneItemView(zoneInfo: zoneInfo, zoneRange: "N/A", maxTime: maxTime)
-                                    .background(Color.black) // Set the background of ZoneItemView to black
                             }
                         }
                         .padding(.horizontal, 19)
@@ -346,7 +367,10 @@ struct ExertionView: View {
                                 .padding(.vertical, 6.0)
                         }
                     }
-                    .background(Color.black)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.08))
+                    )
                 }
                 
                 HStack {

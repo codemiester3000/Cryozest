@@ -103,40 +103,44 @@ struct RecoveryAnalysisView: View {
         if viewModel.isLoading {
             LoadingView()
         } else {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 16) {
                 HStack {
                     Text("Sleep \(viewModel.timeFrame.presentDisplayString())")
-                        .font(.system(size: 24, weight: .regular, design: .default))
-                        .fontWeight(.bold)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.bottom, 10)
-                    
+
                     Spacer()
-                    
+
                     Text(viewModel.therapyType.displayName(managedObjectContext))
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(viewModel.therapyType.color)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(viewModel.therapyType.color.opacity(0.3))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(viewModel.therapyType.color.opacity(0.6), lineWidth: 1)
+                                )
+                        )
                 }
-                
+
                 HStack {
                     Spacer()
                     Text("baseline")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(LinearGradient(
-                            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ))
-                        .cornerRadius(8)
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                 }
                 
                 SleepComparisonBarGraph(model: SleepComparisonDataModel(therapyType: viewModel.therapyType, timeFrame: viewModel.timeFrame, sessions: viewModel.sessions))

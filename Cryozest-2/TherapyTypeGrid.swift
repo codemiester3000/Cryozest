@@ -18,19 +18,50 @@ struct TherapyTypeGrid: View {
                 Button(action: {
                     therapyTypeSelection.selectedTherapyType = therapyType
                 }) {
-                    HStack {
-                        Image(systemName: therapyType.icon)
-                            .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
-                            .font(.system(size: 20))
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(therapyTypeSelection.selectedTherapyType == therapyType
+                                    ? therapyType.color.opacity(0.3)
+                                    : Color.white.opacity(0.1))
+                                .frame(width: 36, height: 36)
+                            Image(systemName: therapyType.icon)
+                                .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : therapyType.color)
+                                .font(.system(size: 18, weight: .semibold))
+                        }
                         Text(therapyType.displayName(managedObjectContext))
-                            .font(.system(size: 16, weight: .medium, design: .default))
-                            .foregroundColor(therapyTypeSelection.selectedTherapyType == therapyType ? .white : .black)
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                        Spacer()
+                        if therapyTypeSelection.selectedTherapyType == therapyType {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.white)
+                                .font(.system(size: 18))
+                        }
                     }
-                    .padding(8)
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 50)
-                    .background(therapyTypeSelection.selectedTherapyType == therapyType ? therapyType.color : Color(.systemGray4))
-                    .cornerRadius(10)
-                    .shadow(color: therapyType.color.opacity(0.3), radius: 5, x: 0, y: 2)
+                    .padding(12)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 60)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(therapyTypeSelection.selectedTherapyType == therapyType
+                                ? therapyType.color.opacity(0.2)
+                                : Color.white.opacity(0.08))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(
+                                        therapyTypeSelection.selectedTherapyType == therapyType
+                                            ? therapyType.color.opacity(0.6)
+                                            : Color.white.opacity(0.15),
+                                        lineWidth: therapyTypeSelection.selectedTherapyType == therapyType ? 2 : 1
+                                    )
+                            )
+                    )
+                    .shadow(
+                        color: therapyTypeSelection.selectedTherapyType == therapyType
+                            ? therapyType.color.opacity(0.3)
+                            : .clear,
+                        radius: 8, x: 0, y: 4
+                    )
                 }
                 .padding(.horizontal, 5)
             }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
+		387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */; };
 		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
 		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
 		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
@@ -39,6 +40,7 @@
 		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
 		C57F62822B422E93004515EA /* ExertionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57F62812B422E93004515EA /* ExertionView.swift */; };
+		C58619462E97206B0002428A /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58619452E97206B0002428A /* SplashScreenView.swift */; };
 		C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C598129F2B41007100C13C15 /* TherapyTypeClass.swift */; };
 		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
 		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
@@ -51,7 +53,6 @@
 		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
 		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
-		387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */; };
 		C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */; };
 		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
@@ -80,6 +81,7 @@
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
+		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
 		C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingPage.swift; sourceTree = "<group>"; };
 		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
 		C57F62812B422E93004515EA /* ExertionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExertionView.swift; sourceTree = "<group>"; };
+		C58619452E97206B0002428A /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
 		C598129F2B41007100C13C15 /* TherapyTypeClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeClass.swift; sourceTree = "<group>"; };
 		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
@@ -123,7 +126,6 @@
 		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
 		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
 		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
-		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
 		C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleWorkoutsService.swift; sourceTree = "<group>"; };
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */,
 				C526A22D2B8123810001F88C /* RecoveryCardView.swift */,
 				C526A22F2B8124CE0001F88C /* ExertionModel.swift */,
+				C58619452E97206B0002428A /* SplashScreenView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -401,6 +404,7 @@
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
 				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
+				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
 				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,

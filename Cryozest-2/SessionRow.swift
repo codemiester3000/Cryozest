@@ -14,62 +14,101 @@ struct SessionRow: View {
     @Environment(\.managedObjectContext) private var managedObjectContext
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack {
-                if session.isAppleWatch {
-                    HStack {
-                        Image(systemName: "applewatch.watchface")
-                            .foregroundColor(.gray)
-                            .font(.system(size: 14))
-                            .padding(.leading, 5)
-                        Text("Recorded on your Apple Watch")
-                            .font(.system(size: 12))
-                        
-                        Spacer()
-                    }
+        VStack(alignment: .leading, spacing: 12) {
+            // Apple Watch badge
+            if session.isAppleWatch {
+                HStack(spacing: 6) {
+                    Image(systemName: "applewatch.watchface")
+                        .foregroundColor(.cyan)
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("Apple Watch")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.cyan)
                 }
-                HStack {
-                    Text("Completed")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.green)
-                    Spacer()
-                    Text(therapyTypeName)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                }
-                .padding(.vertical, 2)
-                
-                HStack {
-                    Text(formattedDuration)
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
-                    Spacer()
-                }
-                .padding(.vertical, 2)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(Color.cyan.opacity(0.15))
+                )
             }
-            
+
+            // Status and therapy type
             HStack {
-                Text(formattedDate)
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.green)
+                    Text("Completed")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.green)
+                }
+
+                Spacer()
+
+                Text(therapyTypeName)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.15))
+                    )
+            }
+
+            // Duration
+            HStack(spacing: 8) {
+                Image(systemName: "clock.fill")
                     .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.6))
+                Text(formattedDuration)
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                 Spacer()
-                
+            }
+
+            Divider()
+                .background(Color.white.opacity(0.2))
+
+            // Date and delete button
+            HStack {
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 12))
+                        .foregroundColor(.white.opacity(0.6))
+                    Text(formattedDate)
+                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+
+                Spacer()
+
                 Button(action: {
                     self.showingDeleteAlert = true
                 }) {
-                    Image(systemName: "xmark.circle")
-                        .foregroundColor(.red)
+                    ZStack {
+                        Circle()
+                            .fill(Color.red.opacity(0.15))
+                            .frame(width: 32, height: 32)
+
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.red)
+                    }
                 }
             }
         }
-        .padding()
-        .cornerRadius(32)
-        .shadow(radius: 5)
-        .background(RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.gray, lineWidth: 2))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
         .alert(isPresented: $showingDeleteAlert) {
             Alert(
                 title: Text("Confirm Deletion"),

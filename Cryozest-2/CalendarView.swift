@@ -31,12 +31,12 @@ struct CalendarView: UIViewRepresentable {
         // calendar.weekdayHeight = 0.1
         // Set todayColor to clear
         // calendar.appearance.todayColor = .clear
-        calendar.appearance.weekdayTextColor = .black
-        
+        calendar.appearance.weekdayTextColor = .white.withAlphaComponent(0.6)
+
         // Hide out-of-month dates
         calendar.placeholderType = .none
-        
-        calendar.backgroundColor = UIColor.black
+
+        calendar.backgroundColor = .clear
 
         
         return calendar

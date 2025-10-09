@@ -435,7 +435,17 @@ struct DailySleepView: View {
                 fetchSleepTimes()
             }
         }
-        .background(Color.black)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     
@@ -546,7 +556,10 @@ struct SleepGraphView: View {
                 .padding(.horizontal, 16)
         }
         .padding(.vertical, 20)
-        .background(Color(.black))
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.08))
+        )
         .padding([.horizontal, .bottom])
     }
 }
@@ -660,8 +673,10 @@ struct RestorativeSleepView: View {
             Spacer()
         }
         .padding(.vertical, 10)
-        .background(Color(.black))
-        .cornerRadius(10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.08))
+        )
     }
 }
 

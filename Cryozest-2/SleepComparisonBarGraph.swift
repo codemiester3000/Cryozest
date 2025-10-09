@@ -222,22 +222,21 @@ struct ComparisonBarView: View {
     var color: Color
     var maxValue: CGFloat
     var label: String
-    
+
     let multiplier = 12.0
-    
+
     private var percentChange: CGFloat {
         ((exerciseValue - baselineValue) / baselineValue) * 100
     }
-    
+
     private var baselineHeight: CGFloat {
         if (baselineValue == 0 && exerciseValue == 0) {
             5.0
         } else {
             min(baselineValue, maxValue)
         }
-       
     }
-    
+
     private var exerciseHeight: CGFloat {
         if (baselineValue == 0 && exerciseValue == 0) {
             3.0
@@ -245,34 +244,35 @@ struct ComparisonBarView: View {
             min(exerciseValue, maxValue)
         }
     }
-    
+
     private var baselineGradient: LinearGradient {
         LinearGradient(
-            gradient: Gradient(colors: [Color(white: 0.8), Color(white: 0.6)]),
+            gradient: Gradient(colors: [Color.white.opacity(0.3), Color.white.opacity(0.2)]),
             startPoint: .top,
             endPoint: .bottom
         )
     }
-    
+
     private var exerciseGradient: LinearGradient {
         LinearGradient(
-            gradient: Gradient(colors: [color.opacity(0.8), color]),
+            gradient: Gradient(colors: [color, color.opacity(0.7)]),
             startPoint: .top,
             endPoint: .bottom
         )
     }
-    
+
     var body: some View {
-        VStack {
+        VStack(spacing: 8) {
             Text(label)
-                .font(.caption)
-                .foregroundColor(.white)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
+
             ZStack(alignment: .bottom) {
-                // Invisible background frame to enforce consistent maximum height
-                Rectangle()
-                    .fill(Color.clear)
+                // Background container
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.05))
                     .frame(height: maxValue * multiplier)
-                
+
                 if baselineHeight >= exerciseHeight {
                     BarView(height: baselineHeight, gradient: baselineGradient)
                     BarView(height: exerciseHeight, gradient: exerciseGradient)
@@ -281,20 +281,15 @@ struct ComparisonBarView: View {
                     BarView(height: baselineHeight, gradient: baselineGradient)
                 }
             }
-            
-            Group {
+
+            VStack(spacing: 4) {
                 Text(String(format: "%.1f hrs", exerciseValue))
-                    .font(.caption)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(color)
-                
+
                 Text(String(format: "%.1f hrs", baselineValue))
-                    .font(.caption)
-                    .foregroundColor(.white)
-                
-                //                Text(String(format: "%.1f%%", percentChange) + (percentChange >= 0.0 ? " ↑" : " ↓"))
-                //                    .font(.caption)
-                //                    .foregroundColor(percentChange >= 0.0 ? .green : .red)
-                //                    .padding(.top)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
             }
         }
     }
@@ -304,13 +299,12 @@ struct BarView: View {
     var height: CGFloat
     var gradient: LinearGradient
     let multiplier: CGFloat = 12.0
-    
+
     var body: some View {
-        Rectangle()
+        RoundedRectangle(cornerRadius: 6)
             .fill(gradient)
             .frame(height: height * multiplier)
-            .cornerRadius(10)
-            .animation(.easeInOut(duration: 0.5))
+            .animation(.easeInOut(duration: 0.5), value: height)
     }
 }
 

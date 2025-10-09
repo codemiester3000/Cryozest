@@ -16,14 +16,38 @@ struct TimerSelectionView: View {
     let defaultDurations: [TimeInterval] = [300, 600, 900, 1800, 2700]
     
     var body: some View {
-        VStack {
-            Text("Select Timer")
-                .font(.system(size: 24, design: .monospaced))
-                .bold()
-                .padding(.top, 16)
-                .foregroundColor(.white)
-            
-            ScrollView {
+        ZStack {
+            // Modern gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35),
+                    Color(red: 0.15, green: 0.25, blue: 0.4)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            // Subtle gradient overlay
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.3),
+                    Color.clear
+                ]),
+                center: .topTrailing,
+                startRadius: 100,
+                endRadius: 500
+            )
+            .ignoresSafeArea()
+
+            VStack {
+                Text("Select Timer")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .padding(.top, 16)
+                    .foregroundColor(.white)
+
+                ScrollView {
                 let circleSize = UIScreen.main.bounds.width * 0.4
                 
                 LazyVGrid(columns: [
@@ -51,15 +75,9 @@ struct TimerSelectionView: View {
                     }
                 }
                 .padding()
+                }
             }
         }
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray, Color.gray.opacity(0.8)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
         .sheet(isPresented: $showCustomDurationPicker) {
             CustomDurationPickerView(customDuration: $timerDuration, showTimerCountdownView: $showTimerCountdownView)
         }
@@ -92,33 +110,36 @@ struct TimerSelectionView: View {
         }
     }
     
-    // Add this function to create circle content with orange ring and hover effect
+    // Modern circle button styling
     func circleContent(duration: TimeInterval? = nil, custom: Bool = false) -> some View {
         ZStack {
             Circle()
-                .fill(Color.black.opacity(0.15))
-                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 10) // Add a shadow effect for hover
-            
-            // Add this Circle with stroke for the orange ring
-            Circle()
-                .stroke(Color.orange, lineWidth: 3)
-            
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    Circle()
+                        .stroke(Color.cyan.opacity(0.5), lineWidth: 3)
+                )
+                .shadow(color: Color.cyan.opacity(0.3), radius: 15, x: 0, y: 8)
+
             if custom {
-                Text("Custom")
-                    .font(.system(size: 30, design: .monospaced))
-                    .bold()
-                    .foregroundColor(.orange)
-            } else {
-                VStack {
-                    Text(String(format: "%02d", Int(duration! / 60)))
-                        .font(.system(size: 40, design: .monospaced))
-                        .bold()
-                        .foregroundColor(Color.orange)
-                    
-                    Text("MIN")
-                        .font(.system(size: 20, design: .monospaced))
-                        .bold()
+                VStack(spacing: 8) {
+                    Image(systemName: "clock.badge.plus")
+                        .font(.system(size: 32, weight: .semibold))
+                        .foregroundColor(.cyan)
+                    Text("Custom")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
+                }
+            } else {
+                VStack(spacing: 4) {
+                    Text(String(format: "%02d", Int(duration! / 60)))
+                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text("MINUTES")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.7))
+                        .tracking(1)
                 }
             }
         }

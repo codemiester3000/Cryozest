@@ -350,28 +350,31 @@ struct GridItemView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Image(systemName: symbolName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 15, height: 15)
-                    .foregroundColor(.gray)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.cyan.opacity(0.15))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: symbolName)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.cyan)
+                }
                 Text(title)
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.8))
                     .lineLimit(1)
+                Spacer()
             }
-            
-            HStack(alignment: .lastTextBaseline) {
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
                 Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
-                // Apply the animation color based on `animate` state
-                    .foregroundColor(animate ? Color.orange : .white)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(animate ? Color.cyan : .white)
                 Text(unit)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+                    .padding(.bottom, 2)
             }
         }
         .onAppear {
@@ -392,16 +395,16 @@ struct GridItemView: View {
                 }
             }
         }
-        .padding()
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 14)
                 .fill(Color.white.opacity(0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(animate ? Color.cyan.opacity(0.4) : Color.white.opacity(0.15), lineWidth: 1)
                 )
         )
-        .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+        .shadow(color: animate ? Color.cyan.opacity(0.2) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -426,59 +429,77 @@ struct ProgressButtonView: View {
     var body: some View {
         Button(action: {
             action()
-            hasNewData = false // Reset the new data indicator on button press
+            hasNewData = false
         }) {
-            HStack {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(title)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(.white)
-                            .fontWeight(.semibold)
-                            .padding(.bottom, 5)
-                        
-                        if hasNewData {
-                            // Animated icon next to "Data Available"
-                            HStack {
-                                Image(systemName: "bell.fill") // Example icon
-                                    .foregroundColor(.green)
-                                    .font(.system(size: 14))
-                                
-                                Text("New data!")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.green)
-                                    .transition(.scale.combined(with: .opacity))
-                                    .padding(.leading, -1)
-                            }
-                            .padding(.leading, 4)
-                        }
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(0.2))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: title == "Daily Exertion" ? "flame.fill" : title == "Sleep Quality" ? "moon.fill" : "bolt.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(color)
                     }
-                    
-                    HStack {
-                        ProgressView(value: progress)
-                            .progressViewStyle(LinearProgressViewStyle(tint: color))
-                            .scaleEffect(x: 1, y: 2, anchor: .center)
-                            .frame(height: 20)
-                        
-                        Text("\(Int(progress * 100))%")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .fontWeight(.semibold)
+
+                    Text(title)
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    if hasNewData {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(.green)
+                                .font(.system(size: 12))
+                            Text("New!")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundColor(.green)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.15))
+                        )
+                    }
+
+                    Text("\(Int(progress * 100))%")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(color)
+                }
+
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(height: 8)
+
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [color, color.opacity(0.7)]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width * CGFloat(progress), height: 8)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(hasNewData ? Color.green.opacity(0.15) : Color.white.opacity(0.08))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(hasNewData ? Color.green.opacity(0.3) : Color.white.opacity(0.15), lineWidth: 1)
-                        )
-                )
-                
-                Spacer()
+                .frame(height: 8)
             }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(hasNewData ? color.opacity(0.08) : Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(hasNewData ? color.opacity(0.3) : Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
+            .shadow(color: hasNewData ? color.opacity(0.2) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         }
         .background(
             Image(systemName: "chevron.right")

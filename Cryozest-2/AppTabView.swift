@@ -21,33 +21,53 @@ struct AppTabView: View {
                 sleepModel: DailySleepViewModel(selectedDate: Date()),
                 context: viewContext)
                 .tabItem {
-                    Image(systemName: "moon")
+                    Image(systemName: "moon.fill")
                     Text("Daily")
                 }
                 .tag(0)
-                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
-            
+
             MainView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
-                    Image(systemName: "stopwatch")
+                    Image(systemName: "stopwatch.fill")
                     Text("Habits")
                 }
                 .tag(1)
-                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
-            
+
             AnalysisView(therapyTypeSelection: therapyTypeSelection)
                 .tabItem {
                     Image(systemName: "chart.bar.fill")
                     Text("Analysis")
                 }
                 .tag(2)
-                .toolbarBackground(.black, for: .tabBar)
+                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
-        .accentColor(Color.white)
-        .opacity(0.85)
-        .background(Color.clear)
+        .accentColor(.cyan)
+        .onAppear {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95))
+
+            // Unselected items - white with opacity
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.5)
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+                .foregroundColor: UIColor.white.withAlphaComponent(0.5),
+                .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+            ]
+
+            // Selected items - cyan
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(red: 0, green: 1, blue: 1, alpha: 1)
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+                .foregroundColor: UIColor(red: 0, green: 1, blue: 1, alpha: 1),
+                .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
+            ]
+
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 }
