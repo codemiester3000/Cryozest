@@ -3,31 +3,24 @@ import SwiftUI
 struct CustomPicker: View {
     @Binding var selectedTimeFrame: TimeFrame
     let backgroundColor: Color
-    
+
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             ForEach(TimeFrame.allCases, id: \.self) { timeFrame in
                 CustomPickerItem(timeFrame: timeFrame, isSelected: selectedTimeFrame == timeFrame, backgroundColor: backgroundColor)
                     .onTapGesture {
-                        triggerHapticFeedback()
-                        self.selectedTimeFrame = timeFrame
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            triggerHapticFeedback()
+                            self.selectedTimeFrame = timeFrame
+                        }
                     }
             }
         }
-        .padding(4)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color.white.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                )
-        )
         .padding(.horizontal, 24)
     }
 }
@@ -39,17 +32,20 @@ struct CustomPickerItem: View {
 
     var body: some View {
         Text(timeFrame.displayString())
-            .font(.system(size: 15, weight: isSelected ? .semibold : .medium, design: .rounded))
-            .foregroundColor(isSelected ? .white : .white.opacity(0.6))
+            .font(.system(size: 14, weight: isSelected ? .semibold : .medium, design: .rounded))
+            .foregroundColor(isSelected ? .white : .white.opacity(0.5))
             .padding(.vertical, 10)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? backgroundColor.opacity(0.3) : Color.clear)
+                Capsule()
+                    .fill(isSelected ? backgroundColor : Color.white.opacity(0.08))
+                    .shadow(color: isSelected ? backgroundColor.opacity(0.4) : Color.clear, radius: 8, x: 0, y: 4)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? backgroundColor.opacity(0.6) : Color.clear, lineWidth: isSelected ? 2 : 0)
+                Capsule()
+                    .stroke(isSelected ? backgroundColor.opacity(0.3) : Color.white.opacity(0.12), lineWidth: 1)
             )
+            .scaleEffect(isSelected ? 1.0 : 0.95)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
     }
 }
