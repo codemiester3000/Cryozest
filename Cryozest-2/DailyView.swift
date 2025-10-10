@@ -103,6 +103,19 @@ struct DailyView: View {
                     .padding(.bottom, 5)
                     .padding(.leading,10)
 
+                DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
+                    .contextualTooltip(
+                        message: "Tap any metric to see detailed history and trends",
+                        isShowing: showMetricTooltip,
+                        arrowPosition: .top,
+                        accentColor: .cyan,
+                        onDismiss: {
+                            showMetricTooltip = false
+                            OnboardingManager.shared.markMetricTooltipSeen()
+                        }
+                    )
+                    .padding(.bottom, 12)
+
                 HeroScoresView(
                     exertionScore: exertionModel.exertionScore,
                     readinessScore: recoveryModel.recoveryScores.last ?? 0,
@@ -122,20 +135,7 @@ struct DailyView: View {
                     }
                 )
                 .padding(.horizontal)
-                .padding(.bottom, 8)
-
-                DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
-                    .contextualTooltip(
-                        message: "Tap any metric to see detailed history and trends",
-                        isShowing: showMetricTooltip,
-                        arrowPosition: .top,
-                        accentColor: .cyan,
-                        onDismiss: {
-                            showMetricTooltip = false
-                            OnboardingManager.shared.markMetricTooltipSeen()
-                        }
-                    )
-                    .padding(.bottom, 20)
+                .padding(.bottom, 20)
             }
             .refreshable {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
@@ -255,6 +255,10 @@ struct HeaderView: View {
                     .labelsHidden()
                     .colorScheme(.dark)
             }
+
+            // Wellness Check-In Card
+            WellnessCheckInCard()
+                .padding(.top, 12)
         }
         .padding(.horizontal)
     }

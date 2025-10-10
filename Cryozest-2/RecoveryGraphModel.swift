@@ -9,25 +9,19 @@ class RecoveryGraphModel: ObservableObject {
     
     @Published var previousNightSleepDuration: String? = nil {
         didSet {
-            DispatchQueue.main.async {
-                self.calculateSleepScorePercentage()
-            }
+            self.calculateSleepScorePercentage()
         }
     }
     
     // MARK -- HRV variables
     @Published var avgHrvDuringSleep: Int? {
         didSet {
-            DispatchQueue.main.async {
-                self.calculateHrvPercentage()
-            }
+            self.calculateHrvPercentage()
         }
     }
     @Published var avgHrvDuringSleep60Days: Int? {
         didSet {
-            DispatchQueue.main.async {
-                self.calculateHrvPercentage()
-            }
+            self.calculateHrvPercentage()
         }
     }
     @Published var hrvSleepPercentage: Int?
@@ -35,26 +29,20 @@ class RecoveryGraphModel: ObservableObject {
     // MARK -- Heart Rate variables
     @Published var mostRecentRestingHeartRate: Int? {
         didSet {
-            DispatchQueue.main.async {
-                self.calculateRestingHeartRatePercentage()
-            }
+            self.calculateRestingHeartRatePercentage()
         }
     }
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
-            DispatchQueue.main.async {
-                self.calculateRestingHeartRatePercentage()
-            }
+            self.calculateRestingHeartRatePercentage()
         }
     }
     @Published var restingHeartRatePercentage: Int?
     
     @Published var recoveryScores = [Int]() {
         didSet {
-            DispatchQueue.main.async {
-                let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
-                self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
-            }
+            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
+            self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
         }
     }
     

@@ -54,6 +54,10 @@
 		C56DDCE72E9854780052946A /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE62E9854770052946A /* InsightsView.swift */; };
 		C56DDCE92E9854860052946A /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE82E9854860052946A /* InsightsViewModel.swift */; };
 		C56DDCEB2E9854930052946A /* InsightCardComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEA2E9854930052946A /* InsightCardComponents.swift */; };
+		C56DDCED2E9870ED0052946A /* WellnessCheckInCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */; };
+		C56DDCEF2E9870FE0052946A /* WellnessRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEE2E9870FE0052946A /* WellnessRating.swift */; };
+		C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */; };
+		C56DDCF32E98712B0052946A /* WellnessImpactAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */; };
 		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
 		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
@@ -157,6 +161,10 @@
 		C56DDCE62E9854770052946A /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		C56DDCE82E9854860052946A /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
 		C56DDCEA2E9854930052946A /* InsightCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardComponents.swift; sourceTree = "<group>"; };
+		C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessCheckInCard.swift; sourceTree = "<group>"; };
+		C56DDCEE2E9870FE0052946A /* WellnessRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessRating.swift; sourceTree = "<group>"; };
+		C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessInsightsSection.swift; sourceTree = "<group>"; };
+		C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessImpactAnalysis.swift; sourceTree = "<group>"; };
 		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
@@ -338,6 +346,10 @@
 				C56DDCE62E9854770052946A /* InsightsView.swift */,
 				C56DDCE82E9854860052946A /* InsightsViewModel.swift */,
 				C56DDCEA2E9854930052946A /* InsightCardComponents.swift */,
+				C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */,
+				C56DDCEE2E9870FE0052946A /* WellnessRating.swift */,
+				C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */,
+				C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -505,6 +517,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */,
 				C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */,
 				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
@@ -516,6 +529,7 @@
 				C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */,
 				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
 				C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */,
+				C56DDCF32E98712B0052946A /* WellnessImpactAnalysis.swift in Sources */,
 				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
 				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
 				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
@@ -527,6 +541,7 @@
 				C56DDCC72E9809100052946A /* ExpandedMetricView.swift in Sources */,
 				C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */,
 				C56DDCCC2E9809BB0052946A /* RHRDetailView.swift in Sources */,
+				C56DDCED2E9870ED0052946A /* WellnessCheckInCard.swift in Sources */,
 				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
 				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
 				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
@@ -553,6 +568,7 @@
 				C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */,
 				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
 				C56DDCD02E9809D30052946A /* RespiratoryRateDetailView.swift in Sources */,
+				C56DDCEF2E9870FE0052946A /* WellnessRating.swift in Sources */,
 				C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */,
 				C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */,
 				C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */,

@@ -361,7 +361,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     static func therapies(forCategory category: Category) -> [TherapyType] {
         switch category {
         case .category0: // Workouts
-            return [.running, .walking, .stairClimbing, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre, .boxing, .dance, .crossfit]
+            return [.running, .walking, .stairClimbing, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre]
         case .category1: // All
             return TherapyType.allCases
         case .category2: // Heat-Based

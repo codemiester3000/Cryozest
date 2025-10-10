@@ -328,26 +328,55 @@ struct MainView: View {
         Button(action: { logSession() }) {
             HStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 20))
+                    .font(.system(size: 22, weight: .semibold))
                 Text("Mark today as complete")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, 18)
             .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        therapyTypeSelection.selectedTherapyType.color,
-                        therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                ZStack {
+                    // Gradient background
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            therapyTypeSelection.selectedTherapyType.color,
+                            therapyTypeSelection.selectedTherapyType.color.opacity(0.8)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+
+                    // Subtle shine overlay
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.2),
+                            Color.clear
+                        ]),
+                        startPoint: .top,
+                        endPoint: .center
+                    )
+                }
             )
-            .cornerRadius(14)
-            .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.3), radius: 8, x: 0, y: 4)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.4), radius: 12, x: 0, y: 6)
+            .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.3), radius: 24, x: 0, y: 8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.3),
+                                Color.white.opacity(0.1)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
         }
+        .buttonStyle(ScaleButtonStyle())
         .padding(.vertical, 20)
     }
 
@@ -978,5 +1007,14 @@ struct SessionPickerItem: View {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(isSelected ? backgroundColor.opacity(0.6) : Color.clear, lineWidth: isSelected ? 2 : 0)
             )
+    }
+}
+
+// Scale button style for press animation
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }

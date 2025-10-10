@@ -61,18 +61,21 @@ class DailySleepViewModel: ObservableObject {
 
                     // Pass completion handlers to the functions
                     self.fetchAverageWakingHeartRate { bpm, error in
-                        if let bpm = bpm, bpm.isFinite {
-                            self.averageWakingHeartRate = bpm
-                        } else {
-                            self.averageWakingHeartRate = 0.0
+                        DispatchQueue.main.async {
+                            if let bpm = bpm, bpm.isFinite {
+                                self.averageWakingHeartRate = bpm
+                            } else {
+                                self.averageWakingHeartRate = 0.0
+                            }
                         }
-
                     }
                     self.fetchAverageHeartRateDuringSleep { bpm, error in
-                        if let bpm = bpm {
-                            self.averageHeartRateDuringSleep = bpm
+                        DispatchQueue.main.async {
+                            if let bpm = bpm {
+                                self.averageHeartRateDuringSleep = bpm
+                            }
+                            // Handle error if needed
                         }
-                        // Handle error if needed
                     }
                 }
             }
