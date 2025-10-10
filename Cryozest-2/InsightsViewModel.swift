@@ -80,10 +80,32 @@ class InsightsViewModel: ObservableObject {
         }
     }
 
+    // Get all workout therapy types from recorded sessions
+    private func getRecordedWorkoutTypes() -> [TherapyType] {
+        let workoutCategory = TherapyType.therapies(forCategory: .category0) // Workouts category
+        var recordedWorkouts: Set<TherapyType> = []
+
+        for session in sessions {
+            if let therapyTypeString = session.therapyType,
+               let therapyType = TherapyType(rawValue: therapyTypeString),
+               workoutCategory.contains(therapyType) {
+                recordedWorkouts.insert(therapyType)
+            }
+        }
+
+        return Array(recordedWorkouts)
+    }
+
     func fetchAllImpacts() {
         isLoading = true
 
-        print("🔍 InsightsViewModel: Starting to fetch impacts for \(selectedTherapyTypes.count) therapy types")
+        // Combine manually selected types with recorded workout types
+        let recordedWorkouts = getRecordedWorkoutTypes()
+        let allTherapyTypes = Array(Set(selectedTherapyTypes + recordedWorkouts))
+
+        print("🔍 InsightsViewModel: Starting to fetch impacts for \(allTherapyTypes.count) therapy types")
+        print("🔍 InsightsViewModel: Selected types: \(selectedTherapyTypes.map { $0.rawValue })")
+        print("🔍 InsightsViewModel: Recorded workouts: \(recordedWorkouts.map { $0.rawValue })")
 
         let group = DispatchGroup()
         var allImpacts: [HabitImpact] = []
@@ -96,8 +118,8 @@ class InsightsViewModel: ObservableObject {
             group.leave()
         }
 
-        // Fetch habit impacts (only if user has habits tracked)
-        for therapyType in selectedTherapyTypes {
+        // Fetch habit impacts (includes both selected types and recorded workouts)
+        for therapyType in allTherapyTypes {
             // Fetch sleep impact
             group.enter()
             fetchSleepImpact(for: therapyType) { impact in

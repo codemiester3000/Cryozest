@@ -18,17 +18,16 @@ struct SessionSummary: View {
     @State private var showTemperaturePicker = false
     @State private var waterLoss: Double = 0.0
     @State private var hydrationSuggestion: Double = 0.0
-    
+
     private var hasHealthData: Bool {
         return averageHeartRate != 0 && minHeartRate != 1000 && maxHeartRate != 0
     }
-    
+
     let healthKitManager = HealthKitManager.shared
-    
+
     @Environment(\.presentationMode) var presentationMode
-    
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     init(duration: TimeInterval, therapyType: Binding<TherapyType>, averageHeartRate: Double, averageSpo2: Double, averageRespirationRate: Double, minHeartRate: Double, maxHeartRate: Double) {
         self._duration = State(initialValue: duration)
         self._therapyType = therapyType
@@ -37,12 +36,12 @@ struct SessionSummary: View {
         self._averageRespirationRate = State(initialValue: averageRespirationRate)
         self._minHeartRate = State(initialValue: minHeartRate)
         self._maxHeartRate = State(initialValue: maxHeartRate)
-        
+
         let (hours, minutes, seconds) = secondsToHoursMinutesSeconds(seconds: Int(duration))
         self._durationHours = State(initialValue: hours)
         self._durationMinutes = State(initialValue: minutes)
         self._durationSeconds = State(initialValue: seconds)
-        
+
         let initialTemperature: Int
         switch therapyType.wrappedValue {
         case .drySauna:
@@ -58,11 +57,11 @@ struct SessionSummary: View {
         }
         self._temperature = State(initialValue: initialTemperature)
     }
-    
+
     private var totalDurationInSeconds: TimeInterval {
         return TimeInterval((durationHours * 3600) + (durationMinutes * 60) + durationSeconds)
     }
-    
+
     var body: some View {
         ZStack {
             // Modern gradient background
@@ -80,7 +79,7 @@ struct SessionSummary: View {
             // Subtle gradient overlay
             RadialGradient(
                 gradient: Gradient(colors: [
-                    Color.blue.opacity(0.3),
+                    therapyType.color.opacity(0.2),
                     Color.clear
                 ]),
                 center: .topTrailing,
@@ -89,109 +88,307 @@ struct SessionSummary: View {
             )
             .ignoresSafeArea()
 
-            ScrollView {
-                VStack(spacing: 20) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
                     // Header
                     HStack {
                         Text("Session Summary")
                             .foregroundColor(.white)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .padding(.top, 26)
                         Spacer()
                     }
-                    .padding(.horizontal)
-                
-                
-                TherapyTypeView(therapyType: $therapyType, temperature: $temperature)
-                
-                DurationView(durationHours: $durationHours, durationMinutes: $durationMinutes, durationSeconds: $durationSeconds)
-                
-                TemperatureView(temperature: $temperature, therapyType: $therapyType)
-                
-                BodyWeightView(bodyWeight: $bodyWeight) // Adding Body Weight to Session
-                
-                
-                HydrationSuggestionView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight)
-                
-                CalorieLossEstimationView(totalDurationInSeconds: totalDurationInSeconds, temperature: temperature, bodyWeight: bodyWeight, therapyType: therapyType)
-                
-                if (NoHealthDataAvailble()) {
-                    NoHealthDataView()
-                } else {
-                    HeartRateView(label: "Average HR", heartRate: Int(averageHeartRate))
-                    HeartRateView(label: "Min HR", heartRate: Int(minHeartRate))
-                    HeartRateView(label: "Max HR", heartRate: Int(maxHeartRate))
-                }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
 
-
-                    // Action buttons
-                    HStack(spacing: 12) {
-                        Button(action: discardSession) {
-                            Text("Discard")
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .fill(Color.red.opacity(0.2))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 14)
-                                                .stroke(Color.red.opacity(0.5), lineWidth: 1)
+                    // Hero Card - Therapy Type & Duration
+                    VStack(spacing: 20) {
+                        // Therapy icon and name
+                        VStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                therapyType.color.opacity(0.8),
+                                                therapyType.color.opacity(0.5)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
                                         )
+                                    )
+                                    .frame(width: 80, height: 80)
+
+                                Image(systemName: therapyType.icon)
+                                    .font(.system(size: 36, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+
+                            TherapyTypePickerButton(therapyType: $therapyType, temperature: $temperature)
+                        }
+
+                        // Duration Display
+                        VStack(spacing: 8) {
+                            Text("Duration")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.6))
+
+                            HStack(spacing: 4) {
+                                Text("\(durationHours)h")
+                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text("\(durationMinutes)m")
+                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                                if durationSeconds > 0 {
+                                    Text("\(durationSeconds)s")
+                                        .font(.system(size: 28, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.6))
+                                        .padding(.top, 12)
+                                }
+                            }
+
+                            Button(action: { showDurationPicker.toggle() }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "pencil.circle.fill")
+                                        .font(.system(size: 14))
+                                    Text("Edit Duration")
+                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundColor(therapyType.color)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    Capsule()
+                                        .fill(therapyType.color.opacity(0.15))
                                 )
+                            }
+                            .padding(.top, 8)
+                        }
+                    }
+                    .padding(.vertical, 32)
+                    .padding(.horizontal, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.12),
+                                        Color.white.opacity(0.06)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .stroke(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                therapyType.color.opacity(0.4),
+                                                therapyType.color.opacity(0.1)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 2
+                                    )
+                            )
+                    )
+                    .shadow(color: therapyType.color.opacity(0.3), radius: 20, x: 0, y: 10)
+                    .padding(.horizontal, 20)
+
+                    // Stats Grid
+                    VStack(spacing: 16) {
+                        // Row 1: Temperature & Body Weight
+                        HStack(spacing: 16) {
+                            ModernStatCard(
+                                icon: "thermometer.medium",
+                                label: "Temperature",
+                                value: "\(temperature)°F",
+                                color: temperature > 100 ? .orange : .cyan,
+                                onEdit: { showTemperaturePicker.toggle() }
+                            )
+
+                            ModernStatCard(
+                                icon: "scalemass.fill",
+                                label: "Body Weight",
+                                value: "\(Int(bodyWeight)) lbs",
+                                color: .purple,
+                                onEdit: nil
+                            )
+                        }
+
+                        // Row 2: Hydration & Calories
+                        HStack(spacing: 16) {
+                            ModernStatCard(
+                                icon: "drop.fill",
+                                label: "Hydration",
+                                value: "\(calculateHydration()) oz",
+                                color: .blue,
+                                onEdit: nil
+                            )
+
+                            ModernStatCard(
+                                icon: "flame.fill",
+                                label: "Calories",
+                                value: "~\(calculateCalories()) cal",
+                                color: .red,
+                                onEdit: nil
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 20)
+
+                    // Heart Rate Section
+                    if hasHealthData {
+                        VStack(spacing: 16) {
+                            HStack {
+                                Text("Heart Rate")
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
+
+                            HeartRateRangeCard(
+                                average: Int(averageHeartRate),
+                                min: Int(minHeartRate),
+                                max: Int(maxHeartRate)
+                            )
+                            .padding(.horizontal, 20)
+                        }
+                    } else {
+                        NoHealthDataCard()
+                            .padding(.horizontal, 20)
+                    }
+
+                    // Action Buttons
+                    HStack(spacing: 16) {
+                        Button(action: discardSession) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 18))
+                                Text("Discard")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.red.opacity(0.15))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.red.opacity(0.4), lineWidth: 2)
+                                    )
+                            )
                         }
 
                         Button(action: logSession) {
                             HStack(spacing: 8) {
                                 Text("Save Session")
-                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
                                 Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 16))
+                                    .font(.system(size: 18))
                             }
                             .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
+                            .padding(.vertical, 18)
                             .background(
                                 LinearGradient(
-                                    gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
+                                    gradient: Gradient(colors: [
+                                        Color.white,
+                                        Color.white.opacity(0.9)
+                                    ]),
                                     startPoint: .topLeading,
-                                    endPoint: .bottomTrailing)
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                            .cornerRadius(14)
-                            .shadow(color: .white.opacity(0.3), radius: 12, x: 0, y: 6)
+                            .cornerRadius(16)
+                            .shadow(color: .white.opacity(0.4), radius: 15, x: 0, y: 8)
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 20)
                     .padding(.top, 8)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 40)
                 }
             }
+        }
+        .sheet(isPresented: $showDurationPicker) {
+            DurationPickerSheet(
+                hours: $durationHours,
+                minutes: $durationMinutes,
+                seconds: $durationSeconds
+            )
+        }
+        .sheet(isPresented: $showTemperaturePicker) {
+            TemperaturePickerSheet(
+                temperature: $temperature,
+                therapyType: therapyType
+            )
         }
         .onAppear {
             fetchBodyWeight()
         }
     }
-    
+
+    // MARK: - Helper Functions
+
     func fetchBodyWeight() {
         HealthKitManager.shared.fetchMostRecentBodyMass { fetchedBodyWeight in
             if let fetchedBodyWeight = fetchedBodyWeight {
                 self.bodyWeight = fetchedBodyWeight
             } else {
-                // Set a default value for bodyWeight when the fetch fails
                 self.bodyWeight = 150
             }
         }
     }
-    
-    
+
     func secondsToHoursMinutesSeconds(seconds: Int) -> (Int, Int, Int) {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
         let seconds = (seconds % 3600) % 60
         return (hours, minutes, seconds)
     }
-    
+
+    func calculateHydration() -> Int {
+        guard bodyWeight != 0 else { return 0 }
+        let durationInHours = totalDurationInSeconds / 3600.0
+        let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
+        let waterLossPerHour = 0.5 + temperatureAdjustment
+        let waterLossInLiters = (durationInHours * (0.25 * (bodyWeight/30))) * waterLossPerHour
+        let waterLossInOunces = waterLossInLiters * 33.814
+        return Int(ceil(waterLossInOunces))
+    }
+
+    func calculateCalories() -> Int {
+        let durationInMinutes = totalDurationInSeconds / 60.0
+        let burnRatePerMinute: Double
+
+        switch therapyType {
+        case .drySauna:
+            burnRatePerMinute = 0.89 * bodyWeight / 150.0
+        case .coldPlunge:
+            burnRatePerMinute = 2.75 * bodyWeight / 150.0
+        case .meditation:
+            burnRatePerMinute = 1.0 * bodyWeight / 150.0
+        case .hotYoga:
+            burnRatePerMinute = 4.5 * bodyWeight / 150.0
+        default:
+            burnRatePerMinute = 1.0 * bodyWeight / 150.0
+        }
+
+        let tempAdjustmentFactor: Double
+        if temperature > 70 {
+            tempAdjustmentFactor = Double(temperature - 70) * 0.02
+        } else {
+            tempAdjustmentFactor = 1.0
+        }
+
+        let calorieLoss = durationInMinutes * burnRatePerMinute * tempAdjustmentFactor
+        return Int(ceil(calorieLoss))
+    }
+
     private func logSession() {
         let newSession = TherapySessionEntity(context: viewContext)
         newSession.date = Date()
@@ -205,498 +402,445 @@ struct SessionSummary: View {
         newSession.minHeartRate = minHeartRate
         newSession.maxHeartRate = maxHeartRate
         newSession.bodyWeight = bodyWeight
-        
+
         do {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
         } catch {
-            // Handle the error here, e.g., display an error message or log the error
             print("Failed to save session: \(error.localizedDescription)")
         }
     }
-    
+
     private func discardSession() {
         presentationMode.wrappedValue.dismiss()
     }
-    
-    private func NoHealthDataAvailble() -> Bool {
-        return averageHeartRate == 0 || minHeartRate == 1000 || maxHeartRate == 0
-    }
-    
-    struct NoHealthDataView: View {
-        var body: some View {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(Color.orange.opacity(0.15))
-                        .frame(width: 40, height: 40)
-                    Image(systemName: "applewatch")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 18))
-                }
+}
 
-                Text("Wear Apple Watch to get heart rate metrics. Minimum 3 minute duration required.")
-                    .foregroundColor(.white.opacity(0.9))
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .fixedSize(horizontal: false, vertical: true)
+// MARK: - Modern Components
 
-                Spacer()
+struct ModernStatCard: View {
+    let icon: String
+    let label: String
+    let value: String
+    let color: Color
+    let onEdit: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 48, height: 48)
+
+                Image(systemName: icon)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(color)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.orange.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-        }
-    }
-    
-    struct HeartRateView: View {
-        var label: String
-        var heartRate: Int
 
-        var body: some View {
-            HStack(spacing: 12) {
+            VStack(spacing: 4) {
+                Text(label)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+
+                Text(value)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+
+            if let onEdit = onEdit {
+                Button(action: onEdit) {
+                    Text("Edit")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(color)
+                }
+            } else {
+                Spacer()
+                    .frame(height: 18)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+}
+
+struct HeartRateRangeCard: View {
+    let average: Int
+    let min: Int
+    let max: Int
+
+    var normalizedMin: CGFloat {
+        guard max > min else { return 0 }
+        return CGFloat(min - min) / CGFloat(max - min)
+    }
+
+    var normalizedAverage: CGFloat {
+        guard max > min else { return 0.5 }
+        return CGFloat(average - min) / CGFloat(max - min)
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            // Average Heart Rate - Prominent Display
+            HStack {
                 ZStack {
                     Circle()
-                        .fill(Color.red.opacity(0.15))
-                        .frame(width: 40, height: 40)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.red.opacity(0.3),
+                                    Color.red.opacity(0.1)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+
                     Image(systemName: "heart.fill")
+                        .font(.system(size: 26, weight: .semibold))
                         .foregroundColor(.red)
-                        .font(.system(size: 18))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(label)
-                        .foregroundColor(.white.opacity(0.7))
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                    Text(heartRate != 0 && heartRate != 1000 ? "\(heartRate) bpm" : "No Data")
-                        .foregroundColor(.white)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    Text("Average")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(average)")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+
+                        Text("bpm")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
                 }
+
                 Spacer()
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-        }
-    }
-    
-    struct DurationView: View {
-        @State var showDurationPicker = false
-        @Binding var durationHours: Int
-        @Binding var durationMinutes: Int
-        @Binding var durationSeconds: Int
-        
-        var body: some View {
-            HStack {
-                Image(systemName: "clock")
-                    .foregroundColor(.orange)
-                Text("Duration: \(durationHours)h \(durationMinutes)m \(durationSeconds)s")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
-                Spacer()
-                Button(action: { showDurationPicker.toggle() }) {
-                    Text("Edit")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 16))
-                        .bold()
+
+            // Heart Rate Range Visualization
+            VStack(spacing: 12) {
+                // Range Bar
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background track
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(height: 12)
+
+                        // Active range
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.red.opacity(0.4),
+                                        Color.red.opacity(0.7),
+                                        Color.red
+                                    ]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width, height: 12)
+
+                        // Average indicator
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 20, height: 20)
+                            .shadow(color: .red.opacity(0.5), radius: 4, x: 0, y: 2)
+                            .offset(x: normalizedAverage * (geometry.size.width - 20))
+                    }
                 }
-                .sheet(isPresented: $showDurationPicker) {
-                    VStack {
-                        Text("Choose Duration")
-                            .font(.title)
-                        HStack {
-                            Picker("Hours", selection: $durationHours) {
-                                ForEach(0..<24) { hour in
-                                    Text("\(hour)h")
-                                }
-                            }
-                            .pickerStyle(WheelPickerStyle())
-                            .frame(width: 100)
-                            .clipped()
-                            
-                            Picker("Minutes", selection: $durationMinutes) {
-                                ForEach(0..<60) { minute in
-                                    Text("\(minute)m")
-                                }
-                            }
-                            .pickerStyle(WheelPickerStyle())
-                            .frame(width: 100)
-                            .clipped()
-                            
-                            Picker("Seconds", selection: $durationSeconds) {
-                                ForEach(0..<60) { second in
-                                    Text("\(second)s")
-                                }
-                            }
-                            .pickerStyle(WheelPickerStyle())
-                            .frame(width: 100)
-                            .clipped()
-                        }
-                        Button("Done", action: { showDurationPicker.toggle() })
-                            .padding()
+                .frame(height: 20)
+
+                // Min and Max labels
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("MIN")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                        Text("\(min) bpm")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
-                            .background(Color.orange)
-                            .cornerRadius(8)
+                    }
+
+                    Spacer()
+
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("MAX")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                        Text("\(max) bpm")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
                     }
                 }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
         }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.05)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.red.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.red.opacity(0.15), radius: 12, x: 0, y: 6)
     }
+}
 
-    //Adding Body Weight output to Session Summary Screen
-    struct BodyWeightView: View {
-        @State var showWeightPicker = false
-        @State var bodyWeightInt: Int = 0
-        @Binding var bodyWeight: Double
-        
-        var body: some View {
-            HStack {
-                Image(systemName: "scalemass")
+struct NoHealthDataCard: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color.orange.opacity(0.15))
+                    .frame(width: 52, height: 52)
+
+                Image(systemName: "applewatch")
+                    .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.orange)
-                Text("Body Weight: \(Int(bodyWeight)) lbs")
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("No Heart Rate Data")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                    .font(.system(size: 16))
-                Spacer()
+
+                Text("Wear Apple Watch during your session to track heart rate metrics (minimum 3 minutes)")
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.orange.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+    }
+}
+
+struct TherapyTypePickerButton: View {
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    @Binding var therapyType: TherapyType
+    @Binding var temperature: Int
+
+    var body: some View {
+        Menu {
+            ForEach(TherapyType.allCases) { type in
                 Button(action: {
-                    bodyWeightInt = Int(bodyWeight)
-                    showWeightPicker.toggle()
+                    therapyType = type
+                    updateTemperature(for: type)
                 }) {
-                    Text("Edit")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 16))
-                        .bold()
+                    HStack {
+                        Image(systemName: type.icon)
+                        Text(type.displayName(managedObjectContext))
+                    }
                 }
-                .sheet(isPresented: $showWeightPicker) {
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Text(therapyType.displayName(managedObjectContext))
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+
+                Image(systemName: "chevron.down.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(
+                Capsule()
+                    .fill(Color.white.opacity(0.15))
+            )
+        }
+    }
+
+    func updateTemperature(for type: TherapyType) {
+        switch type {
+        case .drySauna:
+            temperature = 165
+        case .coldPlunge:
+            temperature = 50
+        case .meditation:
+            temperature = 60
+        case .hotYoga:
+            temperature = 110
+        default:
+            temperature = 70
+        }
+    }
+}
+
+struct DurationPickerSheet: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var hours: Int
+    @Binding var minutes: Int
+    @Binding var seconds: Int
+
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 32) {
+                Text("Edit Duration")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.top, 40)
+
+                HStack(spacing: 20) {
                     VStack {
-                        Text("Choose Weight")
-                            .font(.title)
-                        Picker("Weight", selection: $bodyWeightInt) {
-                            ForEach(50...300, id: \.self) { weight in
-                                Text("\(weight) lbs")
+                        Text("Hours")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                        Picker("Hours", selection: $hours) {
+                            ForEach(0..<24) { hour in
+                                Text("\(hour)").tag(hour)
                             }
                         }
                         .pickerStyle(WheelPickerStyle())
-                        .frame(width: 150, height: 150)
+                        .frame(width: 80, height: 150)
                         .clipped()
-                        Button("Done", action: {
-                            bodyWeight = Double(bodyWeightInt)
-                            showWeightPicker.toggle()
-                        })
-                        .padding()
-                        .foregroundColor(.white)
-                        .background(Color.orange)
-                        .cornerRadius(8)
                     }
-                }
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-        }
-    }
 
-    struct TemperatureView: View {
-        @State var showTemperaturePicker = false
-        @Binding var temperature: Int
-        @Binding var therapyType: TherapyType
-        
-        var temperatureRange: Range<Int> {
-            switch therapyType {
-            case .drySauna:
-                return 100..<250
-            case .coldPlunge:
-                return 0..<70
-            case .meditation:
-                return 0..<80
-            case .hotYoga:
-                return 70..<200
-            case .coldShower:
-                return 0..<70
-            case .weightTraining:
-                return 0..<100
-            case .running:
-                return 0..<100
-            case .stretching:
-                return 0..<100
-            case .iceBath:
-                return 0..<100
-            case .coldYoga:
-                return 0..<100
-            case .deepBreathing:
-                return 0..<100
-            case .sleep:
-                return 0..<100
-            case .custom1, .custom2, .custom3, .custom4:
-                return 0..<100
-            default:
-                return 0..<100
-            }
-            
-        }
-        
-        var body: some View {
-            HStack {
-                Image(systemName: "thermometer")
-                    .foregroundColor(.orange)
-                Text("Temperature: \(temperature)°F")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
-                Spacer()
-                Button(action: { showTemperaturePicker.toggle() }) {
-                    Text("Edit")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 16))
-                        .bold()
-                }
-                .sheet(isPresented: $showTemperaturePicker) {
                     VStack {
-                        Text("Choose Temperature")
-                            .font(.title)
-                        Picker("Temperature", selection: $temperature) {
-                            ForEach(temperatureRange, id: \.self) { temp in
-                                Text("\(temp)°F")
+                        Text("Minutes")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                        Picker("Minutes", selection: $minutes) {
+                            ForEach(0..<60) { minute in
+                                Text("\(minute)").tag(minute)
                             }
                         }
                         .pickerStyle(WheelPickerStyle())
-                        .frame(width: 150, height: 150)
+                        .frame(width: 80, height: 150)
                         .clipped()
-                        Button("Done", action: { showTemperaturePicker.toggle() })
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.orange)
-                            .cornerRadius(8)
+                    }
+
+                    VStack {
+                        Text("Seconds")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                        Picker("Seconds", selection: $seconds) {
+                            ForEach(0..<60) { second in
+                                Text("\(second)").tag(second)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(width: 80, height: 150)
+                        .clipped()
                     }
                 }
+
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                    Text("Done")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .cornerRadius(14)
+                }
+                .padding(.horizontal, 40)
+                .padding(.bottom, 40)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
+        }
+    }
+}
+
+struct TemperaturePickerSheet: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var temperature: Int
+    let therapyType: TherapyType
+
+    var temperatureRange: Range<Int> {
+        switch therapyType {
+        case .drySauna:
+            return 100..<250
+        case .coldPlunge, .coldShower:
+            return 0..<70
+        case .hotYoga:
+            return 70..<200
+        default:
+            return 0..<100
         }
     }
 
-    struct TherapyTypeView: View {
-        @Environment(\.managedObjectContext) private var managedObjectContext
-        
-        @Binding var therapyType: TherapyType
-        @Binding var temperature: Int
-        
-        var body: some View {
-            HStack {
-                Image(systemName: "waveform.path.ecg")
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.05, green: 0.15, blue: 0.25),
+                    Color(red: 0.1, green: 0.2, blue: 0.35)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 32) {
+                Text("Edit Temperature")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                Text("Therapy Type: ")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
-                
-                Spacer()
-                
-                Picker(selection: $therapyType, label: HStack {
-                    Text("Therapy Type")
-                        .foregroundColor(.orange)
-                        .font(.system(size: 16))
-                        .bold()
-                    Image(systemName: "chevron.down")
-                        .foregroundColor(.orange)
-                }) {
-                    ForEach(TherapyType.allCases) { therapyType in
-                        Text(therapyType.displayName(managedObjectContext))
-                            .tag(therapyType)
+                    .padding(.top, 40)
+
+                Picker("Temperature", selection: $temperature) {
+                    ForEach(temperatureRange, id: \.self) { temp in
+                        Text("\(temp)°F").tag(temp)
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .frame(maxWidth: .infinity)
-                .accentColor(.orange)
-                .onChange(of: therapyType, perform: { newValue in
-                    switch newValue {
-                    case .drySauna:
-                        temperature = 165
-                    case .coldPlunge:
-                        temperature = 50
-                    case .meditation:
-                        temperature = 60
-                    case .hotYoga:
-                        temperature = 110
-                    default:
-                        temperature = 70
-                    }
-                })
+                .pickerStyle(WheelPickerStyle())
+                .frame(height: 200)
+                .clipped()
+
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                    Text("Done")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.white)
+                        .cornerRadius(14)
+                }
+                .padding(.horizontal, 40)
+                .padding(.bottom, 40)
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
         }
     }
-
-    struct HydrationSuggestionView: View {
-        @State var showHydrationSuggestion = false
-        @State var waterLoss: Double = 0.0
-        
-        var totalDurationInSeconds: TimeInterval
-        var temperature: Int
-        var bodyWeight: Double
-        
-        private func calculateWaterLoss() -> Double {
-            guard bodyWeight != 0 else {
-                return 0.0 // or handle the error case appropriately
-            }
-            
-            let durationInHours = totalDurationInSeconds / 3600.0
-            let temperatureAdjustment = Double(max(temperature - 70, 0)) / 10.0 * 0.10
-            let waterLossPerHour = 0.5 + temperatureAdjustment
-            let waterLossInLiters = (durationInHours * (0.25 * (bodyWeight/30))) * waterLossPerHour
-            let waterLossInOunces = waterLossInLiters * 33.814
-            return waterLossInOunces
-        }
-        
-        var body: some View {
-            let formattedWaterLoss = calculateWaterLoss()
-            let roundedUpWaterLoss = Int(ceil(formattedWaterLoss))
-            
-            HStack {
-                Image(systemName: "drop.fill")
-                    .foregroundColor(.blue)
-                Text("Suggested H20: \(roundedUpWaterLoss) oz")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
-                Spacer()
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-        }
-    }
-
-    struct CalorieLossEstimationView: View {
-        @State var showCalorieLossEstimation = false
-        @State var calorieLoss: Double = 0.0
-        
-        var totalDurationInSeconds: TimeInterval
-        var temperature: Int
-        var bodyWeight: Double
-        var therapyType: TherapyType
-        
-        private func calculateCalorieLoss() -> Double {
-            let durationInMinutes = totalDurationInSeconds / 60.0
-            let burnRatePerMinute: Double
-            
-            switch therapyType {
-            case .drySauna:
-                burnRatePerMinute = 0.89 * bodyWeight / 150.0 // 0.42 is a base rate assuming a reference weight of 150 lbs
-            case .coldPlunge:
-                burnRatePerMinute = 2.75 * bodyWeight / 150.0 // 2.75 is a base rate assuming a reference weight of 150 lbs
-            case .meditation:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .hotYoga:
-                burnRatePerMinute = 4.5 * bodyWeight / 150.0 // 4.5 is a base rate assuming a reference weight of 150 lbs
-            case .running:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .stretching:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .weightTraining:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .coldShower:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .iceBath:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .coldYoga:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .deepBreathing:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .sleep:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            case .custom1, .custom2, .custom3, .custom4:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            default:
-                burnRatePerMinute = 1.0 * bodyWeight / 150.0 // 1.85 is a base rate assuming a reference weight of 150 lbs
-            }
-            
-            let tempAdjustmentFactor: Double
-            if temperature > 70 {
-                tempAdjustmentFactor = Double(temperature - 70) * 0.02
-            } else {
-                tempAdjustmentFactor = 1.0
-            }
-            
-            let calorieLoss = durationInMinutes * burnRatePerMinute * tempAdjustmentFactor
-            return calorieLoss
-        }
-        
-        
-        
-        var body: some View {
-            let formattedCalorieLoss = calculateCalorieLoss()
-            let roundedCalorieLoss = Int(ceil(formattedCalorieLoss))
-            
-            HStack {
-                Image(systemName: "flame.fill")
-                    .foregroundColor(.red)
-                Text("Calories Lost: ~ \(roundedCalorieLoss) cal")
-                    .foregroundColor(.white)
-                    .font(.system(size: 16))
-                Spacer()
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
-            .padding(.horizontal)
-        }
-    }
-
 }
