@@ -97,6 +97,7 @@ struct MainView: View {
     @State private var showEmptyState = false
     @State private var showTherapySelectorTooltip = false
     @State private var showStopwatchTooltip = false
+    @State private var showSafetyWarning = false
 
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
@@ -595,11 +596,27 @@ struct MainView: View {
                 }
                 }  // Close ScrollView
                 }  // Close else (empty state)
+
+                // Safety warning overlay (highest priority, shows first)
+                if showSafetyWarning {
+                    SafetyWarningView(onDismiss: {
+                        showSafetyWarning = false
+                        OnboardingManager.shared.markSafetyWarningSeen()
+
+                        // After dismissing safety warning, check for other onboarding
+                        if OnboardingManager.shared.shouldShowHabitsEmptyState {
+                            showEmptyState = true
+                        }
+                    })
+                }
             }  // Close ZStack
             }  // Close NavigationView
         .onAppear() {
-                // Check if should show onboarding
-                if OnboardingManager.shared.shouldShowHabitsEmptyState {
+                // Check if should show safety warning first (highest priority)
+                if OnboardingManager.shared.shouldShowSafetyWarning {
+                    showSafetyWarning = true
+                } else if OnboardingManager.shared.shouldShowHabitsEmptyState {
+                    // Check if should show onboarding
                     showEmptyState = true
                 } else {
                     // Show therapy selector tooltip if not shown before

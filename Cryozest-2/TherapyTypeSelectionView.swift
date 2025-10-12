@@ -10,6 +10,8 @@ struct TherapyTypeSelectionView: View {
     @State var alertTitle = ""
     @State var alertMessage = ""
     @State var selectedCategory: Category = Category.category0
+    @State private var showExtremeTempAlert = false
+    @State private var pendingExtremeTempTherapy: TherapyType?
     
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
@@ -209,7 +211,13 @@ struct TherapyTypeSelectionView: View {
                             if selectedTypes.contains(therapyType) {
                                 selectedTypes.removeAll(where: { $0 == therapyType })
                             } else if selectedTypes.count < 6 {
-                                selectedTypes.append(therapyType)
+                                // Check if this is an extreme temp therapy
+                                if isExtremeTempTherapy(therapyType) {
+                                    pendingExtremeTempTherapy = therapyType
+                                    showExtremeTempAlert = true
+                                } else {
+                                    selectedTypes.append(therapyType)
+                                }
                             } else {
                                 // user tried to select a 5th type
                                 alertTitle = "Too Many Types"
@@ -305,6 +313,19 @@ struct TherapyTypeSelectionView: View {
                 CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType), customTherapyNames: $customTherapyNames)
             }
         }
+        .alert("Device Safety Warning", isPresented: $showExtremeTempAlert) {
+            Button("Cancel", role: .cancel) {
+                pendingExtremeTempTherapy = nil
+            }
+            Button("I Understand") {
+                if let therapy = pendingExtremeTempTherapy {
+                    selectedTypes.append(therapy)
+                    pendingExtremeTempTherapy = nil
+                }
+            }
+        } message: {
+            Text("Never bring your iPhone or Apple Watch into extreme temperatures. Apple devices operate safely between 32°F - 95°F (0°C - 35°C). Start your timer BEFORE entering, then leave your device outside.")
+        }
     }
     
     func fetchCustomTherapyNames() {
@@ -326,20 +347,24 @@ struct TherapyTypeSelectionView: View {
         if therapyType == .custom1 {
             return customTherapyNames[0]
         }
-        
+
         if therapyType == .custom2 {
             return customTherapyNames[1]
         }
-        
+
         if therapyType == .custom3 {
             return customTherapyNames[2]
         }
-        
+
         if therapyType == .custom4 {
             return customTherapyNames[3]
         }
-        
+
         return therapyType.displayName(managedObjectContext)
+    }
+
+    func isExtremeTempTherapy(_ therapy: TherapyType) -> Bool {
+        return [.drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath].contains(therapy)
     }
     
     // Saves a therapy type to Core Data.

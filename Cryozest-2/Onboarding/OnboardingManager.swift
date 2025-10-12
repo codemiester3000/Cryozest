@@ -21,6 +21,7 @@ class OnboardingManager {
     private let hasSeenTherapySelectorTooltipKey = "hasSeenTherapySelectorTooltip"
     private let hasSeenStopwatchTooltipKey = "hasSeenStopwatchTooltip"
     private let hasSeenMetricTooltipKey = "hasSeenMetricTooltip"
+    private let hasSeenSafetyWarningKey = "hasSeenSafetyWarning"
 
     private init() {}
 
@@ -94,6 +95,16 @@ class OnboardingManager {
         defaults.set(true, forKey: hasSeenMetricTooltipKey)
     }
 
+    // MARK: - Safety Warning
+
+    var shouldShowSafetyWarning: Bool {
+        !defaults.bool(forKey: hasSeenSafetyWarningKey)
+    }
+
+    func markSafetyWarningSeen() {
+        defaults.set(true, forKey: hasSeenSafetyWarningKey)
+    }
+
     // MARK: - Reset (for testing)
 
     func resetOnboarding() {
@@ -105,5 +116,6 @@ class OnboardingManager {
         defaults.removeObject(forKey: hasSeenTherapySelectorTooltipKey)
         defaults.removeObject(forKey: hasSeenStopwatchTooltipKey)
         defaults.removeObject(forKey: hasSeenMetricTooltipKey)
+        defaults.removeObject(forKey: hasSeenSafetyWarningKey)
     }
 }

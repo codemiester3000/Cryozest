@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import Combine
 
 struct WellnessCheckInCard: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var selectedRating: Int?
     @State private var hasSubmitted = false
     @State private var showFeedback = false
+    @State private var lastCheckedDate = Calendar.current.startOfDay(for: Date())
+
+    // Timer that fires every minute to check for day changes
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Group {
@@ -22,11 +27,42 @@ struct WellnessCheckInCard: View {
             }
         }
         .onAppear {
-            if WellnessRating.hasRatedToday(context: viewContext),
-               let todayRating = WellnessRating.getTodayRating(context: viewContext) {
-                selectedRating = Int(todayRating.rating)
-                hasSubmitted = true
+            checkAndLoadTodayRating()
+        }
+        .onReceive(timer) { _ in
+            checkForDayChange()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+            // Handles manual time changes, time zone changes, or day changes
+            checkForDayChange()
+        }
+    }
+
+    private func checkAndLoadTodayRating() {
+        if WellnessRating.hasRatedToday(context: viewContext),
+           let todayRating = WellnessRating.getTodayRating(context: viewContext) {
+            selectedRating = Int(todayRating.rating)
+            hasSubmitted = true
+        }
+        lastCheckedDate = Calendar.current.startOfDay(for: Date())
+    }
+
+    private func checkForDayChange() {
+        let currentStartOfDay = Calendar.current.startOfDay(for: Date())
+
+        // If the start of day has changed, it's a new day
+        if currentStartOfDay > lastCheckedDate {
+            lastCheckedDate = currentStartOfDay
+
+            // Reset the survey for the new day
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                selectedRating = nil
+                hasSubmitted = false
+                showFeedback = false
             }
+
+            // Check if user already rated today (edge case: rated at 00:01 after midnight)
+            checkAndLoadTodayRating()
         }
     }
 
