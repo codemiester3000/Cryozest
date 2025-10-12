@@ -10,6 +10,7 @@ struct DailyView: View {
     var appleWorkoutsService: AppleWorkoutsService
 
     @State private var selectedDate: Date = Date()
+    @State private var dragOffset: CGFloat = 0
 
     @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
@@ -48,6 +49,36 @@ struct DailyView: View {
     func triggerHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
+    }
+
+    private func goToPreviousDay() {
+        let calendar = Calendar.current
+        if let previousDay = calendar.date(byAdding: .day, value: -1, to: selectedDate) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                selectedDate = previousDay
+            }
+            triggerHapticFeedback()
+        }
+    }
+
+    private func goToNextDay() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let currentDay = calendar.startOfDay(for: selectedDate)
+
+        // Only navigate forward if not already at today
+        if currentDay < today {
+            if let nextDay = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    selectedDate = nextDay
+                }
+                triggerHapticFeedback()
+            }
+        }
+    }
+
+    private var isToday: Bool {
+        Calendar.current.isDate(selectedDate, inSameDayAs: Date())
     }
     
     var body: some View {
@@ -98,45 +129,65 @@ struct DailyView: View {
                 )
             } else {
                 ScrollView {
-                HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig)
-                    .padding(.top)
-                    .padding(.bottom, 5)
-                    .padding(.leading,10)
+                    VStack(spacing: 0) {
+                        HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig, isToday: isToday)
+                            .padding(.top)
+                            .padding(.bottom, 5)
+                            .padding(.leading,10)
 
-                DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
-                    .contextualTooltip(
-                        message: "Tap any metric to see detailed history and trends",
-                        isShowing: showMetricTooltip,
-                        arrowPosition: .top,
-                        accentColor: .cyan,
-                        onDismiss: {
-                            showMetricTooltip = false
-                            OnboardingManager.shared.markMetricTooltipSeen()
-                        }
-                    )
-                    .padding(.bottom, 12)
+                        DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
+                            .contextualTooltip(
+                                message: "Tap any metric to see detailed history and trends",
+                                isShowing: showMetricTooltip,
+                                arrowPosition: .top,
+                                accentColor: .cyan,
+                                onDismiss: {
+                                    showMetricTooltip = false
+                                    OnboardingManager.shared.markMetricTooltipSeen()
+                                }
+                            )
+                            .padding(.bottom, 12)
 
-                HeroScoresView(
-                    exertionScore: exertionModel.exertionScore,
-                    readinessScore: recoveryModel.recoveryScores.last ?? 0,
-                    sleepDuration: recoveryModel.previousNightSleepDuration,
-                    calculatedUpperBound: calculatedUpperBoundDailyView,
-                    onExertionTap: {
-                        triggerHapticFeedback()
-                        showingExertionPopover = true
-                    },
-                    onReadinessTap: {
-                        triggerHapticFeedback()
-                        showingRecoveryPopover = true
-                    },
-                    onSleepTap: {
-                        triggerHapticFeedback()
-                        showingSleepPopover = true
+                        HeroScoresView(
+                            exertionScore: exertionModel.exertionScore,
+                            readinessScore: recoveryModel.recoveryScores.last ?? 0,
+                            sleepDuration: recoveryModel.previousNightSleepDuration,
+                            calculatedUpperBound: calculatedUpperBoundDailyView,
+                            onExertionTap: {
+                                triggerHapticFeedback()
+                                showingExertionPopover = true
+                            },
+                            onReadinessTap: {
+                                triggerHapticFeedback()
+                                showingRecoveryPopover = true
+                            },
+                            onSleepTap: {
+                                triggerHapticFeedback()
+                                showingSleepPopover = true
+                            }
+                        )
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
                     }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 50)
+                        .onEnded { value in
+                            let horizontalAmount = value.translation.width
+                            let verticalAmount = value.translation.height
+
+                            // Only process horizontal swipes (not vertical scrolling)
+                            if abs(horizontalAmount) > abs(verticalAmount) {
+                                if horizontalAmount < 0 {
+                                    // Swipe left - go to previous day
+                                    goToPreviousDay()
+                                } else {
+                                    // Swipe right - go to next day (if not today)
+                                    goToNextDay()
+                                }
+                            }
+                        }
                 )
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-            }
             .refreshable {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
@@ -195,11 +246,11 @@ struct HeaderView: View {
     @ObservedObject var model: RecoveryGraphModel
     @Binding var selectedDate: Date
     @Binding var showingMetricConfig: Bool
+    let isToday: Bool
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .medium
+        formatter.dateFormat = "EEEE, MMM d"
         return formatter
     }
 
@@ -251,10 +302,47 @@ struct HeaderView: View {
 
                 Spacer()
 
-                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                DatePicker("", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
                     .labelsHidden()
                     .colorScheme(.dark)
             }
+
+            // Date indicator with swipe hint
+            HStack(spacing: 8) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.5))
+
+                Text(dateFormatter.string(from: selectedDate))
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.9))
+
+                if isToday {
+                    Text("Today")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .foregroundColor(.cyan)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule()
+                                .fill(Color.cyan.opacity(0.15))
+                        )
+                }
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.08))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+            )
 
             // Wellness Check-In Card
             WellnessCheckInCard()
