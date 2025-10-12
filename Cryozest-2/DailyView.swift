@@ -170,20 +170,20 @@ struct DailyView: View {
                         .padding(.bottom, 20)
                     }
                 }
-                .gesture(
-                    DragGesture(minimumDistance: 50)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 30)
                         .onEnded { value in
                             let horizontalAmount = value.translation.width
                             let verticalAmount = value.translation.height
 
                             // Only process horizontal swipes (not vertical scrolling)
-                            if abs(horizontalAmount) > abs(verticalAmount) {
+                            if abs(horizontalAmount) > abs(verticalAmount) * 2 {
                                 if horizontalAmount < 0 {
-                                    // Swipe left - go to previous day
-                                    goToPreviousDay()
-                                } else {
-                                    // Swipe right - go to next day (if not today)
+                                    // Swipe left - go to next day (if not today)
                                     goToNextDay()
+                                } else {
+                                    // Swipe right - go to previous day
+                                    goToPreviousDay()
                                 }
                             }
                         }
@@ -277,7 +277,7 @@ struct HeaderView: View {
                 }
             }
 
-            HStack {
+            HStack(spacing: 12) {
                 Button(action: {
                     showingMetricConfig = true
                 }) {
@@ -302,47 +302,43 @@ struct HeaderView: View {
 
                 Spacer()
 
-                DatePicker("", selection: $selectedDate, in: ...Date(), displayedComponents: .date)
-                    .labelsHidden()
-                    .colorScheme(.dark)
-            }
+                // Date indicator with swipe hint
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.5))
 
-            // Date indicator with swipe hint
-            HStack(spacing: 8) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.5))
+                    Text(dateFormatter.string(from: selectedDate))
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
 
-                Text(dateFormatter.string(from: selectedDate))
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.9))
+                    if isToday {
+                        Text("Today")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundColor(.cyan)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(Color.cyan.opacity(0.15))
+                            )
+                    }
 
-                if isToday {
-                    Text("Today")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundColor(.cyan)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(
-                            Capsule()
-                                .fill(Color.cyan.opacity(0.15))
-                        )
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
                 }
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-            )
 
             // Wellness Check-In Card
             WellnessCheckInCard()

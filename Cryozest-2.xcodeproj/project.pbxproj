@@ -76,6 +76,7 @@
 		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
 		C57F62822B422E93004515EA /* ExertionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57F62812B422E93004515EA /* ExertionView.swift */; };
 		C58619462E97206B0002428A /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58619452E97206B0002428A /* SplashScreenView.swift */; };
+		C597B7002E9C6FC40010E62F /* SafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */; };
 		C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C598129F2B41007100C13C15 /* TherapyTypeClass.swift */; };
 		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
 		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
@@ -186,6 +187,7 @@
 		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
 		C57F62812B422E93004515EA /* ExertionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExertionView.swift; sourceTree = "<group>"; };
 		C58619452E97206B0002428A /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyWarningView.swift; sourceTree = "<group>"; };
 		C598129F2B41007100C13C15 /* TherapyTypeClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeClass.swift; sourceTree = "<group>"; };
 		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 				C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */,
 				C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */,
 				C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */,
+				C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -589,6 +592,7 @@
 				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
 				C56DDCEB2E9854930052946A /* InsightCardComponents.swift in Sources */,
 				C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */,
+				C597B7002E9C6FC40010E62F /* SafetyWarningView.swift in Sources */,
 				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
 				C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */,
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
