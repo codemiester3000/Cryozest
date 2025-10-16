@@ -277,8 +277,9 @@ struct WellnessImpactCard: View {
                     .fill(impact.habitType.color.opacity(0.2))
                     .frame(width: 50, height: 50)
 
-                Text(impact.habitType.icon)
+                Image(systemName: impact.habitType.icon)
                     .font(.system(size: 24))
+                    .foregroundColor(impact.habitType.color)
             }
 
             VStack(alignment: .leading, spacing: 4) {

@@ -192,6 +192,7 @@ struct AnalysisView: View {
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
     
     func getCurrentStreak(for therapyType: TherapyType) -> Int {

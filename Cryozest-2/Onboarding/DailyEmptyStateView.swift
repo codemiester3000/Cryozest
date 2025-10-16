@@ -65,40 +65,32 @@ struct DailyEmptyStateView: View {
 
             Spacer()
 
-            // Action buttons
-            VStack(spacing: 12) {
-                Button(action: onEnableHealthKit) {
-                    HStack(spacing: 12) {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 18))
-                        Text("Enable Health Tracking")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.cyan,
-                                Color.cyan.opacity(0.8)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+            // Action button
+            Button(action: onEnableHealthKit) {
+                HStack(spacing: 12) {
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.system(size: 18))
+                    Text("Continue")
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.cyan,
+                            Color.cyan.opacity(0.8)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                    .cornerRadius(14)
-                    .shadow(color: Color.cyan.opacity(0.4), radius: 12, x: 0, y: 6)
-                }
-
-                Button(action: onDismiss) {
-                    Text("Maybe Later")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.6))
-                }
-                .padding(.bottom, 20)
+                )
+                .cornerRadius(14)
+                .shadow(color: Color.cyan.opacity(0.4), radius: 12, x: 0, y: 6)
             }
             .padding(.horizontal, 32)
+            .padding(.bottom, 80)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(

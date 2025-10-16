@@ -611,6 +611,7 @@ struct MainView: View {
                 }
             }  // Close ZStack
             }  // Close NavigationView
+        .navigationViewStyle(.stack)
         .onAppear() {
                 // Check if should show safety warning first (highest priority)
                 if OnboardingManager.shared.shouldShowSafetyWarning {

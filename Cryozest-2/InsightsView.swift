@@ -81,6 +81,7 @@ struct InsightsView: View {
                 }
             }
         }
+        .navigationViewStyle(.stack)
         .onAppear {
             // Initialize viewModel on appear with actual sessions
             if viewModelWrapper.viewModel == nil {
