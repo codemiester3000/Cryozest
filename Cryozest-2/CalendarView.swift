@@ -22,16 +22,19 @@ struct CalendarView: UIViewRepresentable {
         calendar.appearance.headerTitleColor = .white
         calendar.appearance.titleDefaultColor = .white
         calendar.appearance.selectionColor = UIColor.red
-        
-        // Reduce font size for less clutter
-        calendar.appearance.titleFont = UIFont.boldSystemFont(ofSize: 14)
-        calendar.appearance.headerTitleFont = UIFont.boldSystemFont(ofSize: 18)
-        
-        // Hide weekdays
-        // calendar.weekdayHeight = 0.1
+
+        // Compact font sizes
+        calendar.appearance.titleFont = UIFont.systemFont(ofSize: 12, weight: .medium)
+        calendar.appearance.headerTitleFont = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        calendar.appearance.weekdayFont = UIFont.systemFont(ofSize: 10, weight: .regular)
+
+        // Reduce spacing for compact view
+        calendar.weekdayHeight = 20
+        calendar.headerHeight = 35
+
         // Set todayColor to clear
-        // calendar.appearance.todayColor = .clear
-        calendar.appearance.weekdayTextColor = .white.withAlphaComponent(0.6)
+        calendar.appearance.todayColor = .clear
+        calendar.appearance.weekdayTextColor = .white.withAlphaComponent(0.5)
 
         // Hide out-of-month dates
         calendar.placeholderType = .none
