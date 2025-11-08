@@ -205,11 +205,7 @@ struct MedicationRow: View {
     var body: some View {
         HStack(spacing: 12) {
             // Checkbox
-            Button(action: {
-                if isToday {
-                    onToggle()
-                }
-            }) {
+            Button(action: onToggle) {
                 ZStack {
                     Circle()
                         .fill(isTaken ? Color.green.opacity(0.25) : Color.white.opacity(0.08))
@@ -226,7 +222,6 @@ struct MedicationRow: View {
                     }
                 }
             }
-            .disabled(!isToday)
 
             // Medication info
             VStack(alignment: .leading, spacing: 4) {
