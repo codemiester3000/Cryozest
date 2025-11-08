@@ -344,18 +344,18 @@ struct MoodHeatmap: View {
         return nil
     }
 
-    // Get color for rating
+    // Get color for rating - red to green gradient
     private func colorForRating(_ rating: Int?) -> Color {
         guard let rating = rating else {
             return Color.white.opacity(0.1)
         }
 
         switch rating {
-        case 5: return Color.green
-        case 4: return Color.cyan
-        case 3: return Color.yellow
-        case 2: return Color.orange
-        case 1: return Color.red.opacity(0.8)
+        case 5: return Color.green                           // Best
+        case 4: return Color(red: 0.6, green: 0.9, blue: 0.3) // Yellow-green
+        case 3: return Color.yellow                           // Neutral
+        case 2: return Color.orange                           // Orange-red
+        case 1: return Color.red                              // Worst
         default: return Color.white.opacity(0.1)
         }
     }
@@ -414,11 +414,11 @@ struct MoodLegendItem: View {
 
     private var color: Color {
         switch rating {
-        case 5: return .green
-        case 4: return .cyan
-        case 3: return .yellow
-        case 2: return .orange
-        case 1: return .red.opacity(0.8)
+        case 5: return .green                           // Best
+        case 4: return Color(red: 0.6, green: 0.9, blue: 0.3) // Yellow-green
+        case 3: return .yellow                           // Neutral
+        case 2: return .orange                           // Orange-red
+        case 1: return .red                              // Worst
         default: return .white.opacity(0.1)
         }
     }
