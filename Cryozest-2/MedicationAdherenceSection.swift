@@ -373,37 +373,34 @@ struct IndividualMedicationCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
-            Button(action: onToggleExpand) {
-                HStack {
-                    HStack(spacing: 12) {
-                        Image(systemName: "pills.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.green)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color.green.opacity(0.2))
-                            )
+            HStack {
+                HStack(spacing: 12) {
+                    Image(systemName: "pills.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.green)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.green.opacity(0.2))
+                        )
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(medication.name ?? "Medication")
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                .foregroundColor(.white)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(medication.name ?? "Medication")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
 
-                            Text("\(adherencePercentage)% adherence")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
-                                .foregroundColor(adherencePercentage >= 80 ? .green : .orange)
-                        }
+                        Text("\(adherencePercentage)% adherence")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(adherencePercentage >= 80 ? .green : .orange)
                     }
-
-                    Spacer()
-
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.5))
                 }
+
+                Spacer()
+
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.5))
             }
-            .buttonStyle(PlainButtonStyle())
 
             // Expanded content
             if isExpanded {
@@ -461,5 +458,9 @@ struct IndividualMedicationCard: View {
                         .stroke(Color.green.opacity(0.2), lineWidth: 1)
                 )
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onToggleExpand()
+        }
     }
 }
