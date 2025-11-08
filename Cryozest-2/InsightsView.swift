@@ -156,6 +156,15 @@ struct InsightsView: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal)
 
+                // Medication Adherence Section
+                MedicationAdherenceSection()
+                    .environment(\.managedObjectContext, viewContext)
+
+                Divider()
+                    .background(Color.white.opacity(0.2))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
+
                 // Health Trends Section (always show if available)
                 if !viewModel.healthTrends.isEmpty {
                     VStack(alignment: .leading, spacing: 16) {

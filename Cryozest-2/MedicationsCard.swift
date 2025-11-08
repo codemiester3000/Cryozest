@@ -202,15 +202,6 @@ struct MedicationRow: View {
         medication.frequency ?? "Daily"
     }
 
-    private var adherencePercentage: Double {
-        guard let medId = medication.id else { return 0 }
-        return MedicationIntake.getAdherencePercentage(
-            medicationId: medId,
-            days: 7,
-            context: viewContext
-        )
-    }
-
     var body: some View {
         HStack(spacing: 12) {
             // Checkbox
@@ -244,20 +235,9 @@ struct MedicationRow: View {
                     .foregroundColor(.white)
                     .strikethrough(isTaken, color: .white.opacity(0.5))
 
-                HStack(spacing: 8) {
-                    Text(frequencyDisplay)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.5))
-
-                    if adherencePercentage > 0 {
-                        Text("•")
-                            .foregroundColor(.white.opacity(0.3))
-
-                        Text("\(Int(adherencePercentage))% adherence")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(adherencePercentage >= 80 ? .green : .orange)
-                    }
-                }
+                Text(frequencyDisplay)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.5))
             }
 
             Spacer()
