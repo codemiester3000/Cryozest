@@ -246,6 +246,8 @@ struct HeaderView: View {
     @Binding var showingMetricConfig: Bool
     let isToday: Bool
 
+    @State private var showingDatePicker = false
+
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMM d"
@@ -301,41 +303,49 @@ struct HeaderView: View {
                 Spacer()
 
                 // Date indicator with swipe hint
-                HStack(spacing: 8) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.5))
+                Button(action: {
+                    showingDatePicker = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
 
-                    Text(dateFormatter.string(from: selectedDate))
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.9))
+                        Text(dateFormatter.string(from: selectedDate))
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
 
-                    if isToday {
-                        Text("Today")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundColor(.cyan)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(
-                                Capsule()
-                                    .fill(Color.cyan.opacity(0.15))
-                            )
+                        if isToday {
+                            Text("Today")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundColor(.cyan)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.cyan.opacity(0.15))
+                                )
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
                     }
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white.opacity(0.08))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
+                    )
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white.opacity(0.08))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                        )
-                )
+                .buttonStyle(PlainButtonStyle())
+            }
+            .sheet(isPresented: $showingDatePicker) {
+                DatePickerSheet(selectedDate: $selectedDate)
             }
 
             // Wellness Check-In Card
@@ -1135,6 +1145,96 @@ struct ProgressButtonView: View {
                 withAnimation {
                     cachedProgress = newValue
                     hasNewData = true
+                }
+            }
+        }
+    }
+}
+
+struct DatePickerSheet: View {
+    @Binding var selectedDate: Date
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 0.05, green: 0.15, blue: 0.25),
+                        Color(red: 0.1, green: 0.2, blue: 0.35),
+                        Color(red: 0.15, green: 0.25, blue: 0.4)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    // Calendar icon
+                    Image(systemName: "calendar")
+                        .font(.system(size: 48, weight: .semibold))
+                        .foregroundColor(.cyan)
+                        .padding(20)
+                        .background(
+                            Circle()
+                                .fill(Color.cyan.opacity(0.15))
+                        )
+                        .padding(.top, 40)
+
+                    Text("Select Date")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    // Date Picker
+                    DatePicker(
+                        "Date",
+                        selection: $selectedDate,
+                        in: ...Date(),
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                    .colorScheme(.dark)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                    .padding(.horizontal, 24)
+
+                    Spacer()
+
+                    // Done button
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("Done")
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.cyan)
+                            )
+                            .shadow(color: Color.cyan.opacity(0.4), radius: 10, x: 0, y: 5)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
                 }
             }
         }
