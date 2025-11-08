@@ -535,30 +535,102 @@ class HealthKitManager {
             completion(nil, NSError(domain: "com.yourapp.HealthKitManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Health data is not available on this device."]))
             return
         }
-        
+
         // Define the type for step count
         let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-        
+
         // Use the provided date to set the start and end date
         let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date) // Use the 'date' parameter instead of 'now'
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-        
-        // Create a predicate to fetch step count data for the specified date
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        
+        let startOfDay = calendar.startOfDay(for: date)
+
+        // For today, use current time as end. For past dates, use end of day
+        let endDate: Date
+        if calendar.isDateInToday(date) {
+            endDate = Date() // Current time for today
+        } else {
+            endDate = calendar.date(byAdding: .day, value: 1, to: startOfDay)! // End of day for past dates
+        }
+
+        print("🚶 Fetching steps for date: \(date)")
+        print("🚶 Start: \(startOfDay), End: \(endDate)")
+
+        // Create a predicate to fetch step count data for the specified date range
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endDate, options: [])
+
         // Create a query to fetch step count samples
         let query = HKStatisticsQuery(quantityType: stepType, quantitySamplePredicate: predicate, options: .cumulativeSum) { (_, result, error) in
-            guard let result = result, let sum = result.sumQuantity() else {
+            if let error = error {
+                print("🚶 Error fetching steps: \(error.localizedDescription)")
                 completion(nil, error)
                 return
             }
-            
+
+            guard let result = result, let sum = result.sumQuantity() else {
+                print("🚶 No step data found")
+                completion(0, nil)
+                return
+            }
+
             let stepCount = sum.doubleValue(for: HKUnit.count())
+            print("🚶 Steps found: \(stepCount)")
             completion(stepCount, nil)
         }
-        
+
         // Assuming 'healthStore' is previously initialized and available
+        self.healthStore.execute(query)
+    }
+
+    func fetchStepsForLastNDays(numberOfDays: Int, completion: @escaping ([Date: Double]) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion([:])
+            return
+        }
+
+        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: Date())
+        guard let startDate = calendar.date(byAdding: .day, value: -numberOfDays + 1, to: endDate) else {
+            completion([:])
+            return
+        }
+
+        var anchorComponents = calendar.dateComponents([.day, .month, .year], from: Date())
+        anchorComponents.hour = 0
+        guard let anchorDate = calendar.date(from: anchorComponents) else {
+            completion([:])
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: Date(), options: .strictStartDate)
+
+        let query = HKStatisticsCollectionQuery(
+            quantityType: stepType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum,
+            anchorDate: anchorDate,
+            intervalComponents: DateComponents(day: 1)
+        )
+
+        query.initialResultsHandler = { _, results, error in
+            guard let results = results else {
+                print("Error fetching steps history: \(error?.localizedDescription ?? "Unknown error")")
+                completion([:])
+                return
+            }
+
+            var stepsByDate: [Date: Double] = [:]
+            results.enumerateStatistics(from: startDate, to: Date()) { statistics, _ in
+                if let sum = statistics.sumQuantity() {
+                    let steps = sum.doubleValue(for: HKUnit.count())
+                    stepsByDate[statistics.startDate] = steps
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(stepsByDate)
+            }
+        }
+
         self.healthStore.execute(query)
     }
 

@@ -112,19 +112,18 @@ struct DailyView: View {
                 DailyEmptyStateView(
                     onEnableHealthKit: {
                         HealthKitManager.shared.requestAuthorization { success, error in
+                            // Always mark as seen and hide empty state after permission request
+                            showEmptyState = false
+                            OnboardingManager.shared.markDailyTabSeen()
+
                             if success {
-                                showEmptyState = false
-                                OnboardingManager.shared.markDailyTabSeen()
                                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                                 sleepModel.fetchSleepData(forDate: selectedDate)
+                            } else {
+                                showMetricTooltip = true
                             }
                         }
-                    },
-                    onDismiss: {
-                        showEmptyState = false
-                        OnboardingManager.shared.markDailyTabSeen()
-                        showMetricTooltip = true
                     }
                 )
             } else {
@@ -213,8 +212,7 @@ struct DailyView: View {
             if OnboardingManager.shared.shouldShowDailyEmptyState {
                 showEmptyState = true
             } else {
-                // Only request HealthKit if user has already dismissed the empty state
-                // This means they've either granted permission or chosen to skip
+                // User has already seen the onboarding, check if they granted HealthKit permissions
                 HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
                     if isAuthorized {
                         recoveryModel.pullAllRecoveryData(forDate: selectedDate)
@@ -341,7 +339,7 @@ struct HeaderView: View {
             }
 
             // Wellness Check-In Card
-            WellnessCheckInCard()
+            WellnessCheckInCard(selectedDate: $selectedDate)
                 .padding(.top, 12)
         }
         .padding(.horizontal)
@@ -415,136 +413,134 @@ struct DailyGridMetrics: View {
     var body: some View {
         ZStack {
             if expandedMetric == nil {
-                // Grid layout when nothing is expanded
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
-                    if configManager.isEnabled(.hrv) {
-                        GridItemView(
-                            symbolName: "waveform.path.ecg",
-                            title: "Avg HRV",
-                            value: "\(model.lastKnownHRV)",
-                            unit: "ms",
-                            metricType: .hrv,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
-
-                    if configManager.isEnabled(.rhr) {
-                        GridItemView(
-                            symbolName: "arrow.down.heart",
-                            title: "Avg RHR",
-                            value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                            unit: "bpm",
-                            metricType: .rhr,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
-
-                    if configManager.isEnabled(.spo2) {
-                        GridItemView(
-                            symbolName: "drop",
-                            title: "Blood Oxygen",
-                            value: formatSPO2Value(model.mostRecentSPO2),
-                            unit: "%",
-                            metricType: .spo2,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
-
-                    if configManager.isEnabled(.respiratoryRate) {
-                        GridItemView(
-                            symbolName: "lungs",
-                            title: "Respiratory Rate",
-                            value: formatRespRateValue(model.mostRecentRespiratoryRate),
-                            unit: "BrPM",
-                            metricType: .respiratoryRate,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
-
-                    if configManager.isEnabled(.calories) {
-                        GridItemView(
-                            symbolName: "flame",
-                            title: "Calories Burned",
-                            value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
-                            unit: "kcal",
-                            metricType: .calories,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
-
+                // Layout when nothing is expanded
+                VStack(spacing: 12) {
+                    // Large Steps Widget (full width)
                     if configManager.isEnabled(.steps) {
-                        GridItemView(
-                            symbolName: "figure.walk",
-                            title: "Steps",
-                            value: "\(model.mostRecentSteps.map(Int.init) ?? 0)",
-                            unit: "steps",
-                            metricType: .steps,
+                        LargeStepsWidget(
                             model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
+                            expandedMetric: $expandedMetric
                         )
                     }
 
-                    if configManager.isEnabled(.vo2Max) {
-                        GridItemView(
-                            symbolName: "lungs",
-                            title: "VO2 Max",
-                            value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
-                            unit: "ml/kg/min",
-                            metricType: .vo2Max,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
+                    // Grid layout for other metrics
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
+                        if configManager.isEnabled(.hrv) {
+                            GridItemView(
+                                symbolName: "waveform.path.ecg",
+                                title: "Avg HRV",
+                                value: "\(model.lastKnownHRV)",
+                                unit: "ms",
+                                metricType: .hrv,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
 
-                    if configManager.isEnabled(.deepSleep) {
-                        GridItemView(
-                            symbolName: "bed.double.fill",
-                            title: "Deep Sleep",
-                            value: sleepModel.totalDeepSleep,
-                            unit: "hrs",
-                            metricType: .deepSleep,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
+                        if configManager.isEnabled(.rhr) {
+                            GridItemView(
+                                symbolName: "arrow.down.heart",
+                                title: "Avg RHR",
+                                value: "\(model.mostRecentRestingHeartRate ?? 0)",
+                                unit: "bpm",
+                                metricType: .rhr,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
 
-                    if configManager.isEnabled(.remSleep) {
-                        GridItemView(
-                            symbolName: "moon.stars.fill",
-                            title: "REM Sleep",
-                            value: sleepModel.totalRemSleep,
-                            unit: "hrs",
-                            metricType: .remSleep,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
-                    }
+                        if configManager.isEnabled(.spo2) {
+                            GridItemView(
+                                symbolName: "drop",
+                                title: "Blood Oxygen",
+                                value: formatSPO2Value(model.mostRecentSPO2),
+                                unit: "%",
+                                metricType: .spo2,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
 
-                    if configManager.isEnabled(.coreSleep) {
-                        GridItemView(
-                            symbolName: "moon.fill",
-                            title: "Core Sleep",
-                            value: sleepModel.totalCoreSleep,
-                            unit: "hrs",
-                            metricType: .coreSleep,
-                            model: model,
-                            expandedMetric: $expandedMetric,
-                            namespace: animation
-                        )
+                        if configManager.isEnabled(.respiratoryRate) {
+                            GridItemView(
+                                symbolName: "lungs",
+                                title: "Respiratory Rate",
+                                value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                                unit: "BrPM",
+                                metricType: .respiratoryRate,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
+
+                        if configManager.isEnabled(.calories) {
+                            GridItemView(
+                                symbolName: "flame",
+                                title: "Calories Burned",
+                                value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+                                unit: "kcal",
+                                metricType: .calories,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
+
+                        if configManager.isEnabled(.vo2Max) {
+                            GridItemView(
+                                symbolName: "lungs",
+                                title: "VO2 Max",
+                                value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
+                                unit: "ml/kg/min",
+                                metricType: .vo2Max,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
+
+                        if configManager.isEnabled(.deepSleep) {
+                            GridItemView(
+                                symbolName: "bed.double.fill",
+                                title: "Deep Sleep",
+                                value: sleepModel.totalDeepSleep,
+                                unit: "hrs",
+                                metricType: .deepSleep,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
+
+                        if configManager.isEnabled(.remSleep) {
+                            GridItemView(
+                                symbolName: "moon.stars.fill",
+                                title: "REM Sleep",
+                                value: sleepModel.totalRemSleep,
+                                unit: "hrs",
+                                metricType: .remSleep,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
+
+                        if configManager.isEnabled(.coreSleep) {
+                            GridItemView(
+                                symbolName: "moon.fill",
+                                title: "Core Sleep",
+                                value: sleepModel.totalCoreSleep,
+                                unit: "hrs",
+                                metricType: .coreSleep,
+                                model: model,
+                                expandedMetric: $expandedMetric,
+                                namespace: animation
+                            )
+                        }
                     }
                 }
                 .transition(.opacity)
