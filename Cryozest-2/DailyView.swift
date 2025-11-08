@@ -163,7 +163,10 @@ struct DailyView: View {
                             onSleepTap: {
                                 triggerHapticFeedback()
                                 showingSleepPopover = true
-                            }
+                            },
+                            recoveryMinutes: exertionModel.recoveryMinutes,
+                            conditioningMinutes: exertionModel.conditioningMinutes,
+                            overloadMinutes: exertionModel.overloadMinutes
                         )
                         .padding(.horizontal)
                         .padding(.bottom, 20)
@@ -875,6 +878,11 @@ struct HeroScoresView: View {
 
     @ObservedObject var configManager = MetricConfigurationManager.shared
 
+    // Additional data for expanded cards (optional, provide defaults)
+    var recoveryMinutes: Double = 0
+    var conditioningMinutes: Double = 0
+    var overloadMinutes: Double = 0
+
     private var enabledScores: [HeroScore] {
         HeroScore.allCases.filter { configManager.isEnabled($0) }
     }
@@ -892,13 +900,9 @@ struct HeroScoresView: View {
     var body: some View {
         if enabledScores.isEmpty {
             EmptyView()
-        } else if enabledScores.count == 1 {
-            // Single score: Full width card
-            scoreCard(for: enabledScores[0])
-                .frame(maxWidth: .infinity)
         } else {
-            // Multiple scores: Horizontal layout
-            HStack(spacing: 12) {
+            // All scores stacked vertically (full width)
+            VStack(spacing: 12) {
                 ForEach(enabledScores) { heroScore in
                     scoreCard(for: heroScore)
                 }
@@ -911,33 +915,43 @@ struct HeroScoresView: View {
         switch heroScore {
         case .exertion:
             if configManager.isEnabled(.exertion) {
-                ScoreCardView(
+                ExpandedHeroCard(
                     title: "Exertion",
                     score: Int((exertionScore / calculatedUpperBound) * 100),
                     icon: "flame.fill",
                     color: .orange,
+                    subtitle: exertionScore > 0 ? String(format: "%.1f of %.1f target", exertionScore, calculatedUpperBound) : "No data today",
+                    details: exertionScore > 0 ? [
+                        ("Light", "\(Int(recoveryMinutes)) min", Color.teal),
+                        ("Moderate", "\(Int(conditioningMinutes)) min", Color.green),
+                        ("Intense", "\(Int(overloadMinutes)) min", Color.red)
+                    ] : [],
                     requiresAppleWatch: true,
                     action: onExertionTap
                 )
             }
         case .readiness:
             if configManager.isEnabled(.readiness) {
-                ScoreCardView(
+                ExpandedHeroCard(
                     title: "Readiness",
                     score: readinessScore,
                     icon: "bolt.fill",
                     color: .green,
+                    subtitle: readinessScore > 0 ? "Ready to train" : "No data today",
+                    details: [],
                     requiresAppleWatch: true,
                     action: onReadinessTap
                 )
             }
         case .sleep:
             if configManager.isEnabled(.sleep) {
-                ScoreCardView(
+                ExpandedHeroCard(
                     title: "Sleep",
                     score: sleepDurationScore,
                     icon: "bed.double.fill",
                     color: .purple,
+                    subtitle: sleepDuration != nil ? "\(sleepDuration!) hours" : "No data today",
+                    details: [],
                     requiresAppleWatch: true,
                     action: onSleepTap
                 )
@@ -1008,6 +1022,110 @@ struct ScoreCardView: View {
             )
             .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 4)
             .scaleEffect(isPressed ? 0.95 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+    }
+}
+
+struct ExpandedHeroCard: View {
+    let title: String
+    let score: Int
+    let icon: String
+    let color: Color
+    let subtitle: String
+    let details: [(label: String, value: String, color: Color)]
+    let requiresAppleWatch: Bool
+    let action: () -> Void
+
+    @State private var isPressed = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                // Left side: Icon and score
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(color.opacity(0.2))
+                            .frame(width: 56, height: 56)
+
+                        Image(systemName: icon)
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundColor(color)
+                    }
+
+                    Text("\(score)")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 80)
+
+                // Right side: Title, subtitle, and details
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(title)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text(subtitle)
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    if !details.isEmpty {
+                        HStack(spacing: 12) {
+                            ForEach(details.indices, id: \.self) { index in
+                                HStack(spacing: 4) {
+                                    Circle()
+                                        .fill(details[index].color)
+                                        .frame(width: 6, height: 6)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(details[index].label)
+                                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.5))
+
+                                        Text(details[index].value)
+                                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.top, 4)
+                    }
+                }
+
+                Spacer()
+
+                // Chevron
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.3))
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.08)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(color.opacity(0.3), lineWidth: 1)
+                    )
+            )
+            .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 4)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
         .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in

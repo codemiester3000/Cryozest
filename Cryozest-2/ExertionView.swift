@@ -42,6 +42,8 @@ struct ExertionRingView: View {
 
 struct ExertionBarView: View {
     var label: String
+    var description: String
+    var zoneRange: String
     var minutes: Double
     var color: Color
     var fullScaleTime: Double
@@ -49,13 +51,26 @@ struct ExertionBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(label)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(label)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text(description)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                }
                 Spacer()
-                Text("\(Int(minutes)) min")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundColor(color)
+
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("\(Int(minutes)) min")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(color)
+
+                    Text(zoneRange)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.4))
+                }
             }
 
             GeometryReader { geometry in
@@ -370,9 +385,30 @@ struct ExertionView: View {
 
                     // Exertion categories
                     VStack(spacing: 10) {
-                        ExertionBarView(label: "Recovery", minutes: exertionModel.recoveryMinutes, color: .teal, fullScaleTime: 30.0)
-                        ExertionBarView(label: "Conditioning", minutes: exertionModel.conditioningMinutes, color: .green, fullScaleTime: 45.0)
-                        ExertionBarView(label: "High Intensity", minutes: exertionModel.overloadMinutes, color: .red, fullScaleTime: 20.0)
+                        ExertionBarView(
+                            label: "Light Activity",
+                            description: "Easy pace, conversational",
+                            zoneRange: "Zone 1",
+                            minutes: exertionModel.recoveryMinutes,
+                            color: .teal,
+                            fullScaleTime: 30.0
+                        )
+                        ExertionBarView(
+                            label: "Moderate Activity",
+                            description: "Building fitness, steady effort",
+                            zoneRange: "Zones 2-3",
+                            minutes: exertionModel.conditioningMinutes,
+                            color: .green,
+                            fullScaleTime: 45.0
+                        )
+                        ExertionBarView(
+                            label: "Vigorous Activity",
+                            description: "High effort, pushing limits",
+                            zoneRange: "Zones 4-5",
+                            minutes: exertionModel.overloadMinutes,
+                            color: .red,
+                            fullScaleTime: 20.0
+                        )
                     }
                     .padding(.horizontal, 20)
 
