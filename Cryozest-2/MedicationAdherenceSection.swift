@@ -138,10 +138,28 @@ struct MedicationAdherenceSection: View {
                         .padding(.top, 8)
 
                         // Legend
-                        HStack(spacing: 16) {
-                            LegendItem(color: .green, label: "All taken")
-                            LegendItem(color: .orange, label: "Some taken")
-                            LegendItem(color: .red.opacity(0.6), label: "None taken")
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 16) {
+                                LegendItem(color: .green, label: "All taken")
+                                LegendItem(color: .orange, label: "Some taken")
+                                LegendItem(color: .red.opacity(0.6), label: "None taken")
+                            }
+
+                            HStack(spacing: 6) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.green)
+                                        .frame(width: 12, height: 12)
+
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(Color.white, lineWidth: 1.5)
+                                        .frame(width: 12, height: 12)
+                                }
+
+                                Text("White border = Today")
+                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                         }
                         .padding(.top, 8)
                     }
@@ -235,10 +253,20 @@ struct AdherenceHeatmap: View {
                             if index < days.count {
                                 let date = days[index]
                                 let adherence = getAdherence(date)
+                                let isToday = Calendar.current.isDateInToday(date)
 
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(adherence.color)
-                                    .frame(height: 16)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(adherence.color)
+                                        .frame(height: 16)
+
+                                    // Today indicator ring
+                                    if isToday {
+                                        RoundedRectangle(cornerRadius: 3)
+                                            .stroke(Color.white, lineWidth: 2)
+                                            .frame(height: 16)
+                                    }
+                                }
                             } else {
                                 RoundedRectangle(cornerRadius: 3)
                                     .fill(Color.clear)
