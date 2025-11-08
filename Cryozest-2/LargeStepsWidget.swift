@@ -82,11 +82,11 @@ struct LargeStepsWidget: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text("\(currentSteps)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 40, weight: .bold, design: .rounded))
                         .foregroundColor(animate ? progressColor : .white)
 
                     Text("/ \(goalManager.dailyStepGoal)")
-                        .font(.system(size: 24, weight: .medium, design: .rounded))
+                        .font(.system(size: 20, weight: .medium, design: .rounded))
                         .foregroundColor(.white.opacity(0.5))
                 }
 
