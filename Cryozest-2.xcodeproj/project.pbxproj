@@ -12,11 +12,13 @@
 		33CE4E24AAC70E0D6B0D4158 /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
 		387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */; };
 		3ECF4464BB63682D1E0C0CE6 /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
+		465E4C16B7D3810BED3BB79B /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
 		479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
+		A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
 		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
 		C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F52E97484200031B6B /* MetricConfiguration.swift */; };
 		C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F72E97485900031B6B /* MetricConfigurationView.swift */; };
@@ -101,6 +103,7 @@
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
 		C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */; };
 		D77245F9A115B2F0807D0A6F /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
+		E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
 		FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 /* End PBXBuildFile section */
 
@@ -126,6 +129,7 @@
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
+		5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletedHabitsCard.swift; path = "Cryozest-2/CompletedHabitsCard.swift"; sourceTree = SOURCE_ROOT; };
 		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
 		8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalConfigView.swift; path = "Cryozest-2/StepGoalConfigView.swift"; sourceTree = SOURCE_ROOT; };
 		C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalManager.swift; path = "Cryozest-2/StepGoalManager.swift"; sourceTree = SOURCE_ROOT; };
@@ -280,6 +284,7 @@
 				C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */,
 				8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */,
 				C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */,
+				5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -617,6 +622,7 @@
 				9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */,
 				57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */,
 				3ECF4464BB63682D1E0C0CE6 /* LargeStepsWidget.swift in Sources */,
+				E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -628,6 +634,7 @@
 				75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */,
 				FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */,
 				D77245F9A115B2F0807D0A6F /* LargeStepsWidget.swift in Sources */,
+				A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,6 +647,7 @@
 				8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */,
 				479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */,
 				33CE4E24AAC70E0D6B0D4158 /* LargeStepsWidget.swift in Sources */,
+				465E4C16B7D3810BED3BB79B /* CompletedHabitsCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

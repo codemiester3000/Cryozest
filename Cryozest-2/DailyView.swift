@@ -263,18 +263,6 @@ struct HeaderView: View {
                     .foregroundColor(.white)
 
                 Spacer()
-
-                NavigationLink(destination: TherapyTypeSelectionView()) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.cyan)
-                    }
-                }
             }
 
             HStack(spacing: 12) {
@@ -350,6 +338,10 @@ struct HeaderView: View {
 
             // Wellness Check-In Card
             WellnessCheckInCard(selectedDate: $selectedDate)
+                .padding(.top, 12)
+
+            // Completed Habits Card
+            CompletedHabitsCard(selectedDate: $selectedDate)
                 .padding(.top, 12)
         }
         .padding(.horizontal)

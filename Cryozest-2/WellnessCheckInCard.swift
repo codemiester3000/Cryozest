@@ -10,13 +10,11 @@ import Combine
 
 struct WellnessCheckInCard: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Binding var selectedDate: Date
+
     @State private var selectedRating: Int?
     @State private var hasSubmitted = false
     @State private var showFeedback = false
-    @State private var lastCheckedDate = Calendar.current.startOfDay(for: Date())
-
-    // Timer that fires every minute to check for day changes
-    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Group {
@@ -27,49 +25,35 @@ struct WellnessCheckInCard: View {
             }
         }
         .onAppear {
-            checkAndLoadTodayRating()
+            loadRatingForSelectedDate()
         }
-        .onReceive(timer) { _ in
-            checkForDayChange()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
-            // Handles manual time changes, time zone changes, or day changes
-            checkForDayChange()
+        .onChange(of: selectedDate) { _ in
+            loadRatingForSelectedDate()
         }
     }
 
-    private func checkAndLoadTodayRating() {
-        if WellnessRating.hasRatedToday(context: viewContext),
-           let todayRating = WellnessRating.getTodayRating(context: viewContext) {
-            selectedRating = Int(todayRating.rating)
-            hasSubmitted = true
-        }
-        lastCheckedDate = Calendar.current.startOfDay(for: Date())
-    }
-
-    private func checkForDayChange() {
-        let currentStartOfDay = Calendar.current.startOfDay(for: Date())
-
-        // If the start of day has changed, it's a new day
-        if currentStartOfDay > lastCheckedDate {
-            lastCheckedDate = currentStartOfDay
-
-            // Reset the survey for the new day
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+    private func loadRatingForSelectedDate() {
+        // Check if there's a rating for the selected date
+        if let rating = WellnessRating.getRating(for: selectedDate, context: viewContext) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                selectedRating = Int(rating.rating)
+                hasSubmitted = true
+                showFeedback = false
+            }
+        } else {
+            // No rating exists for this date - show picker
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 selectedRating = nil
                 hasSubmitted = false
                 showFeedback = false
             }
-
-            // Check if user already rated today (edge case: rated at 00:01 after midnight)
-            checkAndLoadTodayRating()
         }
     }
 
     private var fullPickerView: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("How's your day?")
+                Text("Rate your mood from 1 to 5")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.7))
 
@@ -161,7 +145,7 @@ struct WellnessCheckInCard: View {
         selectedRating = rating
         showFeedback = true
 
-        WellnessRating.setTodayRating(rating: rating, context: viewContext)
+        WellnessRating.setRating(rating: rating, for: selectedDate, context: viewContext)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -172,7 +156,7 @@ struct WellnessCheckInCard: View {
 
     private func compactView(rating: Int) -> some View {
         HStack(spacing: 10) {
-            Text("Today:")
+            Text(dateLabel)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.6))
 
@@ -189,6 +173,28 @@ struct WellnessCheckInCard: View {
                 .foregroundColor(moodColor(for: rating))
 
             Spacer()
+
+            // Undo button
+            Button(action: undoRating) {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text("Undo")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                }
+                .foregroundColor(.white.opacity(0.6))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color.white.opacity(0.1))
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -212,6 +218,21 @@ struct WellnessCheckInCard: View {
                         )
                 )
         )
+    }
+
+    private func undoRating() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+
+        // Delete the rating from Core Data
+        WellnessRating.deleteRating(for: selectedDate, context: viewContext)
+
+        // Reset state
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            selectedRating = nil
+            hasSubmitted = false
+            showFeedback = false
+        }
     }
 
     private func moodColor(for rating: Int) -> Color {
@@ -246,5 +267,18 @@ struct WellnessCheckInCard: View {
         ]
 
         return messages[rating]?.randomElement() ?? "Thanks for checking in"
+    }
+
+    private var dateLabel: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(selectedDate) {
+            return "Today:"
+        } else if calendar.isDateInYesterday(selectedDate) {
+            return "Yesterday:"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d:"
+            return formatter.string(from: selectedDate)
+        }
     }
 }
