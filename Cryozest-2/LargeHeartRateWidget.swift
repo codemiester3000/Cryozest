@@ -2,7 +2,7 @@
 //  LargeHeartRateWidget.swift
 //  Cryozest-2
 //
-//  Large heart rate widget showing current HR, recent trend, and status
+//  Large resting heart rate widget showing current RHR and trends
 //
 
 import SwiftUI
@@ -11,35 +11,48 @@ struct LargeHeartRateWidget: View {
     @ObservedObject var model: RecoveryGraphModel
     @Binding var expandedMetric: MetricType?
 
-    @State private var currentHeartRate: Int = 72 // FAKE DATA - TODO: Replace with real data
-    @State private var last30MinData: [Double] = [68, 70, 69, 71, 73, 75, 72, 70, 69, 72, 74, 76, 78, 75, 73, 71, 69, 70, 72, 74] // FAKE DATA
-    @State private var todayMin: Int = 52 // FAKE DATA
-    @State private var todayMax: Int = 142 // FAKE DATA
-    @State private var recentSpikeMinutesAgo: Int? = 45 // FAKE DATA
+    @State private var currentRHR: Int = 58 // FAKE DATA - TODO: Replace with real HealthKit RHR data
+    @State private var weeklyAverageRHR: Int = 61 // FAKE DATA
+    @State private var todayRHRReadings: [(String, Int)] = [ // FAKE DATA - (time, RHR)
+        ("6AM", 55),
+        ("9AM", 57),
+        ("12PM", 59),
+        ("3PM", 58),
+        ("6PM", 60)
+    ]
     @State private var isPressed = false
     @State private var animate = true
 
-    private var heartRateStatus: HeartRateStatus {
-        if currentHeartRate < 60 {
-            return .resting
-        } else if currentHeartRate < 100 {
+    private var trend: RHRTrend {
+        let diff = currentRHR - weeklyAverageRHR
+        if diff <= -3 {
+            return .improving
+        } else if diff >= 3 {
             return .elevated
         } else {
-            return .active
+            return .stable
         }
     }
 
-    private var statusColor: Color {
-        switch heartRateStatus {
-        case .resting: return .cyan
+    private var trendColor: Color {
+        switch trend {
+        case .improving: return .green
+        case .stable: return .cyan
         case .elevated: return .orange
-        case .active: return .red
+        }
+    }
+
+    private var trendIcon: String {
+        switch trend {
+        case .improving: return "arrow.down.right"
+        case .stable: return "arrow.right"
+        case .elevated: return "arrow.up.right"
         }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Header with icon and status
+            // Header
             HStack {
                 HStack(spacing: 8) {
                     Image(systemName: "heart.fill")
@@ -51,40 +64,40 @@ struct LargeHeartRateWidget: View {
                                 .fill(Color.red.opacity(0.15))
                         )
 
-                    Text("Heart Rate")
+                    Text("Resting Heart Rate")
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(.white.opacity(0.7))
                 }
 
                 Spacer()
 
-                // Status badge
+                // Trend badge
                 HStack(spacing: 4) {
-                    Circle()
-                        .fill(statusColor)
-                        .frame(width: 6, height: 6)
+                    Image(systemName: trendIcon)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(trendColor)
 
-                    Text(heartRateStatus.rawValue)
+                    Text(trend.rawValue)
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(statusColor)
+                        .foregroundColor(trendColor)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(statusColor.opacity(0.15))
+                        .fill(trendColor.opacity(0.15))
                         .overlay(
                             Capsule()
-                                .stroke(statusColor.opacity(0.3), lineWidth: 1)
+                                .stroke(trendColor.opacity(0.3), lineWidth: 1)
                         )
                 )
             }
 
-            // Current heart rate - large display
+            // Current RHR - large display
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(currentHeartRate)")
+                Text("\(currentRHR)")
                     .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundColor(animate ? statusColor : .white)
+                    .foregroundColor(animate ? trendColor : .white)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("bpm")
@@ -98,33 +111,30 @@ struct LargeHeartRateWidget: View {
                 .padding(.bottom, 8)
             }
 
-            // 30-minute trend graph
+            // Today's RHR readings graph
             VStack(alignment: .leading, spacing: 8) {
-                Text("Last 30 minutes")
+                Text("Today's Readings")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.6))
 
-                GeometryReader { geometry in
-                    HeartRateMiniGraph(data: last30MinData, color: statusColor)
-                        .frame(height: 40)
-                }
-                .frame(height: 40)
+                RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
+                    .frame(height: 80)
             }
 
-            // Today's range and spike indicator
+            // Stats row
             HStack(spacing: 12) {
-                // Range
+                // Weekly average comparison
                 HStack(spacing: 6) {
-                    Image(systemName: "arrow.up.arrow.down")
+                    Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(.cyan)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Today's Range")
+                        Text("Weekly Avg")
                             .font(.system(size: 9, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.5))
 
-                        Text("\(todayMin)-\(todayMax) bpm")
+                        Text("\(weeklyAverageRHR) bpm")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                     }
@@ -135,42 +145,24 @@ struct LargeHeartRateWidget: View {
                     .frame(height: 30)
                     .background(Color.white.opacity(0.2))
 
-                // Recent spike indicator
-                if let minutesAgo = recentSpikeMinutesAgo {
-                    HStack(spacing: 6) {
-                        Image(systemName: "bolt.fill")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.orange)
+                // Difference from average
+                HStack(spacing: 6) {
+                    let diff = currentRHR - weeklyAverageRHR
+                    Image(systemName: diff < 0 ? "arrow.down" : "arrow.up")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(diff < 0 ? .green : .orange)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Recent Spike")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.5))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("vs Average")
+                            .font(.system(size: 9, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
 
-                            Text("\(minutesAgo)m ago")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(.orange)
-                        }
+                        Text("\(abs(diff)) bpm")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(diff < 0 ? .green : .orange)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                } else {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.green)
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Steady")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.5))
-
-                            Text("No spikes")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(.green)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(16)
@@ -188,10 +180,10 @@ struct LargeHeartRateWidget: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(animate ? statusColor.opacity(0.5) : Color.white.opacity(0.12), lineWidth: 1)
+                        .stroke(animate ? trendColor.opacity(0.5) : Color.white.opacity(0.12), lineWidth: 1)
                 )
         )
-        .shadow(color: animate ? statusColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .shadow(color: animate ? trendColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .onTapGesture {
             expandedMetric = .rhr // We'll use RHR metric type for now, can create a new one later
@@ -209,82 +201,79 @@ struct LargeHeartRateWidget: View {
     }
 }
 
-enum HeartRateStatus: String {
-    case resting = "Resting"
+enum RHRTrend: String {
+    case improving = "Improving"
+    case stable = "Stable"
     case elevated = "Elevated"
-    case active = "Active"
 }
 
-struct HeartRateMiniGraph: View {
-    let data: [Double]
+struct RHRReadingsGraph: View {
+    let readings: [(String, Int)]
     let color: Color
 
     var body: some View {
         GeometryReader { geometry in
-            let maxValue = data.max() ?? 1
-            let minValue = data.min() ?? 0
-            let range = maxValue - minValue
+            let values = readings.map { $0.1 }
+            let maxValue = values.max() ?? 100
+            let minValue = values.min() ?? 40
+            let range = Double(maxValue - minValue)
 
-            ZStack(alignment: .bottom) {
+            ZStack {
                 // Background
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(Color.white.opacity(0.05))
 
-                // Area chart
-                Path { path in
-                    guard !data.isEmpty else { return }
+                VStack(spacing: 0) {
+                    // Graph area
+                    ZStack(alignment: .bottomLeading) {
+                        // Y-axis labels
+                        VStack {
+                            Text("\(maxValue)")
+                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.4))
+                            Spacer()
+                            Text("\(minValue)")
+                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.4))
+                        }
+                        .frame(width: 25)
+                        .padding(.leading, 4)
 
-                    let width = geometry.size.width
-                    let height = geometry.size.height
-                    let stepX = width / CGFloat(data.count - 1)
+                        // Graph
+                        HStack(alignment: .bottom, spacing: 0) {
+                            ForEach(Array(readings.enumerated()), id: \.offset) { index, reading in
+                                VStack(spacing: 4) {
+                                    // Value label
+                                    Text("\(reading.1)")
+                                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                                        .foregroundColor(color)
+                                        .opacity(0.9)
 
-                    // Start from bottom left
-                    path.move(to: CGPoint(x: 0, y: height))
+                                    // Bar
+                                    let height = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) * (geometry.size.height - 40) : 0
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [color, color.opacity(0.6)],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .frame(height: max(height, 4))
 
-                    // Draw line to first point
-                    let firstY = height - (CGFloat((data[0] - minValue) / range) * height)
-                    path.addLine(to: CGPoint(x: 0, y: firstY))
-
-                    // Draw the curve
-                    for (index, value) in data.enumerated() {
-                        let x = CGFloat(index) * stepX
-                        let y = height - (CGFloat((value - minValue) / range) * height)
-                        path.addLine(to: CGPoint(x: x, y: y))
-                    }
-
-                    // Complete the area
-                    path.addLine(to: CGPoint(x: width, y: height))
-                    path.closeSubpath()
-                }
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            color.opacity(0.3),
-                            color.opacity(0.05)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-
-                // Line on top
-                Path { path in
-                    guard !data.isEmpty else { return }
-
-                    let width = geometry.size.width
-                    let height = geometry.size.height
-                    let stepX = width / CGFloat(data.count - 1)
-
-                    let firstY = height - (CGFloat((data[0] - minValue) / range) * height)
-                    path.move(to: CGPoint(x: 0, y: firstY))
-
-                    for (index, value) in data.enumerated() {
-                        let x = CGFloat(index) * stepX
-                        let y = height - (CGFloat((value - minValue) / range) * height)
-                        path.addLine(to: CGPoint(x: x, y: y))
+                                    // Time label
+                                    Text(reading.0)
+                                        .font(.system(size: 8, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.5))
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .padding(.leading, 30)
+                        .padding(.trailing, 8)
                     }
                 }
-                .stroke(color, lineWidth: 2)
+                .padding(8)
             }
         }
     }

@@ -22,6 +22,12 @@ struct HeartRateDetailView: View {
         timeInZones: [:]
     )
 
+    private let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter
+    }()
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -137,6 +143,8 @@ struct HeartRateDetailView: View {
                             )
                             .foregroundStyle(Color.cyan)
                             .interpolationMethod(.catmullRom)
+                            .symbol(Circle().strokeBorder(lineWidth: 2))
+                            .symbolSize(50)
 
                             AreaMark(
                                 x: .value("Date", date, unit: .day),
@@ -153,7 +161,31 @@ struct HeartRateDetailView: View {
                         }
                     }
                     .chartYScale(domain: .automatic(includesZero: false))
-                    .frame(height: 120)
+                    .chartXAxis {
+                        AxisMarks(values: .stride(by: .day)) { value in
+                            if let date = value.as(Date.self) {
+                                AxisValueLabel {
+                                    Text(dayFormatter.string(from: date))
+                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                            }
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading) { value in
+                            AxisValueLabel {
+                                if let rhr = value.as(Int.self) {
+                                    Text("\(rhr)")
+                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                            }
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                                .foregroundStyle(Color.white.opacity(0.1))
+                        }
+                    }
+                    .frame(height: 140)
                     .padding(.vertical, 8)
                 } else {
                     Text("Chart requires iOS 16+")
