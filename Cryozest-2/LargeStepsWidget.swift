@@ -152,10 +152,11 @@ struct LargeStepsWidget: View {
                     .background(Color.white.opacity(0.2))
 
                 let distanceKm = Double(currentSteps) * 0.000762
+                let distanceMi = distanceKm * 0.621371
                 QuickStatView(
                     icon: "location.fill",
                     label: "Distance",
-                    value: String(format: "%.1f km", distanceKm)
+                    value: String(format: "%.1f km / %.1f mi", distanceKm, distanceMi)
                 )
             }
         }
