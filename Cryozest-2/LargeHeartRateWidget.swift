@@ -47,7 +47,57 @@ struct LargeHeartRateWidget: View {
         }
     }
 
+    private var hasData: Bool {
+        currentRHR != nil || !todayRHRReadings.isEmpty
+    }
+
     var body: some View {
+        if hasData {
+            expandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.red)
+                .frame(width: 32, height: 32)
+                .background(
+                    Circle()
+                        .fill(Color.red.opacity(0.15))
+                )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Resting Heart Rate")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+
+                Text("Wear your Apple Watch to track")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+
+            Image(systemName: "applewatch")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundColor(.red.opacity(0.5))
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.red.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+
+    private var expandedView: some View {
         VStack(alignment: .leading, spacing: 14) {
             // Header
             HStack {

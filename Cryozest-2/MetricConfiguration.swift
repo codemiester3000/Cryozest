@@ -38,6 +38,27 @@ enum HealthMetric: String, CaseIterable, Identifiable {
     }
 }
 
+enum DailyWidget: String, CaseIterable, Identifiable {
+    case medications = "Medications"
+    case heartRate = "Heart Rate"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .medications: return "pills.fill"
+        case .heartRate: return "heart.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .medications: return .green
+        case .heartRate: return .red
+        }
+    }
+}
+
 enum HeroScore: String, CaseIterable, Identifiable {
     case exertion = "Exertion"
     case readiness = "Readiness"
@@ -77,8 +98,15 @@ class MetricConfigurationManager: ObservableObject {
         }
     }
 
+    @Published var enabledWidgets: Set<DailyWidget> {
+        didSet {
+            saveWidgetConfiguration()
+        }
+    }
+
     private let metricConfigKey = "enabledHealthMetrics"
     private let heroScoreConfigKey = "enabledHeroScores"
+    private let widgetConfigKey = "enabledDailyWidgets"
 
     private init() {
         // Load saved metric configuration or default to enabled (except sleep metrics)
@@ -98,6 +126,14 @@ class MetricConfigurationManager: ObservableObject {
             // Default: enable all hero scores
             self.enabledHeroScores = Set(HeroScore.allCases)
         }
+
+        // Load saved widget configuration or default to all enabled
+        if let saved = UserDefaults.standard.stringArray(forKey: widgetConfigKey) {
+            self.enabledWidgets = Set(saved.compactMap { DailyWidget(rawValue: $0) })
+        } else {
+            // Default: enable all widgets
+            self.enabledWidgets = Set(DailyWidget.allCases)
+        }
     }
 
     private func saveMetricConfiguration() {
@@ -110,12 +146,21 @@ class MetricConfigurationManager: ObservableObject {
         UserDefaults.standard.set(heroScoreStrings, forKey: heroScoreConfigKey)
     }
 
+    private func saveWidgetConfiguration() {
+        let widgetStrings = enabledWidgets.map { $0.rawValue }
+        UserDefaults.standard.set(widgetStrings, forKey: widgetConfigKey)
+    }
+
     func isEnabled(_ metric: HealthMetric) -> Bool {
         enabledMetrics.contains(metric)
     }
 
     func isEnabled(_ heroScore: HeroScore) -> Bool {
         enabledHeroScores.contains(heroScore)
+    }
+
+    func isEnabled(_ widget: DailyWidget) -> Bool {
+        enabledWidgets.contains(widget)
     }
 
     func toggle(_ metric: HealthMetric) {
@@ -131,6 +176,14 @@ class MetricConfigurationManager: ObservableObject {
             enabledHeroScores.remove(heroScore)
         } else {
             enabledHeroScores.insert(heroScore)
+        }
+    }
+
+    func toggle(_ widget: DailyWidget) {
+        if enabledWidgets.contains(widget) {
+            enabledWidgets.remove(widget)
+        } else {
+            enabledWidgets.insert(widget)
         }
     }
 }

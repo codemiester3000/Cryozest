@@ -60,6 +60,39 @@ struct MetricConfigurationView: View {
 
                 ScrollView {
                     VStack(spacing: 20) {
+                        // Daily Widgets Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Daily Widgets")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+
+                            Text("Additional cards on the Daily tab")
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.5))
+                                .padding(.horizontal, 24)
+                                .padding(.bottom, 4)
+
+                            VStack(spacing: 12) {
+                                ForEach(DailyWidget.allCases) { widget in
+                                    WidgetToggleRow(
+                                        widget: widget,
+                                        isEnabled: configManager.isEnabled(widget)
+                                    ) {
+                                        withAnimation(.spring(response: 0.3)) {
+                                            configManager.toggle(widget)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 24)
+                        }
+
+                        Divider()
+                            .background(Color.white.opacity(0.2))
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 8)
+
                         // Hero Scores Section
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Hero Scores")
@@ -245,6 +278,69 @@ struct MetricToggleRow: View {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(
                                 isEnabled ? Color.cyan.opacity(0.4) : Color.white.opacity(0.1),
+                                lineWidth: 1
+                            )
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct WidgetToggleRow: View {
+    let widget: DailyWidget
+    let isEnabled: Bool
+    let onToggle: () -> Void
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: 16) {
+                // Icon
+                Image(systemName: widget.icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(isEnabled ? widget.color : .white.opacity(0.4))
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Circle()
+                            .fill(isEnabled ? widget.color.opacity(0.2) : Color.white.opacity(0.05))
+                    )
+
+                // Widget name
+                Text(widget.rawValue)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
+
+                Spacer()
+
+                // Toggle indicator
+                ZStack {
+                    Circle()
+                        .strokeBorder(isEnabled ? widget.color : Color.white.opacity(0.3), lineWidth: 2)
+                        .frame(width: 24, height: 24)
+
+                    if isEnabled {
+                        Circle()
+                            .fill(widget.color)
+                            .frame(width: 24, height: 24)
+
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        isEnabled
+                            ? Color.white.opacity(0.12)
+                            : Color.white.opacity(0.06)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(
+                                isEnabled ? widget.color.opacity(0.4) : Color.white.opacity(0.1),
                                 lineWidth: 1
                             )
                     )

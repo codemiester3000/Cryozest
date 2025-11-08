@@ -247,6 +247,7 @@ struct HeaderView: View {
     let isToday: Bool
 
     @State private var showingDatePicker = false
+    @ObservedObject var configManager = MetricConfigurationManager.shared
 
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -345,8 +346,10 @@ struct HeaderView: View {
                 .padding(.top, 12)
 
             // Medications Card
-            MedicationsCard(selectedDate: $selectedDate)
-                .padding(.top, 12)
+            if configManager.isEnabled(.medications) {
+                MedicationsCard(selectedDate: $selectedDate)
+                    .padding(.top, 12)
+            }
         }
         .padding(.horizontal)
     }
@@ -430,7 +433,7 @@ struct DailyGridMetrics: View {
                     }
 
                     // Large Heart Rate Widget (full width)
-                    if configManager.isEnabled(.rhr) {
+                    if configManager.isEnabled(.heartRate) {
                         LargeHeartRateWidget(
                             model: model,
                             expandedMetric: $expandedMetric
