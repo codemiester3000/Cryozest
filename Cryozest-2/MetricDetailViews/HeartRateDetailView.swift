@@ -11,16 +11,10 @@ import Charts
 struct HeartRateDetailView: View {
     @ObservedObject var model: RecoveryGraphModel
 
-    // FAKE DATA - TODO: Replace with real HealthKit data
-    @State private var currentHR: Int = 72
+    @State private var currentHR: Int?
     @State private var last7DaysRHR: [(Date, Int)] = []
-    @State private var todayHourlyHR: [(Int, Int)] = [] // (hour, avgHR)
-    @State private var weekStats: WeeklyHRStats = .init(
-        averageRHR: 58,
-        lowestHR: 48,
-        highestHR: 165,
-        timeInZones: [:]
-    )
+    @State private var todayHourlyHR: [(Int, Int)] = []
+    @State private var weekStats: WeeklyHRStats?
 
     private let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -42,9 +36,6 @@ struct HeartRateDetailView: View {
                 infoCard
             }
         }
-        .onAppear {
-            generateFakeData()
-        }
     }
 
     private var currentHRCard: some View {
@@ -54,9 +45,15 @@ struct HeartRateDetailView: View {
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(currentHR)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
-                        .foregroundColor(.red)
+                    if let hr = currentHR {
+                        Text("\(hr)")
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundColor(.red)
+                    } else {
+                        Text("--")
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.3))
+                    }
 
                     Text("bpm")
                         .font(.system(size: 18, weight: .medium, design: .rounded))
@@ -81,40 +78,48 @@ struct HeartRateDetailView: View {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.white.opacity(0.9))
 
-                HStack(spacing: 12) {
-                    HRStatCard(
-                        icon: "heart",
-                        label: "Avg RHR",
-                        value: "\(weekStats.averageRHR)",
-                        unit: "bpm",
-                        color: .cyan
-                    )
+                if let stats = weekStats {
+                    HStack(spacing: 12) {
+                        HRStatCard(
+                            icon: "heart",
+                            label: "Avg RHR",
+                            value: "\(stats.averageRHR)",
+                            unit: "bpm",
+                            color: .cyan
+                        )
 
-                    HRStatCard(
-                        icon: "arrow.down.heart",
-                        label: "Lowest",
-                        value: "\(weekStats.lowestHR)",
-                        unit: "bpm",
-                        color: .green
-                    )
-                }
+                        HRStatCard(
+                            icon: "arrow.down.heart",
+                            label: "Lowest",
+                            value: "\(stats.lowestHR)",
+                            unit: "bpm",
+                            color: .green
+                        )
+                    }
 
-                HStack(spacing: 12) {
-                    HRStatCard(
-                        icon: "arrow.up.heart.fill",
-                        label: "Highest",
-                        value: "\(weekStats.highestHR)",
-                        unit: "bpm",
-                        color: .red
-                    )
+                    HStack(spacing: 12) {
+                        HRStatCard(
+                            icon: "arrow.up.heart.fill",
+                            label: "Highest",
+                            value: "\(stats.highestHR)",
+                            unit: "bpm",
+                            color: .red
+                        )
 
-                    HRStatCard(
-                        icon: "figure.run",
-                        label: "Active Time",
-                        value: String(format: "%.1f", weekStats.timeInZones[.moderate, default: 0] + weekStats.timeInZones[.vigorous, default: 0]),
-                        unit: "hrs",
-                        color: .orange
-                    )
+                        HRStatCard(
+                            icon: "figure.run",
+                            label: "Active Time",
+                            value: String(format: "%.1f", stats.timeInZones[.moderate, default: 0] + stats.timeInZones[.vigorous, default: 0]),
+                            unit: "hrs",
+                            color: .orange
+                        )
+                    }
+                } else {
+                    Text("No data available")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
                 }
             }
             .padding(16)
@@ -212,30 +217,38 @@ struct HeartRateDetailView: View {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.white.opacity(0.9))
 
-                VStack(spacing: 10) {
-                    HRZoneRow(
-                        zone: "Resting (<100 bpm)",
-                        hours: weekStats.timeInZones[.resting, default: 0],
-                        color: .cyan
-                    )
+                if let stats = weekStats {
+                    VStack(spacing: 10) {
+                        HRZoneRow(
+                            zone: "Resting (<100 bpm)",
+                            hours: stats.timeInZones[.resting, default: 0],
+                            color: .cyan
+                        )
 
-                    HRZoneRow(
-                        zone: "Light (100-120 bpm)",
-                        hours: weekStats.timeInZones[.light, default: 0],
-                        color: .green
-                    )
+                        HRZoneRow(
+                            zone: "Light (100-120 bpm)",
+                            hours: stats.timeInZones[.light, default: 0],
+                            color: .green
+                        )
 
-                    HRZoneRow(
-                        zone: "Moderate (120-150 bpm)",
-                        hours: weekStats.timeInZones[.moderate, default: 0],
-                        color: .orange
-                    )
+                        HRZoneRow(
+                            zone: "Moderate (120-150 bpm)",
+                            hours: stats.timeInZones[.moderate, default: 0],
+                            color: .orange
+                        )
 
-                    HRZoneRow(
-                        zone: "Vigorous (150+ bpm)",
-                        hours: weekStats.timeInZones[.vigorous, default: 0],
-                        color: .red
-                    )
+                        HRZoneRow(
+                            zone: "Vigorous (150+ bpm)",
+                            hours: stats.timeInZones[.vigorous, default: 0],
+                            color: .red
+                        )
+                    }
+                } else {
+                    Text("No data available")
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding()
                 }
             }
             .padding(16)
@@ -275,32 +288,6 @@ struct HeartRateDetailView: View {
                             .stroke(Color.red.opacity(0.2), lineWidth: 1)
                     )
             )
-    }
-
-    private func generateFakeData() {
-        // Generate last 7 days RHR data
-        let calendar = Calendar.current
-        var rhrData: [(Date, Int)] = []
-        for i in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: -i, to: Date()) {
-                let rhr = Int.random(in: 55...62)
-                rhrData.insert((date, rhr), at: 0)
-            }
-        }
-        last7DaysRHR = rhrData
-
-        // Set zone data
-        weekStats = WeeklyHRStats(
-            averageRHR: 58,
-            lowestHR: 48,
-            highestHR: 165,
-            timeInZones: [
-                .resting: 18.5,
-                .light: 3.2,
-                .moderate: 1.8,
-                .vigorous: 0.5
-            ]
-        )
     }
 }
 
