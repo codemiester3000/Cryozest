@@ -228,7 +228,7 @@ struct MainView: View {
 
     private var headerView: some View {
         HStack {
-            Text("Sessions")
+            Text("Habits")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)

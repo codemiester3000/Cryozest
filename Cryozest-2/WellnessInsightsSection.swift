@@ -208,38 +208,33 @@ struct WellnessInsightsSection: View {
 
     private var wellnessTrendChart: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("30-Day Trend")
+            Text("30-Day Mood Heatmap")
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.7))
 
-            Chart(trendData) { dataPoint in
-                BarMark(
-                    x: .value("Date", dataPoint.date),
-                    y: .value("Rating", dataPoint.value)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.pink, Color.purple],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .cornerRadius(6)
-            }
-            .chartYScale(domain: 0...5)
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .day, count: 7)) { _ in
-                    AxisValueLabel(format: .dateTime.month().day(), centered: true)
-                        .foregroundStyle(Color.white.opacity(0.5))
+            // Heatmap
+            MoodHeatmap(ratings: ratings)
+
+            // Legend
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 12) {
+                    MoodLegendItem(rating: 5, label: "Excellent")
+                    MoodLegendItem(rating: 4, label: "Good")
+                    MoodLegendItem(rating: 3, label: "Okay")
+                }
+                HStack(spacing: 12) {
+                    MoodLegendItem(rating: 2, label: "Not great")
+                    MoodLegendItem(rating: 1, label: "Terrible")
+                    HStack(spacing: 6) {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(width: 12, height: 12)
+                        Text("No rating")
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
                 }
             }
-            .chartYAxis {
-                AxisMarks(position: .leading) { value in
-                    AxisValueLabel()
-                        .foregroundStyle(Color.white.opacity(0.5))
-                }
-            }
-            .frame(height: 200)
         }
         .padding(20)
         .background(
@@ -247,7 +242,7 @@ struct WellnessInsightsSection: View {
                 .fill(Color.white.opacity(0.08))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        .stroke(Color.pink.opacity(0.3), lineWidth: 1)
                 )
         )
     }
@@ -309,5 +304,134 @@ struct WellnessImpactCard: View {
                         )
                 )
         )
+    }
+}
+
+struct MoodHeatmap: View {
+    let ratings: [WellnessRating]
+
+    private let columns = 7
+
+    // Get last 30 days
+    private var last30Days: [Date] {
+        let calendar = Calendar.current
+        let today = Date()
+        return (0..<30).compactMap { dayOffset in
+            calendar.date(byAdding: .day, value: -dayOffset, to: today)
+        }.reversed()
+    }
+
+    private var rows: Int {
+        Int(ceil(Double(30) / Double(columns)))
+    }
+
+    private let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter
+    }()
+
+    // Get rating for a specific date
+    private func getRating(for date: Date) -> Int? {
+        let calendar = Calendar.current
+        for rating in ratings {
+            if let ratingDate = rating.date {
+                if calendar.isDate(ratingDate, inSameDayAs: date) {
+                    return Int(rating.rating)
+                }
+            }
+        }
+        return nil
+    }
+
+    // Get color for rating
+    private func colorForRating(_ rating: Int?) -> Color {
+        guard let rating = rating else {
+            return Color.white.opacity(0.1)
+        }
+
+        switch rating {
+        case 5: return Color.green
+        case 4: return Color.cyan
+        case 3: return Color.yellow
+        case 2: return Color.orange
+        case 1: return Color.red.opacity(0.8)
+        default: return Color.white.opacity(0.1)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // Day labels - use first 7 days from the array to get correct weekdays
+            HStack(spacing: 0) {
+                ForEach(0..<min(7, last30Days.count), id: \.self) { col in
+                    Text(String(dayFormatter.string(from: last30Days[col]).prefix(1)))
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity)
+                }
+            }
+
+            // Heatmap grid
+            VStack(spacing: 4) {
+                ForEach(0..<rows, id: \.self) { row in
+                    HStack(spacing: 4) {
+                        ForEach(0..<columns, id: \.self) { col in
+                            let index = row * columns + col
+                            if index < last30Days.count {
+                                let date = last30Days[index]
+                                let rating = getRating(for: date)
+                                let isToday = Calendar.current.isDateInToday(date)
+
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(colorForRating(rating))
+                                        .frame(height: 16)
+
+                                    // Today indicator ring
+                                    if isToday {
+                                        RoundedRectangle(cornerRadius: 3)
+                                            .stroke(Color.white, lineWidth: 2)
+                                            .frame(height: 16)
+                                    }
+                                }
+                            } else {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(Color.clear)
+                                    .frame(height: 16)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct MoodLegendItem: View {
+    let rating: Int
+    let label: String
+
+    private var color: Color {
+        switch rating {
+        case 5: return .green
+        case 4: return .cyan
+        case 3: return .yellow
+        case 2: return .orange
+        case 1: return .red.opacity(0.8)
+        default: return .white.opacity(0.1)
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(color)
+                .frame(width: 12, height: 12)
+
+            Text(label)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.6))
+        }
     }
 }

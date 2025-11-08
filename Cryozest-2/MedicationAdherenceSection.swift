@@ -232,15 +232,13 @@ struct AdherenceHeatmap: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // Day labels
+            // Day labels - use first 7 days from the array to get correct weekdays
             HStack(spacing: 0) {
-                ForEach(0..<columns, id: \.self) { col in
-                    if col < 7, let date = Calendar.current.date(byAdding: .day, value: col, to: Date()) {
-                        Text(String(dayFormatter.string(from: date).prefix(1)))
-                            .font(.system(size: 10, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white.opacity(0.5))
-                            .frame(maxWidth: .infinity)
-                    }
+                ForEach(0..<min(7, days.count), id: \.self) { col in
+                    Text(String(dayFormatter.string(from: days[col]).prefix(1)))
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity)
                 }
             }
 
