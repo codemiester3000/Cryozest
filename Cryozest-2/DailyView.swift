@@ -425,6 +425,14 @@ struct DailyGridMetrics: View {
                         )
                     }
 
+                    // Large Heart Rate Widget (full width)
+                    if configManager.isEnabled(.rhr) {
+                        LargeHeartRateWidget(
+                            model: model,
+                            expandedMetric: $expandedMetric
+                        )
+                    }
+
                     // Grid layout for other metrics
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
                         if configManager.isEnabled(.hrv) {
@@ -434,19 +442,6 @@ struct DailyGridMetrics: View {
                                 value: "\(model.lastKnownHRV)",
                                 unit: "ms",
                                 metricType: .hrv,
-                                model: model,
-                                expandedMetric: $expandedMetric,
-                                namespace: animation
-                            )
-                        }
-
-                        if configManager.isEnabled(.rhr) {
-                            GridItemView(
-                                symbolName: "arrow.down.heart",
-                                title: "Avg RHR",
-                                value: "\(model.mostRecentRestingHeartRate ?? 0)",
-                                unit: "bpm",
-                                metricType: .rhr,
                                 model: model,
                                 expandedMetric: $expandedMetric,
                                 namespace: animation
@@ -834,7 +829,7 @@ struct ExpandedGridItemView: View {
         case .hrv:
             HRVDetailView(model: model)
         case .rhr:
-            RHRDetailView(model: model)
+            HeartRateDetailView(model: model)
         case .spo2:
             SpO2DetailView(model: model)
         case .respiratoryRate:
