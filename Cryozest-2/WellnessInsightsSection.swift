@@ -213,30 +213,18 @@ struct WellnessInsightsSection: View {
                 .foregroundColor(.white.opacity(0.7))
 
             Chart(trendData) { dataPoint in
-                LineMark(
+                BarMark(
                     x: .value("Date", dataPoint.date),
                     y: .value("Rating", dataPoint.value)
                 )
                 .foregroundStyle(
                     LinearGradient(
                         colors: [Color.pink, Color.purple],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
-
-                AreaMark(
-                    x: .value("Date", dataPoint.date),
-                    y: .value("Rating", dataPoint.value)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.pink.opacity(0.3), Color.purple.opacity(0.1)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
+                .cornerRadius(6)
             }
             .chartYScale(domain: 0...5)
             .chartXAxis {
