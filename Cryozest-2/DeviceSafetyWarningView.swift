@@ -116,22 +116,17 @@ struct DeviceSafetyWarningView: View {
     }
 
     private var warningMessage: String {
-        switch therapyType {
-        case .drySauna, .hotYoga:
-            return "Please leave your iPhone outside the sauna. High temperatures (above 35° C / 95° F) can permanently damage your device's battery and components."
-        case .coldPlunge, .coldShower, .iceBath:
-            return "Please leave your iPhone in a safe, dry location. Exposure to freezing temperatures (below 0° C / 32° F) and water can permanently damage your device."
-        default:
-            return "Please ensure your iPhone is in a safe environment during your session."
-        }
+        return "Please ensure your device is in a safe location during your wellness session."
     }
 
     private var shouldShowWarning: Bool {
-        switch therapyType {
-        case .drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath:
-            return true
-        default:
-            return false
-        }
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // switch therapyType {
+        // case .drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath:
+        //     return true
+        // default:
+        //     return false
+        // }
+        return false
     }
 }

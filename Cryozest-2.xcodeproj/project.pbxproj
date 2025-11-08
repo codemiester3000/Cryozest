@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
 		09964D91A34930B61BC70F60 /* LargeHeartRateWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */; };
@@ -19,7 +20,9 @@
 		479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		607241B990C05FF4CF20D00F /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
+		680245BF83D4801F6787FDFA /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
 		75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
 		75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
@@ -110,9 +113,15 @@
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
 		C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */; };
 		CEBE4DBE8895C3DDC2670582 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		D5674464A51881ED01701A91 /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
 		D77245F9A115B2F0807D0A6F /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
 		DD9F428987C217EBB888B82D /* LargeHeartRateWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */; };
 		E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
+		EFC34236873F1C0567412084 /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
+		F01647309F1C9770FB56B47B /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
+		F12944B385E6042D77EA4B60 /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
+		F3FB4611913770A5F561F7CA /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
+		F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 /* End PBXBuildFile section */
 
@@ -140,9 +149,12 @@
 		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		45914F459441A47CB5A96342 /* HeartRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HeartRateDetailView.swift; path = "Cryozest-2/MetricDetailViews/HeartRateDetailView.swift"; sourceTree = SOURCE_ROOT; };
+		49B046738978308F7AEF51A8 /* MedicationsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationsCard.swift; path = "Cryozest-2/MedicationsCard.swift"; sourceTree = SOURCE_ROOT; };
 		5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletedHabitsCard.swift; path = "Cryozest-2/CompletedHabitsCard.swift"; sourceTree = SOURCE_ROOT; };
+		61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationHelpers.swift; path = "Cryozest-2/MedicationHelpers.swift"; sourceTree = SOURCE_ROOT; };
 		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
 		8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalConfigView.swift; path = "Cryozest-2/StepGoalConfigView.swift"; sourceTree = SOURCE_ROOT; };
+		B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddMedicationSheet.swift; path = "Cryozest-2/AddMedicationSheet.swift"; sourceTree = SOURCE_ROOT; };
 		C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalManager.swift; path = "Cryozest-2/StepGoalManager.swift"; sourceTree = SOURCE_ROOT; };
 		C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingPage.swift; sourceTree = "<group>"; };
 		C50659F52E97484200031B6B /* MetricConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricConfiguration.swift; sourceTree = "<group>"; };
@@ -388,6 +400,9 @@
 				C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */,
 				C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */,
 				D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */,
+				61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */,
+				49B046738978308F7AEF51A8 /* MedicationsCard.swift */,
+				B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -641,6 +656,9 @@
 				38134005B430A99ECC2A61F0 /* LargeHeartRateWidget.swift in Sources */,
 				5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */,
 				75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */,
+				F01647309F1C9770FB56B47B /* MedicationHelpers.swift in Sources */,
+				D5674464A51881ED01701A91 /* MedicationsCard.swift in Sources */,
+				04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -656,6 +674,9 @@
 				09964D91A34930B61BC70F60 /* LargeHeartRateWidget.swift in Sources */,
 				212E4E42A5A1AEDF015BCE34 /* HeartRateDetailView.swift in Sources */,
 				674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */,
+				EFC34236873F1C0567412084 /* MedicationHelpers.swift in Sources */,
+				F12944B385E6042D77EA4B60 /* MedicationsCard.swift in Sources */,
+				607241B990C05FF4CF20D00F /* AddMedicationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -672,6 +693,9 @@
 				DD9F428987C217EBB888B82D /* LargeHeartRateWidget.swift in Sources */,
 				CEBE4DBE8895C3DDC2670582 /* HeartRateDetailView.swift in Sources */,
 				ACB445EB9E33DE198FDA2263 /* WeeklyGoalProgressView.swift in Sources */,
+				680245BF83D4801F6787FDFA /* MedicationHelpers.swift in Sources */,
+				F3FB4611913770A5F561F7CA /* MedicationsCard.swift in Sources */,
+				F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

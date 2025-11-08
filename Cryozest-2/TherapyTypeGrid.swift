@@ -3,7 +3,8 @@ import SwiftUI
 class TherapyTypeSelection: ObservableObject {
     @Published var selectedTherapyType: TherapyType
 
-    init(initialTherapyType: TherapyType = .drySauna) {
+    // Updated for App Store compliance
+    init(initialTherapyType: TherapyType = .running) {
         self.selectedTherapyType = initialTherapyType
     }
 }
@@ -70,7 +71,8 @@ struct TherapyTypeGrid: View {
         .padding(.top, 8)
         .onAppear {
             if !selectedTherapyTypes.contains(therapyTypeSelection.selectedTherapyType) {
-                therapyTypeSelection.selectedTherapyType = selectedTherapyTypes.first ?? .drySauna
+                // Updated for App Store compliance
+                therapyTypeSelection.selectedTherapyType = selectedTherapyTypes.first ?? .running
             }
         }
     }

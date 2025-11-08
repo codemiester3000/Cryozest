@@ -5,7 +5,8 @@ struct TimerSelectionView: View {
     @State private var showTimerCountdownView: Bool = false
     @State private var showCustomDurationPicker: Bool = false
     @State private var showSessionSummary: Bool = false
-    @State private var therapyType: TherapyType = .drySauna
+    // Updated for App Store compliance
+    @State private var therapyType: TherapyType = .running
     @State private var showSafetyWarning: Bool = false
     @State private var pendingTimerStart: Bool = false
 
@@ -102,12 +103,8 @@ struct TimerSelectionView: View {
     }
 
     func requiresSafetyWarning(_ type: TherapyType) -> Bool {
-        switch type {
-        case .drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath:
-            return true
-        default:
-            return false
-        }
+        // Safety warnings disabled for App Store compliance
+        return false
     }
     
     // Modern circle button styling

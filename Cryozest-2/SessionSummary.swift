@@ -44,14 +44,16 @@ struct SessionSummary: View {
 
         let initialTemperature: Int
         switch therapyType.wrappedValue {
-        case .drySauna:
-            initialTemperature = 165
-        case .coldPlunge:
-            initialTemperature = 50
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna:
+        //     initialTemperature = 165
+        // case .coldPlunge:
+        //     initialTemperature = 50
         case .meditation:
             initialTemperature = 60
-        case .hotYoga:
-            initialTemperature = 110
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .hotYoga:
+        //     initialTemperature = 110
         default:
             initialTemperature = 70
         }
@@ -366,14 +368,16 @@ struct SessionSummary: View {
         let burnRatePerMinute: Double
 
         switch therapyType {
-        case .drySauna:
-            burnRatePerMinute = 0.89 * bodyWeight / 150.0
-        case .coldPlunge:
-            burnRatePerMinute = 2.75 * bodyWeight / 150.0
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna:
+        //     burnRatePerMinute = 0.89 * bodyWeight / 150.0
+        // case .coldPlunge:
+        //     burnRatePerMinute = 2.75 * bodyWeight / 150.0
         case .meditation:
             burnRatePerMinute = 1.0 * bodyWeight / 150.0
-        case .hotYoga:
-            burnRatePerMinute = 4.5 * bodyWeight / 150.0
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .hotYoga:
+        //     burnRatePerMinute = 4.5 * bodyWeight / 150.0
         default:
             burnRatePerMinute = 1.0 * bodyWeight / 150.0
         }
@@ -686,14 +690,16 @@ struct TherapyTypePickerButton: View {
 
     func updateTemperature(for type: TherapyType) {
         switch type {
-        case .drySauna:
-            temperature = 165
-        case .coldPlunge:
-            temperature = 50
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna:
+        //     temperature = 165
+        // case .coldPlunge:
+        //     temperature = 50
         case .meditation:
             temperature = 60
-        case .hotYoga:
-            temperature = 110
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .hotYoga:
+        //     temperature = 110
         default:
             temperature = 70
         }
@@ -791,12 +797,13 @@ struct TemperaturePickerSheet: View {
 
     var temperatureRange: Range<Int> {
         switch therapyType {
-        case .drySauna:
-            return 100..<250
-        case .coldPlunge, .coldShower:
-            return 0..<70
-        case .hotYoga:
-            return 70..<200
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna:
+        //     return 100..<250
+        // case .coldPlunge, .coldShower:
+        //     return 0..<70
+        // case .hotYoga:
+        //     return 70..<200
         default:
             return 0..<100
         }

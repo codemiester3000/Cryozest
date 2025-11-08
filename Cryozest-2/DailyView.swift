@@ -257,7 +257,7 @@ struct HeaderView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack(alignment: .top) {
-                Text("Daily Summary")
+                Text("Daily Health")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
@@ -272,7 +272,7 @@ struct HeaderView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 12, weight: .semibold))
-                        Text("Customize Metrics")
+                        Text("Customize")
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.cyan)
@@ -342,6 +342,10 @@ struct HeaderView: View {
 
             // Completed Habits Card
             CompletedHabitsCard(selectedDate: $selectedDate)
+                .padding(.top, 12)
+
+            // Medications Card
+            MedicationsCard(selectedDate: $selectedDate)
                 .padding(.top, 12)
         }
         .padding(.horizontal)

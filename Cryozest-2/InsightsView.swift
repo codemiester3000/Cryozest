@@ -35,7 +35,8 @@ struct InsightsView: View {
 
     private var selectedTherapyTypes: [TherapyType] {
         if selectedTherapies.isEmpty {
-            return [.drySauna, .weightTraining, .coldPlunge, .meditation]
+            // Updated for App Store compliance - removed extreme temperature therapies
+            return [.running, .weightTraining, .cycling, .meditation]
         } else {
             return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }
@@ -224,7 +225,7 @@ struct InsightsView: View {
                     if viewModel.sleepImpacts.isEmpty {
                         InsightsEmptyStateCard(
                             title: "Sleep Tracking Needed",
-                            message: "Enable sleep tracking in the Health app or wear an Apple Watch to see how your habits affect your sleep duration.",
+                            message: "Sleep tracking in the Health app or an Apple Watch is needed to see how your habits affect your sleep duration.",
                             icon: "bed.double.fill"
                         )
                         .padding(.horizontal)

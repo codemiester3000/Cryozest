@@ -70,14 +70,14 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 //    case appleWrestling = "Wrestling"
 //    case appleYoga = "Yoga"
     
-    // Hot-Based
-    case drySauna = "Sauna"
-    case hotYoga = "Hot Yoga"
-    
-    // Cold-Based
-    case coldPlunge = "Cold Plunge"
-    case coldShower = "Cold Shower"
-    case iceBath = "Ice Bath"
+    // Hot-Based (COMMENTED OUT FOR APP STORE COMPLIANCE - DO NOT SUGGEST EXTREME TEMPERATURE ACTIVITIES)
+    // case drySauna = "Sauna"
+    // case hotYoga = "Hot Yoga"
+
+    // Cold-Based (COMMENTED OUT FOR APP STORE COMPLIANCE - DO NOT SUGGEST EXTREME TEMPERATURE ACTIVITIES)
+    // case coldPlunge = "Cold Plunge"
+    // case coldShower = "Cold Shower"
+    // case iceBath = "Ice Bath"
     
     // Workouts
     case running = "Running"
@@ -202,20 +202,22 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     var icon: String {
         switch self {
-        case .drySauna:
-            return "flame.fill"
-        case .hotYoga:
-            return "bolt.fill"
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna:
+        //     return "flame.fill"
+        // case .hotYoga:
+        //     return "bolt.fill"
         case .walking, .running, .stairClimbing, .pickleball, .basketball, .elliptical, .barre:
             return "figure.walk"
         case .weightTraining:
             return "dumbbell.fill"
-        case .coldPlunge:
-            return "snow"
-        case .coldShower:
-            return "drop.fill"
-        case .iceBath:
-            return "snowflake"
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .coldPlunge:
+        //     return "snow"
+        // case .coldShower:
+        //     return "drop.fill"
+        // case .iceBath:
+        //     return "snowflake"
         case .coldYoga:
             return "leaf.arrow.circlepath"
         case .meditation:
@@ -289,10 +291,11 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     
     var color: Color {
         switch self {
-        case .drySauna, .hotYoga:
-            return Color.orange
-        case .coldPlunge, .coldShower, .iceBath:
-            return Color.blue
+        // COMMENTED OUT FOR APP STORE COMPLIANCE
+        // case .drySauna, .hotYoga:
+        //     return Color.orange
+        // case .coldPlunge, .coldShower, .iceBath:
+        //     return Color.blue
         case .running, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre, .walking, .stairClimbing:
             return Color.appleLimeGreen
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
@@ -364,10 +367,11 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
             return [.running, .walking, .stairClimbing, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre]
         case .category1: // All
             return TherapyType.allCases
-        case .category2: // Heat-Based
-            return [.drySauna, .hotYoga]
-        case .category3: // Cold-Based
-            return [.coldPlunge, .coldShower, .iceBath]
+        // COMMENTED OUT FOR APP STORE COMPLIANCE - DO NOT SUGGEST EXTREME TEMPERATURE ACTIVITIES
+        // case .category2: // Heat-Based
+        //     return [.drySauna, .hotYoga]
+        // case .category3: // Cold-Based
+        //     return [.coldPlunge, .coldShower, .iceBath]
         case .category4: // Recovery
             return [.meditation, .deepBreathing, .sleep, .coldYoga, .stretching, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise]
         case .category5: // Supplements
@@ -386,11 +390,12 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 
 enum Category: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
-    
+
     case category0 = "Workouts"
     case category1 = "All"
-    case category2 = "Heat-Based"
-    case category3 = "Cold-Based"
+    // COMMENTED OUT FOR APP STORE COMPLIANCE - DO NOT SUGGEST EXTREME TEMPERATURE ACTIVITIES
+    // case category2 = "Heat-Based"
+    // case category3 = "Cold-Based"
     case category4 = "Recovery"
     case category5 = "Supplements"
     case category6 = "Diet"

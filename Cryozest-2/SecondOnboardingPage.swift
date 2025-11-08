@@ -85,12 +85,12 @@ struct SecondOnboardingPage: View {
                             .padding(.horizontal, 40)
                             .opacity(thirdTextOpacity)
                     } else {
-                        Text("Connect to HealthKit")
+                        Text("Health Data Access")
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .opacity(firstTextOpacity)
 
-                        Text("We need your permission to access HealthKit data to provide you with personalized insights")
+                        Text("HealthKit access provides personalized insights based on your health data")
                             .font(.system(size: 17, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
@@ -147,7 +147,7 @@ struct SecondOnboardingPage: View {
                     }
                 }) {
                     HStack(spacing: 12) {
-                        Text(requestedAccess ? "Choose your habits" : "Connect to HealthKit")
+                        Text(requestedAccess ? "Choose your habits" : "Continue")
                             .font(.system(size: 18, weight: .semibold, design: .rounded))
                         Image(systemName: "arrow.right")
                             .font(.system(size: 16, weight: .semibold))

@@ -22,7 +22,8 @@ struct AnalysisView: View {
     var selectedTherapyTypes: [TherapyType] {
         // Convert the selected therapy types from strings to TherapyType values
         if selectedTherapies.isEmpty {
-            return [.drySauna, .weightTraining, .coldPlunge, .meditation]
+            // Updated for App Store compliance - removed extreme temperature therapies
+            return [.running, .weightTraining, .cycling, .meditation]
         } else {
             return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }

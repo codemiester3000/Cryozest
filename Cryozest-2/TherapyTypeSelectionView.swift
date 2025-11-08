@@ -67,29 +67,6 @@ struct TherapyTypeSelectionView: View {
                     .padding(.bottom, 20)
                     .opacity(animateContent ? 1.0 : 0)
 
-                    // Device safety notice
-                    HStack(spacing: 12) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(.orange)
-
-                        Text("Safety: Never bring your iPhone into extreme temperatures (saunas, cold plunges)")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.9))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.orange.opacity(0.15))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
-                    .opacity(animateContent ? 1.0 : 0)
 
                     CategoryPillsView(selectedCategory: $selectedCategory)
                         .frame(height: 60)
@@ -324,7 +301,7 @@ struct TherapyTypeSelectionView: View {
                 }
             }
         } message: {
-            Text("Never bring your iPhone or Apple Watch into extreme temperatures. Apple devices operate safely between 32°F - 95°F (0°C - 35°C). Start your timer BEFORE entering, then leave your device outside.")
+            Text("Please ensure your device is in a safe location during your wellness activity.")
         }
     }
     
@@ -364,7 +341,8 @@ struct TherapyTypeSelectionView: View {
     }
 
     func isExtremeTempTherapy(_ therapy: TherapyType) -> Bool {
-        return [.drySauna, .hotYoga, .coldPlunge, .coldShower, .iceBath].contains(therapy)
+        // Extreme temp warnings disabled for App Store compliance
+        return false
     }
     
     // Saves a therapy type to Core Data.
