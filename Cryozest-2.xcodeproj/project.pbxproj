@@ -19,10 +19,13 @@
 		479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
+		75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
 		75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
 		A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
+		ACB445EB9E33DE198FDA2263 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
 		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
 		C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F52E97484200031B6B /* MetricConfiguration.swift */; };
 		C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F72E97485900031B6B /* MetricConfigurationView.swift */; };
@@ -226,6 +229,7 @@
 		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
 		C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakingAnalysisView.swift; sourceTree = "<group>"; };
+		D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyGoalProgressView.swift; path = "Cryozest-2/WeeklyGoalProgressView.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -383,6 +387,7 @@
 				C56DDCEE2E9870FE0052946A /* WellnessRating.swift */,
 				C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */,
 				C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */,
+				D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -635,6 +640,7 @@
 				E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */,
 				38134005B430A99ECC2A61F0 /* LargeHeartRateWidget.swift in Sources */,
 				5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */,
+				75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -649,6 +655,7 @@
 				A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */,
 				09964D91A34930B61BC70F60 /* LargeHeartRateWidget.swift in Sources */,
 				212E4E42A5A1AEDF015BCE34 /* HeartRateDetailView.swift in Sources */,
+				674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,6 +671,7 @@
 				465E4C16B7D3810BED3BB79B /* CompletedHabitsCard.swift in Sources */,
 				DD9F428987C217EBB888B82D /* LargeHeartRateWidget.swift in Sources */,
 				CEBE4DBE8895C3DDC2670582 /* HeartRateDetailView.swift in Sources */,
+				ACB445EB9E33DE198FDA2263 /* WeeklyGoalProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

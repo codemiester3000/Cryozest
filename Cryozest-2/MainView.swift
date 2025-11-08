@@ -322,9 +322,14 @@ struct MainView: View {
                     HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
                         .padding(.bottom, 16)
                 }
-                
+
+                // Weekly Goal Progress
+                WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
+
                 // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
-                
+
                 //NavigationView {
                     VStack(alignment: .leading) {
                         NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {

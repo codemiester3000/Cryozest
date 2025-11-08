@@ -29,12 +29,14 @@ struct AppTabView: View {
 
         let therapyTypes: [TherapyType]
         if results.isEmpty {
-            therapyTypes = [.drySauna, .weightTraining, .coldPlunge, .meditation]
+            // Updated for App Store compliance - removed extreme temperature therapies
+            therapyTypes = [.running, .weightTraining, .cycling, .meditation]
         } else {
             therapyTypes = results.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }
 
-        let initialTherapy = therapyTypes.first ?? .drySauna
+        // Updated for App Store compliance
+        let initialTherapy = therapyTypes.first ?? .running
         _therapyTypeSelection = StateObject(wrappedValue: TherapyTypeSelection(initialTherapyType: initialTherapy))
     }
 
@@ -62,22 +64,13 @@ struct AppTabView: View {
                 .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
 
-            AnalysisView(therapyTypeSelection: therapyTypeSelection, selectedTab: $selectedTab)
-                .tabItem {
-                    Image(systemName: "chart.bar.fill")
-                    Text("Analysis")
-                }
-                .tag(2)
-                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
-
             InsightsView()
                 .environment(\.managedObjectContext, viewContext)
                 .tabItem {
                     Image(systemName: "lightbulb.fill")
                     Text("Insights")
                 }
-                .tag(3)
+                .tag(2)
                 .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
