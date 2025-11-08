@@ -567,6 +567,7 @@ struct DailyGridMetrics: View {
             }
         }
         .padding([.horizontal, .top])
+        .padding(.leading, 10)
         .animation(.spring(response: 0.6, dampingFraction: 0.85), value: expandedMetric)
     }
     
