@@ -376,28 +376,29 @@ struct MedicationRow: View {
 // MARK: - Border Light Animation
 
 struct BorderLightAnimation: View {
-    @State private var trimEnd: CGFloat = 0
+    @State private var progress: CGFloat = 0
 
     var body: some View {
         RoundedRectangle(cornerRadius: 16)
-            .trim(from: 0, to: trimEnd)
+            .trim(from: progress, to: progress + 0.15)  // Small segment (15% of perimeter)
             .stroke(
                 LinearGradient(
                     colors: [
-                        Color.green.opacity(0),
+                        Color.green.opacity(0.3),
                         Color.green,
                         Color.green,
-                        Color.green.opacity(0)
+                        Color.green.opacity(0.3)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
                 ),
-                style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                style: StrokeStyle(lineWidth: 4, lineCap: .round)
             )
-            .rotationEffect(.degrees(-90))  // Start from top
+            .rotationEffect(.degrees(-90))  // Start from top center
+            .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
             .onAppear {
                 withAnimation(.linear(duration: 0.6)) {
-                    trimEnd = 1.0
+                    progress = 1.0
                 }
             }
     }
