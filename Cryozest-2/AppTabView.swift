@@ -41,97 +41,94 @@ struct AppTabView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            DailyView(
-                recoveryModel: RecoveryGraphModel(selectedDate: Date()),
-                exertionModel: ExertionModel(selectedDate: Date()),
-                sleepModel: DailySleepViewModel(selectedDate: Date()),
-                context: viewContext)
-                .tabItem {
-                    Image(systemName: "moon.fill")
-                    Text("Daily")
-                }
-                .tag(0)
-                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+                DailyView(
+                    recoveryModel: RecoveryGraphModel(selectedDate: Date()),
+                    exertionModel: ExertionModel(selectedDate: Date()),
+                    sleepModel: DailySleepViewModel(selectedDate: Date()),
+                    context: viewContext)
+                    .tag(0)
 
-            MainView(therapyTypeSelection: therapyTypeSelection)
-                .tabItem {
-                    Image(systemName: "stopwatch.fill")
-                    Text("Habits")
-                }
-                .tag(1)
-                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
+                MainView(therapyTypeSelection: therapyTypeSelection)
+                    .tag(1)
 
-            InsightsView()
-                .environment(\.managedObjectContext, viewContext)
-                .tabItem {
-                    Image(systemName: "lightbulb.fill")
-                    Text("Insights")
-                }
-                .tag(2)
-                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-                .toolbarBackground(.visible, for: .tabBar)
-        }
-        .accentColor(.cyan)
-        .onAppear {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithTransparentBackground()
-
-            // Glassmorphism effect - darker translucent background for better readability
-            appearance.backgroundColor = UIColor(red: 0.06, green: 0.06, blue: 0.10, alpha: 0.85)
-
-            // Enable blur effect for glassmorphism
-            appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
-
-            // Remove default shadow, we'll add our own
-            appearance.shadowColor = nil
-            appearance.shadowImage = UIImage()
-
-            // Unselected items - improved readability with higher opacity
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.65)
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.white.withAlphaComponent(0.65),
-                .font: UIFont.systemFont(ofSize: 11, weight: .semibold)
-            ]
-
-            // Selected items - brighter, more vibrant cyan for better contrast
-            let selectedColor = UIColor(red: 0.4, green: 0.9, blue: 1.0, alpha: 1.0)
-            appearance.stackedLayoutAppearance.selected.iconColor = selectedColor
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: selectedColor,
-                .font: UIFont.systemFont(ofSize: 11, weight: .bold)
-            ]
-
-            UITabBar.appearance().standardAppearance = appearance
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-
-            // Add floating effect with custom layer modifications
-            DispatchQueue.main.async {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let tabBarController = windowScene.windows.first?.rootViewController as? UITabBarController {
-                    let tabBar = tabBarController.tabBar
-
-                    // Add corner radius for floating effect
-                    tabBar.layer.cornerRadius = 24
-                    tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-                    tabBar.layer.masksToBounds = true
-
-                    // Add shadow for depth
-                    tabBar.layer.shadowColor = UIColor.black.cgColor
-                    tabBar.layer.shadowOffset = CGSize(width: 0, height: -2)
-                    tabBar.layer.shadowOpacity = 0.25
-                    tabBar.layer.shadowRadius = 12
-                    tabBar.layer.masksToBounds = false
-
-                    // Add subtle border on top for glassmorphism
-                    let borderLayer = CALayer()
-                    borderLayer.backgroundColor = UIColor.white.withAlphaComponent(0.1).cgColor
-                    borderLayer.frame = CGRect(x: 0, y: 0, width: tabBar.bounds.width, height: 0.5)
-                    tabBar.layer.addSublayer(borderLayer)
-                }
+                InsightsView()
+                    .environment(\.managedObjectContext, viewContext)
+                    .tag(2)
             }
+            .accentColor(.cyan)
+
+            // Custom floating tab bar
+            FloatingTabBar(selectedTab: $selectedTab)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+        }
+        .onAppear {
+            // Hide the default tab bar
+            UITabBar.appearance().isHidden = true
         }
     }
+}
+
+struct FloatingTabBar: View {
+    @Binding var selectedTab: Int
+
+    private let tabs = [
+        TabItem(icon: "moon.fill", title: "Daily", tag: 0),
+        TabItem(icon: "stopwatch.fill", title: "Habits", tag: 1),
+        TabItem(icon: "lightbulb.fill", title: "Insights", tag: 2)
+    ]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(tabs, id: \.tag) { tab in
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        selectedTab = tab.tag
+                    }
+                }) {
+                    VStack(spacing: 4) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.5))
+
+                        Text(tab.title)
+                            .font(.system(size: 10, weight: selectedTab == tab.tag ? .semibold : .medium))
+                            .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.5))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        selectedTab == tab.tag ?
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.cyan.opacity(0.15))
+                            : nil
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(Color(red: 0.08, green: 0.08, blue: 0.12).opacity(0.6))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+    }
+}
+
+struct TabItem {
+    let icon: String
+    let title: String
+    let tag: Int
 }
