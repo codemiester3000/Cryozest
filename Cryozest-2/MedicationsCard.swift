@@ -270,11 +270,15 @@ struct MedicationsCard: View {
                 let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 heavyGenerator.impactOccurred()
 
-                // Collapse after animation (3 seconds for debugging)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                // Collapse after animation completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         isCollapsed = true
                     }
+                }
+
+                // Hide animation after it completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     showCompletionAnimation = false
                 }
             }
@@ -376,30 +380,32 @@ struct MedicationRow: View {
 // MARK: - Border Light Animation
 
 struct BorderLightAnimation: View {
-    @State private var progress: CGFloat = 0
+    @State private var rotation: Double = 0
 
     var body: some View {
         RoundedRectangle(cornerRadius: 16)
-            .inset(by: 0)  // No inset - match the border exactly
-            .trim(from: progress, to: progress + 0.15)  // Small segment (15% of perimeter)
+            .trim(from: 0, to: 0.25)  // 25% segment for visible light trail
             .stroke(
-                LinearGradient(
-                    colors: [
-                        Color.green.opacity(0.3),
-                        Color.green,
-                        Color.green,
-                        Color.green.opacity(0.3)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
+                AngularGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color.green.opacity(0), location: 0),
+                        .init(color: Color.green.opacity(0.5), location: 0.3),
+                        .init(color: Color.green, location: 0.5),
+                        .init(color: Color.green.opacity(0.5), location: 0.7),
+                        .init(color: Color.green.opacity(0), location: 1)
+                    ]),
+                    center: .center,
+                    startAngle: .degrees(0),
+                    endAngle: .degrees(360)
                 ),
-                style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                style: StrokeStyle(lineWidth: 3, lineCap: .round)
             )
-            .rotationEffect(.degrees(-90))  // Start from top center
-            .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
+            .rotationEffect(.degrees(rotation))
+            .blur(radius: 1)
+            .shadow(color: Color.green.opacity(0.6), radius: 6, x: 0, y: 0)
             .onAppear {
-                withAnimation(.linear(duration: 3.0)) {  // Slowed down to 3 seconds for debugging
-                    progress = 1.0
+                withAnimation(.linear(duration: 0.6).repeatCount(1, autoreverses: false)) {
+                    rotation = 360
                 }
             }
     }
