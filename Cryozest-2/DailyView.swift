@@ -169,7 +169,7 @@ struct DailyView: View {
                             overloadMinutes: exertionModel.overloadMinutes
                         )
                         .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 12)
                     }
                 }
                 .simultaneousGesture(
