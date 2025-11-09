@@ -331,11 +331,6 @@ struct MainView: View {
                         .padding(.bottom, 16)
                 }
 
-                // Weekly Goal Progress
-                WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 16)
-
                 // LogbookView(therapyTypeSelection: self.therapyTypeSelection)
 
                 //NavigationView {
@@ -370,6 +365,9 @@ struct MainView: View {
                             .padding(.top, 12)
 
                             VStack(alignment: .leading, spacing: 12) {
+                                // Weekly Goal Progress
+                                WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
+
                                 // Streak Card
                                 if habitStats.totalSessions > 0 {
                                     StreakCard(

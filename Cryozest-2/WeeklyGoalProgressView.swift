@@ -79,7 +79,7 @@ struct WeeklyGoalProgressView: View {
             // Header with goal configuration
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("This Week's Progress")
+                    Text("Weekly Goal")
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
 
