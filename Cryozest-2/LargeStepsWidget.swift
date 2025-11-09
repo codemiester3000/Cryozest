@@ -40,7 +40,7 @@ struct LargeStepsWidget: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             // Compact header with icon inline and goal badge
             HStack(alignment: .center) {
                 // Icon inline with main metric

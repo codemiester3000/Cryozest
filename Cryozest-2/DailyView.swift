@@ -1293,67 +1293,68 @@ struct ExpandedHeroCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 16) {
-                // Left side: Icon and score
-                VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                // Left side: Icon inline with score
+                HStack(spacing: 10) {
                     ZStack {
                         Circle()
                             .fill(color.opacity(0.2))
-                            .frame(width: 56, height: 56)
+                            .frame(width: 44, height: 44)
 
                         Image(systemName: icon)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(color)
                     }
 
-                    Text("\(score)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                }
-                .frame(width: 80)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.6))
 
-                // Right side: Title, subtitle, and details
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-
-                    Text(subtitle)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.6))
-
-                    if !details.isEmpty {
-                        HStack(spacing: 12) {
-                            ForEach(details.indices, id: \.self) { index in
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(details[index].color)
-                                        .frame(width: 6, height: 6)
-
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(details[index].label)
-                                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                                            .foregroundColor(.white.opacity(0.5))
-
-                                        Text(details[index].value)
-                                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.top, 4)
+                        Text("\(score)")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
                     }
                 }
 
                 Spacer()
 
+                // Right side: Subtitle and details
+                VStack(alignment: .trailing, spacing: 6) {
+                    Text(subtitle)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.trailing)
+
+                    if !details.isEmpty {
+                        HStack(spacing: 8) {
+                            ForEach(details.indices, id: \.self) { index in
+                                HStack(spacing: 3) {
+                                    Circle()
+                                        .fill(details[index].color)
+                                        .frame(width: 5, height: 5)
+
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(details[index].label)
+                                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.5))
+
+                                        Text(details[index].value)
+                                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Chevron
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.white.opacity(0.3))
             }
-            .padding(16)
+            .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(
