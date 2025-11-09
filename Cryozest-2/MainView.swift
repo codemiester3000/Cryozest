@@ -339,8 +339,33 @@ struct MainView: View {
                         .fill(Color.white.opacity(0.05))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(
+                                    isSessionCompleteForToday
+                                        ? LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.green.opacity(0.6),
+                                                Color.green.opacity(0.3)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        : LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color.white.opacity(0.1),
+                                                Color.white.opacity(0.1)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                    lineWidth: isSessionCompleteForToday ? 1.5 : 1
+                                )
                         )
+                )
+                .shadow(
+                    color: isSessionCompleteForToday ? Color.green.opacity(0.3) : Color.clear,
+                    radius: isSessionCompleteForToday ? 12 : 0,
+                    x: 0,
+                    y: 0
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
