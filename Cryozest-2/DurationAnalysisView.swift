@@ -155,10 +155,10 @@ struct DurationAnalysisView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Completed")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                         Text("\(viewModel.totalSessions) sessions")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     Spacer()
@@ -184,12 +184,12 @@ struct DurationAnalysisView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Time spent")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                         let totalHours = Int(viewModel.totalTime / 3600)
                         let totalMinutes = Int(viewModel.totalTime / 60) % 60
                         Text("\(totalHours) hr \(totalMinutes) min")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     Spacer()
@@ -215,10 +215,10 @@ struct DurationAnalysisView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Current streak")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                         Text("\(viewModel.currentStreak) days")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     Spacer()

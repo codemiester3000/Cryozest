@@ -96,7 +96,7 @@ struct SessionSummary: View {
                     HStack {
                         Text("Session Summary")
                             .foregroundColor(.white)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(size: 28, weight: .bold))
                         Spacer()
                     }
                     .padding(.horizontal, 20)
@@ -131,19 +131,19 @@ struct SessionSummary: View {
                         // Duration Display
                         VStack(spacing: 8) {
                             Text("Duration")
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
 
                             HStack(spacing: 4) {
                                 Text("\(durationHours)h")
-                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                    .font(.system(size: 48, weight: .bold))
                                     .foregroundColor(.white)
                                 Text("\(durationMinutes)m")
-                                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                                    .font(.system(size: 48, weight: .bold))
                                     .foregroundColor(.white.opacity(0.8))
                                 if durationSeconds > 0 {
                                     Text("\(durationSeconds)s")
-                                        .font(.system(size: 28, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 28, weight: .semibold))
                                         .foregroundColor(.white.opacity(0.6))
                                         .padding(.top, 12)
                                 }
@@ -154,7 +154,7 @@ struct SessionSummary: View {
                                     Image(systemName: "pencil.circle.fill")
                                         .font(.system(size: 14))
                                     Text("Edit Duration")
-                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 14, weight: .semibold))
                                 }
                                 .foregroundColor(therapyType.color)
                                 .padding(.horizontal, 16)
@@ -246,7 +246,7 @@ struct SessionSummary: View {
                         VStack(spacing: 16) {
                             HStack {
                                 Text("Heart Rate")
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.white)
                                 Spacer()
                             }
@@ -271,7 +271,7 @@ struct SessionSummary: View {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 18))
                                 Text("Discard")
-                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 17, weight: .semibold))
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -289,7 +289,7 @@ struct SessionSummary: View {
                         Button(action: logSession) {
                             HStack(spacing: 8) {
                                 Text("Save Session")
-                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                    .font(.system(size: 17, weight: .bold))
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 18))
                             }
@@ -443,11 +443,11 @@ struct ModernStatCard: View {
 
             VStack(spacing: 4) {
                 Text(label)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
 
                 Text(value)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -456,7 +456,7 @@ struct ModernStatCard: View {
             if let onEdit = onEdit {
                 Button(action: onEdit) {
                     Text("Edit")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(color)
                 }
             } else {
@@ -517,16 +517,16 @@ struct HeartRateRangeCard: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Average")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(average)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.system(size: 36, weight: .bold))
                             .foregroundColor(.white)
 
                         Text("bpm")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white.opacity(0.6))
                     }
                 }
@@ -573,10 +573,10 @@ struct HeartRateRangeCard: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("MIN")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.white.opacity(0.5))
                         Text("\(min) bpm")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
                     }
 
@@ -584,10 +584,10 @@ struct HeartRateRangeCard: View {
 
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("MAX")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.white.opacity(0.5))
                         Text("\(max) bpm")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
                     }
                 }
@@ -630,11 +630,11 @@ struct NoHealthDataCard: View {
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("No Heart Rate Data")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
 
                 Text("Wear Apple Watch during your session to track heart rate metrics (minimum 3 minutes)")
-                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundColor(.white.opacity(0.7))
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -672,7 +672,7 @@ struct TherapyTypePickerButton: View {
         } label: {
             HStack(spacing: 8) {
                 Text(therapyType.displayName(managedObjectContext))
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
 
                 Image(systemName: "chevron.down.circle.fill")
@@ -726,14 +726,14 @@ struct DurationPickerSheet: View {
 
             VStack(spacing: 32) {
                 Text("Edit Duration")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.top, 40)
 
                 HStack(spacing: 20) {
                     VStack {
                         Text("Hours")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.6))
                         Picker("Hours", selection: $hours) {
                             ForEach(0..<24) { hour in
@@ -747,7 +747,7 @@ struct DurationPickerSheet: View {
 
                     VStack {
                         Text("Minutes")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.6))
                         Picker("Minutes", selection: $minutes) {
                             ForEach(0..<60) { minute in
@@ -761,7 +761,7 @@ struct DurationPickerSheet: View {
 
                     VStack {
                         Text("Seconds")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.6))
                         Picker("Seconds", selection: $seconds) {
                             ForEach(0..<60) { second in
@@ -776,7 +776,7 @@ struct DurationPickerSheet: View {
 
                 Button(action: { presentationMode.wrappedValue.dismiss() }) {
                     Text("Done")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -823,7 +823,7 @@ struct TemperaturePickerSheet: View {
 
             VStack(spacing: 32) {
                 Text("Edit Temperature")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.top, 40)
 
@@ -838,7 +838,7 @@ struct TemperaturePickerSheet: View {
 
                 Button(action: { presentationMode.wrappedValue.dismiss() }) {
                     Text("Done")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(red: 0.05, green: 0.15, blue: 0.25))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)

@@ -38,14 +38,14 @@ struct CreateTimerView: View {
 
             VStack(spacing: 24) {
                 Text("Customize Timer Durations")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.top, 40)
 
                 ForEach(0..<2) { index in
                     VStack(spacing: 12) {
                         Text("Timer \(index + 1)")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white.opacity(0.9))
                         Picker(selection: $durations[index], label: Text("Duration")) {
                             ForEach(1...60, id: \.self) {
@@ -76,7 +76,7 @@ struct CreateTimerView: View {
                 }) {
                     HStack(spacing: 10) {
                         Text("Save Timers")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.system(size: 17, weight: .semibold))
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 18))
                     }

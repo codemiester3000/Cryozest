@@ -41,22 +41,22 @@ struct HeartRateDetailView: View {
     private var currentHRCard: some View {
         VStack(spacing: 8) {
                 Text("Current Heart Rate")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     if let hr = currentHR {
                         Text("\(hr)")
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .font(.system(size: 48, weight: .bold))
                             .foregroundColor(.red)
                     } else {
                         Text("--")
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .font(.system(size: 48, weight: .bold))
                             .foregroundColor(.white.opacity(0.3))
                     }
 
                     Text("bpm")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -75,7 +75,7 @@ struct HeartRateDetailView: View {
     private var weeklyStatsCard: some View {
         VStack(alignment: .leading, spacing: 12) {
                 Text("This Week")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
 
                 if let stats = weekStats {
@@ -116,7 +116,7 @@ struct HeartRateDetailView: View {
                     }
                 } else {
                     Text("No data available")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
@@ -136,7 +136,7 @@ struct HeartRateDetailView: View {
     private var rhrTrendCard: some View {
         VStack(alignment: .leading, spacing: 12) {
                 Text("Resting Heart Rate Trend")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
 
                 if #available(iOS 16.0, *) {
@@ -171,7 +171,7 @@ struct HeartRateDetailView: View {
                             if let date = value.as(Date.self) {
                                 AxisValueLabel {
                                     Text(dayFormatter.string(from: date))
-                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .font(.system(size: 10, weight: .medium))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
                             }
@@ -182,7 +182,7 @@ struct HeartRateDetailView: View {
                             AxisValueLabel {
                                 if let rhr = value.as(Int.self) {
                                     Text("\(rhr)")
-                                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                                        .font(.system(size: 10, weight: .medium))
                                         .foregroundColor(.white.opacity(0.6))
                                 }
                             }
@@ -194,7 +194,7 @@ struct HeartRateDetailView: View {
                     .padding(.vertical, 8)
                 } else {
                     Text("Chart requires iOS 16+")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
@@ -214,7 +214,7 @@ struct HeartRateDetailView: View {
     private var hrZonesCard: some View {
         VStack(alignment: .leading, spacing: 12) {
                 Text("Time in Heart Rate Zones (Today)")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
 
                 if let stats = weekStats {
@@ -245,7 +245,7 @@ struct HeartRateDetailView: View {
                     }
                 } else {
                     Text("No data available")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding()
@@ -270,12 +270,12 @@ struct HeartRateDetailView: View {
                         .foregroundColor(.red)
 
                     Text("About Heart Rate")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("Your resting heart rate is a key indicator of cardiovascular fitness. Lower is generally better, with most adults ranging between 60-100 bpm. Athletes often have RHR in the 40-60 range.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -317,13 +317,13 @@ struct HRZoneRow: View {
                 .frame(width: 8, height: 8)
 
             Text(zone)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.8))
 
             Spacer()
 
             Text(String(format: "%.1f hrs", hours))
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundColor(color)
         }
         .padding(.vertical, 6)
@@ -346,16 +346,16 @@ struct HRStatCard: View {
             VStack(spacing: 4) {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text(value)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
 
                     Text(unit)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                 }
 
                 Text(label)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(1)
             }

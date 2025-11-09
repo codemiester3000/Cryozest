@@ -37,14 +37,14 @@ struct CustomDurationPickerView: View {
             NavigationView {
                 VStack(spacing: 24) {
                     Text("Custom Duration")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.top, 20)
                 
                     HStack(spacing: 20) {
                         VStack(spacing: 8) {
                             Text("Minutes")
-                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
                             Picker("", selection: $minutes) {
                                 ForEach(0..<60) { minute in
@@ -67,7 +67,7 @@ struct CustomDurationPickerView: View {
 
                         VStack(spacing: 8) {
                             Text("Seconds")
-                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
                             Picker("", selection: $seconds) {
                                 ForEach(0..<60) { second in
@@ -99,7 +99,7 @@ struct CustomDurationPickerView: View {
                     }) {
                         HStack(spacing: 8) {
                             Text("Set Timer")
-                                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                .font(.system(size: 18, weight: .semibold))
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 16))
                         }

@@ -61,7 +61,7 @@ struct ContextualTooltip: View {
     private var tooltipContent: some View {
         HStack(spacing: 12) {
             Text(message)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)

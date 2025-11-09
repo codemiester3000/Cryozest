@@ -17,16 +17,16 @@ struct HRVDetailView: View {
             // Current value card
             VStack(spacing: 8) {
                 Text("Current HRV")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(model.lastKnownHRV)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.cyan)
 
                     Text("ms")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
 
@@ -46,7 +46,7 @@ struct HRVDetailView: View {
             // 7-day trend chart
             VStack(alignment: .leading, spacing: 12) {
                 Text("7-Day Trend")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 if isLoading {
@@ -101,7 +101,7 @@ struct HRVDetailView: View {
                 .foregroundColor(trend > 0 ? .green : trend < 0 ? .red : .gray)
 
             Text(abs(trend) > 0 ? "\(abs(Int(trend)))% vs last week" : "No change")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
         }
     }
@@ -109,7 +109,7 @@ struct HRVDetailView: View {
     private var zoneIndicator: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Recovery Status")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
 
             let currentHRV = model.lastKnownHRV
@@ -122,11 +122,11 @@ struct HRVDetailView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(status.label)
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text(status.description)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                 }
             }
@@ -146,16 +146,16 @@ struct HRVDetailView: View {
     private func statCard(title: String, value: String, unit: String) -> some View {
         VStack(spacing: 6) {
             Text(title)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
 
                 Text(unit)
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
         }
@@ -179,12 +179,12 @@ struct HRVDetailView: View {
                     .foregroundColor(.cyan)
 
                 Text(title)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.white)
             }
 
             Text(description)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
                 .lineSpacing(4)
         }

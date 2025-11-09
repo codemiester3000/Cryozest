@@ -35,7 +35,7 @@ struct TherapyTypeGrid: View {
                                 .font(.system(size: 18, weight: .semibold))
                         }
                         Text(therapyType.displayName(managedObjectContext))
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                         Spacer()
                     }

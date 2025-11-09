@@ -375,7 +375,7 @@ struct DailyView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 18, weight: .semibold))
                                 Text("Done")
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 16, weight: .semibold))
                             }
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
@@ -509,7 +509,7 @@ struct HeaderView: View {
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 12, weight: .semibold))
                         Text("Customize")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                     }
                     .foregroundColor(.cyan)
                     .padding(.horizontal, 14)
@@ -536,12 +536,12 @@ struct HeaderView: View {
                             .foregroundColor(.white.opacity(0.5))
 
                         Text(dateFormatter.string(from: selectedDate))
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
 
                         if isToday {
                             Text("Today")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.cyan)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
@@ -935,7 +935,7 @@ struct GridItemView: View {
                     )
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineLimit(1)
                 Spacer()
@@ -943,10 +943,10 @@ struct GridItemView: View {
 
             HStack(alignment: .lastTextBaseline, spacing: 3) {
                 Text(value)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(animate ? Color.cyan : .white)
                 Text(unit)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
                     .padding(.bottom, 1)
             }
@@ -1024,15 +1024,15 @@ struct ExpandedGridItemView: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(title)
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
 
                             HStack(alignment: .lastTextBaseline, spacing: 3) {
                                 Text(value)
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.white)
                                 Text(unit)
-                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .font(.system(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.5))
                             }
                         }
@@ -1097,11 +1097,11 @@ struct ExpandedGridItemView: View {
         case .deepSleep, .remSleep, .coreSleep:
             VStack(alignment: .leading, spacing: 16) {
                 Text("Sleep stage data")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
 
                 Text("Tap on the Sleep hero card or visit the Sleep tab for detailed sleep analysis and trends.")
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .font(.system(size: 14, weight: .regular))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -1235,12 +1235,12 @@ struct ScoreCardView: View {
 
                 // Score
                 Text("\(score)")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
 
                 // Title
                 Text(title)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineLimit(1)
             }
@@ -1304,11 +1304,11 @@ struct ExpandedHeroCard: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(title)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
 
                         Text("\(score)")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
                     }
                 }
@@ -1318,7 +1318,7 @@ struct ExpandedHeroCard: View {
                 // Right side: Subtitle and details
                 VStack(alignment: .trailing, spacing: 6) {
                     Text(subtitle)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .multilineTextAlignment(.trailing)
 
@@ -1332,11 +1332,11 @@ struct ExpandedHeroCard: View {
 
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(details[index].label)
-                                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                                            .font(.system(size: 8, weight: .medium))
                                             .foregroundColor(.white.opacity(0.5))
 
                                         Text(details[index].value)
-                                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                            .font(.system(size: 10, weight: .semibold))
                                             .foregroundColor(.white)
                                     }
                                 }
@@ -1433,7 +1433,7 @@ struct ProgressButtonView: View {
                         )
 
                     Text(title)
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
 
                     Spacer()
@@ -1445,7 +1445,7 @@ struct ProgressButtonView: View {
                     }
 
                     Text("\(Int(progress * 100))%")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(color)
                 }
 
@@ -1540,7 +1540,7 @@ struct DatePickerSheet: View {
                         .padding(.top, 40)
 
                     Text("Select Date")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
 
                     // Date Picker
@@ -1570,7 +1570,7 @@ struct DatePickerSheet: View {
                         dismiss()
                     }) {
                         Text("Done")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -1741,7 +1741,7 @@ struct DailyHeaderSection: View {
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 12, weight: .semibold))
                         Text("Customize")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                     }
                     .foregroundColor(.cyan)
                     .padding(.horizontal, 14)
@@ -1768,12 +1768,12 @@ struct DailyHeaderSection: View {
                             .foregroundColor(.white.opacity(0.5))
 
                         Text(dateFormatter.string(from: selectedDate))
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
 
                         if isToday {
                             Text("Today")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.cyan)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)

@@ -136,13 +136,13 @@ struct ConsistencyScoreCard: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Consistency Score")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 Spacer()
 
                 Text(timeFrameLabel)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
 
@@ -172,11 +172,11 @@ struct ConsistencyScoreCard: View {
 
                 VStack(spacing: 4) {
                     Text(String(format: "%.0f%%", consistencyScore))
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
+                        .font(.system(size: 36, weight: .bold))
                         .foregroundColor(.white)
 
                     Text(scoreLabel)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(scoreColor)
                 }
             }
@@ -184,11 +184,11 @@ struct ConsistencyScoreCard: View {
             HStack(spacing: 16) {
                 VStack(spacing: 4) {
                     Text("\(daysCompleted)")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Days Hit")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .frame(maxWidth: .infinity)
@@ -200,11 +200,11 @@ struct ConsistencyScoreCard: View {
 
                 VStack(spacing: 4) {
                     Text("\(targetDays)")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Goal")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .frame(maxWidth: .infinity)

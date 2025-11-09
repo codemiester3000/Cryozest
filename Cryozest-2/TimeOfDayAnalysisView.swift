@@ -76,7 +76,7 @@ struct TimeOfDayAnalysisView: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Time of Day Analysis")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
             }
 
@@ -97,18 +97,18 @@ struct TimeOfDayAnalysisView: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(timeOfDay.rawValue)
-                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.white)
 
                             Text("\(count) sessions")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                         }
 
                         Spacer()
 
                         Text(String(format: "%.0f%%", percentage))
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundColor(timeOfDay.color)
 
                         // Bar

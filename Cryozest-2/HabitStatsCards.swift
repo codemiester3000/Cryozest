@@ -25,12 +25,12 @@ struct StreakCard: View {
                             .foregroundColor(.orange)
 
                         Text("\(currentStreak)")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                     }
 
                     Text("Day Streak")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .frame(maxWidth: .infinity)
@@ -48,12 +48,12 @@ struct StreakCard: View {
                             .foregroundColor(.yellow)
 
                         Text("\(bestStreak)")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                     }
 
                     Text("Best Streak")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .frame(maxWidth: .infinity)
@@ -170,12 +170,12 @@ struct StatItem: View {
         VStack(spacing: 6) {
             HStack(spacing: 4) {
                 Text(value)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
 
                 if let badge = badge {
                     Text(badge)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(.system(size: 11, weight: .bold))
                         .foregroundColor(badgeColor ?? .white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -187,7 +187,7 @@ struct StatItem: View {
             }
 
             Text(label)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
@@ -221,11 +221,11 @@ struct GoalsCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Weekly Goal")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text("\(currentProgress)/\(weeklyGoal) sessions")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
 
@@ -233,7 +233,7 @@ struct GoalsCard: View {
 
                 if remaining > 0 {
                     Text("\(remaining) more")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(habitColor)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
@@ -246,7 +246,7 @@ struct GoalsCard: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 14, weight: .semibold))
                         Text("Goal Met!")
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold))
                     }
                     .foregroundColor(.green)
                     .padding(.horizontal, 12)

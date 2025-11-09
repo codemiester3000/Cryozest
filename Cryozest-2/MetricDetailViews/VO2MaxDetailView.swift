@@ -19,16 +19,16 @@ struct VO2MaxDetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("VO2 Max")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(String(format: "%.1f", vo2Max))
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.pink)
 
                     Text("ml/kg/min")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -47,7 +47,7 @@ struct VO2MaxDetailView: View {
             let category = getFitnessCategory(vo2Max: vo2Max)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Fitness Category")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
@@ -57,11 +57,11 @@ struct VO2MaxDetailView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(category.label)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text(category.description)
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                 }
@@ -80,7 +80,7 @@ struct VO2MaxDetailView: View {
             // Range indicators
             VStack(alignment: .leading, spacing: 12) {
                 Text("Reference Ranges")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 VStack(spacing: 8) {
@@ -108,12 +108,12 @@ struct VO2MaxDetailView: View {
                         .foregroundColor(.pink)
 
                     Text("About VO2 Max")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("VO2 Max is the maximum amount of oxygen your body can use during intense exercise. Higher values indicate better cardiovascular fitness and endurance.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -136,13 +136,13 @@ struct VO2MaxDetailView: View {
                 .frame(width: 8, height: 8)
 
             Text(label)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white)
 
             Spacer()
 
             Text(range)
-                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .font(.system(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
         }
         .padding(.horizontal, 12)

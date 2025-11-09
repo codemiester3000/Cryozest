@@ -55,11 +55,11 @@ struct MedicationsCard: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("All medications taken")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text("\(activeMedications.count) of \(activeMedications.count) completed")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
 
@@ -76,7 +76,7 @@ struct MedicationsCard: View {
                                 Image(systemName: "arrow.uturn.backward")
                                     .font(.system(size: 12, weight: .semibold))
                                 Text("Undo")
-                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 13, weight: .semibold))
                             }
                             .foregroundColor(.white.opacity(0.7))
                             .padding(.horizontal, 12)
@@ -102,7 +102,7 @@ struct MedicationsCard: View {
                             .foregroundColor(.green)
 
                         Text("Medications")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
 
@@ -114,7 +114,7 @@ struct MedicationsCard: View {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 12, weight: .semibold))
                                 Text("Add")
-                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 13, weight: .semibold))
                             }
                             .foregroundColor(.green)
                             .padding(.horizontal, 10)
@@ -135,13 +135,13 @@ struct MedicationsCard: View {
                         .foregroundColor(.white.opacity(0.3))
 
                     Text("No medications added")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
 
                     if isToday {
                         Button(action: { showAddMedication = true }) {
                             Text("Add your first medication")
-                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(.green)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
@@ -325,12 +325,12 @@ struct MedicationRow: View {
             // Medication info
             VStack(alignment: .leading, spacing: 4) {
                 Text(medication.name ?? "Medication")
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.white)
                     .strikethrough(isTaken, color: .white.opacity(0.5))
 
                 Text(frequencyDisplay)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
 

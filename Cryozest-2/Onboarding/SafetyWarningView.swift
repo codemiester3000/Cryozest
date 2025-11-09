@@ -61,7 +61,7 @@ struct SafetyWarningView: View {
 
                     // Title
                     Text("Wellness Disclaimer")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
@@ -69,13 +69,13 @@ struct SafetyWarningView: View {
                     // Content Card
                     VStack(alignment: .leading, spacing: 16) {
                         Text("This app helps you track your wellness activities and recovery.")
-                            .font(.system(size: 15, weight: .regular, design: .rounded))
+                            .font(.system(size: 15, weight: .regular))
                             .foregroundColor(.white.opacity(0.9))
                             .lineSpacing(3)
 
                         VStack(alignment: .leading, spacing: 10) {
                             Text("IMPORTANT:")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.orange)
 
                             SafetyBulletPoint(
@@ -96,7 +96,7 @@ struct SafetyWarningView: View {
                         }
 
                         Text("Your health and safety are important to us.")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                             .lineSpacing(3)
                             .padding(.top, 6)
@@ -126,7 +126,7 @@ struct SafetyWarningView: View {
                     Button(action: onDismiss) {
                         HStack(spacing: 10) {
                             Text("I Understand")
-                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .font(.system(size: 17, weight: .bold))
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 17))
                         }
@@ -160,11 +160,11 @@ struct SafetyBulletPoint: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             Text("•")
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.orange)
 
             Text(text)
-                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .font(.system(size: 14, weight: .regular))
                 .foregroundColor(.white.opacity(0.9))
                 .lineSpacing(3)
         }

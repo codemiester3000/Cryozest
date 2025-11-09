@@ -264,7 +264,7 @@ struct ComparisonBarView: View {
     var body: some View {
         VStack(spacing: 8) {
             Text(label)
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(.white.opacity(0.8))
 
             ZStack(alignment: .bottom) {
@@ -284,11 +284,11 @@ struct ComparisonBarView: View {
 
             VStack(spacing: 4) {
                 Text(String(format: "%.1f hrs", exerciseValue))
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(color)
 
                 Text(String(format: "%.1f hrs", baselineValue))
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }

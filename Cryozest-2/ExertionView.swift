@@ -53,22 +53,22 @@ struct ExertionBarView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(label)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text(description)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                 }
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("\(Int(minutes)) min")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(color)
 
                     Text(zoneRange)
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.white.opacity(0.4))
                 }
             }
@@ -133,7 +133,7 @@ struct ZoneItemView: View {
                     .fill(zoneInfo.color)
                     .frame(width: 8, height: 8)
                 Text("Zone \(zoneInfo.zoneNumber)")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.white)
                     .frame(width: 60, alignment: .leading)
             }
@@ -159,13 +159,13 @@ struct ZoneItemView: View {
 
             // Time spent
             Text(zoneInfo.timeSpent)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.8))
                 .frame(width: 50, alignment: .trailing)
 
             // Heart rate range
             Text(zoneRange)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.5))
                 .frame(width: 80, alignment: .trailing)
         }
@@ -319,7 +319,7 @@ struct ExertionView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
                                 Text("Daily Exertion")
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.system(size: 24, weight: .bold))
                                     .foregroundColor(.white)
 
                                 Button(action: {
@@ -337,13 +337,13 @@ struct ExertionView: View {
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Today's Target")
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(.white.opacity(0.6))
                                     .textCase(.uppercase)
                                     .tracking(0.5)
 
                                 Text(targetExertionZone)
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.green)
                             }
                         }
@@ -359,7 +359,7 @@ struct ExertionView: View {
                     // User statement card
                     let userStatement = recoveryModel.generateUserStatement()
                     Text(userStatement)
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
                         .padding(16)
@@ -415,7 +415,7 @@ struct ExertionView: View {
                     // Heart rate zones section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Heart Rate Zones")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
 
@@ -439,7 +439,7 @@ struct ExertionView: View {
                         .padding(.horizontal, 20)
 
                         Text("Estimated time in each zone")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                             .padding(.horizontal, 20)
                     }

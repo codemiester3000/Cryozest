@@ -39,7 +39,7 @@ struct MetricConfigurationView: View {
                     Spacer()
 
                     Text("Metrics")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
 
                     Spacer()
@@ -54,7 +54,7 @@ struct MetricConfigurationView: View {
                 .padding(.bottom, 20)
 
                 Text("Customize your daily view")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
                     .padding(.bottom, 24)
 
@@ -63,12 +63,12 @@ struct MetricConfigurationView: View {
                         // Daily Widgets Section
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Daily Widgets")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 24)
 
                             Text("Additional cards on the Daily tab")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                                 .padding(.horizontal, 24)
                                 .padding(.bottom, 4)
@@ -96,12 +96,12 @@ struct MetricConfigurationView: View {
                         // Hero Scores Section
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Hero Scores")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 24)
 
                             Text("Main scores displayed at the top")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                                 .padding(.horizontal, 24)
                                 .padding(.bottom, 4)
@@ -129,12 +129,12 @@ struct MetricConfigurationView: View {
                         // Health Metrics Section
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Health Metrics")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 24)
 
                             Text("Detailed metrics in the grid")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                                 .padding(.horizontal, 24)
                                 .padding(.bottom, 4)
@@ -181,7 +181,7 @@ struct HeroScoreToggleRow: View {
 
                 // Hero score name
                 Text(heroScore.rawValue)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
 
                 Spacer()
@@ -244,7 +244,7 @@ struct MetricToggleRow: View {
 
                 // Metric name
                 Text(metric.rawValue)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
 
                 Spacer()
@@ -307,7 +307,7 @@ struct WidgetToggleRow: View {
 
                 // Widget name
                 Text(widget.rawValue)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
 
                 Spacer()

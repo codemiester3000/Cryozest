@@ -46,7 +46,7 @@ struct TimerCountdownView: View {
 
                     // Time remaining title
                     Text("Time Remaining")
-                        .font(.system(size: 20, weight: .semibold, design: .rounded))
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.white.opacity(0.7))
                         .tracking(1)
 
@@ -72,11 +72,11 @@ struct TimerCountdownView: View {
 
                         VStack(spacing: 8) {
                             Text(formatDuration(remainingTime))
-                                .font(.system(size: 56, weight: .bold, design: .rounded))
+                                .font(.system(size: 56, weight: .bold))
                                 .foregroundColor(.white)
 
                             Text("\(Int((remainingTime / timerDuration) * 100))%")
-                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .font(.system(size: 18, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }
@@ -90,7 +90,7 @@ struct TimerCountdownView: View {
                                 cancelTimer()
                             }) {
                                 Text("Cancel")
-                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 17, weight: .semibold))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 16)
@@ -111,7 +111,7 @@ struct TimerCountdownView: View {
                                     Image(systemName: timer == nil ? "play.fill" : "pause.fill")
                                         .font(.system(size: 16))
                                     Text(timer == nil ? "Resume" : "Pause")
-                                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 17, weight: .semibold))
                                 }
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -132,7 +132,7 @@ struct TimerCountdownView: View {
                         }) {
                             HStack(spacing: 8) {
                                 Text("Finish Now")
-                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 17, weight: .semibold))
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.system(size: 16))
                             }

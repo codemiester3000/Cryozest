@@ -46,11 +46,11 @@ struct StepGoalConfigView: View {
                             )
 
                         Text("Daily Step Goal")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
 
                         Text("Set your target steps per day")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                     .padding(.top, 40)
@@ -58,11 +58,11 @@ struct StepGoalConfigView: View {
                     // Goal input
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Goal (steps)")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
 
                         TextField("Enter step goal", text: $goalInput)
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                             .keyboardType(.numberPad)
                             .padding()
@@ -77,7 +77,7 @@ struct StepGoalConfigView: View {
 
                         if showError {
                             Text("Please enter a goal between 1,000 and 50,000 steps")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.red)
                         }
                     }
@@ -86,7 +86,7 @@ struct StepGoalConfigView: View {
                     // Quick presets
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Quick Presets")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
 
                         HStack(spacing: 12) {
@@ -102,7 +102,7 @@ struct StepGoalConfigView: View {
                     // Save button
                     Button(action: saveGoal) {
                         Text("Save Goal")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -151,11 +151,11 @@ struct PresetButton: View {
         }) {
             VStack(spacing: 4) {
                 Text("\(value / 1000)K")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
 
                 Text("steps")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
             .frame(maxWidth: .infinity)

@@ -81,7 +81,7 @@ struct WakingAnalysisView: View {
 
                 HStack(spacing: 12) {
                     Text("baseline")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.white.opacity(0.9))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -95,7 +95,7 @@ struct WakingAnalysisView: View {
                         )
                     Spacer()
                     Text("\(model.therapyType.displayName(managedObjectContext)) days")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -165,7 +165,7 @@ struct ComparisonView: View {
                         .foregroundColor(color)
                 }
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
                     .lineLimit(1)
 
@@ -175,14 +175,14 @@ struct ComparisonView: View {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Baseline")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                     HStack(alignment: .bottom, spacing: 4) {
                         Text(baselineValue)
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
                         Text(unit)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                             .padding(.bottom, 3)
                     }
@@ -192,14 +192,14 @@ struct ComparisonView: View {
 
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("With Therapy")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                     HStack(alignment: .bottom, spacing: 4) {
                         Text(exerciseValue)
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(color)
                         Text(unit)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                             .padding(.bottom, 3)
                     }

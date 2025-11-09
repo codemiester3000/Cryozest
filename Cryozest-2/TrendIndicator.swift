@@ -82,7 +82,7 @@ struct TrendIndicator: View {
                 .foregroundColor(trend.color)
 
             Text(displayText)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(trend.color)
         }
         .padding(.horizontal, 8)
@@ -117,7 +117,7 @@ struct MetricWithTrend: View {
                 }
 
                 Text(title)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 Spacer()
@@ -130,7 +130,7 @@ struct MetricWithTrend: View {
             }
 
             Text(value)
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
         }
         .padding(12)

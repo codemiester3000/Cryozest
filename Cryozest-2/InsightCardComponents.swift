@@ -29,7 +29,7 @@ struct TopImpactCard: View {
                     .frame(width: 44, height: 44)
 
                 Text("\(rank)")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
             }
 
@@ -47,11 +47,11 @@ struct TopImpactCard: View {
             // Details
             VStack(alignment: .leading, spacing: 4) {
                 Text(impact.habitType.displayName(managedObjectContext))
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
 
                 Text(impact.metricName)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
 
@@ -60,7 +60,7 @@ struct TopImpactCard: View {
             // Impact change
             VStack(alignment: .trailing, spacing: 4) {
                 Text(impact.changeDescription)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(impact.isPositive ? .green : .red)
 
                 HStack(spacing: 4) {
@@ -69,7 +69,7 @@ struct TopImpactCard: View {
                         .foregroundColor(impact.isPositive ? .green : .red)
 
                     Text("\(impact.sampleSize) days")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                 }
             }
@@ -126,7 +126,7 @@ struct MetricImpactRow: View {
 
             // Habit name
             Text(impact.habitType.displayName(managedObjectContext))
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundColor(.white)
 
             Spacer()
@@ -135,7 +135,7 @@ struct MetricImpactRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(formatValue(impact.baselineValue))
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
 
                     Image(systemName: "arrow.right")
@@ -143,12 +143,12 @@ struct MetricImpactRow: View {
                         .foregroundColor(.white.opacity(0.3))
 
                     Text(formatValue(impact.habitValue))
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(impact.habitType.color)
                 }
 
                 Text(impact.changeDescription)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(impact.isPositive ? .green : .red)
             }
         }
@@ -194,11 +194,11 @@ struct InsightsEmptyStateCard: View {
 
             VStack(spacing: 8) {
                 Text(title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
 
                 Text(message)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
@@ -236,7 +236,7 @@ struct InsightsSectionHeader: View {
             }
 
             Text(title)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
 
             Spacer()
@@ -264,17 +264,17 @@ struct HealthTrendCard: View {
             // Content
             VStack(alignment: .leading, spacing: 6) {
                 Text(trend.title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
 
                 Text(trend.description)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
                     Text(formatValue(trend.previousValue))
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
 
                     Image(systemName: "arrow.right")
@@ -282,7 +282,7 @@ struct HealthTrendCard: View {
                         .foregroundColor(.white.opacity(0.3))
 
                     Text(formatValue(trend.currentValue))
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(trend.color)
                 }
             }
@@ -297,12 +297,12 @@ struct HealthTrendCard: View {
                         .foregroundColor(trend.isPositive ? .green : .red)
 
                     Text(trend.changeDescription)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(trend.isPositive ? .green : .red)
                 }
 
                 Text("vs last week")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
         }

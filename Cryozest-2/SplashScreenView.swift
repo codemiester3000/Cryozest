@@ -79,11 +79,11 @@ struct SplashScreenView: View {
                 // App name
                 VStack(spacing: 8) {
                     Text("Cryozest")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                        .font(.system(size: 42, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Track Your Recovery")
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.cyan.opacity(0.8))
                 }
                 .opacity(textOpacity)

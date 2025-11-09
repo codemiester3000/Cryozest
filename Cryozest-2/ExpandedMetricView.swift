@@ -87,7 +87,7 @@ struct ExpandedMetricView: View {
                             )
 
                         Text(metricType.rawValue)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: 22, weight: .bold))
                             .foregroundColor(.white)
                     }
 
@@ -174,11 +174,11 @@ struct SleepMetricDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Sleep stage data")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white.opacity(0.9))
 
             Text("Tap on the Sleep hero card or visit the Sleep tab for detailed sleep analysis and trends.")
-                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .font(.system(size: 14, weight: .regular))
                 .foregroundColor(.white.opacity(0.7))
                 .lineSpacing(4)
         }

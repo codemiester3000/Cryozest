@@ -84,7 +84,7 @@ struct ProjectionWidget: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Monthly Projection")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 Spacer()
@@ -95,7 +95,7 @@ struct ProjectionWidget: View {
                         .foregroundColor(isOnTrack ? .green : .orange)
 
                     Text(isOnTrack ? "On Track" : "Behind")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(isOnTrack ? .green : .orange)
                 }
                 .padding(.horizontal, 8)
@@ -109,16 +109,16 @@ struct ProjectionWidget: View {
             HStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Current")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(currentMonthSessions)")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
 
                         Text("/ \(monthlyGoal)")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
 
@@ -150,15 +150,15 @@ struct ProjectionWidget: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Projected")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
                     Text("\(projectedTotal)")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .font(.system(size: 32, weight: .bold))
                         .foregroundColor(isOnTrack ? .green : .orange)
 
                     Text("sessions")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                 }
             }
@@ -172,7 +172,7 @@ struct ProjectionWidget: View {
                         .foregroundColor(.yellow)
 
                     Text("Add \(needed) more session\(needed == 1 ? "" : "s") to reach your goal")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .padding(8)

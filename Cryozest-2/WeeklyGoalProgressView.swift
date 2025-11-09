@@ -81,11 +81,11 @@ struct WeeklyGoalProgressView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Weekly Goal")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text("\(weeklyCompletions) of \(weeklyGoal) sessions")
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
 
@@ -97,7 +97,7 @@ struct WeeklyGoalProgressView: View {
                         Image(systemName: "target")
                             .font(.system(size: 13, weight: .semibold))
                         Text("Goal")
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold))
                     }
                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                     .padding(.horizontal, 12)
@@ -201,7 +201,7 @@ struct WeekDayCell: View {
     var body: some View {
         VStack(spacing: 6) {
             Text(dayLetter)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white.opacity(0.6))
 
             ZStack {
@@ -224,7 +224,7 @@ struct WeekDayCell: View {
                         .foregroundColor(color)
                 } else {
                     Text(dayNumber)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(isToday ? 0.9 : 0.5))
                 }
             }
@@ -273,11 +273,11 @@ struct WeeklyGoalConfigSheet: View {
                     }
 
                     Text("Weekly Goal")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("How many times per week?")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .padding(.top, 40)
@@ -287,11 +287,11 @@ struct WeeklyGoalConfigSheet: View {
                 // Goal stepper
                 VStack(spacing: 16) {
                     Text("\(weeklyGoal)")
-                        .font(.system(size: 72, weight: .bold, design: .rounded))
+                        .font(.system(size: 72, weight: .bold))
                         .foregroundColor(therapyType.color)
 
                     Text(weeklyGoal == 1 ? "session per week" : "sessions per week")
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
 
                     // Stepper
@@ -332,7 +332,7 @@ struct WeeklyGoalConfigSheet: View {
                             .font(.system(size: 18, weight: .semibold))
 
                         Text("Save Goal")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .font(.system(size: 17, weight: .semibold))
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

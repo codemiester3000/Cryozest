@@ -104,7 +104,7 @@ struct ManuallyAddSession: View {
     private var habitTypeSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Which Habit?")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
 
             Menu {
@@ -130,7 +130,7 @@ struct ManuallyAddSession: View {
                 .font(.system(size: 20))
                 .foregroundColor(therapyType.color)
             Text(therapyType.displayName(viewContext))
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.white)
             Spacer()
             Image(systemName: "chevron.down")
@@ -151,7 +151,7 @@ struct ManuallyAddSession: View {
     private var dateSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("What Day?")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
 
             DatePicker("", selection: $sessionDate, displayedComponents: .date)
@@ -182,7 +182,7 @@ struct ManuallyAddSession: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 20, weight: .semibold))
                 Text("Mark as Complete")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)

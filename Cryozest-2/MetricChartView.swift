@@ -122,7 +122,7 @@ struct MetricChartView: View {
                 .foregroundColor(color.opacity(0.5))
 
             Text("No data available")
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
         .frame(height: 180)

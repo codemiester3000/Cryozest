@@ -53,11 +53,11 @@ struct GoalConfigurationView: View {
                             .foregroundColor(.cyan)
 
                         Text("Set Your Goals")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
 
                         Text("Configure goals for each habit")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
                     .padding(.top, 20)
@@ -88,7 +88,7 @@ struct GoalConfigurationView: View {
                                     .font(.system(size: 18, weight: .semibold))
 
                                 Text("Save All Goals")
-                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 17, weight: .semibold))
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -172,7 +172,7 @@ struct TherapyGoalSection: View {
                 }
 
                 Text(therapyType.rawValue)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
 
                 Spacer()
@@ -241,7 +241,7 @@ struct CompactGoalInput: View {
                 .frame(width: 20)
 
             Text(title)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.8))
                 .frame(width: 70, alignment: .leading)
 
@@ -257,7 +257,7 @@ struct CompactGoalInput: View {
                 .disabled(value <= range.lowerBound)
 
                 Text("\(value)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
                     .frame(minWidth: 35)
 
@@ -301,11 +301,11 @@ struct GoalInputCard: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text(description)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
 
@@ -321,7 +321,7 @@ struct GoalInputCard: View {
                     .disabled(value <= range.lowerBound)
 
                     Text("\(value)")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .frame(minWidth: 40)
 

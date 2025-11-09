@@ -36,7 +36,7 @@ struct DeviceSafetyWarningView: View {
 
                 // Title
                 Text("Device Safety Warning")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
@@ -44,7 +44,7 @@ struct DeviceSafetyWarningView: View {
                 // Warning message
                 VStack(spacing: 16) {
                     Text(warningMessage)
-                        .font(.system(size: 17, weight: .regular, design: .rounded))
+                        .font(.system(size: 17, weight: .regular))
                         .foregroundColor(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
@@ -53,7 +53,7 @@ struct DeviceSafetyWarningView: View {
                     // Temperature info box
                     VStack(spacing: 8) {
                         Text("iPhone Operating Range")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.orange)
 
                         Text("0° to 35° C (32° to 95° F)")
@@ -82,7 +82,7 @@ struct DeviceSafetyWarningView: View {
                     }) {
                         HStack(spacing: 12) {
                             Text("I Understand")
-                                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                .font(.system(size: 18, weight: .semibold))
                             Image(systemName: "checkmark")
                                 .font(.system(size: 16, weight: .semibold))
                         }
@@ -104,7 +104,7 @@ struct DeviceSafetyWarningView: View {
                         isPresented = false
                     }) {
                         Text("Cancel")
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
+                            .font(.system(size: 17, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                     .padding(.bottom, 8)

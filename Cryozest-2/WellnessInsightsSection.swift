@@ -74,7 +74,7 @@ struct WellnessInsightsSection: View {
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Happiness Boosters")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                             .padding(.horizontal)
 
@@ -117,7 +117,7 @@ struct WellnessInsightsSection: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Average This Week")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
 
                     HStack(spacing: 10) {
@@ -131,11 +131,11 @@ struct WellnessInsightsSection: View {
                         }
 
                         Text(String(format: "%.1f", average))
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
 
                         Text(moodLabel)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(moodColor)
                     }
                 }
@@ -151,12 +151,12 @@ struct WellnessInsightsSection: View {
                                 .foregroundColor(change >= 0 ? .green : .red)
 
                             Text(String(format: "%.0f%%", abs(percentChange)))
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(change >= 0 ? .green : .red)
                         }
 
                         Text(String(format: "%+.1f", change))
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     } else {
                         HStack(spacing: 4) {
@@ -165,12 +165,12 @@ struct WellnessInsightsSection: View {
                                 .foregroundColor(.white.opacity(0.4))
 
                             Text("–")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(.white.opacity(0.4))
                         }
 
                         Text("vs last week")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.4))
                     }
                 }
@@ -209,7 +209,7 @@ struct WellnessInsightsSection: View {
     private var wellnessTrendChart: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("30-Day Mood Heatmap")
-                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.white.opacity(0.7))
 
             // Heatmap
@@ -230,7 +230,7 @@ struct WellnessInsightsSection: View {
                             .fill(Color.white.opacity(0.1))
                             .frame(width: 12, height: 12)
                         Text("No rating")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
                 }
@@ -267,11 +267,11 @@ struct WellnessImpactCard: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(impact.habitType.displayName(viewContext))
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 Text("\(String(format: "%.1f", impact.averageRatingWithHabit))★ with vs \(String(format: "%.1f", impact.averageRatingWithoutHabit))★ without")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
 
@@ -279,7 +279,7 @@ struct WellnessImpactCard: View {
 
             // Impact badge
             Text(impact.impactDescription)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.system(size: 18, weight: .bold))
                 .foregroundColor(impact.isPositive ? Color.green : Color.orange)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -366,7 +366,7 @@ struct MoodHeatmap: View {
             HStack(spacing: 0) {
                 ForEach(0..<min(7, last30Days.count), id: \.self) { col in
                     Text(String(dayFormatter.string(from: last30Days[col]).prefix(1)))
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.white.opacity(0.5))
                         .frame(maxWidth: .infinity)
                 }
@@ -430,7 +430,7 @@ struct MoodLegendItem: View {
                 .frame(width: 12, height: 12)
 
             Text(label)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
     }

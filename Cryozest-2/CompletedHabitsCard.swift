@@ -23,13 +23,13 @@ struct CompletedHabitsCard: View {
                         .foregroundColor(.green)
 
                     Text("Completed Today")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
 
                     Spacer()
 
                     Text("\(completedHabits.count)")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.green)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -48,10 +48,10 @@ struct CompletedHabitsCard: View {
                     if completedHabits.count > 6 {
                         HStack(spacing: 4) {
                             Text("+\(completedHabits.count - 6)")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.white.opacity(0.6))
                             Text("more")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                         }
                         .frame(maxWidth: .infinity)
@@ -167,12 +167,12 @@ struct CompletedHabitItem: View {
             }
 
             Text(therapyType.rawValue)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.white)
                 .lineLimit(1)
 
             Text(durationText)
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundColor(.white.opacity(0.5))
         }
         .padding(10)

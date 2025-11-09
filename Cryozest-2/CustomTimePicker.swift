@@ -32,7 +32,7 @@ struct CustomPickerItem: View {
 
     var body: some View {
         Text(timeFrame.displayString())
-            .font(.system(size: 14, weight: isSelected ? .semibold : .medium, design: .rounded))
+            .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
             .foregroundColor(isSelected ? .white : .white.opacity(0.5))
             .padding(.vertical, 10)
             .padding(.horizontal, 16)

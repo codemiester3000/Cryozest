@@ -72,11 +72,11 @@ struct LargeHeartRateWidget: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Resting Heart Rate")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.white)
 
                 Text("Wear your Apple Watch to track")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
 
@@ -114,22 +114,22 @@ struct LargeHeartRateWidget: View {
                 // Main metric display
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Resting Heart Rate")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         if let rhr = currentRHR {
                             Text("\(rhr)")
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(animate ? trendColor : .white)
                         } else {
                             Text("--")
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(.white.opacity(0.3))
                         }
 
                         Text("bpm")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
@@ -142,7 +142,7 @@ struct LargeHeartRateWidget: View {
                         Image(systemName: trendIcon)
                             .font(.system(size: 10, weight: .bold))
                         Text(trend.rawValue)
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.system(size: 12, weight: .bold))
                     }
                     .foregroundColor(trendColor)
                     .padding(.horizontal, 8)
@@ -158,7 +158,7 @@ struct LargeHeartRateWidget: View {
 
                     if let avg = weeklyAverageRHR {
                         Text("Avg: \(avg) bpm")
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
@@ -167,7 +167,7 @@ struct LargeHeartRateWidget: View {
             // Today's RHR readings graph
             VStack(alignment: .leading, spacing: 6) {
                 Text("Today's Readings")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
 
                 RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
@@ -184,16 +184,16 @@ struct LargeHeartRateWidget: View {
 
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Weekly Avg")
-                            .font(.system(size: 8, weight: .medium, design: .rounded))
+                            .font(.system(size: 8, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
 
                         if let avg = weeklyAverageRHR {
                             Text("\(avg) bpm")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.white)
                         } else {
                             Text("-- bpm")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.white.opacity(0.3))
                         }
                     }
@@ -214,11 +214,11 @@ struct LargeHeartRateWidget: View {
 
                         VStack(alignment: .leading, spacing: 1) {
                             Text("vs Average")
-                                .font(.system(size: 8, weight: .medium, design: .rounded))
+                                .font(.system(size: 8, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
 
                             Text("\(abs(diff)) bpm")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(diff < 0 ? .green : .orange)
                         }
                     } else {
@@ -228,11 +228,11 @@ struct LargeHeartRateWidget: View {
 
                         VStack(alignment: .leading, spacing: 1) {
                             Text("vs Average")
-                                .font(.system(size: 8, weight: .medium, design: .rounded))
+                                .font(.system(size: 8, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
 
                             Text("-- bpm")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.white.opacity(0.3))
                         }
                     }
@@ -304,11 +304,11 @@ struct RHRReadingsGraph: View {
                         // Y-axis labels
                         VStack {
                             Text("\(maxValue)")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .font(.system(size: 9, weight: .medium))
                                 .foregroundColor(.white.opacity(0.4))
                             Spacer()
                             Text("\(minValue)")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .font(.system(size: 9, weight: .medium))
                                 .foregroundColor(.white.opacity(0.4))
                         }
                         .frame(width: 25)
@@ -320,7 +320,7 @@ struct RHRReadingsGraph: View {
                                 VStack(spacing: 4) {
                                     // Value label
                                     Text("\(reading.1)")
-                                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                                        .font(.system(size: 9, weight: .bold))
                                         .foregroundColor(color)
                                         .opacity(0.9)
 
@@ -338,7 +338,7 @@ struct RHRReadingsGraph: View {
 
                                     // Time label
                                     Text(reading.0)
-                                        .font(.system(size: 8, weight: .medium, design: .rounded))
+                                        .font(.system(size: 8, weight: .medium))
                                         .foregroundColor(.white.opacity(0.5))
                                 }
                                 .frame(maxWidth: .infinity)

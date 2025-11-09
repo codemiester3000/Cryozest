@@ -54,7 +54,7 @@ struct WellnessCheckInCard: View {
         VStack(spacing: 12) {
             HStack {
                 Text("Rate your mood from 1 to 5")
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 Spacer()
@@ -66,7 +66,7 @@ struct WellnessCheckInCard: View {
                         selectRating(rating)
                     }) {
                         Text("\(rating)")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(selectedRating == rating ? .white : .white.opacity(0.5))
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
@@ -108,7 +108,7 @@ struct WellnessCheckInCard: View {
 
             if showFeedback, let rating = selectedRating {
                 Text(feedbackMessage(for: rating))
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(moodColor(for: rating).opacity(0.9))
                     .transition(.opacity.combined(with: .move(edge: .top)))
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -157,7 +157,7 @@ struct WellnessCheckInCard: View {
     private func compactView(rating: Int) -> some View {
         HStack(spacing: 10) {
             Text(dateLabel)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
 
             HStack(spacing: 2) {
@@ -169,7 +169,7 @@ struct WellnessCheckInCard: View {
             }
 
             Text(moodLabel(for: rating))
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(moodColor(for: rating))
 
             Spacer()
@@ -180,7 +180,7 @@ struct WellnessCheckInCard: View {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 11, weight: .semibold))
                     Text("Undo")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                 }
                 .foregroundColor(.white.opacity(0.6))
                 .padding(.horizontal, 10)

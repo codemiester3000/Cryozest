@@ -73,12 +73,12 @@ struct SecondOnboardingPage: View {
                 VStack(spacing: 20) {
                     if requestedAccess {
                         Text("You're all set!")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                             .opacity(thirdTextOpacity)
 
                         Text("Now let's select the habits and exercises you want to track and get insights for")
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
+                            .font(.system(size: 17, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
                             .lineLimit(5)
@@ -86,12 +86,12 @@ struct SecondOnboardingPage: View {
                             .opacity(thirdTextOpacity)
                     } else {
                         Text("Health Data Access")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.white)
                             .opacity(firstTextOpacity)
 
                         Text("HealthKit access provides personalized insights based on your health data")
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
+                            .font(.system(size: 17, weight: .medium))
                             .foregroundColor(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
                             .lineLimit(5)
@@ -106,12 +106,12 @@ struct SecondOnboardingPage: View {
                                     .foregroundColor(.cyan)
 
                                 Text("Privacy First")
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                    .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.white)
                             }
 
                             Text("Your data stays on your device. We never store or share your health information.")
-                                .font(.system(size: 14, weight: .regular, design: .rounded))
+                                .font(.system(size: 14, weight: .regular))
                                 .foregroundColor(.white.opacity(0.8))
                                 .multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -148,7 +148,7 @@ struct SecondOnboardingPage: View {
                 }) {
                     HStack(spacing: 12) {
                         Text(requestedAccess ? "Choose your habits" : "Continue")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold))
                         Image(systemName: "arrow.right")
                             .font(.system(size: 16, weight: .semibold))
                     }

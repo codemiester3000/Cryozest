@@ -19,16 +19,16 @@ struct SpO2DetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("Blood Oxygen Level")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(spo2Percentage)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.blue)
 
                     Text("%")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -46,7 +46,7 @@ struct SpO2DetailView: View {
             // Normal range indicator
             VStack(alignment: .leading, spacing: 12) {
                 Text("Normal Range")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
@@ -56,11 +56,11 @@ struct SpO2DetailView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(spo2Percentage >= 95 ? "Normal" : "Below Normal")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text("Healthy range: 95-100%")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                 }
@@ -84,12 +84,12 @@ struct SpO2DetailView: View {
                         .foregroundColor(.blue)
 
                     Text("About Blood Oxygen")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("SpO2 measures the percentage of oxygen-saturated hemoglobin in your blood. Values between 95-100% are considered normal for healthy individuals.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -111,7 +111,7 @@ struct SpO2DetailView: View {
                         .foregroundColor(.orange)
 
                     Text("Consider consulting a healthcare provider if readings remain below 95%")
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.9))
                 }
                 .padding(16)

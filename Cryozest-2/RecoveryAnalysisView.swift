@@ -113,7 +113,7 @@ struct RecoveryAnalysisView: View {
                 HStack {
                     Spacer()
                     Text("baseline")
-                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.white.opacity(0.9))
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)

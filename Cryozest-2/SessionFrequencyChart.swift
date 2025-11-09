@@ -42,7 +42,7 @@ struct SessionFrequencyChart: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Session Frequency")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
             }
 
@@ -72,14 +72,14 @@ struct SessionFrequencyChart: View {
                             // Count label
                             if frequencyData[index] > 0 {
                                 Text("\(frequencyData[index])")
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                    .font(.system(size: 12, weight: .bold))
                                     .foregroundColor(.white)
                                     .padding(.bottom, 8)
                             }
                         }
 
                         Text(dayLabels[index])
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
                     .frame(maxWidth: .infinity)

@@ -49,16 +49,16 @@ struct StepsDetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("Steps Today")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(steps)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.green)
 
                     Text("steps")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -77,13 +77,13 @@ struct StepsDetailView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Daily Goal (\(goalManager.dailyStepGoal.formatted()) steps)")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
 
                     Spacer()
 
                     Text("\(Int(goalProgress * 100))%")
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.green)
                 }
 
@@ -145,7 +145,7 @@ struct StepsDetailView: View {
             } else {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Last 7 Days")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white.opacity(0.9))
 
                     VStack(spacing: 8) {
@@ -173,11 +173,11 @@ struct StepsDetailView: View {
             let distanceKm = Double(steps) * 0.000762
             VStack(alignment: .leading, spacing: 8) {
                 Text("Estimated Distance")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 Text(String(format: "%.2f km", distanceKm))
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -199,12 +199,12 @@ struct StepsDetailView: View {
                         .foregroundColor(.green)
 
                     Text("About Steps")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("Regular walking improves cardiovascular health, strengthens bones, and boosts mood. Set a goal that challenges you while remaining achievable.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -245,11 +245,11 @@ struct StatCard: View {
 
             VStack(spacing: 4) {
                 Text(value)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
 
                 Text(label)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(1)
             }
@@ -291,12 +291,12 @@ struct DayStepRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(dateFormatter.string(from: date))
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.9))
 
                     if isToday {
                         Text("Today")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundColor(.cyan)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -308,7 +308,7 @@ struct DayStepRow: View {
                 }
 
                 Text("\(steps.formatted()) steps")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
 
@@ -321,7 +321,7 @@ struct DayStepRow: View {
                     .foregroundColor(.green)
             } else {
                 Text("\(Int(progress * 100))%")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.white.opacity(0.5))
             }
 

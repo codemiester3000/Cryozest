@@ -41,7 +41,7 @@ struct DailyEmptyStateView: View {
 
                 VStack(spacing: 10) {
                     Text("Track Your Daily Metrics")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                 }
@@ -61,7 +61,7 @@ struct DailyEmptyStateView: View {
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.system(size: 17))
                         Text("Continue")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -138,11 +138,11 @@ struct FeatureRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 Text(description)
-                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundColor(.white.opacity(0.6))
             }
 

@@ -124,7 +124,7 @@ struct LogbookView: View {
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white.opacity(0.7))
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .font(.system(size: 16, weight: .medium))
                                 .padding()
                         } else {
                             // Iterate over the sorted sessions

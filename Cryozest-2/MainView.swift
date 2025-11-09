@@ -118,11 +118,11 @@ struct MainView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Completed")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text(formattedDate(Date()))
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.5))
                 }
 
@@ -141,7 +141,7 @@ struct MainView: View {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 13, weight: .semibold))
                     Text("Undo")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                 }
                 .foregroundColor(.white.opacity(0.7))
                 .padding(.horizontal, 14)
@@ -195,11 +195,11 @@ struct MainView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Mark as Complete")
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
 
                     Text(formattedDate(Date()))
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.5))
                 }
 
@@ -455,7 +455,7 @@ struct MainView: View {
                                         }
                                         Text("Begin recording sessions to see data here")
                                             .foregroundColor(.white.opacity(0.8))
-                                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                                            .font(.system(size: 16, weight: .medium))
                                             .multilineTextAlignment(.center)
                                     }
                                     .frame(maxWidth: .infinity)
@@ -627,7 +627,7 @@ struct HealthDataStatusView: View {
 
             Text(isHealthDataAvailable ? "Health data from sessions is available only with an Apple Watch" : "HealthKit permissions are needed for the full health tracking experience. Visit Settings → Privacy → Health to manage access.")
                 .foregroundColor(.white.opacity(0.8))
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .multilineTextAlignment(.leading)
         }
         .padding(16)

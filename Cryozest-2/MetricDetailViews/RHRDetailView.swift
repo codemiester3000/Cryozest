@@ -15,16 +15,16 @@ struct RHRDetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("Current Resting Heart Rate")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(model.mostRecentRestingHeartRate ?? 0)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.red)
 
                     Text("bpm")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -47,12 +47,12 @@ struct RHRDetailView: View {
                         .foregroundColor(.red)
 
                     Text("About Resting Heart Rate")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("A lower resting heart rate typically indicates better cardiovascular fitness. Elite athletes often have resting heart rates in the 40-50 bpm range.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -70,7 +70,7 @@ struct RHRDetailView: View {
             let status = getRHRStatus(rhr: model.mostRecentRestingHeartRate ?? 0)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Fitness Level")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
@@ -79,7 +79,7 @@ struct RHRDetailView: View {
                         .frame(width: 12, height: 12)
 
                     Text(status.label)
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
                 }
                 .padding(16)

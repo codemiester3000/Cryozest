@@ -15,16 +15,16 @@ struct RespiratoryRateDetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("Respiratory Rate")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(String(format: "%.1f", model.mostRecentRespiratoryRate ?? 0.0))
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.purple)
 
                     Text("BrPM")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -44,7 +44,7 @@ struct RespiratoryRateDetailView: View {
             let status = getRespiratoryStatus(rate: rate)
             VStack(alignment: .leading, spacing: 12) {
                 Text("Status")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
@@ -54,11 +54,11 @@ struct RespiratoryRateDetailView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(status.label)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text(status.description)
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                 }
@@ -82,12 +82,12 @@ struct RespiratoryRateDetailView: View {
                         .foregroundColor(.purple)
 
                     Text("About Respiratory Rate")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("Your respiratory rate is the number of breaths you take per minute. A normal resting rate for adults is 12-20 breaths per minute.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }

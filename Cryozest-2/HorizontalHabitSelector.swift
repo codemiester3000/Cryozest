@@ -113,7 +113,7 @@ struct HabitPill: View {
                 // Name and badge
                 VStack(alignment: .leading, spacing: 4) {
                     Text(therapy.displayName(managedObjectContext))
-                        .font(.system(size: isSelected ? 16 : 15, weight: isSelected ? .bold : .semibold, design: .rounded))
+                        .font(.system(size: isSelected ? 16 : 15, weight: isSelected ? .bold : .semibold))
                         .foregroundColor(isSelected ? .white : .white.opacity(0.7))
 
                     // Apple Watch badge for workout types
@@ -124,7 +124,7 @@ struct HabitPill: View {
                                 .foregroundColor(.green)
 
                             Text("Auto-Sync")
-                                .font(.system(size: 9, weight: .bold, design: .rounded))
+                                .font(.system(size: 9, weight: .bold))
                                 .foregroundColor(.green)
                         }
                         .padding(.horizontal, 6)

@@ -67,11 +67,11 @@ struct AddMedicationSheet: View {
                             }
 
                             Text("Add Medication")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.white)
 
                             Text("Track your medication adherence")
-                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                         .padding(.top, 20)
@@ -79,11 +79,11 @@ struct AddMedicationSheet: View {
                         // Medication Name
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Medication Name")
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
 
                             TextField("Enter medication name", text: $medicationName)
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 14)
@@ -114,7 +114,7 @@ struct AddMedicationSheet: View {
                                                     .foregroundColor(.green.opacity(0.7))
 
                                                 Text(suggestion)
-                                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                                    .font(.system(size: 15, weight: .medium))
                                                     .foregroundColor(.white)
 
                                                 Spacer()
@@ -144,7 +144,7 @@ struct AddMedicationSheet: View {
                         // Frequency
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Frequency")
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
 
                             VStack(spacing: 8) {
@@ -154,7 +154,7 @@ struct AddMedicationSheet: View {
                                     }) {
                                         HStack {
                                             Text(frequency)
-                                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                                .font(.system(size: 15, weight: .medium))
                                                 .foregroundColor(.white)
 
                                             Spacer()
@@ -197,7 +197,7 @@ struct AddMedicationSheet: View {
                                         .foregroundColor(.green)
 
                                     Text("Daily Reminder")
-                                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                        .font(.system(size: 15, weight: .semibold))
                                         .foregroundColor(.white)
                                 }
                             }
@@ -217,7 +217,7 @@ struct AddMedicationSheet: View {
                                 DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
                                     .datePickerStyle(.compact)
                                     .tint(.green)
-                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                    .font(.system(size: 15, weight: .medium))
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 14)
@@ -240,7 +240,7 @@ struct AddMedicationSheet: View {
                                 .foregroundColor(.white.opacity(0.5))
 
                             Text("This is not medical advice. Consult your healthcare provider about your medications.")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
                         }
                         .padding(.horizontal, 24)
@@ -258,7 +258,7 @@ struct AddMedicationSheet: View {
                                 .font(.system(size: 18, weight: .semibold))
 
                             Text("Add Medication")
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .font(.system(size: 17, weight: .semibold))
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

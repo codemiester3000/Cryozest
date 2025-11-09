@@ -17,7 +17,7 @@ struct RecoveryCardView: View {
                 // Header with ring
                 HStack(alignment: .top, spacing: 16) {
                     Text("Readiness to Train")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
 
                     Spacer()
@@ -38,10 +38,10 @@ struct RecoveryCardView: View {
 
                         VStack(spacing: 2) {
                             Text("\(model.recoveryScores.last ?? 0)%")
-                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
                             Text("Ready")
-                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .font(.system(size: 10, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.7))
                         }
                     }
@@ -100,25 +100,25 @@ struct RecoveryExplanation: View {
         VStack(alignment: .leading, spacing: 12) {
             if (model.avgHrvDuringSleep ?? 0) == 0 || (model.mostRecentRestingHeartRate ?? 0) == 0 {
                 Text("Wear your Apple Watch to get recovery information")
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
             } else {
                 Text("Recovery is based on your average HRV during sleep of ")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8)) +
                 Text("\(model.avgHrvDuringSleep ?? 0) ms")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundColor(.green) +
                 Text(" which is \(abs(model.hrvSleepPercentage ?? 0))% \(model.hrvSleepPercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgHrvDuringSleep60Days ?? 0) ms and your average resting heart rate during sleep of ")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8)) +
                 Text("\(model.mostRecentRestingHeartRate ?? 0) bpm")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundColor(.green) +
                 Text(" which is \(abs(model.restingHeartRatePercentage ?? 0))% \(model.restingHeartRatePercentage ?? 0 < 0 ? "lower" : "higher") than your 60 day average of \(model.avgRestingHeartRate60Days ?? 0) bpm.")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
             }
         }
@@ -165,7 +165,7 @@ struct MetricView: View {
 
             // Main value
             Text(label)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
 
             // Change indicator
@@ -174,7 +174,7 @@ struct MetricView: View {
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(isGreen ? .green : .red)
                 Text(change)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }
@@ -207,11 +207,11 @@ struct RecoveryGraphView: View {
         VStack(spacing: 16) {
             HStack {
                 Text("7-Day Recovery Trend")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
                 Spacer()
                 Text("Avg: \(model.weeklyAverage)%")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.green)
             }
 
@@ -219,7 +219,7 @@ struct RecoveryGraphView: View {
                 ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
                     VStack(spacing: 6) {
                         Text("\(percentage)")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.white)
 
                         RoundedRectangle(cornerRadius: 6)
@@ -236,7 +236,7 @@ struct RecoveryGraphView: View {
                             .frame(width: 36, height: max(CGFloat(percentage) * 1.2, 10))
 
                         Text(day)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
                 }

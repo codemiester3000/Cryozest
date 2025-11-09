@@ -100,7 +100,7 @@ struct MedicationAdherenceSection: View {
                     // Overall heatmap
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Last 30 Days")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.7))
 
                         // Calendar heatmap
@@ -113,11 +113,11 @@ struct MedicationAdherenceSection: View {
                         HStack(spacing: 20) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("\(overallAdherencePercentage)%")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.green)
 
                                 Text("Overall adherence")
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(.white.opacity(0.6))
                             }
 
@@ -127,11 +127,11 @@ struct MedicationAdherenceSection: View {
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("\(daysWithPerfectAdherence)")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.cyan)
 
                                 Text("Perfect days")
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(.white.opacity(0.6))
                             }
                         }
@@ -157,7 +157,7 @@ struct MedicationAdherenceSection: View {
                                 }
 
                                 Text("White border = Today")
-                                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                                    .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(.white.opacity(0.6))
                             }
                         }
@@ -236,7 +236,7 @@ struct AdherenceHeatmap: View {
             HStack(spacing: 0) {
                 ForEach(0..<min(7, days.count), id: \.self) { col in
                     Text(String(dayFormatter.string(from: days[col]).prefix(1)))
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.white.opacity(0.5))
                         .frame(maxWidth: .infinity)
                 }
@@ -289,7 +289,7 @@ struct LegendItem: View {
                 .frame(width: 12, height: 12)
 
             Text(label)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
     }
@@ -386,11 +386,11 @@ struct IndividualMedicationCard: View {
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(medication.name ?? "Medication")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text("\(adherencePercentage)% adherence")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(adherencePercentage >= 80 ? .green : .orange)
                     }
                 }
@@ -418,12 +418,12 @@ struct IndividualMedicationCard: View {
                                 Text("🔥")
                                     .font(.system(size: 18))
                                 Text("\(currentStreak)")
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.orange)
                             }
 
                             Text("Current streak")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                         }
 
@@ -436,12 +436,12 @@ struct IndividualMedicationCard: View {
                                 Text("⭐️")
                                     .font(.system(size: 18))
                                 Text("\(bestStreak)")
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.yellow)
                             }
 
                             Text("Best streak")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }

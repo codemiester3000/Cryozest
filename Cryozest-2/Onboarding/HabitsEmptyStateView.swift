@@ -43,12 +43,12 @@ struct HabitsEmptyStateView: View {
 
                 VStack(spacing: 10) {
                     Text("Start Your First Session")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
 
                     Text("Choose a habit above and tap Start to begin tracking your wellness journey")
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
@@ -76,7 +76,7 @@ struct HabitsEmptyStateView: View {
                 Button(action: onDismiss) {
                     HStack(spacing: 10) {
                         Text("Got it!")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 17))
                     }
@@ -125,12 +125,12 @@ struct TipRow: View {
                     .frame(width: 28, height: 28)
 
                 Text(number)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundColor(.cyan)
             }
 
             Text(text)
-                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .font(.system(size: 14, weight: .regular))
                 .foregroundColor(.white.opacity(0.8))
                 .fixedSize(horizontal: false, vertical: true)
 

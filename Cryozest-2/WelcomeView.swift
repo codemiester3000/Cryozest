@@ -47,17 +47,17 @@ struct WelcomeView: View {
 
                     VStack(spacing: 12) {
                         Text("Welcome to")
-                            .font(.system(size: 22, weight: .light, design: .rounded))
+                            .font(.system(size: 22, weight: .light))
                             .foregroundColor(.white.opacity(0.9))
                             .opacity(animateContent ? 1.0 : 0)
 
                         Text("Cryozest")
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .font(.system(size: 48, weight: .bold))
                             .foregroundColor(.white)
                             .opacity(animateContent ? 1.0 : 0)
 
                         Text("Your wellness journey starts here")
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
+                            .font(.system(size: 16, weight: .regular))
                             .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)
                             .padding(.top, 4)
@@ -107,7 +107,7 @@ struct WelcomeView: View {
                 }) {
                     HStack(spacing: 12) {
                         Text("Get Started")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold))
                         Image(systemName: "arrow.right")
                             .font(.system(size: 16, weight: .semibold))
                     }
@@ -170,11 +170,11 @@ struct FeatureCard: View {
             // Text content
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundColor(.white)
 
                 Text(description)
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                    .font(.system(size: 14, weight: .regular))
                     .foregroundColor(.white.opacity(0.7))
                     .fixedSize(horizontal: false, vertical: true)
             }

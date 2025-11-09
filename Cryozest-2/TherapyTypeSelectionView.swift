@@ -58,7 +58,7 @@ struct TherapyTypeSelectionView: View {
                         Spacer()
 
                         Text("Choose your habits")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
 
                         Spacer()
@@ -97,7 +97,7 @@ struct TherapyTypeSelectionView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(spacing: 6) {
                                     Text("Auto-Sync Enabled")
-                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .font(.system(size: 16, weight: .bold))
                                         .foregroundColor(.white)
 
                                     Image(systemName: "checkmark.circle.fill")
@@ -106,7 +106,7 @@ struct TherapyTypeSelectionView: View {
                                 }
 
                                 Text("Workouts recorded on your Apple Watch automatically sync to the app")
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .font(.system(size: 13, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -137,11 +137,11 @@ struct TherapyTypeSelectionView: View {
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Manual Tracking")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(.white)
 
                                 Text("Use the in-app timer to track these habits")
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .font(.system(size: 13, weight: .regular))
                                     .foregroundColor(.white.opacity(0.7))
                             }
                         }
@@ -236,7 +236,7 @@ struct TherapyTypeSelectionView: View {
                 }) {
                     HStack(spacing: 12) {
                         Text("Continue")
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .font(.system(size: 18, weight: .semibold))
                         Image(systemName: "arrow.right")
                             .font(.system(size: 16, weight: .semibold))
                     }
@@ -424,7 +424,7 @@ struct ModernTherapyCard: View {
             // Therapy type name and badge
             VStack(alignment: .leading, spacing: 4) {
                 Text(displayName)
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.white)
 
                 // Apple Watch badge for workout types
@@ -435,7 +435,7 @@ struct ModernTherapyCard: View {
                             .foregroundColor(.green)
 
                         Text("Auto-Sync")
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(.green)
                     }
                     .padding(.horizontal, 8)
@@ -551,7 +551,7 @@ struct CustomTherapyTypeNameView: View {
                 .padding(.bottom, 20)
 
                 Text("Create a custom habit to track your unique wellness routine")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
@@ -562,11 +562,11 @@ struct CustomTherapyTypeNameView: View {
                 // Input Section
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Habit Name")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
 
                     TextField("", text: $customName, prompt: Text("e.g., Breathwork, Yoga, Stretching").foregroundColor(.white.opacity(0.4)))
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(16)
                         .background(
@@ -589,7 +589,7 @@ struct CustomTherapyTypeNameView: View {
                     presentationMode.wrappedValue.dismiss()
                 }) {
                     Text("Save Habit")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.system(size: 17, weight: .bold))
                         .foregroundColor(customName.isEmpty ? .white.opacity(0.5) : .white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
@@ -729,7 +729,7 @@ struct PillView: View {
                     .foregroundColor(isSelected.wrappedValue ? .white : .green)
             }
             Text(category.rawValue)
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .font(.system(size: 14, weight: .semibold))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)

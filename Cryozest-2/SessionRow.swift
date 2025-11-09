@@ -37,7 +37,7 @@ struct SessionRow: View {
                             .font(.system(size: 11, weight: .semibold))
                             .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                         Text(formattedDate)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                            .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(.white)
                     }
 
@@ -49,7 +49,7 @@ struct SessionRow: View {
                             Image(systemName: "applewatch")
                                 .font(.system(size: 10, weight: .semibold))
                             Text("Auto")
-                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .font(.system(size: 10, weight: .semibold))
                         }
                         .foregroundColor(.green)
                         .padding(.horizontal, 8)
@@ -91,11 +91,11 @@ struct SessionRow: View {
 
                     VStack(alignment: .leading, spacing: 3) {
                         Text(therapyTypeSelection.selectedTherapyType.displayName(managedObjectContext))
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white)
 
                         Text(compactDuration)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
 
@@ -133,7 +133,7 @@ struct SessionRow: View {
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.orange)
                             Text("\(streakCount) sessions today")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(.orange)
                         }
                         .padding(.horizontal, 10)
@@ -366,7 +366,7 @@ struct SessionRow: View {
                             ProgressView()
                                 .tint(therapyTypeSelection.selectedTherapyType.color)
                             Text("Loading health data...")
-                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                             Spacer()
                         }
@@ -376,7 +376,7 @@ struct SessionRow: View {
                         if !heartRateData.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Heart Rate")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                                     .textCase(.uppercase)
                                     .tracking(0.8)
@@ -447,7 +447,7 @@ struct SessionRow: View {
                         if avgHRV != nil || calories != nil || activeEnergy != nil || respiratoryRate != nil || spo2 != nil {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Health Metrics")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                                     .textCase(.uppercase)
                                     .tracking(0.8)
@@ -513,7 +513,7 @@ struct SessionRow: View {
                                     .font(.system(size: 24))
                                     .foregroundColor(.white.opacity(0.4))
                                 Text("No health data available")
-                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .font(.system(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.6))
                             }
                             Spacer()
@@ -527,7 +527,7 @@ struct SessionRow: View {
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(.cyan)
                         Text("Manually logged session - no health data available")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.8))
                     }
                     .padding(.vertical, 10)
@@ -560,19 +560,19 @@ struct MetricBadge: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(color.opacity(0.8))
                 .textCase(.uppercase)
                 .tracking(0.5)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(value)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
                     .monospacedDigit()
 
                 Text(unit)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }
@@ -604,7 +604,7 @@ struct HealthMetricCard: View {
                     .foregroundColor(color)
 
                 Text(title)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.white.opacity(0.7))
                     .textCase(.uppercase)
                     .tracking(0.5)
@@ -612,12 +612,12 @@ struct HealthMetricCard: View {
 
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(value)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .monospacedDigit()
 
                 Text(unit)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
         }

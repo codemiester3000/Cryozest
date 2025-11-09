@@ -66,7 +66,7 @@ struct WeeklyHeatmapView: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Weekly Consistency")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
             }
 
@@ -75,7 +75,7 @@ struct WeeklyHeatmapView: View {
                 HStack(spacing: 8) {
                     ForEach(0..<7, id: \.self) { day in
                         Text(dayLabels[day])
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                             .frame(maxWidth: .infinity)
                     }
@@ -104,7 +104,7 @@ struct WeeklyHeatmapView: View {
                             .fill(Color.white.opacity(0.1))
                             .frame(width: 12, height: 12)
                         Text("No session")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
 
@@ -113,7 +113,7 @@ struct WeeklyHeatmapView: View {
                             .fill(therapyType.color)
                             .frame(width: 12, height: 12)
                         Text("Session completed")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.6))
                     }
                 }

@@ -44,7 +44,7 @@ struct TimerSelectionView: View {
 
             VStack {
                 Text("Select Timer")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold))
                     .padding(.top, 16)
                     .foregroundColor(.white)
 
@@ -124,17 +124,17 @@ struct TimerSelectionView: View {
                         .font(.system(size: 32, weight: .semibold))
                         .foregroundColor(.cyan)
                     Text("Custom")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                 }
             } else {
                 VStack(spacing: 4) {
                     Text(String(format: "%02d", Int(duration! / 60)))
-                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                        .font(.system(size: 44, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("MINUTES")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(.white.opacity(0.7))
                         .tracking(1)
                 }

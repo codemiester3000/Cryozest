@@ -56,16 +56,16 @@ struct LargeStepsWidget: View {
                 // Main metric display
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Steps")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(currentSteps)")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold))
                             .foregroundColor(animate ? progressColor : .white)
 
                         Text("/ \(goalManager.dailyStepGoal)")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
@@ -78,7 +78,7 @@ struct LargeStepsWidget: View {
                         Image(systemName: "target")
                             .font(.system(size: 10, weight: .semibold))
                         Text("\(Int(goalProgress * 100))%")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.system(size: 12, weight: .bold))
                     }
                     .foregroundColor(.green)
                     .padding(.horizontal, 8)
@@ -93,7 +93,7 @@ struct LargeStepsWidget: View {
                     )
 
                     Text("Goal: \(goalManager.dailyStepGoal)")
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
                 }
                 .onTapGesture {
@@ -130,7 +130,7 @@ struct LargeStepsWidget: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 10, weight: .bold))
                             Text("Goal reached!")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .font(.system(size: 10, weight: .bold))
                         }
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
@@ -196,7 +196,7 @@ struct LargeStepsWidget: View {
                                 .foregroundColor(.green)
 
                             Text("+\(stepsDelta) steps!")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.white)
                         }
                         .padding(.horizontal, 16)
@@ -297,11 +297,11 @@ struct QuickStatView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(label)
-                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .font(.system(size: 9, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
 
                 Text(value)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.white)
             }
         }
@@ -352,15 +352,15 @@ struct ExpandedStepsWidget: View {
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Steps")
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
                             
                             HStack(alignment: .lastTextBaseline, spacing: 3) {
                                 Text("\(currentSteps)")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.white)
                                 Text("/ \(goalManager.dailyStepGoal)")
-                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .font(.system(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.5))
                             }
                         }

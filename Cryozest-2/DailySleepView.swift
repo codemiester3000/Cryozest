@@ -350,7 +350,7 @@ struct DailySleepView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
                             Text("Sleep Quality")
-                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
 
                             Button(action: {
@@ -369,7 +369,7 @@ struct DailySleepView: View {
                         // Sleep time range
                         if sleepStartTime != "N/A" && sleepEndTime != "N/A" {
                             Text("\(sleepStartTime) - \(sleepEndTime)")
-                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }
@@ -387,7 +387,7 @@ struct DailySleepView: View {
                     SleepGraphView(sleepData: sleepData)
                 } else {
                     Text("Sleep data is not available yet.")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 40)
@@ -520,7 +520,7 @@ struct SleepGraphView: View {
     var body: some View {
         VStack(spacing: 16) {
             Text("Sleep Stages")
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -533,7 +533,7 @@ struct SleepGraphView: View {
             .frame(height: 140)
 
             Text("Total: \(formatTimeInterval(totalSleepTime))")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.5))
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -588,10 +588,10 @@ struct GraphBarView: View {
                 )
                 .frame(height: barHeight)
             Text(label)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white.opacity(0.7))
             Text(formatTimeInterval(value))
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundColor(.white.opacity(0.5))
         }
     }
@@ -654,22 +654,22 @@ struct RestorativeSleepView: View {
                     .rotationEffect(.degrees(-90))
 
                 Text(String(format: "%.0f%%", viewModel.restorativeSleepPercentage))
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
                     Text(viewModel.formattedRestorativeSleepTime)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.blue)
                     Text("Restorative")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text(viewModel.restorativeSleepDescription)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(3)
             }
@@ -735,41 +735,41 @@ struct HeartRateDifferenceProgressCircle: View {
                     .rotationEffect(.degrees(-90))
 
                 Text(watchWasWorn ? "\(Int(heartRateDifferencePercentage))%" : "—")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
                     Text("Heart Rate Dip")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(.white)
                     if watchWasWorn {
                         Text(statusText)
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundColor(statusColor)
                     }
                 }
 
                 if watchWasWorn {
                     Text("Waking: ")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                     +
                     Text("\(Int(averageWakingHeartRate)) BPM")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundColor(statusColor)
                     +
                     Text(" • Sleep: ")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                     +
                     Text("\(Int(averageHeartRateDuringSleep)) BPM")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .font(.system(size: 12, weight: .bold))
                         .foregroundColor(statusColor)
                 } else {
                     Text("Wear your watch during sleep to track heart rate dip")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }

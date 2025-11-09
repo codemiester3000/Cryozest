@@ -61,12 +61,12 @@ struct AnalysisEmptyStateView: View {
 
                 VStack(spacing: 10) {
                     Text("Your Insights Await")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
 
                     Text("Complete your first session to unlock personalized analytics and track your progress over time")
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .font(.system(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
@@ -77,7 +77,7 @@ struct AnalysisEmptyStateView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Text("What You'll Discover")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.white)
 
                         Spacer()
@@ -109,7 +109,7 @@ struct AnalysisEmptyStateView: View {
                 Button(action: onDismiss) {
                     HStack(spacing: 10) {
                         Text("Start Tracking")
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: 16, weight: .semibold))
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.system(size: 17))
                     }
@@ -160,11 +160,11 @@ struct InsightRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.white)
 
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .font(.system(size: 13, weight: .regular))
                     .foregroundColor(.white.opacity(0.6))
             }
 

@@ -27,16 +27,16 @@ struct CaloriesDetailView: View {
             // Current value
             VStack(spacing: 8) {
                 Text("Total Calories Burned")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(totalCalories)")
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.orange)
 
                     Text("kcal")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -54,7 +54,7 @@ struct CaloriesDetailView: View {
             // Breakdown
             VStack(alignment: .leading, spacing: 12) {
                 Text("Breakdown")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 HStack(spacing: 12) {
@@ -82,12 +82,12 @@ struct CaloriesDetailView: View {
                         .foregroundColor(.orange)
 
                     Text("About Calories")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
 
                 Text("Active calories are burned through movement and exercise. Resting calories are burned by your body's basic functions throughout the day.")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .lineSpacing(4)
             }
@@ -111,16 +111,16 @@ struct CaloriesDetailView: View {
                     .frame(width: 8, height: 8)
 
                 Text(title)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
             }
 
             Text("\(value)")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
 
             Text("\(Int(percentage * 100))% of total")
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
         .frame(maxWidth: .infinity, alignment: .leading)

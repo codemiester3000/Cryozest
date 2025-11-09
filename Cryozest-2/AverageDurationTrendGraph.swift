@@ -89,13 +89,13 @@ struct AverageDurationTrendGraph: View {
                     .foregroundColor(therapyType.color)
 
                 Text("Average Duration Trend")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
 
                 Spacer()
 
                 Text(timeframe.label)
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
 
@@ -151,13 +151,13 @@ struct AverageDurationTrendGraph: View {
             // Duration labels
             HStack {
                 Text("0m")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
 
                 Spacer()
 
                 Text(formatDuration(maxDuration))
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
         }
