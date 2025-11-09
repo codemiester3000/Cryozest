@@ -1545,12 +1545,22 @@ struct WidgetDropDelegate: DropDelegate {
         guard let draggedWidget = draggedWidget else { return }
         guard draggedWidget != currentWidget else { return }
 
-        let from = widgets.firstIndex(of: draggedWidget)!
-        let to = widgets.firstIndex(of: currentWidget)!
+        guard let fromIndex = widgets.firstIndex(of: draggedWidget),
+              let toIndex = widgets.firstIndex(of: currentWidget) else { return }
 
-        if widgets[to] != draggedWidget {
+        if fromIndex != toIndex {
             withAnimation(.spring(response: 0.3)) {
-                widgets.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+                var updatedWidgets = widgets
+                let movedWidget = updatedWidgets.remove(at: fromIndex)
+
+                // Adjust insertion index if needed
+                let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
+                updatedWidgets.insert(movedWidget, at: adjustedToIndex)
+
+                widgets = updatedWidgets
+
+                // Save the new order immediately
+                WidgetOrderManager.shared.saveOrder()
             }
         }
     }
