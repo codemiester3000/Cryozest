@@ -29,10 +29,7 @@ struct HorizontalHabitSelector: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Current Habit")
-                .font(.system(size: 13, weight: .medium, design: .rounded))
-                .foregroundColor(.white.opacity(0.6))
-                .padding(.leading, 24)
+     
 
             ScrollView(.horizontal, showsIndicators: false) {
                 ScrollViewReader { proxy in
