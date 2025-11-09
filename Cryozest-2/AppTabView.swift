@@ -52,7 +52,7 @@ struct AppTabView: View {
                     Text("Daily")
                 }
                 .tag(0)
-                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
+                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
 
             MainView(therapyTypeSelection: therapyTypeSelection)
@@ -61,7 +61,7 @@ struct AppTabView: View {
                     Text("Habits")
                 }
                 .tag(1)
-                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
+                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
 
             InsightsView()
@@ -71,31 +71,67 @@ struct AppTabView: View {
                     Text("Insights")
                 }
                 .tag(2)
-                .toolbarBackground(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95), for: .tabBar)
+                .toolbarBackground(.ultraThinMaterial, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
         .accentColor(.cyan)
         .onAppear {
             let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor(Color(red: 0.08, green: 0.18, blue: 0.28).opacity(0.95))
+            appearance.configureWithTransparentBackground()
 
-            // Unselected items - white with opacity
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.5)
+            // Glassmorphism effect - darker translucent background for better readability
+            appearance.backgroundColor = UIColor(red: 0.06, green: 0.06, blue: 0.10, alpha: 0.85)
+
+            // Enable blur effect for glassmorphism
+            appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+
+            // Remove default shadow, we'll add our own
+            appearance.shadowColor = nil
+            appearance.shadowImage = UIImage()
+
+            // Unselected items - improved readability with higher opacity
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.65)
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                .foregroundColor: UIColor.white.withAlphaComponent(0.5),
-                .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+                .foregroundColor: UIColor.white.withAlphaComponent(0.65),
+                .font: UIFont.systemFont(ofSize: 11, weight: .semibold)
             ]
 
-            // Selected items - cyan
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(red: 0, green: 1, blue: 1, alpha: 1)
+            // Selected items - brighter, more vibrant cyan for better contrast
+            let selectedColor = UIColor(red: 0.4, green: 0.9, blue: 1.0, alpha: 1.0)
+            appearance.stackedLayoutAppearance.selected.iconColor = selectedColor
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                .foregroundColor: UIColor(red: 0, green: 1, blue: 1, alpha: 1),
-                .font: UIFont.systemFont(ofSize: 10, weight: .semibold)
+                .foregroundColor: selectedColor,
+                .font: UIFont.systemFont(ofSize: 11, weight: .bold)
             ]
 
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
+
+            // Add floating effect with custom layer modifications
+            DispatchQueue.main.async {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let tabBarController = windowScene.windows.first?.rootViewController as? UITabBarController {
+                    let tabBar = tabBarController.tabBar
+
+                    // Add corner radius for floating effect
+                    tabBar.layer.cornerRadius = 24
+                    tabBar.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+                    tabBar.layer.masksToBounds = true
+
+                    // Add shadow for depth
+                    tabBar.layer.shadowColor = UIColor.black.cgColor
+                    tabBar.layer.shadowOffset = CGSize(width: 0, height: -2)
+                    tabBar.layer.shadowOpacity = 0.25
+                    tabBar.layer.shadowRadius = 12
+                    tabBar.layer.masksToBounds = false
+
+                    // Add subtle border on top for glassmorphism
+                    let borderLayer = CALayer()
+                    borderLayer.backgroundColor = UIColor.white.withAlphaComponent(0.1).cgColor
+                    borderLayer.frame = CGRect(x: 0, y: 0, width: tabBar.bounds.width, height: 0.5)
+                    tabBar.layer.addSublayer(borderLayer)
+                }
+            }
         }
     }
 }

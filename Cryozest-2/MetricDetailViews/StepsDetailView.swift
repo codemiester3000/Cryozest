@@ -22,11 +22,11 @@ struct StepsDetailView: View {
         min(Double(steps) / Double(goalManager.dailyStepGoal), 1.0)
     }
 
-    private var last14Days: [Date] {
+    private var last7Days: [Date] {
         let calendar = Calendar.current
-        return (0..<14).compactMap { daysAgo in
+        return (0..<7).compactMap { daysAgo in
             calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date()))
-        }.reversed()
+        }
     }
 
     private var daysGoalMet: Int {
@@ -122,7 +122,7 @@ struct StepsDetailView: View {
                     StatCard(
                         icon: "calendar.badge.checkmark",
                         label: "Goal Met",
-                        value: "\(daysGoalMet)/14 days"
+                        value: "\(daysGoalMet)/7 days"
                     )
 
                     StatCard(
@@ -144,12 +144,12 @@ struct StepsDetailView: View {
                 .padding()
             } else {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Last 14 Days")
+                    Text("Last 7 Days")
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.white.opacity(0.9))
 
                     VStack(spacing: 8) {
-                        ForEach(last14Days, id: \.self) { date in
+                        ForEach(last7Days, id: \.self) { date in
                             DayStepRow(
                                 date: date,
                                 steps: Int(stepsHistory[date] ?? 0),
@@ -225,7 +225,7 @@ struct StepsDetailView: View {
 
     private func loadStepsHistory() {
         isLoadingHistory = true
-        HealthKitManager.shared.fetchStepsForLastNDays(numberOfDays: 14) { history in
+        HealthKitManager.shared.fetchStepsForLastNDays(numberOfDays: 7) { history in
             stepsHistory = history
             isLoadingHistory = false
         }

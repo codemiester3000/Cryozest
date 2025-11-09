@@ -40,7 +40,7 @@ struct LargeStepsWidget: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 18) {
             // Compact header with icon inline and goal badge
             HStack(alignment: .center) {
                 // Icon inline with main metric
@@ -54,7 +54,7 @@ struct LargeStepsWidget: View {
                     )
 
                 // Main metric display
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Steps")
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.white.opacity(0.6))
@@ -73,7 +73,7 @@ struct LargeStepsWidget: View {
                 Spacer()
 
                 // Goal badge
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: 6) {
                     HStack(spacing: 4) {
                         Image(systemName: "target")
                             .font(.system(size: 10, weight: .semibold))
@@ -166,7 +166,7 @@ struct LargeStepsWidget: View {
                 )
             }
         }
-        .padding(16)
+        .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(
@@ -295,7 +295,7 @@ struct QuickStatView: View {
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.green)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(label)
                     .font(.system(size: 9, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.6))
