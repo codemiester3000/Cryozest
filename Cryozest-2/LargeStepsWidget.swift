@@ -11,6 +11,7 @@ struct LargeStepsWidget: View {
     @ObservedObject var model: RecoveryGraphModel
     @ObservedObject var goalManager = StepGoalManager.shared
     @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
 
     @State private var showGoalConfig = false
     @State private var isPressed = false
@@ -239,6 +240,7 @@ struct LargeStepsWidget: View {
                 }
         )
         .scaleEffect(isPressed ? 0.98 : 1.0)
+        .matchedGeometryEffect(id: "steps-widget", in: namespace)
         .onAppear {
             previousSteps = currentSteps
             animatedProgress = goalProgress
@@ -302,5 +304,104 @@ struct QuickStatView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Expanded Steps Widget
+
+struct ExpandedStepsWidget: View {
+    @ObservedObject var model: RecoveryGraphModel
+    @ObservedObject var goalManager = StepGoalManager.shared
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
+    
+    private var currentSteps: Int {
+        Int(model.mostRecentSteps ?? 0)
+    }
+    
+    private var goalProgress: Double {
+        min(Double(currentSteps) / Double(goalManager.dailyStepGoal), 1.0)
+    }
+    
+    private var progressColor: Color {
+        if goalProgress >= 1.0 {
+            return .green
+        } else if goalProgress >= 0.5 {
+            return .cyan
+        } else {
+            return .orange
+        }
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header (similar to collapsed)
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "figure.walk")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.green)
+                            .frame(width: 36, height: 36)
+                            .background(
+                                Circle()
+                                    .fill(Color.green.opacity(0.15))
+                            )
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Steps")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text("\(currentSteps)")
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text("/ \(goalManager.dailyStepGoal)")
+                                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                            expandedMetric = nil
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+                
+                // Detailed content
+                StepsDetailView(model: model)
+                    .opacity(expandedMetric != nil ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.2).delay(0.15), value: expandedMetric)
+            }
+            .padding(16)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.12),
+                            Color.white.opacity(0.08)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 1.5)
+                )
+        )
+        .shadow(color: Color.green.opacity(0.3), radius: 12, x: 0, y: 6)
+        .matchedGeometryEffect(id: "steps-widget", in: namespace)
     }
 }

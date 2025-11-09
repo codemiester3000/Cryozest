@@ -24,6 +24,7 @@ struct DailyView: View {
 
     // Metric expansion state
     @State private var expandedMetric: MetricType? = nil
+    @Namespace private var metricAnimation
 
     // Onboarding state
     @State private var showEmptyState = false
@@ -199,7 +200,8 @@ struct DailyView: View {
             if metricConfig.isEnabled(.steps) {
                 LargeStepsWidget(
                     model: recoveryModel,
-                    expandedMetric: $expandedMetric
+                    expandedMetric: $expandedMetric,
+                    namespace: metricAnimation
                 )
                 .modifier(ReorderableWidgetModifier(
                     section: section,
@@ -342,12 +344,20 @@ struct DailyView: View {
 
                                 // Show expanded metric view when tapped
                                 if let metric = expandedMetric {
-                                    ExpandedMetricOverlay(
-                                        metric: metric,
-                                        expandedMetric: $expandedMetric,
-                                        recoveryModel: recoveryModel,
-                                        sleepModel: sleepModel
-                                    )
+                                    Group {
+                                        if metric == .steps {
+                                            ExpandedStepsWidget(
+                                                model: recoveryModel,
+                                                expandedMetric: $expandedMetric,
+                                                namespace: metricAnimation
+                                            )
+                                            .padding(.horizontal)
+                                            .padding(.leading, 10)
+                                        } else {
+                                            // Other metrics handled by MetricsGridSection
+                                            EmptyView()
+                                        }
+                                    }
                                     .zIndex(1)
                                 }
                             }  // Close ZStack
@@ -653,7 +663,8 @@ struct DailyGridMetrics: View {
                     if configManager.isEnabled(.steps) {
                         LargeStepsWidget(
                             model: model,
-                            expandedMetric: $expandedMetric
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
                         )
                     }
 
@@ -777,21 +788,34 @@ struct DailyGridMetrics: View {
 
             // Expanded single tile view
             if let metric = expandedMetric {
-                ExpandedGridItemView(
-                    symbolName: iconFor(metric),
-                    title: titleFor(metric),
-                    value: valueFor(metric),
-                    unit: unitFor(metric),
-                    metricType: metric,
-                    model: model,
-                    expandedMetric: $expandedMetric,
-                    namespace: animation
-                )
-                .transition(.asymmetric(
-                    insertion: .identity,
-                    removal: .identity
-                ))
-                .zIndex(1)
+                if metric == .steps {
+                    ExpandedStepsWidget(
+                        model: model,
+                        expandedMetric: $expandedMetric,
+                        namespace: animation
+                    )
+                    .transition(.asymmetric(
+                        insertion: .identity,
+                        removal: .identity
+                    ))
+                    .zIndex(1)
+                } else {
+                    ExpandedGridItemView(
+                        symbolName: iconFor(metric),
+                        title: titleFor(metric),
+                        value: valueFor(metric),
+                        unit: unitFor(metric),
+                        metricType: metric,
+                        model: model,
+                        expandedMetric: $expandedMetric,
+                        namespace: animation
+                    )
+                    .transition(.asymmetric(
+                        insertion: .identity,
+                        removal: .identity
+                    ))
+                    .zIndex(1)
+                }
             }
         }
         .padding(.horizontal)
