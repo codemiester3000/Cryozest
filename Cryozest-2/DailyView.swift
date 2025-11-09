@@ -1569,14 +1569,16 @@ struct ReorderableWidgetModifier: ViewModifier {
     let isReorderMode: Bool
     @Binding var draggedWidget: DailyWidgetSection?
 
-    @State private var wiggleOffset: CGFloat = 0
+    @State private var wiggleRotation: Double = 0
+    @State private var wiggleX: CGFloat = 0
 
     func body(content: Content) -> some View {
         ZStack(alignment: .topTrailing) {
             content
                 .opacity(isReorderMode && draggedWidget == section ? 0.5 : 1.0)
                 .scaleEffect(isReorderMode && draggedWidget == section ? 0.95 : 1.0)
-                .rotationEffect(.degrees(isReorderMode && draggedWidget != section ? wiggleOffset : 0))
+                .rotationEffect(.degrees(isReorderMode && draggedWidget != section ? wiggleRotation : 0))
+                .offset(x: isReorderMode && draggedWidget != section ? wiggleX : 0)
                 .animation(.spring(response: 0.3), value: isReorderMode)
                 .animation(.spring(response: 0.3), value: draggedWidget)
                 .onChange(of: isReorderMode) { newValue in
@@ -1609,20 +1611,33 @@ struct ReorderableWidgetModifier: ViewModifier {
 
     private func startWiggling() {
         // Random offset for more natural look
-        let randomOffset = Double.random(in: 0...0.5)
+        let randomDelay = Double.random(in: 0...0.3)
+        let randomRotation = Double.random(in: 0.3...0.6) // Very subtle rotation
+        let randomX = CGFloat.random(in: 0.2...0.5) // Tiny horizontal movement
 
+        // Rotation wiggle
         withAnimation(
-            Animation.easeInOut(duration: 0.15)
+            Animation.easeInOut(duration: 0.12)
                 .repeatForever(autoreverses: true)
-                .delay(randomOffset)
+                .delay(randomDelay)
         ) {
-            wiggleOffset = 1.5
+            wiggleRotation = randomRotation
+        }
+
+        // Horizontal wiggle (slightly different timing for natural feel)
+        withAnimation(
+            Animation.easeInOut(duration: 0.14)
+                .repeatForever(autoreverses: true)
+                .delay(randomDelay + 0.05)
+        ) {
+            wiggleX = randomX
         }
     }
 
     private func stopWiggling() {
-        withAnimation(.spring(response: 0.3)) {
-            wiggleOffset = 0
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            wiggleRotation = 0
+            wiggleX = 0
         }
     }
 }
