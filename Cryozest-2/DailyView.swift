@@ -168,6 +168,7 @@ struct DailyView: View {
                             overloadMinutes: exertionModel.overloadMinutes
                         )
                         .padding(.horizontal)
+                        .padding(.leading, 10)
                         .padding(.bottom, 12)
                     }
                 }
