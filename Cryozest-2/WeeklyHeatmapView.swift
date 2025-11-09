@@ -16,14 +16,27 @@ struct WeeklyHeatmapView: View {
 
     private var heatmapData: [[Bool]] {
         var data: [[Bool]] = []
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2 // Monday
         let today = Date()
 
-        for week in 0..<weeks {
+        // Find the Monday of the current week
+        let weekday = calendar.component(.weekday, from: today)
+        let daysFromMonday = (weekday - 2 + 7) % 7
+        guard let thisMonday = calendar.date(byAdding: .day, value: -daysFromMonday, to: calendar.startOfDay(for: today)) else {
+            return []
+        }
+
+        // Build data for the last N weeks (Monday-Sunday)
+        for week in (0..<weeks).reversed() {
             var weekData: [Bool] = []
+            guard let weekStart = calendar.date(byAdding: .day, value: -(week * 7), to: thisMonday) else {
+                data.append(Array(repeating: false, count: 7))
+                continue
+            }
+
             for day in 0..<7 {
-                let daysAgo = (week * 7) + day
-                guard let targetDate = calendar.date(byAdding: .day, value: -daysAgo, to: today) else {
+                guard let targetDate = calendar.date(byAdding: .day, value: day, to: weekStart) else {
                     weekData.append(false)
                     continue
                 }
@@ -37,13 +50,13 @@ struct WeeklyHeatmapView: View {
                 }
                 weekData.append(hasSession)
             }
-            data.append(weekData.reversed())
+            data.append(weekData)
         }
 
-        return data.reversed()
+        return data
     }
 
-    private let dayLabels = ["S", "M", "T", "W", "T", "F", "S"]
+    private let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {

@@ -24,23 +24,23 @@ struct WeeklyGoalProgressView: View {
         goalManager.getWeeklyGoal(for: therapyTypeSelection.selectedTherapyType)
     }
 
-    // Get current week's dates (Sunday - Saturday)
+    // Get current week's dates (Monday - Sunday)
     private var currentWeekDates: [Date] {
         var calendar = Calendar.current
-        calendar.firstWeekday = 1 // Sunday
+        calendar.firstWeekday = 2 // Monday
         let today = Date()
 
-        // Find the Sunday of the current week
+        // Find the Monday of the current week
         let weekday = calendar.component(.weekday, from: today)
-        let daysFromSunday = weekday - 1 // Sunday is 1, so this gives us days since Sunday
+        let daysFromMonday = (weekday - 2 + 7) % 7 // Monday is 2, calculate days since Monday
 
-        guard let sunday = calendar.date(byAdding: .day, value: -daysFromSunday, to: calendar.startOfDay(for: today)) else {
+        guard let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: calendar.startOfDay(for: today)) else {
             return []
         }
 
-        // Generate all 7 days (Sunday - Saturday)
+        // Generate all 7 days (Monday - Sunday)
         return (0..<7).compactMap { dayOffset in
-            calendar.date(byAdding: .day, value: dayOffset, to: sunday)
+            calendar.date(byAdding: .day, value: dayOffset, to: monday)
         }
     }
 

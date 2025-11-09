@@ -26,7 +26,7 @@ struct HabitStats {
         let sortedSessions = typeSessions.sorted { ($0.date ?? Date.distantPast) > ($1.date ?? Date.distantPast) }
 
         var calendar = Calendar.current
-        calendar.firstWeekday = 1 // Sunday
+        calendar.firstWeekday = 2 // Monday
         let now = Date()
         let today = calendar.startOfDay(for: now)
 
@@ -77,10 +77,10 @@ struct HabitStats {
         }
         bestStreak = max(bestStreak, tempStreak)
 
-        // This week count (Sunday - Saturday)
+        // This week count (Monday - Sunday)
         let weekday = calendar.component(.weekday, from: now)
-        let daysFromSunday = weekday - 1 // Sunday is 1
-        let startOfWeek = calendar.date(byAdding: .day, value: -daysFromSunday, to: today)!
+        let daysFromMonday = (weekday - 2 + 7) % 7 // Monday is 2, calculate days since Monday
+        let startOfWeek = calendar.date(byAdding: .day, value: -daysFromMonday, to: today)!
         let endOfWeek = calendar.date(byAdding: .day, value: 7, to: startOfWeek)!
         let thisWeekSessions = typeSessions.filter {
             guard let date = $0.date else { return false }
