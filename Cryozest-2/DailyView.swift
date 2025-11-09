@@ -294,7 +294,6 @@ struct DailyView: View {
                                 isToday: isToday
                             )
                             .padding(.top)
-                            .padding(.leading, 10)
                             .padding(.bottom, 12)
 
                             // Reorderable widgets with expansion support
@@ -304,7 +303,6 @@ struct DailyView: View {
                                         ForEach(visibleWidgets) { section in
                                     widgetView(for: section)
                                         .padding(.horizontal)
-                                        .padding(.leading, 10)
                                         .simultaneousGesture(
                                             LongPressGesture(minimumDuration: 0.6)
                                                 .onEnded { _ in
@@ -352,7 +350,6 @@ struct DailyView: View {
                                                 namespace: metricAnimation
                                             )
                                             .padding(.horizontal)
-                                            .padding(.leading, 10)
                                         } else {
                                             // Other metrics handled by MetricsGridSection
                                             EmptyView()
@@ -820,7 +817,6 @@ struct DailyGridMetrics: View {
         }
         .padding(.horizontal)
         .padding(.top, 12)
-        .padding(.leading, 10)
         .animation(.spring(response: 0.6, dampingFraction: 0.85), value: expandedMetric)
     }
     
