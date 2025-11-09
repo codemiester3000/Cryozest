@@ -61,6 +61,11 @@ struct MainView: View {
     @State private var showTherapySelectorTooltip = false
     @State private var showSafetyWarning = false
 
+    // Completion animation
+    @State private var showCompletionAnimation = false
+    @State private var completionAnimationScale: CGFloat = 0.5
+    @State private var completionAnimationOpacity: Double = 0
+
     init(therapyTypeSelection: TherapyTypeSelection) {
         self.therapyTypeSelection = therapyTypeSelection
     }
@@ -339,6 +344,55 @@ struct MainView: View {
                 )
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+                .overlay(
+                    // Completion animation overlay
+                    Group {
+                        if showCompletionAnimation {
+                            ZStack {
+                                // Ripple effect circles
+                                ForEach(0..<3, id: \.self) { index in
+                                    Circle()
+                                        .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.3), lineWidth: 2)
+                                        .frame(width: 80, height: 80)
+                                        .scaleEffect(completionAnimationScale * (1 + CGFloat(index) * 0.3))
+                                        .opacity(completionAnimationOpacity * (1 - Double(index) * 0.3))
+                                }
+
+                                // Center checkmark with glow
+                                ZStack {
+                                    Circle()
+                                        .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.2))
+                                        .frame(width: 70, height: 70)
+                                        .blur(radius: 10)
+
+                                    Circle()
+                                        .fill(therapyTypeSelection.selectedTherapyType.color)
+                                        .frame(width: 60, height: 60)
+
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 30, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                .scaleEffect(completionAnimationScale)
+                                .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.5), radius: 20)
+
+                                // Particle burst
+                                ForEach(0..<8, id: \.self) { index in
+                                    Circle()
+                                        .fill(therapyTypeSelection.selectedTherapyType.color)
+                                        .frame(width: 6, height: 6)
+                                        .offset(
+                                            x: cos(Double(index) * .pi / 4) * 60 * completionAnimationScale,
+                                            y: sin(Double(index) * .pi / 4) * 60 * completionAnimationScale
+                                        )
+                                        .opacity(completionAnimationOpacity * 0.8)
+                                }
+                            }
+                            .opacity(completionAnimationOpacity)
+                        }
+                    }
+                    .allowsHitTesting(false)
+                )
 
                 // Health status - below completion area
                 if !isHealthDataAvailable {
@@ -488,9 +542,46 @@ struct MainView: View {
             try viewContext.save()
             // Mark first session completed for onboarding
             OnboardingManager.shared.markFirstSessionCompleted()
+
+            // Trigger completion animation
+            triggerCompletionAnimation()
         } catch {
             // Handle the error here, e.g., display an error message or log the error
             print("Failed to save session: \(error.localizedDescription)")
+        }
+    }
+
+    private func triggerCompletionAnimation() {
+        // Haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+
+        // Show animation
+        showCompletionAnimation = true
+        completionAnimationScale = 0.5
+        completionAnimationOpacity = 0
+
+        // Animate in
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            completionAnimationScale = 1.2
+            completionAnimationOpacity = 1
+        }
+
+        // Animate out
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                completionAnimationScale = 1.0
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                completionAnimationOpacity = 0
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            showCompletionAnimation = false
         }
     }
 
