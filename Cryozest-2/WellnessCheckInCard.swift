@@ -51,76 +51,117 @@ struct WellnessCheckInCard: View {
     }
 
     private var fullPickerView: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text("Rate your mood from 1 to 5")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
+        VStack(spacing: 16) {
+            // Header with icon
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.cyan.opacity(0.3),
+                                    Color.purple.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: "face.smiling")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.cyan)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("How are you feeling?")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text("Track your daily mood")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
 
                 Spacer()
             }
 
-            HStack(spacing: 8) {
+            // Mood rating buttons with emojis
+            HStack(spacing: 10) {
                 ForEach(1...5, id: \.self) { rating in
                     Button(action: {
                         selectRating(rating)
                     }) {
-                        Text("\(rating)")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(selectedRating == rating ? .white : .white.opacity(0.5))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(
-                                        selectedRating == rating
-                                            ? LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    moodColor(for: rating),
-                                                    moodColor(for: rating).opacity(0.8)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                            : LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    Color.white.opacity(0.08),
-                                                    Color.white.opacity(0.05)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(
-                                                selectedRating == rating
-                                                    ? moodColor(for: rating).opacity(0.5)
-                                                    : Color.white.opacity(0.1),
-                                                lineWidth: 1
-                                            )
-                                    )
-                            )
+                        VStack(spacing: 6) {
+                            Text(moodEmoji(for: rating))
+                                .font(.system(size: 28))
+
+                            Text(moodLabel(for: rating))
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(selectedRating == rating ? .white : moodColor(for: rating))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(
+                                    selectedRating == rating
+                                        ? LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                moodColor(for: rating),
+                                                moodColor(for: rating).opacity(0.8)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        : LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                moodColor(for: rating).opacity(0.15),
+                                                moodColor(for: rating).opacity(0.08)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(
+                                            selectedRating == rating
+                                                ? moodColor(for: rating).opacity(0.6)
+                                                : moodColor(for: rating).opacity(0.3),
+                                            lineWidth: selectedRating == rating ? 2 : 1
+                                        )
+                                )
+                        )
+                        .scaleEffect(selectedRating == rating ? 1.05 : 1.0)
                     }
-                    .buttonStyle(ScaleButtonStyle())
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
 
             if showFeedback, let rating = selectedRating {
-                Text(feedbackMessage(for: rating))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(moodColor(for: rating).opacity(0.9))
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(moodColor(for: rating))
+
+                    Text(feedbackMessage(for: rating))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(moodColor(for: rating).opacity(0.9))
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(16)
+        .padding(18)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(
                     LinearGradient(
                         gradient: Gradient(colors: [
-                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.12),
                             Color.white.opacity(0.06)
                         ]),
                         startPoint: .topLeading,
@@ -130,12 +171,20 @@ struct WellnessCheckInCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
-                            Color.white.opacity(0.15),
-                            lineWidth: 1
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.cyan.opacity(0.3),
+                                    Color.purple.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
                         )
                 )
         )
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showFeedback)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedRating)
     }
 
     private func selectRating(_ rating: Int) {
@@ -254,6 +303,17 @@ struct WellnessCheckInCard: View {
         case 4: return "Good"
         case 5: return "Great"
         default: return "Good"
+        }
+    }
+
+    private func moodEmoji(for rating: Int) -> String {
+        switch rating {
+        case 1: return "😞"
+        case 2: return "😕"
+        case 3: return "😐"
+        case 4: return "😊"
+        case 5: return "😄"
+        default: return "😊"
         }
     }
 
