@@ -39,6 +39,9 @@ struct LargeStepsWidget: View {
     }
 
     var body: some View {
+        Button(action: {
+            expandedMetric = .steps
+        }) {
         VStack(alignment: .leading, spacing: 16) {
             // Header with icon, title, and config button
             HStack {
@@ -220,15 +223,8 @@ struct LargeStepsWidget: View {
             }
             .allowsHitTesting(false)  // Allow taps to pass through to widget
         )
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .onTapGesture {
-            expandedMetric = .steps
-        }
-        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = pressing
-            }
-        }, perform: {})
+        }  // Close VStack
+        .buttonStyle(StepsWidgetButtonStyle(isPressed: $isPressed))
         .onAppear {
             previousSteps = currentSteps
             animatedProgress = goalProgress
@@ -292,5 +288,20 @@ struct QuickStatView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// Button style for steps widget that handles press state
+struct StepsWidgetButtonStyle: ButtonStyle {
+    @Binding var isPressed: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .onChange(of: configuration.isPressed) { newValue in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = newValue
+                }
+            }
     }
 }
