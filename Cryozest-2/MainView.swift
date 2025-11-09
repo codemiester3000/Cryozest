@@ -379,15 +379,6 @@ struct MainView: View {
                                     )
                                 }
 
-                                // Goals Card
-                                if habitStats.totalSessions > 0 {
-                                    GoalsCard(
-                                        weeklyGoal: 3, // Default goal
-                                        currentProgress: habitStats.thisWeekCount,
-                                        habitColor: habitColor
-                                    )
-                                }
-
                                 // Quick Stats Card
                                 if habitStats.totalSessions > 0 {
                                     QuickStatsCard(
