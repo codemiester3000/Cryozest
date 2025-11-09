@@ -295,9 +295,11 @@ struct DailyView: View {
                             .padding(.leading, 10)
                             .padding(.bottom, 12)
 
-                            // Reorderable widgets
-                            VStack(spacing: 12) {
-                                ForEach(visibleWidgets) { section in
+                            // Reorderable widgets with expansion support
+                            ZStack {
+                                if expandedMetric == nil {
+                                    VStack(spacing: 12) {
+                                        ForEach(visibleWidgets) { section in
                                     widgetView(for: section)
                                         .padding(.horizontal)
                                         .padding(.leading, 10)
@@ -336,6 +338,19 @@ struct DailyView: View {
                                 }
                             }
                             .padding(.bottom, 12)
+                                }  // Close expandedMetric == nil
+
+                                // Show expanded metric view when tapped
+                                if let metric = expandedMetric {
+                                    ExpandedMetricOverlay(
+                                        metric: metric,
+                                        expandedMetric: $expandedMetric,
+                                        recoveryModel: recoveryModel,
+                                        sleepModel: sleepModel
+                                    )
+                                    .zIndex(1)
+                                }
+                            }  // Close ZStack
                         }
                     }
 
@@ -1986,5 +2001,66 @@ struct MetricsGridSection: View {
         case .remSleep: return "hrs"
         case .coreSleep: return "hrs"
         }
+    }
+}
+
+// MARK: - Expanded Metric Overlay
+
+struct ExpandedMetricOverlay: View {
+    let metric: MetricType
+    @Binding var expandedMetric: MetricType?
+    @ObservedObject var recoveryModel: RecoveryGraphModel
+    @ObservedObject var sleepModel: DailySleepViewModel
+    @Namespace private var animation
+
+    var body: some View {
+        VStack {
+            switch metric {
+            case .steps:
+                StepsDetailView(model: recoveryModel)
+            case .hrv:
+                HRVDetailView(model: recoveryModel)
+            case .rhr:
+                RHRDetailView(model: recoveryModel)
+            case .spo2:
+                SpO2DetailView(model: recoveryModel)
+            case .respiratoryRate:
+                RespiratoryRateDetailView(model: recoveryModel)
+            case .calories:
+                CaloriesDetailView(model: recoveryModel)
+            case .vo2Max:
+                VO2MaxDetailView(model: recoveryModel)
+            case .deepSleep, .remSleep, .coreSleep:
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Sleep stage data")
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(.white)
+
+                    Text("View detailed sleep analysis in the Sleep section")
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.08, green: 0.18, blue: 0.28))
+        .overlay(alignment: .topTrailing) {
+            // Close button
+            Button(action: {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                    expandedMetric = nil
+                }
+            }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding()
+            }
+        }
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .scale(scale: 0.95)),
+            removal: .opacity
+        ))
     }
 }
