@@ -131,7 +131,6 @@ struct DailyView: View {
                     VStack(spacing: 0) {
                         HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig, isToday: isToday)
                             .padding(.top)
-                            .padding(.bottom, 5)
                             .padding(.leading,10)
 
                         DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)

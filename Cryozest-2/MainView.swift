@@ -337,7 +337,7 @@ struct MainView: View {
                         }
                         VStack {
                             HStack {
-                                Text("\(therapyTypeSelection.selectedTherapyType.displayName(viewContext)) History")
+                                Text("Tracker")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
@@ -359,7 +359,7 @@ struct MainView: View {
                                 }
                                 .padding(.trailing, 24)
                             }
-                            .padding(.top, 24)
+                            .padding(.top, 12)
                             
                             VStack(alignment: .leading, spacing: 16) {
                                 CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
