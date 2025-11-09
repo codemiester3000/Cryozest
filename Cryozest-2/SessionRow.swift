@@ -30,27 +30,8 @@ struct SessionRow: View {
         let bpm: Double
     }
     
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                // Left accent bar
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                therapyTypeSelection.selectedTherapyType.color,
-                                therapyTypeSelection.selectedTherapyType.color.opacity(0.6)
-                            ]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: 4)
-                    .padding(.vertical, 4)
-
-                VStack(alignment: .leading, spacing: 12) {
-                // Header: Date and badges
-                HStack {
+    private var collapsedHeader: some View {
+        HStack {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
                             .font(.system(size: 11, weight: .semibold))
@@ -93,73 +74,90 @@ struct SessionRow: View {
                             )
                     }
                 }
+    }
 
-                // Main info: Duration and time
-                HStack(alignment: .center, spacing: 16) {
-                    // Duration - prominent display
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Duration")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.6))
-                            .textCase(.uppercase)
-                            .tracking(0.5)
-                        Text(compactDuration)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+    private var compactSessionInfo: some View {
+        HStack(spacing: 12) {
+                    // Session type icon
+                    ZStack {
+                        Circle()
+                            .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.15))
+                            .frame(width: 36, height: 36)
+
+                        Image(systemName: therapyTypeSelection.selectedTherapyType.icon)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                    }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(therapyTypeSelection.selectedTherapyType.displayName(managedObjectContext))
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
-                            .monospacedDigit()
-                    }
 
-                    Spacer()
-
-                    // Time of day
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("Time")
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                        Text(compactDuration)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.6))
-                            .textCase(.uppercase)
-                            .tracking(0.5)
-                        Text(formattedTime)
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white.opacity(0.9))
                     }
-                }
 
-                // Session streak indicator (if multiple sessions on same day)
-                if let streakCount = calculateDayStreak(), streakCount > 1 {
-                    HStack(spacing: 6) {
-                        Image(systemName: "flame.fill")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.orange)
-                        Text("\(streakCount) sessions today")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(Color.orange.opacity(0.15))
-                    )
-                }
-
-                // Expand indicator
-                HStack {
                     Spacer()
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                // Left accent bar
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                therapyTypeSelection.selectedTherapyType.color,
+                                therapyTypeSelection.selectedTherapyType.color.opacity(0.6)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 4)
+                    .padding(.vertical, 4)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    collapsedHeader
+
+                    compactSessionInfo
+
+                    // Session streak indicator (if multiple sessions on same day)
+                    if let streakCount = calculateDayStreak(), streakCount > 1 {
+                        HStack(spacing: 6) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.orange)
+                            Text("\(streakCount) sessions today")
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.orange.opacity(0.15))
+                        )
+                    }
+
+                    // Expand indicator
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.white.opacity(0.4))
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
-                .padding(.top, 4)
-            }
-            .padding(16)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    isExpanded.toggle()
+                .padding(12)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        isExpanded.toggle()
+                    }
                 }
             }
-        }
 
         // Expanded content
         if isExpanded {

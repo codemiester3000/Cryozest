@@ -243,6 +243,21 @@ struct MainView: View {
 
             Spacer()
 
+            // Manual log button
+            Button(action: {
+                showAddSession = true
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                }
+            }
+
             NavigationLink(destination: TherapyTypeSelectionView()) {
                 ZStack {
                     Circle()
@@ -339,30 +354,6 @@ struct MainView: View {
                             EmptyView()
                         }
                         VStack {
-                            HStack {
-                                Text("Tracker")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .padding(.leading, 20)
-
-                                Spacer()
-
-                                Button(action: {
-                                    showAddSession = true
-                                }) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.white.opacity(0.15))
-                                            .frame(width: 44, height: 44)
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 20, weight: .semibold))
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                                .padding(.trailing, 20)
-                            }
-                            .padding(.top, 12)
 
                             VStack(alignment: .leading, spacing: 12) {
                                 // Weekly Goal Progress
@@ -420,7 +411,7 @@ struct MainView: View {
                                     ForEach(sortedSessions, id: \.self) { session in
                                         SessionRow(session: session, therapyTypeSelection: therapyTypeSelection, therapyTypeName: therapyTypeSelection.selectedTherapyType.displayName(viewContext))
                                             .foregroundColor(.white)
-                                            .padding(.bottom)
+                                            .padding(.bottom, 8)
                                     }
                                 }
                             }
