@@ -39,9 +39,6 @@ struct LargeStepsWidget: View {
     }
 
     var body: some View {
-        Button(action: {
-            expandedMetric = .steps
-        }) {
         VStack(alignment: .leading, spacing: 16) {
             // Header with icon, title, and config button
             HStack {
@@ -62,26 +59,25 @@ struct LargeStepsWidget: View {
 
                 Spacer()
 
-                Button(action: {
+                HStack(spacing: 4) {
+                    Image(systemName: "target")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("\(goalManager.dailyStepGoal)")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.green)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(Color.green.opacity(0.15))
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .onTapGesture {
                     showGoalConfig = true
-                }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "target")
-                            .font(.system(size: 12, weight: .semibold))
-                        Text("\(goalManager.dailyStepGoal)")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    }
-                    .foregroundColor(.green)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        Capsule()
-                            .fill(Color.green.opacity(0.15))
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                            )
-                    )
                 }
             }
 
@@ -223,8 +219,26 @@ struct LargeStepsWidget: View {
             }
             .allowsHitTesting(false)  // Allow taps to pass through to widget
         )
-        }  // Close VStack
-        .buttonStyle(StepsWidgetButtonStyle(isPressed: $isPressed))
+        .contentShape(Rectangle())  // Make entire area tappable
+        .onTapGesture {
+            expandedMetric = .steps
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isPressed {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isPressed = true
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isPressed = false
+                    }
+                }
+        )
+        .scaleEffect(isPressed ? 0.98 : 1.0)
         .onAppear {
             previousSteps = currentSteps
             animatedProgress = goalProgress
@@ -288,20 +302,5 @@ struct QuickStatView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-// Button style for steps widget that handles press state
-struct StepsWidgetButtonStyle: ButtonStyle {
-    @Binding var isPressed: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .onChange(of: configuration.isPressed) { newValue in
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = newValue
-                }
-            }
     }
 }
