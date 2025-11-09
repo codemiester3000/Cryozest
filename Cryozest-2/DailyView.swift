@@ -342,16 +342,13 @@ struct HeaderView: View {
 
             // Wellness Check-In Card
             WellnessCheckInCard(selectedDate: $selectedDate)
-                .padding(.top, 12)
 
             // Completed Habits Card
             CompletedHabitsCard(selectedDate: $selectedDate)
-                .padding(.top, 12)
 
             // Medications Card
             if configManager.isEnabled(.medications) {
                 MedicationsCard(selectedDate: $selectedDate)
-                    .padding(.top, 12)
             }
         }
         .padding(.horizontal)
