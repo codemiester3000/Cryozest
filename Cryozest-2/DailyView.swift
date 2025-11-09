@@ -31,6 +31,29 @@ struct DailyView: View {
     @State private var isReorderMode = false
     @State private var draggedWidget: DailyWidgetSection?
 
+    private var visibleWidgets: [DailyWidgetSection] {
+        widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }
+    }
+
+    private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
+        guard let fromIndex = widgetOrderManager.widgetOrder.firstIndex(of: from),
+              let toIndex = widgetOrderManager.widgetOrder.firstIndex(of: to) else { return }
+
+        guard fromIndex != toIndex else { return }
+
+        withAnimation(.spring(response: 0.3)) {
+            var newOrder = widgetOrderManager.widgetOrder
+            let movedWidget = newOrder.remove(at: fromIndex)
+
+            // Adjust insertion index
+            let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
+            newOrder.insert(movedWidget, at: adjustedToIndex)
+
+            widgetOrderManager.widgetOrder = newOrder
+            widgetOrderManager.saveOrder()
+        }
+    }
+
     init(
         recoveryModel: RecoveryGraphModel,
         exertionModel: ExertionModel,
@@ -265,7 +288,7 @@ struct DailyView: View {
 
                             // Reorderable widgets
                             VStack(spacing: 12) {
-                                ForEach(widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }) { section in
+                                ForEach(visibleWidgets) { section in
                                     widgetView(for: section)
                                         .padding(.horizontal)
                                         .padding(.leading, 10)
@@ -277,8 +300,10 @@ struct DailyView: View {
                                         }
                                         .onDrop(of: [.text], delegate: WidgetDropDelegate(
                                             draggedWidget: $draggedWidget,
-                                            widgets: $widgetOrderManager.widgetOrder,
-                                            currentWidget: section
+                                            currentWidget: section,
+                                            onMove: { from, to in
+                                                moveWidget(from: from, to: to)
+                                            }
                                         ))
                                 }
                             }
@@ -1533,10 +1558,11 @@ struct ReorderableWidgetModifier: ViewModifier {
 
 struct WidgetDropDelegate: DropDelegate {
     @Binding var draggedWidget: DailyWidgetSection?
-    @Binding var widgets: [DailyWidgetSection]
     let currentWidget: DailyWidgetSection
+    let onMove: (DailyWidgetSection, DailyWidgetSection) -> Void
 
     func performDrop(info: DropInfo) -> Bool {
+        guard draggedWidget != nil else { return false }
         draggedWidget = nil
         return true
     }
@@ -1545,24 +1571,7 @@ struct WidgetDropDelegate: DropDelegate {
         guard let draggedWidget = draggedWidget else { return }
         guard draggedWidget != currentWidget else { return }
 
-        guard let fromIndex = widgets.firstIndex(of: draggedWidget),
-              let toIndex = widgets.firstIndex(of: currentWidget) else { return }
-
-        if fromIndex != toIndex {
-            withAnimation(.spring(response: 0.3)) {
-                var updatedWidgets = widgets
-                let movedWidget = updatedWidgets.remove(at: fromIndex)
-
-                // Adjust insertion index if needed
-                let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
-                updatedWidgets.insert(movedWidget, at: adjustedToIndex)
-
-                widgets = updatedWidgets
-
-                // Save the new order immediately
-                WidgetOrderManager.shared.saveOrder()
-            }
-        }
+        onMove(draggedWidget, currentWidget)
     }
 }
 
