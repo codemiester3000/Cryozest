@@ -1782,7 +1782,9 @@ struct MetricsGridSection: View {
     @Namespace private var animation
 
     var body: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
+        ZStack {
+            if expandedMetric == nil {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
             if configManager.isEnabled(.hrv) {
                 GridItemView(
                     symbolName: "waveform.path.ecg",
@@ -1887,6 +1889,28 @@ struct MetricsGridSection: View {
                 )
             }
         }
+            }  // Close expandedMetric == nil
+
+            // Show expanded view when a metric is tapped
+            if let metric = expandedMetric {
+                ExpandedGridItemView(
+                    symbolName: iconFor(metric),
+                    title: titleFor(metric),
+                    value: valueFor(metric),
+                    unit: unitFor(metric),
+                    metricType: metric,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+                .transition(.asymmetric(
+                    insertion: .identity,
+                    removal: .identity
+                ))
+                .zIndex(1)
+            }
+        }  // Close ZStack
+        .animation(.spring(response: 0.6, dampingFraction: 0.85), value: expandedMetric)
     }
 
     private func formatSPO2Value(_ spo2: Double?) -> String {
@@ -1902,5 +1926,65 @@ struct MetricsGridSection: View {
     private func formatRespRateValue(_ respRate: Double?) -> String {
         guard let respRate = respRate else { return "N/A" }
         return String(format: "%.1f", respRate)
+    }
+
+    private func iconFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "waveform.path.ecg"
+        case .rhr: return "arrow.down.heart"
+        case .spo2: return "drop"
+        case .respiratoryRate: return "lungs"
+        case .calories: return "flame"
+        case .steps: return "figure.walk"
+        case .vo2Max: return "lungs"
+        case .deepSleep: return "bed.double.fill"
+        case .remSleep: return "moon.stars.fill"
+        case .coreSleep: return "moon.fill"
+        }
+    }
+
+    private func titleFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "Avg HRV"
+        case .rhr: return "Avg RHR"
+        case .spo2: return "Blood Oxygen"
+        case .respiratoryRate: return "Respiratory Rate"
+        case .calories: return "Calories Burned"
+        case .steps: return "Steps"
+        case .vo2Max: return "VO2 Max"
+        case .deepSleep: return "Deep Sleep"
+        case .remSleep: return "REM Sleep"
+        case .coreSleep: return "Core Sleep"
+        }
+    }
+
+    private func valueFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "\(model.lastKnownHRV)"
+        case .rhr: return "\(model.mostRecentRestingHeartRate ?? 0)"
+        case .spo2: return formatSPO2Value(model.mostRecentSPO2)
+        case .respiratoryRate: return formatRespRateValue(model.mostRecentRespiratoryRate)
+        case .calories: return formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories)
+        case .steps: return "\(model.mostRecentSteps.map(Int.init) ?? 0)"
+        case .vo2Max: return String(format: "%.1f", model.mostRecentVO2Max ?? 0.0)
+        case .deepSleep: return sleepModel.totalDeepSleep
+        case .remSleep: return sleepModel.totalRemSleep
+        case .coreSleep: return sleepModel.totalCoreSleep
+        }
+    }
+
+    private func unitFor(_ metric: MetricType) -> String {
+        switch metric {
+        case .hrv: return "ms"
+        case .rhr: return "bpm"
+        case .spo2: return "%"
+        case .respiratoryRate: return "BrPM"
+        case .calories: return "kcal"
+        case .steps: return "steps"
+        case .vo2Max: return "ml/kg/min"
+        case .deepSleep: return "hrs"
+        case .remSleep: return "hrs"
+        case .coreSleep: return "hrs"
+        }
     }
 }
