@@ -270,8 +270,8 @@ struct MedicationsCard: View {
                 let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 heavyGenerator.impactOccurred()
 
-                // Collapse after animation (600ms)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                // Collapse after animation (3 seconds for debugging)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         isCollapsed = true
                     }
@@ -398,7 +398,7 @@ struct BorderLightAnimation: View {
             .rotationEffect(.degrees(-90))  // Start from top center
             .shadow(color: Color.green.opacity(0.8), radius: 8, x: 0, y: 0)
             .onAppear {
-                withAnimation(.linear(duration: 0.6)) {
+                withAnimation(.linear(duration: 3.0)) {  // Slowed down to 3 seconds for debugging
                     progress = 1.0
                 }
             }

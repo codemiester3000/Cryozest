@@ -218,6 +218,7 @@ struct LargeStepsWidget: View {
                     .padding(.top, 12)
                 }
             }
+            .allowsHitTesting(false)  // Allow taps to pass through to widget
         )
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .onTapGesture {
