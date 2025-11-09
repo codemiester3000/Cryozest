@@ -26,6 +26,11 @@ struct DailyView: View {
     @State private var showEmptyState = false
     @State private var showMetricTooltip = false
 
+    // Widget reordering
+    @StateObject private var widgetOrderManager = WidgetOrderManager.shared
+    @State private var isReorderMode = false
+    @State private var draggedWidget: DailyWidgetSection?
+
     init(
         recoveryModel: RecoveryGraphModel,
         exertionModel: ExertionModel,
@@ -80,7 +85,125 @@ struct DailyView: View {
     private var isToday: Bool {
         Calendar.current.isDate(selectedDate, inSameDayAs: Date())
     }
-    
+
+    private func shouldShowWidget(_ section: DailyWidgetSection) -> Bool {
+        switch section {
+        case .medications:
+            return metricConfig.isEnabled(.medications)
+        case .largeSteps:
+            return metricConfig.isEnabled(.steps)
+        case .largeHeartRate:
+            return metricConfig.isEnabled(.heartRate)
+        default:
+            return true
+        }
+    }
+
+    @ViewBuilder
+    private func widgetView(for section: DailyWidgetSection) -> some View {
+        switch section {
+        case .wellnessCheckIn:
+            WellnessCheckInCard(selectedDate: $selectedDate)
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                    onLongPress: { isReorderMode = true }
+                ))
+
+        case .completedHabits:
+            CompletedHabitsCard(selectedDate: $selectedDate)
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                    onLongPress: { isReorderMode = true }
+                ))
+
+        case .medications:
+            if metricConfig.isEnabled(.medications) {
+                MedicationsCard(selectedDate: $selectedDate)
+                    .modifier(ReorderableWidgetModifier(
+                        section: section,
+                        isReorderMode: isReorderMode,
+                        draggedWidget: $draggedWidget,
+                        onLongPress: { isReorderMode = true }
+                    ))
+            }
+
+        case .heroScores:
+            HeroScoresView(
+                exertionScore: exertionModel.exertionScore,
+                readinessScore: recoveryModel.recoveryScores.last ?? 0,
+                sleepDuration: recoveryModel.previousNightSleepDuration,
+                calculatedUpperBound: calculatedUpperBoundDailyView,
+                onExertionTap: {
+                    triggerHapticFeedback()
+                    showingExertionPopover = true
+                },
+                onReadinessTap: {
+                    triggerHapticFeedback()
+                    showingRecoveryPopover = true
+                },
+                onSleepTap: {
+                    triggerHapticFeedback()
+                    showingSleepPopover = true
+                },
+                recoveryMinutes: exertionModel.recoveryMinutes,
+                conditioningMinutes: exertionModel.conditioningMinutes,
+                overloadMinutes: exertionModel.overloadMinutes
+            )
+            .modifier(ReorderableWidgetModifier(
+                section: section,
+                isReorderMode: isReorderMode,
+                draggedWidget: $draggedWidget,
+                onLongPress: { isReorderMode = true }
+            ))
+
+        case .largeSteps:
+            if metricConfig.isEnabled(.steps) {
+                LargeStepsWidget(
+                    model: recoveryModel,
+                    expandedMetric: $expandedMetric
+                )
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                    onLongPress: { isReorderMode = true }
+                ))
+            }
+
+        case .largeHeartRate:
+            if metricConfig.isEnabled(.heartRate) {
+                LargeHeartRateWidget(
+                    model: recoveryModel,
+                    expandedMetric: $expandedMetric
+                )
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                    onLongPress: { isReorderMode = true }
+                ))
+            }
+
+        case .metricsGrid:
+            MetricsGridSection(
+                model: recoveryModel,
+                sleepModel: sleepModel,
+                configManager: metricConfig,
+                expandedMetric: $expandedMetric
+            )
+            .modifier(ReorderableWidgetModifier(
+                section: section,
+                isReorderMode: isReorderMode,
+                draggedWidget: $draggedWidget,
+                onLongPress: { isReorderMode = true }
+            ))
+        }
+    }
+
     var body: some View {
         ZStack {
             // Modern gradient background matching app theme
@@ -127,49 +250,65 @@ struct DailyView: View {
                     }
                 )
             } else {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        HeaderView(model: recoveryModel, selectedDate: $selectedDate, showingMetricConfig: $showingMetricConfig, isToday: isToday)
-                            .padding(.top)
-                            .padding(.leading,10)
-
-                        DailyGridMetrics(model: recoveryModel, sleepModel: sleepModel, configManager: metricConfig, expandedMetric: $expandedMetric)
-                            .contextualTooltip(
-                                message: "Tap any metric to see detailed history and trends",
-                                isShowing: showMetricTooltip,
-                                arrowPosition: .top,
-                                accentColor: .cyan,
-                                onDismiss: {
-                                    showMetricTooltip = false
-                                    OnboardingManager.shared.markMetricTooltipSeen()
-                                }
+                ZStack(alignment: .topTrailing) {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            // Fixed header (title, customize, date selector)
+                            DailyHeaderSection(
+                                selectedDate: $selectedDate,
+                                showingMetricConfig: $showingMetricConfig,
+                                isToday: isToday
                             )
+                            .padding(.top)
+                            .padding(.leading, 10)
                             .padding(.bottom, 12)
 
-                        HeroScoresView(
-                            exertionScore: exertionModel.exertionScore,
-                            readinessScore: recoveryModel.recoveryScores.last ?? 0,
-                            sleepDuration: recoveryModel.previousNightSleepDuration,
-                            calculatedUpperBound: calculatedUpperBoundDailyView,
-                            onExertionTap: {
-                                triggerHapticFeedback()
-                                showingExertionPopover = true
-                            },
-                            onReadinessTap: {
-                                triggerHapticFeedback()
-                                showingRecoveryPopover = true
-                            },
-                            onSleepTap: {
-                                triggerHapticFeedback()
-                                showingSleepPopover = true
-                            },
-                            recoveryMinutes: exertionModel.recoveryMinutes,
-                            conditioningMinutes: exertionModel.conditioningMinutes,
-                            overloadMinutes: exertionModel.overloadMinutes
-                        )
-                        .padding(.horizontal)
-                        .padding(.leading, 10)
-                        .padding(.bottom, 12)
+                            // Reorderable widgets
+                            VStack(spacing: 12) {
+                                ForEach(widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }) { section in
+                                    widgetView(for: section)
+                                        .padding(.horizontal)
+                                        .padding(.leading, 10)
+                                        .onDrag {
+                                            guard isReorderMode else { return NSItemProvider() }
+                                            self.draggedWidget = section
+                                            triggerHapticFeedback()
+                                            return NSItemProvider(object: section.rawValue as NSString)
+                                        }
+                                        .onDrop(of: [.text], delegate: WidgetDropDelegate(
+                                            draggedWidget: $draggedWidget,
+                                            widgets: $widgetOrderManager.widgetOrder,
+                                            currentWidget: section
+                                        ))
+                                }
+                            }
+                            .padding(.bottom, 12)
+                        }
+                    }
+
+                    // Done button when in reorder mode
+                    if isReorderMode {
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3)) {
+                                isReorderMode = false
+                                widgetOrderManager.saveOrder()
+                            }
+                            triggerHapticFeedback()
+                        }) {
+                            Text("Done")
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.cyan)
+                                        .shadow(color: Color.cyan.opacity(0.5), radius: 10, x: 0, y: 5)
+                                )
+                        }
+                        .padding(.top, 60)
+                        .padding(.trailing, 20)
+                        .transition(.scale.combined(with: .opacity))
                     }
                 }
                 .simultaneousGesture(
@@ -1349,5 +1488,304 @@ struct DatePickerSheet: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Reorderable Widget Modifier
+
+struct ReorderableWidgetModifier: ViewModifier {
+    let section: DailyWidgetSection
+    let isReorderMode: Bool
+    @Binding var draggedWidget: DailyWidgetSection?
+    let onLongPress: () -> Void
+
+    func body(content: Content) -> some View {
+        ZStack(alignment: .topTrailing) {
+            content
+                .opacity(isReorderMode && draggedWidget == section ? 0.5 : 1.0)
+                .scaleEffect(isReorderMode && draggedWidget == section ? 0.95 : 1.0)
+                .animation(.spring(response: 0.3), value: isReorderMode)
+                .animation(.spring(response: 0.3), value: draggedWidget)
+                .onLongPressGesture(minimumDuration: 0.5) {
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.impactOccurred()
+                    onLongPress()
+                }
+
+            // Drag handle indicator when in reorder mode
+            if isReorderMode {
+                Image(systemName: "line.3.horizontal")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+                    .padding(12)
+                    .background(
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                    )
+                    .padding(8)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+    }
+}
+
+// MARK: - Widget Drop Delegate
+
+struct WidgetDropDelegate: DropDelegate {
+    @Binding var draggedWidget: DailyWidgetSection?
+    @Binding var widgets: [DailyWidgetSection]
+    let currentWidget: DailyWidgetSection
+
+    func performDrop(info: DropInfo) -> Bool {
+        draggedWidget = nil
+        return true
+    }
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedWidget = draggedWidget else { return }
+        guard draggedWidget != currentWidget else { return }
+
+        let from = widgets.firstIndex(of: draggedWidget)!
+        let to = widgets.firstIndex(of: currentWidget)!
+
+        if widgets[to] != draggedWidget {
+            withAnimation(.spring(response: 0.3)) {
+                widgets.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+            }
+        }
+    }
+}
+
+// MARK: - Daily Header Section
+
+struct DailyHeaderSection: View {
+    @Binding var selectedDate: Date
+    @Binding var showingMetricConfig: Bool
+    let isToday: Bool
+
+    @State private var showingDatePicker = false
+
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(alignment: .top) {
+                Text("Daily Health")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+
+                Spacer()
+            }
+
+            HStack(spacing: 12) {
+                Button(action: {
+                    showingMetricConfig = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("Customize")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                    }
+                    .foregroundColor(.cyan)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.cyan.opacity(0.15))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+
+                Spacer()
+
+                // Date indicator
+                Button(action: {
+                    showingDatePicker = true
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+
+                        Text(dateFormatter.string(from: selectedDate))
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.9))
+
+                        if isToday {
+                            Text("Today")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundColor(.cyan)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.cyan.opacity(0.15))
+                                )
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white.opacity(0.08))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .sheet(isPresented: $showingDatePicker) {
+                DatePickerSheet(selectedDate: $selectedDate)
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Metrics Grid Section
+
+struct MetricsGridSection: View {
+    @ObservedObject var model: RecoveryGraphModel
+    @ObservedObject var sleepModel: DailySleepViewModel
+    @ObservedObject var configManager: MetricConfigurationManager
+    @Binding var expandedMetric: MetricType?
+    @Namespace private var animation
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
+            if configManager.isEnabled(.hrv) {
+                GridItemView(
+                    symbolName: "waveform.path.ecg",
+                    title: "Avg HRV",
+                    value: "\(model.lastKnownHRV)",
+                    unit: "ms",
+                    metricType: .hrv,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.spo2) {
+                GridItemView(
+                    symbolName: "drop",
+                    title: "Blood Oxygen",
+                    value: formatSPO2Value(model.mostRecentSPO2),
+                    unit: "%",
+                    metricType: .spo2,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.respiratoryRate) {
+                GridItemView(
+                    symbolName: "lungs",
+                    title: "Respiratory Rate",
+                    value: formatRespRateValue(model.mostRecentRespiratoryRate),
+                    unit: "BrPM",
+                    metricType: .respiratoryRate,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.calories) {
+                GridItemView(
+                    symbolName: "flame",
+                    title: "Calories Burned",
+                    value: formatTotalCaloriesValue(model.mostRecentActiveCalories, model.mostRecentRestingCalories),
+                    unit: "kcal",
+                    metricType: .calories,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.vo2Max) {
+                GridItemView(
+                    symbolName: "lungs",
+                    title: "VO2 Max",
+                    value: String(format: "%.1f", model.mostRecentVO2Max ?? 0.0),
+                    unit: "ml/kg/min",
+                    metricType: .vo2Max,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.deepSleep) {
+                GridItemView(
+                    symbolName: "bed.double.fill",
+                    title: "Deep Sleep",
+                    value: sleepModel.totalDeepSleep,
+                    unit: "hrs",
+                    metricType: .deepSleep,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.remSleep) {
+                GridItemView(
+                    symbolName: "moon.stars.fill",
+                    title: "REM Sleep",
+                    value: sleepModel.totalRemSleep,
+                    unit: "hrs",
+                    metricType: .remSleep,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+
+            if configManager.isEnabled(.coreSleep) {
+                GridItemView(
+                    symbolName: "moon.fill",
+                    title: "Core Sleep",
+                    value: sleepModel.totalCoreSleep,
+                    unit: "hrs",
+                    metricType: .coreSleep,
+                    model: model,
+                    expandedMetric: $expandedMetric,
+                    namespace: animation
+                )
+            }
+        }
+    }
+
+    private func formatSPO2Value(_ spo2: Double?) -> String {
+        guard let spo2 = spo2 else { return "N/A" }
+        return String(format: "%.0f", spo2 * 100)
+    }
+
+    private func formatTotalCaloriesValue(_ activeCalories: Double?, _ restingCalories: Double?) -> String {
+        let totalCalories = (activeCalories ?? 0) + (restingCalories ?? 0)
+        return totalCalories > 0 ? String(format: "%.0f", totalCalories) : "0"
+    }
+
+    private func formatRespRateValue(_ respRate: Double?) -> String {
+        guard let respRate = respRate else { return "N/A" }
+        return String(format: "%.1f", respRate)
     }
 }
