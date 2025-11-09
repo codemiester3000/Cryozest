@@ -73,6 +73,7 @@ struct AppTabView: View {
 
 struct FloatingTabBar: View {
     @Binding var selectedTab: Int
+    @Environment(\.sizeCategory) var sizeCategory
 
     private let tabs = [
         TabItem(icon: "moon.fill", title: "Daily", tag: 0),
@@ -80,21 +81,48 @@ struct FloatingTabBar: View {
         TabItem(icon: "lightbulb.fill", title: "Insights", tag: 2)
     ]
 
+    // Dynamic sizing based on accessibility text size
+    private var dynamicIconSize: CGFloat {
+        switch sizeCategory {
+        case .accessibilityMedium, .accessibilityLarge:
+            return 24
+        case .accessibilityExtraLarge, .accessibilityExtraExtraLarge, .accessibilityExtraExtraExtraLarge:
+            return 28
+        default:
+            return 20
+        }
+    }
+
+    private var dynamicTextSize: CGFloat {
+        switch sizeCategory {
+        case .accessibilityMedium, .accessibilityLarge:
+            return 12
+        case .accessibilityExtraLarge, .accessibilityExtraExtraLarge, .accessibilityExtraExtraExtraLarge:
+            return 14
+        default:
+            return 10
+        }
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
+                    // Haptic feedback for tab selection
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = tab.tag
                     }
                 }) {
                     VStack(spacing: 4) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: dynamicIconSize, weight: .semibold))
                             .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.5))
 
                         Text(tab.title)
-                            .font(.system(size: 10, weight: selectedTab == tab.tag ? .semibold : .medium))
+                            .font(.system(size: dynamicTextSize, weight: selectedTab == tab.tag ? .semibold : .medium))
                             .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.5))
                     }
                     .frame(maxWidth: .infinity)
@@ -107,6 +135,9 @@ struct FloatingTabBar: View {
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel(tab.title)
+                .accessibilityHint("Tab \(tab.tag + 1) of \(tabs.count)")
+                .accessibilityAddTraits(selectedTab == tab.tag ? [.isSelected, .isButton] : .isButton)
             }
         }
         .padding(.horizontal, 8)
@@ -124,6 +155,8 @@ struct FloatingTabBar: View {
                 )
         )
         .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 10)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Navigation tabs")
     }
 }
 
