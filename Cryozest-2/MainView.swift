@@ -69,7 +69,15 @@ struct MainView: View {
         let therapyTypeSessions = sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
         return therapyTypeSessions.sorted(by: { $0.date! > $1.date! }) // changed to sort in descending order
     }
-    
+
+    private var habitStats: HabitStats {
+        HabitStats.calculate(for: therapyTypeSelection.selectedTherapyType, sessions: Array(sessions))
+    }
+
+    private var habitColor: Color {
+        therapyTypeSelection.selectedTherapyType.color
+    }
+
     private func updateSessionDates() {
         self.sessionDates = sessions
             .filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
@@ -341,7 +349,7 @@ struct MainView: View {
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .padding(.leading)
+                                    .padding(.leading, 20)
 
                                 Spacer()
 
@@ -357,11 +365,38 @@ struct MainView: View {
                                             .foregroundColor(.white)
                                     }
                                 }
-                                .padding(.trailing, 24)
+                                .padding(.trailing, 20)
                             }
                             .padding(.top, 12)
-                            
-                            VStack(alignment: .leading, spacing: 16) {
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                // Streak Card
+                                if habitStats.totalSessions > 0 {
+                                    StreakCard(
+                                        currentStreak: habitStats.currentStreak,
+                                        bestStreak: habitStats.bestStreak,
+                                        habitColor: habitColor
+                                    )
+                                }
+
+                                // Goals Card
+                                if habitStats.totalSessions > 0 {
+                                    GoalsCard(
+                                        weeklyGoal: 3, // Default goal
+                                        currentProgress: habitStats.thisWeekCount,
+                                        habitColor: habitColor
+                                    )
+                                }
+
+                                // Quick Stats Card
+                                if habitStats.totalSessions > 0 {
+                                    QuickStatsCard(
+                                        stats: habitStats,
+                                        habitColor: habitColor
+                                    )
+                                }
+
+                                // Calendar
                                 CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
@@ -373,8 +408,7 @@ struct MainView: View {
                                     )
                                     .frame(height: 240)
                                     .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                
+
                                 if sortedSessions.isEmpty {
                                     VStack(spacing: 16) {
                                         ZStack {
@@ -401,7 +435,7 @@ struct MainView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                             .padding(.bottom, 100)
                         }
                         .onAppear {

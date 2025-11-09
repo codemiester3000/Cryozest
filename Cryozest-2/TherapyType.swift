@@ -299,7 +299,7 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
         case .running, .weightTraining, .cycling, .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing, .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre, .walking, .stairClimbing:
             return Color.appleLimeGreen
         case .meditation, .stretching, .deepBreathing, .sleep, .coldYoga, .massage, .nap, .sleepAid, .sleepMask, .whiteNoise:
-            return Color(red: 0.0, green: 0.5, blue: 0.0)
+            return Color.appleLimeGreen
         case .magnesium, .zinc, .d3, .adaptogens, .antidepressant, .creatine, .iron, .lTheanine, .multivitamin, .vitaminC, .cbd, .electrolytes, .fishOil, .ashwagandha, .melatonin:
             return Color.teal
         case .noCoffee, .noCaffeine, .vegan, .vegetarian, .keto, .noSugar, .Dairy, .Fasting, .Gluten, .HighCarb, .JunkFood, .LateMeal, .Sugar:
