@@ -98,102 +98,102 @@ struct LargeHeartRateWidget: View {
     }
 
     private var expandedView: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Header
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.red)
-                        .frame(width: 28, height: 28)
-                        .background(
-                            Circle()
-                                .fill(Color.red.opacity(0.15))
-                        )
+        VStack(alignment: .leading, spacing: 12) {
+            // Compact header with icon inline
+            HStack(alignment: .center) {
+                // Icon inline with main metric
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.red)
+                    .frame(width: 40, height: 40)
+                    .background(
+                        Circle()
+                            .fill(Color.red.opacity(0.15))
+                    )
 
+                // Main metric display
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Resting Heart Rate")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.7))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        if let rhr = currentRHR {
+                            Text("\(rhr)")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(animate ? trendColor : .white)
+                        } else {
+                            Text("--")
+                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+
+                        Text("bpm")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
                 }
 
                 Spacer()
 
                 // Trend badge
-                HStack(spacing: 4) {
-                    Image(systemName: trendIcon)
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(trendColor)
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 3) {
+                        Image(systemName: trendIcon)
+                            .font(.system(size: 10, weight: .bold))
+                        Text(trend.rawValue)
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                    }
+                    .foregroundColor(trendColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(trendColor.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(trendColor.opacity(0.3), lineWidth: 1)
+                            )
+                    )
 
-                    Text(trend.rawValue)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(trendColor)
+                    if let avg = weeklyAverageRHR {
+                        Text("Avg: \(avg) bpm")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule()
-                        .fill(trendColor.opacity(0.15))
-                        .overlay(
-                            Capsule()
-                                .stroke(trendColor.opacity(0.3), lineWidth: 1)
-                        )
-                )
-            }
-
-            // Current RHR - large display
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                if let rhr = currentRHR {
-                    Text("\(rhr)")
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
-                        .foregroundColor(animate ? trendColor : .white)
-                } else {
-                    Text("--")
-                        .font(.system(size: 56, weight: .bold, design: .rounded))
-                        .foregroundColor(.white.opacity(0.3))
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("bpm")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.5))
-
-                    Text("current")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.4))
-                }
-                .padding(.bottom, 8)
             }
 
             // Today's RHR readings graph
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("Today's Readings")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.6))
 
                 RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
-                    .frame(height: 80)
+                    .frame(height: 65)
             }
 
             // Stats row
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 // Weekly average comparison
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.cyan)
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 1) {
                         Text("Weekly Avg")
-                            .font(.system(size: 9, weight: .medium, design: .rounded))
+                            .font(.system(size: 8, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.5))
 
                         if let avg = weeklyAverageRHR {
                             Text("\(avg) bpm")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                         } else {
                             Text("-- bpm")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundColor(.white.opacity(0.3))
                         }
                     }
@@ -201,38 +201,38 @@ struct LargeHeartRateWidget: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 Divider()
-                    .frame(height: 30)
+                    .frame(height: 24)
                     .background(Color.white.opacity(0.2))
 
                 // Difference from average
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     if let current = currentRHR, let avg = weeklyAverageRHR {
                         let diff = current - avg
                         Image(systemName: diff < 0 ? "arrow.down" : "arrow.up")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(diff < 0 ? .green : .orange)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 1) {
                             Text("vs Average")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .font(.system(size: 8, weight: .medium, design: .rounded))
                                 .foregroundColor(.white.opacity(0.5))
 
                             Text("\(abs(diff)) bpm")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundColor(diff < 0 ? .green : .orange)
                         }
                     } else {
                         Image(systemName: "minus")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.white.opacity(0.3))
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 1) {
                             Text("vs Average")
-                                .font(.system(size: 9, weight: .medium, design: .rounded))
+                                .font(.system(size: 8, weight: .medium, design: .rounded))
                                 .foregroundColor(.white.opacity(0.5))
 
                             Text("-- bpm")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                                 .foregroundColor(.white.opacity(0.3))
                         }
                     }
@@ -240,7 +240,7 @@ struct LargeHeartRateWidget: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(16)
+        .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(

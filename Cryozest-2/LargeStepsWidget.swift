@@ -40,75 +40,77 @@ struct LargeStepsWidget: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header with icon, title, and config button
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "figure.walk")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.green)
-                        .frame(width: 28, height: 28)
-                        .background(
-                            Circle()
-                                .fill(Color.green.opacity(0.15))
-                        )
+        VStack(alignment: .leading, spacing: 12) {
+            // Compact header with icon inline and goal badge
+            HStack(alignment: .center) {
+                // Icon inline with main metric
+                Image(systemName: "figure.walk")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(.green)
+                    .frame(width: 40, height: 40)
+                    .background(
+                        Circle()
+                            .fill(Color.green.opacity(0.15))
+                    )
 
+                // Main metric display
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Steps")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.7))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(currentSteps)")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(animate ? progressColor : .white)
+
+                        Text("/ \(goalManager.dailyStepGoal)")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
                 }
 
                 Spacer()
 
-                HStack(spacing: 4) {
-                    Image(systemName: "target")
-                        .font(.system(size: 12, weight: .semibold))
-                    Text("\(goalManager.dailyStepGoal)")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                // Goal badge
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "target")
+                            .font(.system(size: 10, weight: .semibold))
+                        Text("\(Int(goalProgress * 100))%")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                    }
+                    .foregroundColor(.green)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color.green.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+
+                    Text("Goal: \(goalManager.dailyStepGoal)")
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.5))
                 }
-                .foregroundColor(.green)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule()
-                        .fill(Color.green.opacity(0.15))
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                        )
-                )
                 .onTapGesture {
                     showGoalConfig = true
                 }
-            }
-
-            // Steps count and goal
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(currentSteps)")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundColor(animate ? progressColor : .white)
-
-                    Text("/ \(goalManager.dailyStepGoal)")
-                        .font(.system(size: 20, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.5))
-                }
-
-                Text("\(Int(goalProgress * 100))% of daily goal")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.7))
             }
 
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     // Background track
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: 6)
                         .fill(Color.white.opacity(0.1))
-                        .frame(height: 16)
+                        .frame(height: 12)
 
                     // Progress fill
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: 6)
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(colors: [
@@ -119,32 +121,32 @@ struct LargeStepsWidget: View {
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: geometry.size.width * goalProgress, height: 16)
+                        .frame(width: geometry.size.width * goalProgress, height: 12)
                         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
 
                     // Goal marker if exceeded
-                    if goalProgress > 1.0 {
-                        HStack(spacing: 4) {
+                    if goalProgress >= 1.0 {
+                        HStack(spacing: 3) {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 10, weight: .bold))
                             Text("Goal reached!")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 8)
+                        .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(
                             Capsule()
                                 .fill(Color.green)
                         )
-                        .offset(x: 8, y: -24)
+                        .offset(x: 8, y: -20)
                     }
                 }
             }
-            .frame(height: 16)
+            .frame(height: 12)
 
             // Quick stats
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 QuickStatView(
                     icon: "figure.walk.motion",
                     label: "Remaining",
@@ -152,7 +154,7 @@ struct LargeStepsWidget: View {
                 )
 
                 Divider()
-                    .frame(height: 30)
+                    .frame(height: 24)
                     .background(Color.white.opacity(0.2))
 
                 let distanceKm = Double(currentSteps) * 0.000762
@@ -164,7 +166,7 @@ struct LargeStepsWidget: View {
                 )
             }
         }
-        .padding(16)
+        .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(
@@ -288,18 +290,18 @@ struct QuickStatView: View {
     let value: String
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.green)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(label)
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
                     .foregroundColor(.white.opacity(0.6))
 
                 Text(value)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
             }
         }

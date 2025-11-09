@@ -22,7 +22,6 @@ struct MedicationsCard: View {
     @State private var takenStates: [UUID: Bool] = [:]
     @State private var isCollapsed = false
     @State private var lastToggledMedication: Medication?
-    @State private var showCompletionAnimation = false
 
     private var activeMedications: [Medication] {
         allMedications.filter { $0.isActive }
@@ -195,15 +194,6 @@ struct MedicationsCard: View {
                         .stroke(Color.green.opacity(0.3), lineWidth: 1)
                 )
         )
-        .overlay(
-            // Border light animation overlay - positioned to match the border exactly
-            Group {
-                if showCompletionAnimation {
-                    BorderLightAnimation()
-                        .allowsHitTesting(false)
-                }
-            }
-        )
         .sheet(isPresented: $showAddMedication) {
             AddMedicationSheet()
                 .environment(\.managedObjectContext, viewContext)
@@ -263,23 +253,15 @@ struct MedicationsCard: View {
 
             // Check if all medications are now taken
             if allMedicationsTaken {
-                // Trigger completion animation
-                showCompletionAnimation = true
-
                 // Heavy haptic for completion
                 let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 heavyGenerator.impactOccurred()
 
-                // Collapse after animation completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                // Collapse immediately
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         isCollapsed = true
                     }
-                }
-
-                // Hide animation after it completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    showCompletionAnimation = false
                 }
             }
         }
@@ -374,39 +356,5 @@ struct MedicationRow: View {
                 medication.permanentlyDelete(context: viewContext)
             }
         }
-    }
-}
-
-// MARK: - Border Light Animation
-
-struct BorderLightAnimation: View {
-    @State private var rotation: Double = 0
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .trim(from: 0, to: 0.25)  // 25% segment for visible light trail
-            .stroke(
-                AngularGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: Color.green.opacity(0), location: 0),
-                        .init(color: Color.green.opacity(0.5), location: 0.3),
-                        .init(color: Color.green, location: 0.5),
-                        .init(color: Color.green.opacity(0.5), location: 0.7),
-                        .init(color: Color.green.opacity(0), location: 1)
-                    ]),
-                    center: .center,
-                    startAngle: .degrees(0),
-                    endAngle: .degrees(360)
-                ),
-                style: StrokeStyle(lineWidth: 3, lineCap: .round)
-            )
-            .rotationEffect(.degrees(rotation))
-            .blur(radius: 1)
-            .shadow(color: Color.green.opacity(0.6), radius: 6, x: 0, y: 0)
-            .onAppear {
-                withAnimation(.linear(duration: 0.6).repeatCount(1, autoreverses: false)) {
-                    rotation = 360
-                }
-            }
     }
 }
