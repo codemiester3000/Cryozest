@@ -30,28 +30,47 @@ struct DailyView: View {
     @StateObject private var widgetOrderManager = WidgetOrderManager.shared
     @State private var isReorderMode = false
     @State private var draggedWidget: DailyWidgetSection?
+    @State private var lastMoveTimestamp: Date = Date()
 
     private var visibleWidgets: [DailyWidgetSection] {
         widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }
     }
 
     private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
-        guard let fromIndex = widgetOrderManager.widgetOrder.firstIndex(of: from),
-              let toIndex = widgetOrderManager.widgetOrder.firstIndex(of: to) else { return }
-
-        guard fromIndex != toIndex else { return }
-
-        withAnimation(.spring(response: 0.3)) {
-            var newOrder = widgetOrderManager.widgetOrder
-            let movedWidget = newOrder.remove(at: fromIndex)
-
-            // Adjust insertion index
-            let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
-            newOrder.insert(movedWidget, at: adjustedToIndex)
-
-            widgetOrderManager.widgetOrder = newOrder
-            widgetOrderManager.saveOrder()
+        // Throttle rapid moves
+        let now = Date()
+        if now.timeIntervalSince(lastMoveTimestamp) < 0.1 {
+            return
         }
+        lastMoveTimestamp = now
+
+        print("🔄 moveWidget called: \(from.rawValue) → \(to.rawValue)")
+
+        guard let fromIndex = widgetOrderManager.widgetOrder.firstIndex(of: from),
+              let toIndex = widgetOrderManager.widgetOrder.firstIndex(of: to) else {
+            print("❌ Could not find indices")
+            return
+        }
+
+        print("📍 Indices: from=\(fromIndex), to=\(toIndex)")
+        guard fromIndex != toIndex else {
+            print("⚠️ Same position, skipping")
+            return
+        }
+
+        // Update immediately for live feedback
+        var newOrder = widgetOrderManager.widgetOrder
+        let movedWidget = newOrder.remove(at: fromIndex)
+
+        // Adjust insertion index
+        let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
+        print("📌 Inserting at adjusted index: \(adjustedToIndex)")
+        newOrder.insert(movedWidget, at: adjustedToIndex)
+
+        print("🔢 New order: \(newOrder.map { $0.rawValue })")
+
+        // Update without animation for smoother drag experience
+        widgetOrderManager.widgetOrder = newOrder
     }
 
     init(
@@ -316,20 +335,31 @@ struct DailyView: View {
                         Button(action: {
                             withAnimation(.spring(response: 0.3)) {
                                 isReorderMode = false
-                                widgetOrderManager.saveOrder()
                             }
+                            // Save the final order
+                            widgetOrderManager.saveOrder()
                             triggerHapticFeedback()
                         }) {
-                            Text("Done")
-                                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.cyan)
-                                        .shadow(color: Color.cyan.opacity(0.5), radius: 10, x: 0, y: 5)
-                                )
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 18, weight: .semibold))
+                                Text("Done")
+                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(
+                                Capsule()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.cyan, Color.cyan.opacity(0.8)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: Color.cyan.opacity(0.5), radius: 10, x: 0, y: 5)
+                            )
                         }
                         .padding(.top, 60)
                         .padding(.trailing, 20)
@@ -1524,17 +1554,27 @@ struct ReorderableWidgetModifier: ViewModifier {
     @Binding var draggedWidget: DailyWidgetSection?
     let onLongPress: () -> Void
 
+    @State private var wiggleOffset: CGFloat = 0
+
     func body(content: Content) -> some View {
         ZStack(alignment: .topTrailing) {
             content
                 .opacity(isReorderMode && draggedWidget == section ? 0.5 : 1.0)
                 .scaleEffect(isReorderMode && draggedWidget == section ? 0.95 : 1.0)
+                .rotationEffect(.degrees(isReorderMode && draggedWidget != section ? wiggleOffset : 0))
                 .animation(.spring(response: 0.3), value: isReorderMode)
                 .animation(.spring(response: 0.3), value: draggedWidget)
                 .onLongPressGesture(minimumDuration: 0.5) {
                     let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
                     onLongPress()
+                }
+                .onChange(of: isReorderMode) { newValue in
+                    if newValue {
+                        startWiggling()
+                    } else {
+                        stopWiggling()
+                    }
                 }
 
             // Drag handle indicator when in reorder mode
@@ -1550,6 +1590,25 @@ struct ReorderableWidgetModifier: ViewModifier {
                     .padding(8)
                     .transition(.scale.combined(with: .opacity))
             }
+        }
+    }
+
+    private func startWiggling() {
+        // Random offset for more natural look
+        let randomOffset = Double.random(in: 0...0.5)
+
+        withAnimation(
+            Animation.easeInOut(duration: 0.15)
+                .repeatForever(autoreverses: true)
+                .delay(randomOffset)
+        ) {
+            wiggleOffset = 1.5
+        }
+    }
+
+    private func stopWiggling() {
+        withAnimation(.spring(response: 0.3)) {
+            wiggleOffset = 0
         }
     }
 }
