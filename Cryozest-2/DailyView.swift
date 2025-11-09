@@ -44,17 +44,13 @@ struct DailyView: View {
         }
         lastMoveTimestamp = now
 
-        print("🔄 moveWidget called: \(from.rawValue) → \(to.rawValue)")
 
         guard let fromIndex = widgetOrderManager.widgetOrder.firstIndex(of: from),
               let toIndex = widgetOrderManager.widgetOrder.firstIndex(of: to) else {
-            print("❌ Could not find indices")
             return
         }
 
-        print("📍 Indices: from=\(fromIndex), to=\(toIndex)")
         guard fromIndex != toIndex else {
-            print("⚠️ Same position, skipping")
             return
         }
 
@@ -64,10 +60,8 @@ struct DailyView: View {
 
         // Adjust insertion index
         let adjustedToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
-        print("📌 Inserting at adjusted index: \(adjustedToIndex)")
         newOrder.insert(movedWidget, at: adjustedToIndex)
 
-        print("🔢 New order: \(newOrder.map { $0.rawValue })")
 
         // Update without animation for smoother drag experience
         widgetOrderManager.widgetOrder = newOrder
@@ -307,7 +301,6 @@ struct DailyView: View {
                                         .simultaneousGesture(
                                             LongPressGesture(minimumDuration: 0.6)
                                                 .onEnded { _ in
-                                                    print("🔴 Long press gesture triggered for \(section.rawValue)")
                                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                                     generator.impactOccurred()
                                                     withAnimation(.spring(response: 0.3)) {
@@ -316,11 +309,9 @@ struct DailyView: View {
                                                 }
                                         )
                                         .onDrag {
-                                            print("🟠 onDrag called for \(section.rawValue), isReorderMode=\(isReorderMode)")
 
                                             // Enter reorder mode if not already in it
                                             if !isReorderMode {
-                                                print("⚡ Auto-entering reorder mode from drag")
                                                 withAnimation(.spring(response: 0.3)) {
                                                     isReorderMode = true
                                                 }
@@ -328,7 +319,6 @@ struct DailyView: View {
                                                 generator.impactOccurred()
                                             }
 
-                                            print("✅ Setting dragged widget to \(section.rawValue)")
                                             self.draggedWidget = section
                                             triggerHapticFeedback()
                                             return NSItemProvider(object: section.rawValue as NSString)
@@ -444,7 +434,6 @@ struct DailyView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
-            print("updated date: ", selectedDate)
             recoveryModel.pullAllRecoveryData(forDate: selectedDate)
             exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
             sleepModel.fetchSleepData(forDate: selectedDate)
@@ -1582,7 +1571,6 @@ struct ReorderableWidgetModifier: ViewModifier {
                 .animation(.spring(response: 0.3), value: isReorderMode)
                 .animation(.spring(response: 0.3), value: draggedWidget)
                 .onChange(of: isReorderMode) { newValue in
-                    print("🟢 Reorder mode changed to: \(newValue) for \(section.rawValue)")
                     if newValue {
                         startWiggling()
                     } else {
@@ -1590,7 +1578,6 @@ struct ReorderableWidgetModifier: ViewModifier {
                     }
                 }
                 .onAppear {
-                    print("🟡 Widget appeared: \(section.rawValue)")
                 }
 
             // Drag handle indicator when in reorder mode
@@ -1650,9 +1637,7 @@ struct WidgetDropDelegate: DropDelegate {
     let onMove: (DailyWidgetSection, DailyWidgetSection) -> Void
 
     func performDrop(info: DropInfo) -> Bool {
-        print("🔵 performDrop called for \(currentWidget.rawValue)")
         guard draggedWidget != nil else {
-            print("❌ No dragged widget")
             return false
         }
         draggedWidget = nil
@@ -1660,22 +1645,17 @@ struct WidgetDropDelegate: DropDelegate {
     }
 
     func dropEntered(info: DropInfo) {
-        print("🟣 dropEntered called: dragged=\(draggedWidget?.rawValue ?? "nil"), current=\(currentWidget.rawValue)")
         guard let draggedWidget = draggedWidget else {
-            print("❌ No dragged widget in dropEntered")
             return
         }
         guard draggedWidget != currentWidget else {
-            print("⚠️ Same widget, skipping")
             return
         }
 
-        print("✅ Calling onMove")
         onMove(draggedWidget, currentWidget)
     }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
-        print("🔶 dropUpdated called for \(currentWidget.rawValue)")
         return DropProposal(operation: .move)
     }
 }
