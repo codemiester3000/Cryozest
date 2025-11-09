@@ -196,7 +196,7 @@ struct MedicationsCard: View {
                 )
         )
         .overlay(
-            // Border light animation overlay
+            // Border light animation overlay - positioned to match the border exactly
             Group {
                 if showCompletionAnimation {
                     BorderLightAnimation()
@@ -380,6 +380,7 @@ struct BorderLightAnimation: View {
 
     var body: some View {
         RoundedRectangle(cornerRadius: 16)
+            .inset(by: 0)  // No inset - match the border exactly
             .trim(from: progress, to: progress + 0.15)  // Small segment (15% of perimeter)
             .stroke(
                 LinearGradient(
