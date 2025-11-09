@@ -196,10 +196,10 @@ struct MedicationsCard: View {
                 )
         )
         .overlay(
-            // Completion animation overlay
+            // Border light animation overlay
             Group {
                 if showCompletionAnimation {
-                    ConfettiView()
+                    BorderLightAnimation()
                         .allowsHitTesting(false)
                 }
             }
@@ -270,15 +270,11 @@ struct MedicationsCard: View {
                 let heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 heavyGenerator.impactOccurred()
 
-                // Collapse after animation
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                // Collapse after animation (600ms)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                         isCollapsed = true
                     }
-                }
-
-                // Hide animation after delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                     showCompletionAnimation = false
                 }
             }
@@ -377,72 +373,31 @@ struct MedicationRow: View {
     }
 }
 
-// MARK: - Confetti Animation
+// MARK: - Border Light Animation
 
-struct ConfettiView: View {
-    @State private var confettiPieces: [ConfettiPiece] = []
+struct BorderLightAnimation: View {
+    @State private var trimEnd: CGFloat = 0
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                ForEach(confettiPieces) { piece in
-                    ConfettiPieceView(piece: piece)
-                }
-            }
-            .onAppear {
-                generateConfetti(in: geometry.size)
-            }
-        }
-    }
-
-    private func generateConfetti(in size: CGSize) {
-        let colors: [Color] = [.green, .cyan, .yellow, .orange, .purple]
-        confettiPieces = (0..<50).map { index in
-            ConfettiPiece(
-                id: index,
-                color: colors.randomElement()!,
-                x: CGFloat.random(in: 0...size.width),
-                y: -20,
-                rotation: Double.random(in: 0...360),
-                size: CGFloat.random(in: 4...10)
+        RoundedRectangle(cornerRadius: 16)
+            .trim(from: 0, to: trimEnd)
+            .stroke(
+                LinearGradient(
+                    colors: [
+                        Color.green.opacity(0),
+                        Color.green,
+                        Color.green,
+                        Color.green.opacity(0)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                ),
+                style: StrokeStyle(lineWidth: 3, lineCap: .round)
             )
-        }
-    }
-}
-
-struct ConfettiPiece: Identifiable {
-    let id: Int
-    let color: Color
-    let x: CGFloat
-    let y: CGFloat
-    let rotation: Double
-    let size: CGFloat
-}
-
-struct ConfettiPieceView: View {
-    let piece: ConfettiPiece
-    @State private var yOffset: CGFloat = 0
-    @State private var xOffset: CGFloat = 0
-    @State private var rotation: Double = 0
-    @State private var opacity: Double = 1
-
-    var body: some View {
-        Circle()
-            .fill(piece.color)
-            .frame(width: piece.size, height: piece.size)
-            .rotationEffect(.degrees(rotation))
-            .opacity(opacity)
-            .position(x: piece.x + xOffset, y: piece.y + yOffset)
+            .rotationEffect(.degrees(-90))  // Start from top
             .onAppear {
-                // Animate falling
-                withAnimation(
-                    Animation.easeIn(duration: Double.random(in: 1.5...2.5))
-                        .delay(Double.random(in: 0...0.3))
-                ) {
-                    yOffset = 400
-                    xOffset = CGFloat.random(in: -50...50)
-                    rotation = Double.random(in: 360...720)
-                    opacity = 0
+                withAnimation(.linear(duration: 0.6)) {
+                    trimEnd = 1.0
                 }
             }
     }
