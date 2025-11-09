@@ -150,7 +150,6 @@ struct DailyView: View {
                     section: section,
                     isReorderMode: isReorderMode,
                     draggedWidget: $draggedWidget,
-                    onLongPress: { isReorderMode = true }
                 ))
 
         case .completedHabits:
@@ -159,7 +158,6 @@ struct DailyView: View {
                     section: section,
                     isReorderMode: isReorderMode,
                     draggedWidget: $draggedWidget,
-                    onLongPress: { isReorderMode = true }
                 ))
 
         case .medications:
@@ -169,7 +167,6 @@ struct DailyView: View {
                         section: section,
                         isReorderMode: isReorderMode,
                         draggedWidget: $draggedWidget,
-                        onLongPress: { isReorderMode = true }
                     ))
             }
 
@@ -199,7 +196,6 @@ struct DailyView: View {
                 section: section,
                 isReorderMode: isReorderMode,
                 draggedWidget: $draggedWidget,
-                onLongPress: { isReorderMode = true }
             ))
 
         case .largeSteps:
@@ -212,7 +208,6 @@ struct DailyView: View {
                     section: section,
                     isReorderMode: isReorderMode,
                     draggedWidget: $draggedWidget,
-                    onLongPress: { isReorderMode = true }
                 ))
             }
 
@@ -226,7 +221,6 @@ struct DailyView: View {
                     section: section,
                     isReorderMode: isReorderMode,
                     draggedWidget: $draggedWidget,
-                    onLongPress: { isReorderMode = true }
                 ))
             }
 
@@ -241,7 +235,6 @@ struct DailyView: View {
                 section: section,
                 isReorderMode: isReorderMode,
                 draggedWidget: $draggedWidget,
-                onLongPress: { isReorderMode = true }
             ))
         }
     }
@@ -311,8 +304,31 @@ struct DailyView: View {
                                     widgetView(for: section)
                                         .padding(.horizontal)
                                         .padding(.leading, 10)
+                                        .simultaneousGesture(
+                                            LongPressGesture(minimumDuration: 0.6)
+                                                .onEnded { _ in
+                                                    print("🔴 Long press gesture triggered for \(section.rawValue)")
+                                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                    generator.impactOccurred()
+                                                    withAnimation(.spring(response: 0.3)) {
+                                                        isReorderMode = true
+                                                    }
+                                                }
+                                        )
                                         .onDrag {
-                                            guard isReorderMode else { return NSItemProvider() }
+                                            print("🟠 onDrag called for \(section.rawValue), isReorderMode=\(isReorderMode)")
+
+                                            // Enter reorder mode if not already in it
+                                            if !isReorderMode {
+                                                print("⚡ Auto-entering reorder mode from drag")
+                                                withAnimation(.spring(response: 0.3)) {
+                                                    isReorderMode = true
+                                                }
+                                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                generator.impactOccurred()
+                                            }
+
+                                            print("✅ Setting dragged widget to \(section.rawValue)")
                                             self.draggedWidget = section
                                             triggerHapticFeedback()
                                             return NSItemProvider(object: section.rawValue as NSString)
@@ -1552,7 +1568,6 @@ struct ReorderableWidgetModifier: ViewModifier {
     let section: DailyWidgetSection
     let isReorderMode: Bool
     @Binding var draggedWidget: DailyWidgetSection?
-    let onLongPress: () -> Void
 
     @State private var wiggleOffset: CGFloat = 0
 
@@ -1564,17 +1579,16 @@ struct ReorderableWidgetModifier: ViewModifier {
                 .rotationEffect(.degrees(isReorderMode && draggedWidget != section ? wiggleOffset : 0))
                 .animation(.spring(response: 0.3), value: isReorderMode)
                 .animation(.spring(response: 0.3), value: draggedWidget)
-                .onLongPressGesture(minimumDuration: 0.5) {
-                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                    generator.impactOccurred()
-                    onLongPress()
-                }
                 .onChange(of: isReorderMode) { newValue in
+                    print("🟢 Reorder mode changed to: \(newValue) for \(section.rawValue)")
                     if newValue {
                         startWiggling()
                     } else {
                         stopWiggling()
                     }
+                }
+                .onAppear {
+                    print("🟡 Widget appeared: \(section.rawValue)")
                 }
 
             // Drag handle indicator when in reorder mode
@@ -1621,16 +1635,33 @@ struct WidgetDropDelegate: DropDelegate {
     let onMove: (DailyWidgetSection, DailyWidgetSection) -> Void
 
     func performDrop(info: DropInfo) -> Bool {
-        guard draggedWidget != nil else { return false }
+        print("🔵 performDrop called for \(currentWidget.rawValue)")
+        guard draggedWidget != nil else {
+            print("❌ No dragged widget")
+            return false
+        }
         draggedWidget = nil
         return true
     }
 
     func dropEntered(info: DropInfo) {
-        guard let draggedWidget = draggedWidget else { return }
-        guard draggedWidget != currentWidget else { return }
+        print("🟣 dropEntered called: dragged=\(draggedWidget?.rawValue ?? "nil"), current=\(currentWidget.rawValue)")
+        guard let draggedWidget = draggedWidget else {
+            print("❌ No dragged widget in dropEntered")
+            return
+        }
+        guard draggedWidget != currentWidget else {
+            print("⚠️ Same widget, skipping")
+            return
+        }
 
+        print("✅ Calling onMove")
         onMove(draggedWidget, currentWidget)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        print("🔶 dropUpdated called for \(currentWidget.rawValue)")
+        return DropProposal(operation: .move)
     }
 }
 
