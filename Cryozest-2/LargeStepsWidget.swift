@@ -15,6 +15,10 @@ struct LargeStepsWidget: View {
     @State private var showGoalConfig = false
     @State private var isPressed = false
     @State private var animate = true
+    @State private var previousSteps: Int = 0
+    @State private var stepsDelta: Int = 0
+    @State private var showDeltaAnimation = false
+    @State private var animatedProgress: Double = 0
 
     private var currentSteps: Int {
         Int(model.mostRecentSteps ?? 0)
@@ -179,6 +183,42 @@ struct LargeStepsWidget: View {
                 )
         )
         .shadow(color: animate ? progressColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .overlay(
+            // Delta animation overlay
+            Group {
+                if showDeltaAnimation && stepsDelta > 0 {
+                    VStack {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(.green)
+
+                            Text("+\(stepsDelta) steps!")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.9))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                )
+                        )
+                        .shadow(color: Color.green.opacity(0.4), radius: 12, x: 0, y: 4)
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+
+                        Spacer()
+                    }
+                    .padding(.top, 12)
+                }
+            }
+        )
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .onTapGesture {
             expandedMetric = .steps
@@ -189,11 +229,35 @@ struct LargeStepsWidget: View {
             }
         }, perform: {})
         .onAppear {
+            previousSteps = currentSteps
+            animatedProgress = goalProgress
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false
             }
         }
-        .onChange(of: currentSteps) { _ in
+        .onChange(of: currentSteps) { newSteps in
+            // Calculate delta (only if increasing)
+            if newSteps > previousSteps && previousSteps > 0 {
+                stepsDelta = newSteps - previousSteps
+                showDeltaAnimation = true
+
+                // Hide delta animation after delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        showDeltaAnimation = false
+                    }
+                }
+
+                // Animate progress bar from previous to new value
+                withAnimation(.spring(response: 1.2, dampingFraction: 0.75)) {
+                    animatedProgress = goalProgress
+                }
+            }
+
+            // Update previous steps for next comparison
+            previousSteps = newSteps
+
+            // Original animation
             animate = true
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false

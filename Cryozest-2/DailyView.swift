@@ -2,6 +2,9 @@ import SwiftUI
 import CoreData
 
 struct DailyView: View {
+    // Environment
+    @Environment(\.scenePhase) private var scenePhase
+
     // Data Models
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @ObservedObject var exertionModel: ExertionModel
@@ -438,6 +441,14 @@ struct DailyView: View {
             exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
             sleepModel.fetchSleepData(forDate: selectedDate)
             // Any other actions needed when the date changes
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                // Refresh all metrics when app becomes active
+                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                sleepModel.fetchSleepData(forDate: selectedDate)
+            }
         }
     }
 }
