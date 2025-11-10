@@ -51,6 +51,28 @@ struct WidgetConfigurationView: View {
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                         .multilineTextAlignment(.center)
+
+                    // Tooltip about reordering
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.cyan.opacity(0.8))
+
+                        Text("Tip: Long press widgets later to rearrange")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.08))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                    .padding(.top, 4)
                 }
 
                 // Widget selection cards
@@ -104,7 +126,11 @@ struct WidgetConfigurationView: View {
                     }
                 }
                 .padding(.horizontal, 32)
-                .padding(.bottom, 100)
+                .padding(.bottom, 40)
+
+                // Ghost spacer to allow scrolling past last widget
+                Color.clear
+                    .frame(height: 150)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
