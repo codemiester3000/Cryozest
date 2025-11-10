@@ -22,6 +22,7 @@ class OnboardingManager {
     private let hasSeenStopwatchTooltipKey = "hasSeenStopwatchTooltip"
     private let hasSeenMetricTooltipKey = "hasSeenMetricTooltip"
     private let hasSeenSafetyWarningKey = "hasSeenSafetyWarning"
+    private let hasConfiguredWidgetsKey = "hasConfiguredWidgets"
 
     private init() {}
 
@@ -105,6 +106,16 @@ class OnboardingManager {
         defaults.set(true, forKey: hasSeenSafetyWarningKey)
     }
 
+    // MARK: - Widget Configuration
+
+    var shouldShowWidgetConfiguration: Bool {
+        !defaults.bool(forKey: hasConfiguredWidgetsKey)
+    }
+
+    func markWidgetsConfigured() {
+        defaults.set(true, forKey: hasConfiguredWidgetsKey)
+    }
+
     // MARK: - Reset (for testing)
 
     func resetOnboarding() {
@@ -117,5 +128,6 @@ class OnboardingManager {
         defaults.removeObject(forKey: hasSeenStopwatchTooltipKey)
         defaults.removeObject(forKey: hasSeenMetricTooltipKey)
         defaults.removeObject(forKey: hasSeenSafetyWarningKey)
+        defaults.removeObject(forKey: hasConfiguredWidgetsKey)
     }
 }

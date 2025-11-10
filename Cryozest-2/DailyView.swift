@@ -29,6 +29,7 @@ struct DailyView: View {
     // Onboarding state
     @State private var showEmptyState = false
     @State private var showMetricTooltip = false
+    @State private var showWidgetConfig = false
 
     // Widget reordering
     @StateObject private var widgetOrderManager = WidgetOrderManager.shared
@@ -269,15 +270,38 @@ struct DailyView: View {
                 DailyEmptyStateView(
                     onEnableHealthKit: {
                         HealthKitManager.shared.requestAuthorization { success, error in
-                            // Always mark as seen and hide empty state after permission request
-                            showEmptyState = false
+                            // Mark daily tab as seen
                             OnboardingManager.shared.markDailyTabSeen()
+
+                            // Check if we should show widget configuration
+                            if OnboardingManager.shared.shouldShowWidgetConfiguration {
+                                showEmptyState = false
+                                showWidgetConfig = true
+                            } else {
+                                showEmptyState = false
+                            }
 
                             if success {
                                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                                 sleepModel.fetchSleepData(forDate: selectedDate)
                             } else {
+                                if !OnboardingManager.shared.shouldShowWidgetConfiguration {
+                                    showMetricTooltip = true
+                                }
+                            }
+                        }
+                    }
+                )
+            } else if showWidgetConfig {
+                WidgetConfigurationView(
+                    onComplete: {
+                        OnboardingManager.shared.markWidgetsConfigured()
+                        showWidgetConfig = false
+
+                        // Show metric tooltip after widget config
+                        if OnboardingManager.shared.shouldShowMetricTooltip {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                                 showMetricTooltip = true
                             }
                         }
