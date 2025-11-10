@@ -62,12 +62,12 @@ class WidgetOrderManager: ObservableObject {
         } else {
             // Default order
             widgetOrder = [
+                .wellnessCheckIn,
                 .largeSteps,
                 .largeHeartRate,
                 .medications,
                 .metricsGrid,
                 .heroScores,
-                .wellnessCheckIn,
                 .completedHabits
             ]
             saveOrder()
@@ -87,12 +87,12 @@ class WidgetOrderManager: ObservableObject {
 
     func resetToDefault() {
         widgetOrder = [
+            .wellnessCheckIn,
             .largeSteps,
             .largeHeartRate,
             .medications,
             .metricsGrid,
             .heroScores,
-            .wellnessCheckIn,
             .completedHabits
         ]
         saveOrder()
