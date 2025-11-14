@@ -15,9 +15,10 @@ struct LargeHeartRateWidget: View {
 
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var animate = true
+    @State private var hasDataForSelectedDate = false
 
     private var currentRHR: Int? {
-        model.mostRecentRestingHeartRate
+        hasDataForSelectedDate ? model.mostRecentRestingHeartRate : nil
     }
 
     private var weeklyAverageRHR: Int? {
@@ -55,7 +56,7 @@ struct LargeHeartRateWidget: View {
     }
 
     private var hasData: Bool {
-        currentRHR != nil || !todayRHRReadings.isEmpty
+        hasDataForSelectedDate && !todayRHRReadings.isEmpty
     }
 
     var body: some View {
@@ -361,6 +362,9 @@ struct LargeHeartRateWidget: View {
     }
 
     private func fetchTodayRHRReadings() {
+        // Clear data flag while fetching
+        hasDataForSelectedDate = false
+
         let calendar = Calendar.current
 
         // Determine the time range based on selected date
@@ -385,18 +389,22 @@ struct LargeHeartRateWidget: View {
         HealthKitManager.shared.fetchHeartRateData(from: startTime, to: endTime) { samples, error in
             if let error = error {
                 print("🫀 Error fetching heart rate data: \(error)")
-                return
-            }
-
-            guard let samples = samples, !samples.isEmpty else {
-                print("🫀 No heart rate samples found")
                 DispatchQueue.main.async {
-                    self.todayRHRReadings = []
+                    self.hasDataForSelectedDate = false
                 }
                 return
             }
 
-            print("🫀 Found \(samples.count) heart rate samples")
+            guard let samples = samples, !samples.isEmpty else {
+                print("🫀 No heart rate samples found for selected date")
+                DispatchQueue.main.async {
+                    self.todayRHRReadings = []
+                    self.hasDataForSelectedDate = false
+                }
+                return
+            }
+
+            print("🫀 Found \(samples.count) heart rate samples for selected date")
 
             // Group readings by hour and calculate average
             var hourlyReadings: [Int: [Double]] = [:]
@@ -454,6 +462,7 @@ struct LargeHeartRateWidget: View {
             print("🫀 Created \(readings.count) hourly readings")
             DispatchQueue.main.async {
                 self.todayRHRReadings = readings
+                self.hasDataForSelectedDate = !readings.isEmpty
             }
         }
     }
