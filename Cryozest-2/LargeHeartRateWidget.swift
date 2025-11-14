@@ -14,7 +14,6 @@ struct LargeHeartRateWidget: View {
     var selectedDate: Date
 
     @State private var todayRHRReadings: [(String, Int)] = []
-    @State private var isPressed = false
     @State private var animate = true
 
     private var currentRHR: Int? {
@@ -178,15 +177,6 @@ struct LargeHeartRateWidget: View {
                 )
         )
         .shadow(color: trendColor.opacity(0.1), radius: 4, x: 0, y: 2)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .onTapGesture {
-            expandedMetric = .rhr
-        }
-        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = pressing
-            }
-        }, perform: {})
         .onAppear {
             withAnimation(
                 Animation.easeInOut(duration: 1.5)
@@ -359,15 +349,6 @@ struct LargeHeartRateWidget: View {
                 )
         )
         .shadow(color: animate ? trendColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .onTapGesture {
-            expandedMetric = .rhr // We'll use RHR metric type for now, can create a new one later
-        }
-        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = pressing
-            }
-        }, perform: {})
         .onAppear {
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false

@@ -351,18 +351,6 @@ struct DailyView: View {
                                                 namespace: metricAnimation
                                             )
                                             .padding(.horizontal)
-                                        } else if metric == .rhr {
-                                            ExpandedGridItemView(
-                                                symbolName: "heart.fill",
-                                                title: "Resting Heart Rate",
-                                                value: "\(recoveryModel.mostRecentRestingHeartRate ?? 0)",
-                                                unit: "bpm",
-                                                metricType: .rhr,
-                                                model: recoveryModel,
-                                                expandedMetric: $expandedMetric,
-                                                namespace: metricAnimation
-                                            )
-                                            .padding(.horizontal)
                                         } else {
                                             // Other metrics handled by MetricsGridSection
                                             EmptyView()
