@@ -20,9 +20,6 @@ struct LargeStepsWidget: View {
     @State private var stepsDelta: Int = 0
     @State private var showDeltaAnimation = false
     @State private var animatedProgress: Double = 0
-    @State private var showGoalCompletedCelebration = false
-    @State private var celebrationScale: CGFloat = 0.5
-    @State private var celebrationOpacity: Double = 0
 
     private var currentSteps: Int {
         Int(model.mostRecentSteps ?? 0)
@@ -40,6 +37,34 @@ struct LargeStepsWidget: View {
         } else {
             return .orange
         }
+    }
+
+    private var borderColor: Color {
+        if goalProgress >= 1.0 {
+            return Color.green.opacity(0.6)
+        } else if animate {
+            return progressColor.opacity(0.5)
+        } else {
+            return Color.white.opacity(0.12)
+        }
+    }
+
+    private var borderWidth: CGFloat {
+        goalProgress >= 1.0 ? 1.5 : 1
+    }
+
+    private var shadowColor: Color {
+        if goalProgress >= 1.0 {
+            return Color.green.opacity(0.3)
+        } else if animate {
+            return progressColor.opacity(0.25)
+        } else {
+            return Color.black.opacity(0.05)
+        }
+    }
+
+    private var shadowRadius: CGFloat {
+        goalProgress >= 1.0 ? 8 : 6
     }
 
     var body: some View {
@@ -77,158 +102,79 @@ struct LargeStepsWidget: View {
 
                 Spacer()
 
-                // Goal badge or completion badge
-                if goalProgress >= 1.0 {
-                    VStack(alignment: .trailing, spacing: 6) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 14, weight: .bold))
-                            Text("Complete")
-                                .font(.system(size: 13, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.green,
-                                            Color.green.opacity(0.8)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
-                                )
-                        )
-                        .shadow(color: Color.green.opacity(0.5), radius: 8, x: 0, y: 4)
+                // Goal badge
+                VStack(alignment: .trailing, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "target")
+                            .font(.system(size: 10, weight: .semibold))
+                        Text("\(Int(min(goalProgress, 1.0) * 100))%")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(.green)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(Color.green.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                            )
+                    )
 
-                        let overSteps = currentSteps - goalManager.dailyStepGoal
-                        if overSteps > 0 {
-                            Text("+\(overSteps) extra")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(.green)
-                        }
-                    }
-                    .onTapGesture {
-                        showGoalConfig = true
-                    }
-                } else {
-                    VStack(alignment: .trailing, spacing: 6) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "target")
-                                .font(.system(size: 10, weight: .semibold))
-                            Text("\(Int(goalProgress * 100))%")
-                                .font(.system(size: 12, weight: .bold))
-                        }
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.green.opacity(0.15))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-
-                        Text("Goal: \(goalManager.dailyStepGoal)")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.5))
-                    }
-                    .onTapGesture {
-                        showGoalConfig = true
-                    }
+                    Text("Goal: \(goalManager.dailyStepGoal)")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                .onTapGesture {
+                    showGoalConfig = true
                 }
             }
 
-            // Progress bar or completion celebration
-            if goalProgress >= 1.0 {
-                // Goal completed - simple and clean
-                ZStack {
-                    // Subtle celebration particles (fade out after animation)
-                    ForEach(0..<6, id: \.self) { index in
-                        Circle()
-                            .fill(Color.green.opacity(0.4))
-                            .frame(width: 4, height: 4)
-                            .offset(
-                                x: cos(Double(index) * .pi / 3) * 35 * celebrationScale,
-                                y: sin(Double(index) * .pi / 3) * 35 * celebrationScale
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background track
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 12)
+
+                    // First bar - progress towards goal (caps at 100%)
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    progressColor,
+                                    progressColor.opacity(0.7)
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
                             )
-                            .opacity(celebrationOpacity * 0.5)
-                    }
+                        )
+                        .frame(width: geometry.size.width * min(goalProgress, 1.0), height: 12)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
 
-                    // Simple achievement indicator
-                    HStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.green,
-                                            Color.green.opacity(0.8)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: 36, height: 36)
-                                .shadow(color: Color.green.opacity(0.3), radius: 4, x: 0, y: 2)
-
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.white)
-                        }
-                        .scaleEffect(celebrationScale)
-
-                        Text("Goal Completed!")
-                            .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(.white)
-
-                        Spacer()
-
-                        let overSteps = currentSteps - goalManager.dailyStepGoal
-                        if overSteps > 0 {
-                            Text("+\(overSteps)")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.green)
-                        }
-                    }
-                }
-                .frame(height: 44)
-            } else {
-                // Progress bar
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        // Background track
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.white.opacity(0.1))
-                            .frame(height: 12)
-
-                        // Progress fill
+                    // Second bar - extra steps beyond goal (starts as a new round)
+                    if goalProgress > 1.0 {
+                        let extraProgress = goalProgress - 1.0
                         RoundedRectangle(cornerRadius: 6)
                             .fill(
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        progressColor,
-                                        progressColor.opacity(0.7)
+                                        Color.green.opacity(0.6),
+                                        Color.green.opacity(0.4)
                                     ]),
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
-                            .frame(width: geometry.size.width * goalProgress, height: 12)
+                            .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 8)
+                            .offset(y: -2)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
                     }
                 }
-                .frame(height: 12)
             }
+            .frame(height: 12)
 
             // Quick stats
             HStack(spacing: 12) {
@@ -281,10 +227,10 @@ struct LargeStepsWidget: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(animate ? progressColor.opacity(0.5) : Color.white.opacity(0.12), lineWidth: 1)
+                        .stroke(borderColor, lineWidth: borderWidth)
                 )
         )
-        .shadow(color: animate ? progressColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: 3)
         .overlay(
             // Delta animation overlay
             Group {
@@ -350,15 +296,17 @@ struct LargeStepsWidget: View {
                 animate = false
             }
 
-            // Trigger celebration if goal is already met
+            // Haptic feedback if goal is already met
             if goalProgress >= 1.0 {
-                triggerCelebration()
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
             }
         }
         .onChange(of: goalProgress) { newProgress in
-            // Trigger celebration when goal is first reached
+            // Haptic feedback when goal is first reached
             if newProgress >= 1.0 && animatedProgress < 1.0 {
-                triggerCelebration()
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
             }
         }
         .onChange(of: currentSteps) { newSteps in
@@ -392,32 +340,6 @@ struct LargeStepsWidget: View {
         .sheet(isPresented: $showGoalConfig) {
             StepGoalConfigView()
         }
-    }
-
-    private func triggerCelebration() {
-        showGoalCompletedCelebration = true
-
-        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-            celebrationScale = 1.2
-            celebrationOpacity = 1
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                celebrationScale = 1.0
-            }
-        }
-
-        // Fade out celebration particles
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation(.easeOut(duration: 0.4)) {
-                celebrationOpacity = 0
-            }
-        }
-
-        // Haptic feedback
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
     }
 }
 
