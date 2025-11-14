@@ -162,7 +162,7 @@ struct LargeStepsWidget: View {
                     if actualProgress > 1.0 {
                         let extraProgress = actualProgress - 1.0
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.green.opacity(0.6))
+                            .fill(Color(red: 0.13, green: 0.55, blue: 0.13))  // Forest green
                             .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 12)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: actualProgress)
                     }
