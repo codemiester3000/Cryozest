@@ -150,28 +150,23 @@ struct LargeStepsWidget: View {
 
             // Progress bar or completion celebration
             if goalProgress >= 1.0 {
-                // Goal completed celebration
+                // Goal completed - simple and clean
                 ZStack {
-                    // Celebration particles (fade out after animation)
-                    ForEach(0..<8, id: \.self) { index in
+                    // Subtle celebration particles (fade out after animation)
+                    ForEach(0..<6, id: \.self) { index in
                         Circle()
-                            .fill(Color.green.opacity(0.6))
-                            .frame(width: 6, height: 6)
+                            .fill(Color.green.opacity(0.4))
+                            .frame(width: 4, height: 4)
                             .offset(
-                                x: cos(Double(index) * .pi / 4) * 50 * celebrationScale,
-                                y: sin(Double(index) * .pi / 4) * 50 * celebrationScale
+                                x: cos(Double(index) * .pi / 3) * 35 * celebrationScale,
+                                y: sin(Double(index) * .pi / 3) * 35 * celebrationScale
                             )
-                            .opacity(celebrationOpacity * 0.7)
+                            .opacity(celebrationOpacity * 0.5)
                     }
 
-                    // Center achievement badge (stays visible)
-                    HStack(spacing: 10) {
+                    // Simple achievement indicator
+                    HStack(spacing: 12) {
                         ZStack {
-                            Circle()
-                                .fill(Color.green.opacity(0.2))
-                                .frame(width: 50, height: 50)
-                                .blur(radius: 8)
-
                             Circle()
                                 .fill(
                                     LinearGradient(
@@ -183,28 +178,30 @@ struct LargeStepsWidget: View {
                                         endPoint: .bottomTrailing
                                     )
                                 )
-                                .frame(width: 44, height: 44)
+                                .frame(width: 36, height: 36)
+                                .shadow(color: Color.green.opacity(0.3), radius: 4, x: 0, y: 2)
 
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 22, weight: .bold))
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                         .scaleEffect(celebrationScale)
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Daily Goal Achieved!")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-
-                            Text("Keep up the great work")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white.opacity(0.7))
-                        }
+                        Text("Goal Completed!")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
 
                         Spacer()
+
+                        let overSteps = currentSteps - goalManager.dailyStepGoal
+                        if overSteps > 0 {
+                            Text("+\(overSteps)")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.green)
+                        }
                     }
                 }
-                .frame(height: 60)
+                .frame(height: 44)
             } else {
                 // Progress bar
                 GeometryReader { geometry in

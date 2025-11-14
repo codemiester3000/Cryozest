@@ -27,9 +27,9 @@ struct DailyView: View {
     @Namespace private var metricAnimation
 
     // Onboarding state
-    @State private var showEmptyState = false
+    @State private var showOnboarding = false
     @State private var showMetricTooltip = false
-    @State private var showWidgetConfig = false
+    @State private var showCustomizeTooltip = false
 
     // Widget reordering
     @StateObject private var widgetOrderManager = WidgetOrderManager.shared
@@ -215,7 +215,8 @@ struct DailyView: View {
             if metricConfig.isEnabled(.heartRate) {
                 LargeHeartRateWidget(
                     model: recoveryModel,
-                    expandedMetric: $expandedMetric
+                    expandedMetric: $expandedMetric,
+                    selectedDate: selectedDate
                 )
                 .modifier(ReorderableWidgetModifier(
                     section: section,
@@ -265,48 +266,23 @@ struct DailyView: View {
             )
             .ignoresSafeArea()
 
-            // Show empty state or content
-            if showEmptyState {
-                DailyEmptyStateView(
-                    onEnableHealthKit: {
-                        HealthKitManager.shared.requestAuthorization { success, error in
-                            // Mark daily tab as seen
-                            OnboardingManager.shared.markDailyTabSeen()
+            // Show onboarding or content
+            if showOnboarding {
+                OnboardingFlowView(onComplete: {
+                    showOnboarding = false
 
-                            // Check if we should show widget configuration
-                            if OnboardingManager.shared.shouldShowWidgetConfiguration {
-                                showEmptyState = false
-                                showWidgetConfig = true
-                            } else {
-                                showEmptyState = false
-                            }
+                    // Load health data
+                    recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                    exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                    sleepModel.fetchSleepData(forDate: selectedDate)
 
-                            if success {
-                                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
-                                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
-                                sleepModel.fetchSleepData(forDate: selectedDate)
-                            } else {
-                                if !OnboardingManager.shared.shouldShowWidgetConfiguration {
-                                    showMetricTooltip = true
-                                }
-                            }
+                    // Show metric tooltip after onboarding
+                    if OnboardingManager.shared.shouldShowMetricTooltip {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            showMetricTooltip = true
                         }
                     }
-                )
-            } else if showWidgetConfig {
-                WidgetConfigurationView(
-                    onComplete: {
-                        OnboardingManager.shared.markWidgetsConfigured()
-                        showWidgetConfig = false
-
-                        // Show metric tooltip after widget config
-                        if OnboardingManager.shared.shouldShowMetricTooltip {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                showMetricTooltip = true
-                            }
-                        }
-                    }
-                )
+                })
             } else {
                 ZStack(alignment: .topTrailing) {
                     ScrollView {
@@ -315,6 +291,7 @@ struct DailyView: View {
                             DailyHeaderSection(
                                 selectedDate: $selectedDate,
                                 showingMetricConfig: $showingMetricConfig,
+                                showCustomizeTooltip: $showCustomizeTooltip,
                                 isToday: isToday
                             )
                             .padding(.top)
@@ -369,6 +346,18 @@ struct DailyView: View {
                                     Group {
                                         if metric == .steps {
                                             ExpandedStepsWidget(
+                                                model: recoveryModel,
+                                                expandedMetric: $expandedMetric,
+                                                namespace: metricAnimation
+                                            )
+                                            .padding(.horizontal)
+                                        } else if metric == .rhr {
+                                            ExpandedGridItemView(
+                                                symbolName: "heart.fill",
+                                                title: "Resting Heart Rate",
+                                                value: "\(recoveryModel.mostRecentRestingHeartRate ?? 0)",
+                                                unit: "bpm",
+                                                metricType: .rhr,
                                                 model: recoveryModel,
                                                 expandedMetric: $expandedMetric,
                                                 namespace: metricAnimation
@@ -462,7 +451,7 @@ struct DailyView: View {
         .onAppear() {
             // Check if should show onboarding
             if OnboardingManager.shared.shouldShowDailyEmptyState {
-                showEmptyState = true
+                showOnboarding = true
             } else {
                 // User has already seen the onboarding, check if they granted HealthKit permissions
                 HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
@@ -478,6 +467,13 @@ struct DailyView: View {
                 if OnboardingManager.shared.shouldShowMetricTooltip {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         showMetricTooltip = true
+                    }
+                }
+
+                // Show customize tooltip if not shown before
+                if OnboardingManager.shared.shouldShowCustomizeTooltip {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        showCustomizeTooltip = true
                     }
                 }
             }
@@ -673,6 +669,7 @@ struct DailyGridMetrics: View {
     @ObservedObject var sleepModel: DailySleepViewModel
     @ObservedObject var configManager: MetricConfigurationManager
     @Binding var expandedMetric: MetricType?
+    var selectedDate: Date
     @Namespace private var animation
 
     var body: some View {
@@ -693,7 +690,8 @@ struct DailyGridMetrics: View {
                     if configManager.isEnabled(.heartRate) {
                         LargeHeartRateWidget(
                             model: model,
-                            expandedMetric: $expandedMetric
+                            expandedMetric: $expandedMetric,
+                            selectedDate: selectedDate
                         )
                     }
 
@@ -1736,6 +1734,7 @@ struct WidgetDropDelegate: DropDelegate {
 struct DailyHeaderSection: View {
     @Binding var selectedDate: Date
     @Binding var showingMetricConfig: Bool
+    @Binding var showCustomizeTooltip: Bool
     let isToday: Bool
 
     @State private var showingDatePicker = false
@@ -1779,6 +1778,16 @@ struct DailyHeaderSection: View {
                             )
                     )
                 }
+                .contextualTooltip(
+                    message: "Tap here to customize your widgets",
+                    isShowing: showCustomizeTooltip,
+                    arrowPosition: .top,
+                    accentColor: .cyan,
+                    onDismiss: {
+                        showCustomizeTooltip = false
+                        OnboardingManager.shared.markCustomizeTooltipSeen()
+                    }
+                )
 
                 Spacer()
 
