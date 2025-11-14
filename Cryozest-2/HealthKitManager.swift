@@ -673,6 +673,36 @@ class HealthKitManager {
     }
 
     
+    func fetchRestingHeartRateReadings(from startDate: Date, to endDate: Date, completion: @escaping ([(Date, Int)]) -> Void) {
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
+            completion([])
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard error == nil, let heartRateSamples = samples as? [HKQuantitySample], !heartRateSamples.isEmpty else {
+                DispatchQueue.main.async {
+                    completion([])
+                }
+                return
+            }
+
+            let readings = heartRateSamples.map { sample in
+                let value = Int(sample.quantity.doubleValue(for: HKUnit(from: "count/min")).rounded())
+                return (sample.endDate, value)
+            }
+
+            DispatchQueue.main.async {
+                completion(readings)
+            }
+        }
+
+        self.healthStore.execute(query)
+    }
+
     func fetchAverageDailyRHR(completion: @escaping (Int?) -> Void) {
         let calendar = Calendar.current
           let startOfToday = calendar.startOfDay(for: Date())

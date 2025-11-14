@@ -11,11 +11,17 @@ struct LargeHeartRateWidget: View {
     @ObservedObject var model: RecoveryGraphModel
     @Binding var expandedMetric: MetricType?
 
-    @State private var currentRHR: Int?
-    @State private var weeklyAverageRHR: Int?
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var isPressed = false
     @State private var animate = true
+
+    private var currentRHR: Int? {
+        model.mostRecentRestingHeartRate
+    }
+
+    private var weeklyAverageRHR: Int? {
+        model.avgRestingHeartRate60Days
+    }
 
     private var trend: RHRTrend {
         guard let current = currentRHR, let average = weeklyAverageRHR else {
@@ -272,6 +278,33 @@ struct LargeHeartRateWidget: View {
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false
             }
+            fetchTodayRHRReadings()
+        }
+    }
+
+    private func fetchTodayRHRReadings() {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
+
+        HealthKitManager.shared.fetchRestingHeartRateReadings(from: startOfDay, to: endOfDay) { readings in
+            // Group readings by hour and take average
+            var hourlyReadings: [Int: [Int]] = [:]
+
+            for (date, value) in readings {
+                let hour = calendar.component(.hour, from: date)
+                hourlyReadings[hour, default: []].append(value)
+            }
+
+            // Create time-value pairs, showing only hours with data
+            self.todayRHRReadings = hourlyReadings
+                .sorted { $0.key < $1.key }
+                .prefix(6) // Show max 6 readings
+                .map { hour, values in
+                    let avgValue = values.reduce(0, +) / values.count
+                    let timeString = String(format: "%02d:00", hour)
+                    return (timeString, avgValue)
+                }
         }
     }
 }

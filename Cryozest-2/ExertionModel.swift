@@ -125,11 +125,16 @@ class ExertionModel: ObservableObject {
         let maxHeartRate = 207 - (0.7 * Double(userAge))
         let heartRateReserve = maxHeartRate - avgRestingHeartRate
         let zoneMultipliers = [(0.4, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.0)]
-        
-        heartRateZoneRanges = zoneMultipliers.map { (lowerMultiplier, upperMultiplier) in
+
+        let calculatedRanges = zoneMultipliers.map { (lowerMultiplier, upperMultiplier) in
             let lowerBoundHeartRate = (heartRateReserve * lowerMultiplier) + avgRestingHeartRate
             let upperBoundHeartRate = (heartRateReserve * upperMultiplier) + avgRestingHeartRate
             return (lowerBoundHeartRate, upperBoundHeartRate)
+        }
+
+        // Update @Published property on main thread
+        DispatchQueue.main.async {
+            self.heartRateZoneRanges = calculatedRanges
         }
     }
     
