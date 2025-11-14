@@ -20,6 +20,7 @@ struct LargeStepsWidget: View {
     @State private var stepsDelta: Int = 0
     @State private var showDeltaAnimation = false
     @State private var animatedProgress: Double = 0
+    @State private var glowIntensity: Double = 0.4
 
     private var currentSteps: Int {
         Int(model.mostRecentSteps ?? 0)
@@ -162,18 +163,9 @@ struct LargeStepsWidget: View {
                     if actualProgress > 1.0 {
                         let extraProgress = actualProgress - 1.0
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color.yellow.opacity(0.9),
-                                        Color.orange.opacity(0.7)
-                                    ]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 8)
-                            .offset(y: -2)
+                            .fill(Color.yellow)
+                            .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 12)
+                            .shadow(color: Color.yellow.opacity(glowIntensity), radius: 8, x: 0, y: 0)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: actualProgress)
                     }
                 }
@@ -305,12 +297,33 @@ struct LargeStepsWidget: View {
                 let generator = UINotificationFeedbackGenerator()
                 generator.notificationOccurred(.success)
             }
+
+            // Start glow animation for gold bar
+            if actualProgress > 1.0 {
+                withAnimation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true)
+                ) {
+                    glowIntensity = 0.8
+                }
+            }
         }
         .onChange(of: goalProgress) { newProgress in
             // Haptic feedback when goal is first reached
             if newProgress >= 1.0 && animatedProgress < 1.0 {
                 let generator = UINotificationFeedbackGenerator()
                 generator.notificationOccurred(.success)
+            }
+        }
+        .onChange(of: actualProgress) { newProgress in
+            // Start glow animation when exceeding goal
+            if newProgress > 1.0 {
+                withAnimation(
+                    Animation.easeInOut(duration: 1.5)
+                        .repeatForever(autoreverses: true)
+                ) {
+                    glowIntensity = 0.8
+                }
             }
         }
         .onChange(of: currentSteps) { newSteps in

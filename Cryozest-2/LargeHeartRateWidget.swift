@@ -390,6 +390,9 @@ struct LargeHeartRateWidget: View {
 
             guard let samples = samples, !samples.isEmpty else {
                 print("🫀 No heart rate samples found")
+                DispatchQueue.main.async {
+                    self.todayRHRReadings = []
+                }
                 return
             }
 
@@ -449,7 +452,9 @@ struct LargeHeartRateWidget: View {
             }
 
             print("🫀 Created \(readings.count) hourly readings")
-            self.todayRHRReadings = readings
+            DispatchQueue.main.async {
+                self.todayRHRReadings = readings
+            }
         }
     }
 }
