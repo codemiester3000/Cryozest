@@ -148,10 +148,10 @@ struct WellnessInsightsSection: View {
                 Spacer()
 
                 // Change indicator with percentage
-                VStack(spacing: 4) {
+                VStack(spacing: 3) {
                     Text("vs Last Week")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.5))
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
                         .textCase(.uppercase)
 
                     if let change = change, let percentChange = percentageChange, abs(change) >= 0.1 {
@@ -170,6 +170,16 @@ struct WellnessInsightsSection: View {
                                     .foregroundColor(.white.opacity(0.6))
                             }
                         }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                     } else {
                         HStack(spacing: 4) {
                             Image(systemName: "minus.circle.fill")
@@ -180,18 +190,18 @@ struct WellnessInsightsSection: View {
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.5))
                         }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        )
                     }
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                )
             }
         }
         .padding(16)
