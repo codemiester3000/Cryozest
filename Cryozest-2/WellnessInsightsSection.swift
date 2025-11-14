@@ -148,42 +148,49 @@ struct WellnessInsightsSection: View {
                 Spacer()
 
                 // Change indicator with percentage
-                VStack(spacing: 3) {
+                VStack(spacing: 4) {
+                    Text("vs Last Week")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.5))
+                        .textCase(.uppercase)
+
                     if let change = change, let percentChange = percentageChange, abs(change) >= 0.1 {
                         HStack(spacing: 4) {
-                            Image(systemName: change >= 0 ? "arrow.up" : "arrow.down")
-                                .font(.system(size: 12, weight: .bold))
+                            Image(systemName: change >= 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(change >= 0 ? .green : .red)
 
-                            Text(String(format: "%.0f%%", abs(percentChange)))
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(change >= 0 ? .green : .red)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(String(format: "%.0f%%", abs(percentChange)))
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(change >= 0 ? .green : .red)
+
+                                Text(String(format: "%+.1f pts", change))
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                         }
-
-                        Text(String(format: "%+.1f", change))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
                     } else {
                         HStack(spacing: 4) {
-                            Image(systemName: "minus")
-                                .font(.system(size: 12, weight: .bold))
+                            Image(systemName: "minus.circle.fill")
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.white.opacity(0.4))
 
-                            Text("–")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(.white.opacity(0.4))
+                            Text("No change")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.5))
                         }
-
-                        Text("vs last week")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.4))
                     }
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white.opacity(0.08))
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
                 )
             }
         }
