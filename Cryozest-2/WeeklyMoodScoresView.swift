@@ -2,7 +2,7 @@
 //  WeeklyMoodScoresView.swift
 //  Cryozest-2
 //
-//  Collapsible view showing mood scores for the last 4 weeks
+//  Collapsible view showing mood scores for the last 4 weeks (Monday-Sunday)
 //
 
 import SwiftUI
@@ -12,41 +12,67 @@ struct WeeklyMoodScoresView: View {
 
     @State private var isExpanded = false
 
-    // Calculate weekly mood data for last 4 weeks
+    // Calculate weekly mood data for last 4 complete weeks (Monday-Sunday)
     private var weeklyData: [WeekMoodData] {
         let calendar = Calendar.current
         let today = Date()
 
-        return (0..<4).compactMap { weekOffset -> WeekMoodData? in
-            // Calculate week start (most recent week first)
-            guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: today) else {
+        // Find the most recent Monday
+        var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        guard let mostRecentMonday = calendar.date(from: components) else {
+            return []
+        }
+
+        return (1...4).compactMap { weekOffset -> WeekMoodData? in
+            // Calculate week start (Monday) for each previous complete week
+            guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: mostRecentMonday),
+                  let weekEnd = calendar.date(byAdding: .day, value: 6, to: weekStart) else {
                 return nil
             }
 
-            // Get all ratings for this week
-            let weekRatings = ratings.filter { rating in
-                guard let ratingDate = rating.date else { return false }
-                let daysDiff = calendar.dateComponents([.day], from: weekStart, to: ratingDate).day ?? 0
-                return daysDiff >= -6 && daysDiff <= 0
+            // Get ratings for each day of the week
+            var dailyRatings: [Int?] = []
+            var totalScore: Double = 0
+            var ratingCount = 0
+
+            for dayOffset in 0..<7 {
+                guard let dayDate = calendar.date(byAdding: .day, value: dayOffset, to: weekStart) else {
+                    dailyRatings.append(nil)
+                    continue
+                }
+
+                // Find rating for this specific day
+                let dayRating = ratings.first { rating in
+                    guard let ratingDate = rating.date else { return false }
+                    return calendar.isDate(ratingDate, inSameDayAs: dayDate)
+                }
+
+                if let rating = dayRating {
+                    let score = Int(rating.rating)
+                    dailyRatings.append(score)
+                    totalScore += Double(score)
+                    ratingCount += 1
+                } else {
+                    dailyRatings.append(nil)
+                }
             }
 
-            guard !weekRatings.isEmpty else {
+            guard ratingCount > 0 else {
                 return nil
             }
 
-            // Calculate average
-            let sum = weekRatings.reduce(0.0) { $0 + Double($1.rating) }
-            let average = sum / Double(weekRatings.count)
+            let average = totalScore / Double(ratingCount)
 
             // Format week label
-            let weekEndDate = calendar.date(byAdding: .day, value: -1, to: weekStart) ?? weekStart
-            let weekLabel = formatWeekLabel(start: calendar.date(byAdding: .day, value: -6, to: weekStart) ?? weekStart, end: weekEndDate)
+            let weekLabel = formatWeekLabel(start: weekStart, end: weekEnd)
 
             return WeekMoodData(
                 weekLabel: weekLabel,
                 averageScore: average,
-                ratingCount: weekRatings.count,
-                weekOffset: weekOffset
+                ratingCount: ratingCount,
+                weekOffset: weekOffset,
+                dailyRatings: dailyRatings,
+                weekStart: weekStart
             )
         }
     }
@@ -134,26 +160,85 @@ struct WeekMoodData: Identifiable {
     let averageScore: Double
     let ratingCount: Int
     let weekOffset: Int
+    let dailyRatings: [Int?] // Mon-Sun ratings (nil if no rating)
+    let weekStart: Date
 }
 
 struct WeekMoodRow: View {
     let data: WeekMoodData
     let color: Color
 
-    var body: some View {
-        HStack {
-            // Week label
-            VStack(alignment: .leading, spacing: 4) {
-                Text(data.weekLabel)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+    private let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
 
-                Text("\(data.ratingCount) day\(data.ratingCount == 1 ? "" : "s")")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white.opacity(0.5))
+    private func colorForRating(_ rating: Int) -> Color {
+        switch rating {
+        case 5: return .green
+        case 4: return Color(red: 0.6, green: 0.9, blue: 0.3)
+        case 3: return .yellow
+        case 2: return .orange
+        case 1: return .red
+        default: return .white.opacity(0.1)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 12) {
+            // Top row: Week label, average score
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(data.weekLabel)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+
+                    Text("\(data.ratingCount)/7 days")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+
+                Spacer()
+
+                // Large average score
+                VStack(spacing: 2) {
+                    Text(String(format: "%.1f", data.averageScore))
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(color)
+
+                    Text("avg")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.5))
+                }
             }
 
-            Spacer()
+            // Daily ratings row
+            HStack(spacing: 4) {
+                ForEach(0..<7, id: \.self) { index in
+                    VStack(spacing: 4) {
+                        // Day label
+                        Text(dayLabels[index])
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+
+                        // Rating circle
+                        ZStack {
+                            Circle()
+                                .fill(data.dailyRatings[index] != nil ? colorForRating(data.dailyRatings[index]!) : Color.white.opacity(0.1))
+                                .frame(width: 32, height: 32)
+
+                            if let rating = data.dailyRatings[index] {
+                                Text("\(rating)")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("—")
+                                    .font(.system(size: 10, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+                        }
+                        .shadow(color: data.dailyRatings[index] != nil ? colorForRating(data.dailyRatings[index]!).opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
 
             // Progress bar
             GeometryReader { geometry in
@@ -161,37 +246,45 @@ struct WeekMoodRow: View {
                     // Background
                     RoundedRectangle(cornerRadius: 6)
                         .fill(Color.white.opacity(0.1))
-                        .frame(height: 8)
+                        .frame(height: 10)
 
-                    // Progress
+                    // Progress with gradient
                     RoundedRectangle(cornerRadius: 6)
                         .fill(
                             LinearGradient(
-                                colors: [color, color.opacity(0.7)],
+                                colors: [color, color.opacity(0.6)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: geometry.size.width * (data.averageScore / 5.0), height: 8)
+                        .frame(width: geometry.size.width * (data.averageScore / 5.0), height: 10)
+                        .shadow(color: color.opacity(0.4), radius: 4, x: 0, y: 2)
                 }
             }
-            .frame(width: 100, height: 8)
-
-            // Score
-            Text(String(format: "%.1f", data.averageScore))
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(color)
-                .frame(width: 36, alignment: .trailing)
+            .frame(height: 10)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.05))
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.08), Color.white.opacity(0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(color.opacity(0.2), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(
+                            LinearGradient(
+                                colors: [color.opacity(0.4), color.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
                 )
         )
+        .shadow(color: color.opacity(0.15), radius: 8, x: 0, y: 4)
     }
 }
