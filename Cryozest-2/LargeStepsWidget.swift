@@ -29,6 +29,10 @@ struct LargeStepsWidget: View {
         min(Double(currentSteps) / Double(goalManager.dailyStepGoal), 1.0)
     }
 
+    private var actualProgress: Double {
+        Double(currentSteps) / Double(goalManager.dailyStepGoal)
+    }
+
     private var progressColor: Color {
         if goalProgress >= 1.0 {
             return .green
@@ -155,8 +159,8 @@ struct LargeStepsWidget: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
 
                     // Second bar - extra steps beyond goal (starts as a new round)
-                    if goalProgress > 1.0 {
-                        let extraProgress = goalProgress - 1.0
+                    if actualProgress > 1.0 {
+                        let extraProgress = actualProgress - 1.0
                         RoundedRectangle(cornerRadius: 6)
                             .fill(
                                 LinearGradient(
@@ -170,7 +174,7 @@ struct LargeStepsWidget: View {
                             )
                             .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 8)
                             .offset(y: -2)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: actualProgress)
                     }
                 }
             }
