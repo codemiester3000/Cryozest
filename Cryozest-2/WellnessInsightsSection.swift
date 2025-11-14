@@ -63,6 +63,11 @@ struct WellnessInsightsSection: View {
                 if trendData.count >= 3 {
                     wellnessTrendChart
                         .padding(.horizontal)
+
+                    // Weekly Mood Scores (underneath heatmap)
+                    WeeklyMoodScoresView(ratings: ratings)
+                        .padding(.horizontal)
+                        .padding(.top, 4)
                 }
 
                 // Habit Impact

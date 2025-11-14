@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA45F14F5DF54020A78FAB4D /* OnboardingCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */; };
+		EE9FD6E5E9384F48B0A27C8E /* OnboardingHabitSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */; };
 		04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
@@ -73,7 +75,6 @@
 		C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD72E980A020052946A /* MetricChartView.swift */; };
 		C56DDCDB2E9811A50052946A /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDA2E9811A50052946A /* OnboardingManager.swift */; };
 		C56DDCDD2E9811B10052946A /* ContextualTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */; };
-		C56DDCDF2E9811C30052946A /* DailyEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */; };
 		C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */; };
 		C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */; };
 		C56DDCE72E9854780052946A /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE62E9854770052946A /* InsightsView.swift */; };
@@ -130,7 +131,11 @@
 		F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
 		B1D4FC931BE442769DFED0B6 /* WidgetConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */; };
-/* End PBXBuildFile section */
+		7A2BB985F5764FE1B53A23B8 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */; };
+		14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */; };
+		D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */; };
+		A8B9BDAB7B00485E8DF61CDB /* WeeklyMoodScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */; };
+	/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		C57EE33A29CA8E34002A4875 /* PBXContainerItemProxy */ = {
@@ -150,6 +155,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompletionView.swift; sourceTree = "<group>"; };
+		DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHabitSelectionView.swift; sourceTree = "<group>"; };
 		02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LargeHeartRateWidget.swift; path = "Cryozest-2/LargeHeartRateWidget.swift"; sourceTree = SOURCE_ROOT; };
 		0531AA8A29CAB86200B5F1AF /* TherapyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyType.swift; sourceTree = "<group>"; };
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
@@ -205,7 +212,6 @@
 		C56DDCD72E980A020052946A /* MetricChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricChartView.swift; sourceTree = "<group>"; };
 		C56DDCDA2E9811A50052946A /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
 		C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextualTooltip.swift; sourceTree = "<group>"; };
-		C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyEmptyStateView.swift; sourceTree = "<group>"; };
 		C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsEmptyStateView.swift; sourceTree = "<group>"; };
 		C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEmptyStateView.swift; sourceTree = "<group>"; };
 		C56DDCE62E9854770052946A /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
@@ -254,7 +260,11 @@
 		C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakingAnalysisView.swift; sourceTree = "<group>"; };
 		D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyGoalProgressView.swift; path = "Cryozest-2/WeeklyGoalProgressView.swift"; sourceTree = SOURCE_ROOT; };
 		0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetConfigurationView.swift; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+		27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
+		5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHookView.swift; sourceTree = "<group>"; };
+		91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyMoodScoresView.swift; sourceTree = "<group>"; };
+	/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C57EE32629CA8E31002A4875 /* Frameworks */ = {
@@ -302,11 +312,15 @@
 			children = (
 				C56DDCDA2E9811A50052946A /* OnboardingManager.swift */,
 				C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */,
-				C56DDCDE2E9811C30052946A /* DailyEmptyStateView.swift */,
 				C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */,
 				C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */,
 				C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */,
 							0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */,
+				27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */,
+				5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */,
+				91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */,
+				DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */,
+				614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */,
 );
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -418,6 +432,7 @@
 				49B046738978308F7AEF51A8 /* MedicationsCard.swift */,
 				B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */,
 				236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */,
+				36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -595,6 +610,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A2BB985F5764FE1B53A23B8 /* OnboardingCoordinator.swift in Sources */,
+				14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */,
+				D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */,
+				EE9FD6E5E9384F48B0A27C8E /* OnboardingHabitSelectionView.swift in Sources */,
+				BA45F14F5DF54020A78FAB4D /* OnboardingCompletionView.swift in Sources */,
 				C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */,
 				C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */,
 				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
@@ -673,7 +693,6 @@
 				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
 				C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */,
 				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
-				C56DDCDF2E9811C30052946A /* DailyEmptyStateView.swift in Sources */,
 				9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */,
 				57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */,
 				3ECF4464BB63682D1E0C0CE6 /* LargeStepsWidget.swift in Sources */,
@@ -689,7 +708,8 @@
 				294DAC653674450887468C71 /* HabitStats.swift in Sources */,
 				BC9F067A4E7F466A869A1651 /* HabitStatsCards.swift in Sources */,
 							B1D4FC931BE442769DFED0B6 /* WidgetConfigurationView.swift in Sources */,
-);
+				A8B9BDAB7B00485E8DF61CDB /* WeeklyMoodScoresView.swift in Sources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C57EE33529CA8E34002A4875 /* Sources */ = {
