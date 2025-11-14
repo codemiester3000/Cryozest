@@ -421,48 +421,27 @@ struct LargeHeartRateWidget: View {
                 hourlyReadings[hour, default: []].append(heartRate)
             }
 
-            let readings: [(String, Int)]
+            // Get all hours with data, sorted
+            let hoursWithData = hourlyReadings.keys.sorted()
 
-            if isToday {
-                // For today, show last 8 hours
-                let currentHour = calendar.component(.hour, from: Date())
-                var orderedHours: [Int] = []
-                for i in (0..<8).reversed() {
-                    let hour = (currentHour - i + 24) % 24
-                    orderedHours.append(hour)
-                }
-
-                readings = orderedHours.compactMap { hour -> (String, Int)? in
-                    guard let values = hourlyReadings[hour], !values.isEmpty else {
-                        return nil
-                    }
-                    let avgValue = Int(values.reduce(0, +) / Double(values.count))
-                    let timeString = String(format: "%02d:00", hour)
-                    return (timeString, avgValue)
-                }
+            // Sample hours if we have too many (max 10 for readability)
+            let sampledHours: [Int]
+            if hoursWithData.count <= 10 {
+                sampledHours = hoursWithData
             } else {
-                // For past dates, show evenly distributed samples (max 8 hours with data)
-                let hoursWithData = hourlyReadings.keys.sorted()
-                let sampledHours: [Int]
+                // Sample evenly across available hours
+                let step = max(1, hoursWithData.count / 10)
+                sampledHours = stride(from: 0, to: hoursWithData.count, by: step)
+                    .prefix(10)
+                    .map { hoursWithData[$0] }
+            }
 
-                if hoursWithData.count <= 8 {
-                    sampledHours = hoursWithData
-                } else {
-                    // Sample evenly across the day
-                    let step = max(1, hoursWithData.count / 8)
-                    sampledHours = stride(from: 0, to: hoursWithData.count, by: step)
-                        .prefix(8)
-                        .map { hoursWithData[$0] }
-                }
-
-                readings = sampledHours.compactMap { hour -> (String, Int)? in
-                    guard let values = hourlyReadings[hour], !values.isEmpty else {
-                        return nil
-                    }
-                    let avgValue = Int(values.reduce(0, +) / Double(values.count))
-                    let timeString = String(format: "%02d:00", hour)
-                    return (timeString, avgValue)
-                }
+            // Create readings for all sampled hours
+            let readings: [(String, Int)] = sampledHours.map { hour in
+                let values = hourlyReadings[hour]!
+                let avgValue = Int(values.reduce(0, +) / Double(values.count))
+                let timeString = String(format: "%02d:00", hour)
+                return (timeString, avgValue)
             }
 
             print("🫀 Created \(readings.count) hourly readings")
