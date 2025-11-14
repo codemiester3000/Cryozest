@@ -161,8 +161,8 @@ struct LargeStepsWidget: View {
                             .fill(
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        Color.green.opacity(0.6),
-                                        Color.green.opacity(0.4)
+                                        Color.yellow.opacity(0.9),
+                                        Color.orange.opacity(0.7)
                                     ]),
                                     startPoint: .leading,
                                     endPoint: .trailing
