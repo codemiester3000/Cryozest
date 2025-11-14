@@ -146,6 +146,11 @@ struct WeeklyMoodScoresView: View {
                 VStack(spacing: 10) {
                     ForEach(weeklyData) { weekData in
                         WeekMoodRow(data: weekData, color: moodColor(for: weekData.averageScore))
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    isExpanded = false
+                                }
+                            }
                     }
                 }
                 .padding(.top, 12)
