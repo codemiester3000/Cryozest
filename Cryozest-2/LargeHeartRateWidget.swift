@@ -257,7 +257,7 @@ struct LargeHeartRateWidget: View {
 
             // Heart rate graph
             VStack(alignment: .leading, spacing: 6) {
-                Text(Calendar.current.isDateInToday(selectedDate) ? "Last 8 Hours" : "Throughout Day")
+                Text("Throughout Day")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
 
@@ -367,26 +367,13 @@ struct LargeHeartRateWidget: View {
 
         let calendar = Calendar.current
 
-        // Determine the time range based on selected date
-        let isToday = calendar.isDateInToday(selectedDate)
-        let endTime: Date
-        let startTime: Date
+        // Fetch entire day for selected date
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
-        if isToday {
-            // For today, fetch last 8 hours from now
-            endTime = Date()
-            startTime = calendar.date(byAdding: .hour, value: -8, to: endTime) ?? endTime
-        } else {
-            // For past dates, fetch the entire day
-            let startOfDay = calendar.startOfDay(for: selectedDate)
-            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            startTime = startOfDay
-            endTime = endOfDay
-        }
+        print("🫀 Fetching heart rate data from \(startOfDay) to \(endOfDay) for selected date: \(selectedDate)")
 
-        print("🫀 Fetching heart rate data from \(startTime) to \(endTime) for selected date: \(selectedDate)")
-
-        HealthKitManager.shared.fetchHeartRateData(from: startTime, to: endTime) { samples, error in
+        HealthKitManager.shared.fetchHeartRateData(from: startOfDay, to: endOfDay) { samples, error in
             if let error = error {
                 print("🫀 Error fetching heart rate data: \(error)")
                 DispatchQueue.main.async {
