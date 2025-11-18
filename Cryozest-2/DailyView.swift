@@ -378,6 +378,10 @@ struct DailyView: View {
                                     .zIndex(1)
                                 }
                             }  // Close ZStack
+
+                            // Bottom spacer to prevent tab bar overlap
+                            Color.clear
+                                .frame(height: 100)
                         }
                     }
 

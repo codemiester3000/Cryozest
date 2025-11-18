@@ -309,8 +309,11 @@ struct InsightsView: View {
                         }
                     }
                 }
+
+                // Bottom spacer to prevent tab bar overlap
+                Color.clear
+                    .frame(height: 100)
             }
-            .padding(.bottom, 40)
         }
     }
 
