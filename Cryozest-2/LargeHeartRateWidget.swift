@@ -15,6 +15,7 @@ struct LargeHeartRateWidget: View {
 
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var animate = true
+    @State private var mostRecentReadingTime: Date?
 
     private var currentRHR: Int? {
         model.mostRecentRestingHeartRate
@@ -51,6 +52,26 @@ struct LargeHeartRateWidget: View {
         case .improving: return "arrow.down.right"
         case .stable: return "arrow.right"
         case .elevated: return "arrow.up.right"
+        }
+    }
+
+    private var timeAgoText: String? {
+        guard let recentTime = mostRecentReadingTime else { return nil }
+
+        let now = Date()
+        let interval = now.timeIntervalSince(recentTime)
+        let minutes = Int(interval / 60)
+        let hours = Int(interval / 3600)
+
+        if minutes < 1 {
+            return "Just now"
+        } else if minutes < 60 {
+            return "\(minutes) min ago"
+        } else if hours < 24 {
+            return "\(hours) hr\(hours == 1 ? "" : "s") ago"
+        } else {
+            let days = Int(interval / 86400)
+            return "\(days) day\(days == 1 ? "" : "s") ago"
         }
     }
 
@@ -213,6 +234,12 @@ struct LargeHeartRateWidget: View {
 
                         Text("bpm")
                             .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    if let timeText = timeAgoText {
+                        Text(timeText)
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
@@ -391,6 +418,13 @@ struct LargeHeartRateWidget: View {
                 print("🫀 [DEBUG] Last sample date: \(lastSample.endDate)")
             }
 
+            // Track most recent reading time (last sample)
+            if let lastSample = samples.last {
+                DispatchQueue.main.async {
+                    self.mostRecentReadingTime = lastSample.endDate
+                }
+            }
+
             // Group readings by hour and calculate average
             var hourlyReadings: [Int: [Double]] = [:]
 
@@ -424,7 +458,12 @@ struct LargeHeartRateWidget: View {
             let readings: [(String, Int)] = sampledHours.map { hour in
                 let values = hourlyReadings[hour]!
                 let avgValue = Int(values.reduce(0, +) / Double(values.count))
-                let timeString = String(format: "%02d:00", hour)
+
+                // Convert to 12-hour format with AM/PM
+                let period = hour >= 12 ? "PM" : "AM"
+                let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
+                let timeString = "\(displayHour) \(period)"
+
                 print("🫀 [DEBUG] Hour \(timeString): \(values.count) samples, avg = \(avgValue) bpm")
                 return (timeString, avgValue)
             }
