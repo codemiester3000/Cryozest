@@ -15,7 +15,6 @@ struct LargeHeartRateWidget: View {
 
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var animate = true
-    @State private var hasSamplesForSelectedDate = false
 
     private var currentRHR: Int? {
         model.mostRecentRestingHeartRate
@@ -55,16 +54,9 @@ struct LargeHeartRateWidget: View {
         }
     }
 
-    private var hasData: Bool {
-        hasSamplesForSelectedDate || !todayRHRReadings.isEmpty
-    }
-
     var body: some View {
-        if hasData {
-            expandedView
-        } else {
-            collapsedView
-        }
+        // Always show expanded view with graph
+        expandedView
     }
 
     private var collapsedView: some View {
@@ -351,52 +343,52 @@ struct LargeHeartRateWidget: View {
         )
         .shadow(color: animate ? trendColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
         .onAppear {
+            print("🫀 [WIDGET] LargeHeartRateWidget appeared with selectedDate: \(selectedDate)")
+            print("🫀 [WIDGET] Current todayRHRReadings count: \(todayRHRReadings.count)")
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false
             }
             fetchTodayRHRReadings()
         }
-        .onChange(of: selectedDate) { _ in
+        .onChange(of: selectedDate) { newDate in
+            print("🫀 [WIDGET] Selected date changed to: \(newDate)")
             fetchTodayRHRReadings()
         }
     }
 
     private func fetchTodayRHRReadings() {
-        // Clear data flag while fetching
-        hasSamplesForSelectedDate = false
-
         let calendar = Calendar.current
 
         // Fetch entire day for selected date
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
-        print("🫀 Fetching heart rate data from \(startOfDay) to \(endOfDay) for selected date: \(selectedDate)")
+        print("🫀 [DEBUG] Fetching heart rate data from \(startOfDay) to \(endOfDay) for selected date: \(selectedDate)")
+        print("🫀 [DEBUG] Is today: \(calendar.isDateInToday(selectedDate))")
 
         HealthKitManager.shared.fetchHeartRateData(from: startOfDay, to: endOfDay) { samples, error in
             if let error = error {
-                print("🫀 Error fetching heart rate data: \(error)")
+                print("🫀 [ERROR] Error fetching heart rate data: \(error)")
                 DispatchQueue.main.async {
-                    self.hasSamplesForSelectedDate = false
                     self.todayRHRReadings = []
                 }
                 return
             }
 
             guard let samples = samples, !samples.isEmpty else {
-                print("🫀 No heart rate samples found for selected date")
+                print("🫀 [WARNING] No heart rate samples found for selected date")
                 DispatchQueue.main.async {
                     self.todayRHRReadings = []
-                    self.hasSamplesForSelectedDate = false
                 }
                 return
             }
 
-            print("🫀 Found \(samples.count) heart rate samples for selected date")
-
-            // Mark that we have samples for this date
-            DispatchQueue.main.async {
-                self.hasSamplesForSelectedDate = true
+            print("🫀 [SUCCESS] Found \(samples.count) heart rate samples for selected date")
+            if let firstSample = samples.first {
+                print("🫀 [DEBUG] First sample date: \(firstSample.endDate)")
+            }
+            if let lastSample = samples.last {
+                print("🫀 [DEBUG] Last sample date: \(lastSample.endDate)")
             }
 
             // Group readings by hour and calculate average
@@ -408,8 +400,11 @@ struct LargeHeartRateWidget: View {
                 hourlyReadings[hour, default: []].append(heartRate)
             }
 
+            print("🫀 [DEBUG] Grouped into \(hourlyReadings.count) hours with data")
+
             // Get all hours with data, sorted
             let hoursWithData = hourlyReadings.keys.sorted()
+            print("🫀 [DEBUG] Hours with data: \(hoursWithData)")
 
             // Sample hours if we have too many (max 10 for readability)
             let sampledHours: [Int]
@@ -423,17 +418,22 @@ struct LargeHeartRateWidget: View {
                     .map { hoursWithData[$0] }
             }
 
+            print("🫀 [DEBUG] Sampled hours: \(sampledHours)")
+
             // Create readings for all sampled hours
             let readings: [(String, Int)] = sampledHours.map { hour in
                 let values = hourlyReadings[hour]!
                 let avgValue = Int(values.reduce(0, +) / Double(values.count))
                 let timeString = String(format: "%02d:00", hour)
+                print("🫀 [DEBUG] Hour \(timeString): \(values.count) samples, avg = \(avgValue) bpm")
                 return (timeString, avgValue)
             }
 
-            print("🫀 Created \(readings.count) hourly readings")
+            print("🫀 [SUCCESS] Created \(readings.count) hourly readings: \(readings)")
             DispatchQueue.main.async {
+                print("🫀 [DEBUG] Setting todayRHRReadings on main thread")
                 self.todayRHRReadings = readings
+                print("🫀 [DEBUG] todayRHRReadings now has \(self.todayRHRReadings.count) items")
             }
         }
     }
@@ -450,6 +450,8 @@ struct RHRReadingsGraph: View {
     let color: Color
 
     var body: some View {
+        let _ = print("🫀 [GRAPH] RHRReadingsGraph rendering with \(readings.count) readings: \(readings)")
+
         GeometryReader { geometry in
             ZStack {
                 // Background
@@ -457,6 +459,7 @@ struct RHRReadingsGraph: View {
                     .fill(Color.white.opacity(0.05))
 
                 if readings.isEmpty {
+                    let _ = print("🫀 [GRAPH] Showing empty state")
                     // Empty state
                     VStack(spacing: 6) {
                         Image(systemName: "chart.bar.fill")
@@ -467,6 +470,7 @@ struct RHRReadingsGraph: View {
                             .foregroundColor(.white.opacity(0.4))
                     }
                 } else {
+                    let _ = print("🫀 [GRAPH] Showing graph with data")
                     let values = readings.map { $0.1 }
                     let maxValue = values.max() ?? 100
                     let minValue = values.min() ?? 40
