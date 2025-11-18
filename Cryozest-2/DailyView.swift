@@ -37,6 +37,9 @@ struct DailyView: View {
     @State private var draggedWidget: DailyWidgetSection?
     @State private var lastMoveTimestamp: Date = Date()
 
+    // Heart rate polling timer
+    @State private var heartRateTimer: Timer?
+
     private var visibleWidgets: [DailyWidgetSection] {
         widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }
     }
@@ -138,6 +141,22 @@ struct DailyView: View {
         default:
             return true
         }
+    }
+
+    private func startHeartRatePolling() {
+        // Stop existing timer if any
+        stopHeartRatePolling()
+
+        // Create a new timer that fires every 60 seconds
+        heartRateTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { _ in
+            // Fetch heart rate data for current selected date
+            recoveryModel.refreshHeartRateData(forDate: selectedDate)
+        }
+    }
+
+    private func stopHeartRatePolling() {
+        heartRateTimer?.invalidate()
+        heartRateTimer = nil
     }
 
     @ViewBuilder
@@ -470,7 +489,11 @@ struct DailyView: View {
             recoveryModel.pullAllRecoveryData(forDate: selectedDate)
             exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
             sleepModel.fetchSleepData(forDate: selectedDate)
-            // Any other actions needed when the date changes
+
+            // Restart polling with new date if app is active
+            if scenePhase == .active {
+                startHeartRatePolling()
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
@@ -478,7 +501,17 @@ struct DailyView: View {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
+
+                // Start polling for heart rate every minute
+                startHeartRatePolling()
+            } else {
+                // Stop polling when app becomes inactive
+                stopHeartRatePolling()
             }
+        }
+        .onDisappear {
+            // Clean up timer when view disappears
+            stopHeartRatePolling()
         }
     }
 }

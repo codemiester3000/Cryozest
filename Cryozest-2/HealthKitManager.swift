@@ -635,37 +635,47 @@ class HealthKitManager {
     }
 
     func fetchAverageRestingHeartRate(for date: Date, completion: @escaping (Int?) -> Void) {
+        fetchMostRecentRestingHeartRate(for: date) { value, _ in
+            completion(value)
+        }
+    }
+
+    func fetchMostRecentRestingHeartRate(for date: Date, completion: @escaping (Int?, Date?) -> Void) {
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date)
         guard let endDate = calendar.date(byAdding: .day, value: 1, to: startDate) else {
-            completion(nil)
+            completion(nil, nil)
             return
         }
 
-        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
-            completion(nil) // Health data type for heart rate not available
+        // Use regular heart rate (not resting) to get the most recent reading
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            completion(nil, nil) // Health data type for heart rate not available
             return
         }
 
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-        let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
-            guard error == nil, let heartRateSamples = samples as? [HKQuantitySample], !heartRateSamples.isEmpty else {
+
+        // Sort by end date descending to get most recent first
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+
+        // Only fetch the most recent sample
+        let query = HKSampleQuery(sampleType: heartRateType, predicate: predicate, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, error in
+            guard error == nil, let heartRateSamples = samples as? [HKQuantitySample], let mostRecentSample = heartRateSamples.first else {
                 DispatchQueue.main.async {
-                    completion(nil) // Handle error or no data case
+                    completion(nil, nil) // Handle error or no data case
                 }
                 return
             }
 
-            // Calculate the average heart rate from all samples
-            let totalHeartRate = heartRateSamples.reduce(0.0) { (result, sample) -> Double in
-                let heartRateValue = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                return result + heartRateValue
-            }
+            // Get the most recent heart rate value and timestamp
+            let heartRateValue = mostRecentSample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+            let timestamp = mostRecentSample.endDate
 
-            let averageHeartRate = totalHeartRate / Double(heartRateSamples.count)
+            print("💓 [HealthKit] Most recent HR: \(Int(heartRateValue.rounded())) bpm at \(timestamp)")
 
             DispatchQueue.main.async {
-                completion(Int(averageHeartRate.rounded()))
+                completion(Int(heartRateValue.rounded()), timestamp)
             }
         }
 

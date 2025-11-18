@@ -128,36 +128,18 @@ struct MedicationsCard: View {
                 }
 
             if activeMedications.isEmpty {
-                // Empty state
-                VStack(spacing: 12) {
+                // Empty state - more compact
+                VStack(spacing: 8) {
                     Image(systemName: "pills")
-                        .font(.system(size: 32, weight: .light))
+                        .font(.system(size: 24, weight: .light))
                         .foregroundColor(.white.opacity(0.3))
 
                     Text("No medications added")
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
-
-                    if isToday {
-                        Button(action: { showAddMedication = true }) {
-                            Text("Add your first medication")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.green)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.green.opacity(0.2))
-                                        .overlay(
-                                            Capsule()
-                                                .stroke(Color.green.opacity(0.4), lineWidth: 1)
-                                        )
-                                )
-                        }
-                    }
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
+                .padding(.vertical, 12)
             } else {
                 // Medications list
                 VStack(spacing: 10) {

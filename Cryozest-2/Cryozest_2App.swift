@@ -15,21 +15,10 @@ struct Cryozest_2App: App {
                         .transition(.opacity)
                         .zIndex(1)
                 } else {
-                    if appState.hasLaunchedBefore {
-                        if appState.hasSelectedTherapyTypes {
-                            AppTabView()
-                                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                                .environmentObject(appState)
-                        } else {
-                            TherapyTypeSelectionView()
-                                .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                                .environmentObject(appState)
-                        }
-                    } else {
-                        WelcomeView()
-                            .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                            .environmentObject(appState)
-                    }
+                    // Skip WelcomeView and TherapyTypeSelectionView - everything is now in the main onboarding
+                    AppTabView()
+                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                        .environmentObject(appState)
                 }
             }
             .onAppear {

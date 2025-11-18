@@ -15,10 +15,13 @@ struct LargeHeartRateWidget: View {
 
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var animate = true
-    @State private var mostRecentReadingTime: Date?
 
     private var currentRHR: Int? {
         model.mostRecentRestingHeartRate
+    }
+
+    private var mostRecentReadingTime: Date? {
+        model.mostRecentRestingHeartRateTime
     }
 
     private var weeklyAverageRHR: Int? {
@@ -109,7 +112,7 @@ struct LargeHeartRateWidget: View {
 
             // Main content
             VStack(alignment: .leading, spacing: 3) {
-                Text("Resting Heart Rate")
+                Text("Heart Rate")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
 
@@ -217,7 +220,7 @@ struct LargeHeartRateWidget: View {
 
                 // Main metric display
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Resting Heart Rate")
+                    Text("Heart Rate")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
 
@@ -376,10 +379,24 @@ struct LargeHeartRateWidget: View {
                 animate = false
             }
             fetchTodayRHRReadings()
+
+            // Listen for heart rate data refresh notifications
+            NotificationCenter.default.addObserver(
+                forName: NSNotification.Name("HeartRateDataRefreshed"),
+                object: nil,
+                queue: .main
+            ) { _ in
+                print("🫀 [WIDGET] Received heart rate refresh notification, updating graph")
+                fetchTodayRHRReadings()
+            }
         }
         .onChange(of: selectedDate) { newDate in
             print("🫀 [WIDGET] Selected date changed to: \(newDate)")
             fetchTodayRHRReadings()
+        }
+        .onDisappear {
+            // Clean up notification observer
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name("HeartRateDataRefreshed"), object: nil)
         }
     }
 
@@ -416,13 +433,6 @@ struct LargeHeartRateWidget: View {
             }
             if let lastSample = samples.last {
                 print("🫀 [DEBUG] Last sample date: \(lastSample.endDate)")
-            }
-
-            // Track most recent reading time (last sample)
-            if let lastSample = samples.last {
-                DispatchQueue.main.async {
-                    self.mostRecentReadingTime = lastSample.endDate
-                }
             }
 
             // Group readings by hour and calculate average

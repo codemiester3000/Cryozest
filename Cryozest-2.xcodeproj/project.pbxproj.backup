@@ -1,0 +1,1125 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BA45F14F5DF54020A78FAB4D /* OnboardingCompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */; };
+		EE9FD6E5E9384F48B0A27C8E /* OnboardingHabitSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */; };
+		04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
+		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
+		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
+		09964D91A34930B61BC70F60 /* LargeHeartRateWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */; };
+		1C0E19A0909E492CAE2D59E6 /* Cryozest-2/WidgetOrderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7CC532FE764495928A086C /* Cryozest-2/WidgetOrderManager.swift */; };
+		212E4E42A5A1AEDF015BCE34 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		294DAC653674450887468C71 /* HabitStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D38FBD4E1A94AF8B8ABE99C /* HabitStats.swift */; };
+		33CE4E24AAC70E0D6B0D4158 /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
+		38134005B430A99ECC2A61F0 /* LargeHeartRateWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */; };
+		387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */; };
+		3ECF4464BB63682D1E0C0CE6 /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
+		465E4C16B7D3810BED3BB79B /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
+		479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
+		57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
+		5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		602041F38FBCF3EC7338E990 /* MedicationAdherenceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */; };
+		607241B990C05FF4CF20D00F /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
+		674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
+		680245BF83D4801F6787FDFA /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
+		71F64BF2B663EC74B9DC980B /* MedicationAdherenceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */; };
+		75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
+		75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
+		8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
+		9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */; };
+		A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
+		ACB445EB9E33DE198FDA2263 /* WeeklyGoalProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */; };
+		BBC8413E9ABE199BD8E04DD3 /* MedicationAdherenceSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */; };
+		BC9F067A4E7F466A869A1651 /* HabitStatsCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AC05F81B80498FA6B703D2 /* HabitStatsCards.swift */; };
+		C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */; };
+		C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F52E97484200031B6B /* MetricConfiguration.swift */; };
+		C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F72E97485900031B6B /* MetricConfigurationView.swift */; };
+		C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */; };
+		C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52223A729E4C18D00081923 /* HealthKitManager.swift */; };
+		C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */; };
+		C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */; };
+		C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22D2B8123810001F88C /* RecoveryCardView.swift */; };
+		C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A22F2B8124CE0001F88C /* ExertionModel.swift */; };
+		C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085429CFD5DC002E90FF /* TherapySession.swift */; };
+		C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085629CFD7E1002E90FF /* PersistenceController.swift */; };
+		C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */; };
+		C53817ED2B48A88600F42568 /* DailySleepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53817EC2B48A88600F42568 /* DailySleepView.swift */; };
+		C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */; };
+		C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C549EAC62B2FCEC200F583C7 /* DailyView.swift */; };
+		C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */; };
+		C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB02E97E5150052946A /* ShimmerEffect.swift */; };
+		C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */; };
+		C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB42E97E7C40052946A /* TrendIndicator.swift */; };
+		C56DDCB72E97E7D30052946A /* PersonalBestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */; };
+		C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */; };
+		C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */; };
+		C56DDCBD2E97E8090052946A /* TimeOfDayAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */; };
+		C56DDCBF2E97E81B0052946A /* ConsistencyScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */; };
+		C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC02E97E8280052946A /* ProjectionWidget.swift */; };
+		C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC22E97EC560052946A /* GoalSettings.swift */; };
+		C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */; };
+		C56DDCC72E9809100052946A /* ExpandedMetricView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC62E9809100052946A /* ExpandedMetricView.swift */; };
+		C56DDCCA2E9809AE0052946A /* HRVDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCC92E9809AE0052946A /* HRVDetailView.swift */; };
+		C56DDCCC2E9809BB0052946A /* RHRDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */; };
+		C56DDCCE2E9809C90052946A /* SpO2DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */; };
+		C56DDCD02E9809D30052946A /* RespiratoryRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */; };
+		C56DDCD22E9809E00052946A /* CaloriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */; };
+		C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD32E9809EB0052946A /* StepsDetailView.swift */; };
+		C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */; };
+		C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCD72E980A020052946A /* MetricChartView.swift */; };
+		C56DDCDB2E9811A50052946A /* OnboardingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDA2E9811A50052946A /* OnboardingManager.swift */; };
+		C56DDCDD2E9811B10052946A /* ContextualTooltip.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */; };
+		C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */; };
+		C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */; };
+		C56DDCE72E9854780052946A /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE62E9854770052946A /* InsightsView.swift */; };
+		C56DDCE92E9854860052946A /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCE82E9854860052946A /* InsightsViewModel.swift */; };
+		C56DDCEB2E9854930052946A /* InsightCardComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEA2E9854930052946A /* InsightCardComponents.swift */; };
+		C56DDCED2E9870ED0052946A /* WellnessCheckInCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */; };
+		C56DDCEF2E9870FE0052946A /* WellnessRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCEE2E9870FE0052946A /* WellnessRating.swift */; };
+		C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */; };
+		C56DDCF32E98712B0052946A /* WellnessImpactAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */; };
+		C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */; };
+		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
+		C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */; };
+		C576E6C22A510B880042C8A7 /* RecoveryAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6C12A510B880042C8A7 /* RecoveryAnalysisView.swift */; };
+		C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */; };
+		C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE32E29CA8E31002A4875 /* ContentView.swift */; };
+		C57EE33129CA8E34002A4875 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C57EE33029CA8E34002A4875 /* Assets.xcassets */; };
+		C57EE33429CA8E34002A4875 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C57EE33329CA8E34002A4875 /* Preview Assets.xcassets */; };
+		C57EE33E29CA8E34002A4875 /* Cryozest_2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE33D29CA8E34002A4875 /* Cryozest_2Tests.swift */; };
+		C57EE34829CA8E34002A4875 /* Cryozest_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE34729CA8E34002A4875 /* Cryozest_2UITests.swift */; };
+		C57EE34A29CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE34929CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift */; };
+		C57EE35729CA8E57002A4875 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35629CA8E57002A4875 /* MainView.swift */; };
+		C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35829CA8E73002A4875 /* LogbookView.swift */; };
+		C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35A29CA8FBF002A4875 /* SessionRow.swift */; };
+		C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35C29CB942B002A4875 /* AppTabView.swift */; };
+		C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */; };
+		C57F62822B422E93004515EA /* ExertionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57F62812B422E93004515EA /* ExertionView.swift */; };
+		C58619462E97206B0002428A /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58619452E97206B0002428A /* SplashScreenView.swift */; };
+		C597B7002E9C6FC40010E62F /* SafetyWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */; };
+		C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C598129F2B41007100C13C15 /* TherapyTypeClass.swift */; };
+		C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385B2A48A58000FBD9D0 /* LoadingView.swift */; };
+		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
+		C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */; };
+		C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */; };
+		C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B6FD7E2A53586F00933029 /* DateUtils.swift */; };
+		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
+		C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */; };
+		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
+		C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */; };
+		C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */; };
+		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
+		C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */; };
+		C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD67662A255A7A008F455E /* AnalysisView.swift */; };
+		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
+		C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */; };
+		CEBE4DBE8895C3DDC2670582 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
+		D5674464A51881ED01701A91 /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
+		D77245F9A115B2F0807D0A6F /* LargeStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */; };
+		DD9F428987C217EBB888B82D /* LargeHeartRateWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */; };
+		E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */; };
+		EFC34236873F1C0567412084 /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
+		F01647309F1C9770FB56B47B /* MedicationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */; };
+		F12944B385E6042D77EA4B60 /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
+		F3FB4611913770A5F561F7CA /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
+		F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
+		FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */; };
+		B1D4FC931BE442769DFED0B6 /* WidgetConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */; };
+		7A2BB985F5764FE1B53A23B8 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */; };
+		14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */; };
+		D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C57EE33A29CA8E34002A4875 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C57EE32129CA8E31002A4875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C57EE32829CA8E31002A4875;
+			remoteInfo = "Cryozest-2";
+		};
+		C57EE34429CA8E34002A4875 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C57EE32129CA8E31002A4875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C57EE32829CA8E31002A4875;
+			remoteInfo = "Cryozest-2";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Onboarding/OnboardingCompletionView.swift"; sourceTree = "<group>"; };
+		DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Onboarding/OnboardingHabitSelectionView.swift"; sourceTree = "<group>"; };
+		02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LargeHeartRateWidget.swift; path = "Cryozest-2/LargeHeartRateWidget.swift"; sourceTree = SOURCE_ROOT; };
+		0531AA8A29CAB86200B5F1AF /* TherapyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyType.swift; sourceTree = "<group>"; };
+		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
+		0543F28A29D003B600620A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
+		0C7CC532FE764495928A086C /* Cryozest-2/WidgetOrderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cryozest-2/WidgetOrderManager.swift"; sourceTree = "<group>"; };
+		0D38FBD4E1A94AF8B8ABE99C /* HabitStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HabitStats.swift; path = "Cryozest-2/HabitStats.swift"; sourceTree = "<group>"; };
+		236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationAdherenceSection.swift; path = "Cryozest-2/MedicationAdherenceSection.swift"; sourceTree = SOURCE_ROOT; };
+		45914F459441A47CB5A96342 /* HeartRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HeartRateDetailView.swift; path = "Cryozest-2/MetricDetailViews/HeartRateDetailView.swift"; sourceTree = SOURCE_ROOT; };
+		49B046738978308F7AEF51A8 /* MedicationsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationsCard.swift; path = "Cryozest-2/MedicationsCard.swift"; sourceTree = SOURCE_ROOT; };
+		5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CompletedHabitsCard.swift; path = "Cryozest-2/CompletedHabitsCard.swift"; sourceTree = SOURCE_ROOT; };
+		61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationHelpers.swift; path = "Cryozest-2/MedicationHelpers.swift"; sourceTree = SOURCE_ROOT; };
+		670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSafetyWarningView.swift; sourceTree = "<group>"; };
+		75AC05F81B80498FA6B703D2 /* HabitStatsCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HabitStatsCards.swift; path = "Cryozest-2/HabitStatsCards.swift"; sourceTree = "<group>"; };
+		8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalConfigView.swift; path = "Cryozest-2/StepGoalConfigView.swift"; sourceTree = SOURCE_ROOT; };
+		B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AddMedicationSheet.swift; path = "Cryozest-2/AddMedicationSheet.swift"; sourceTree = SOURCE_ROOT; };
+		C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StepGoalManager.swift; path = "Cryozest-2/StepGoalManager.swift"; sourceTree = SOURCE_ROOT; };
+		C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingPage.swift; sourceTree = "<group>"; };
+		C50659F52E97484200031B6B /* MetricConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricConfiguration.swift; sourceTree = "<group>"; };
+		C50659F72E97485900031B6B /* MetricConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricConfigurationView.swift; sourceTree = "<group>"; };
+		C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalHabitSelector.swift; sourceTree = "<group>"; };
+		C52223A729E4C18D00081923 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTimePicker.swift; sourceTree = "<group>"; };
+		C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryGraphModel.swift; sourceTree = "<group>"; };
+		C526A22D2B8123810001F88C /* RecoveryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryCardView.swift; sourceTree = "<group>"; };
+		C526A22F2B8124CE0001F88C /* ExertionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExertionModel.swift; sourceTree = "<group>"; };
+		C538085429CFD5DC002E90FF /* TherapySession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapySession.swift; sourceTree = "<group>"; };
+		C538085629CFD7E1002E90FF /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDurationPickerView.swift; sourceTree = "<group>"; };
+		C53817EC2B48A88600F42568 /* DailySleepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailySleepView.swift; sourceTree = "<group>"; };
+		C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManuallyAddSession.swift; sourceTree = "<group>"; };
+		C549EAC62B2FCEC200F583C7 /* DailyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyView.swift; sourceTree = "<group>"; };
+		C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepComparisonBarGraph.swift; sourceTree = "<group>"; };
+		C56DDCB02E97E5150052946A /* ShimmerEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerEffect.swift; sourceTree = "<group>"; };
+		C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyHeatmapView.swift; sourceTree = "<group>"; };
+		C56DDCB42E97E7C40052946A /* TrendIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendIndicator.swift; sourceTree = "<group>"; };
+		C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalBestsView.swift; sourceTree = "<group>"; };
+		C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionFrequencyChart.swift; sourceTree = "<group>"; };
+		C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageDurationTrendGraph.swift; sourceTree = "<group>"; };
+		C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeOfDayAnalysisView.swift; sourceTree = "<group>"; };
+		C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencyScoreCard.swift; sourceTree = "<group>"; };
+		C56DDCC02E97E8280052946A /* ProjectionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionWidget.swift; sourceTree = "<group>"; };
+		C56DDCC22E97EC560052946A /* GoalSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalSettings.swift; sourceTree = "<group>"; };
+		C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalConfigurationView.swift; sourceTree = "<group>"; };
+		C56DDCC62E9809100052946A /* ExpandedMetricView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandedMetricView.swift; sourceTree = "<group>"; };
+		C56DDCC92E9809AE0052946A /* HRVDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HRVDetailView.swift; sourceTree = "<group>"; };
+		C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RHRDetailView.swift; sourceTree = "<group>"; };
+		C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpO2DetailView.swift; sourceTree = "<group>"; };
+		C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RespiratoryRateDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaloriesDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD32E9809EB0052946A /* StepsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VO2MaxDetailView.swift; sourceTree = "<group>"; };
+		C56DDCD72E980A020052946A /* MetricChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricChartView.swift; sourceTree = "<group>"; };
+		C56DDCDA2E9811A50052946A /* OnboardingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingManager.swift; sourceTree = "<group>"; };
+		C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextualTooltip.swift; sourceTree = "<group>"; };
+		C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsEmptyStateView.swift; sourceTree = "<group>"; };
+		C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisEmptyStateView.swift; sourceTree = "<group>"; };
+		C56DDCE62E9854770052946A /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		C56DDCE82E9854860052946A /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
+		C56DDCEA2E9854930052946A /* InsightCardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightCardComponents.swift; sourceTree = "<group>"; };
+		C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessCheckInCard.swift; sourceTree = "<group>"; };
+		C56DDCEE2E9870FE0052946A /* WellnessRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessRating.swift; sourceTree = "<group>"; };
+		C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessInsightsSection.swift; sourceTree = "<group>"; };
+		C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessImpactAnalysis.swift; sourceTree = "<group>"; };
+		C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTimerView.swift; sourceTree = "<group>"; };
+		C576E6C12A510B880042C8A7 /* RecoveryAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryAnalysisView.swift; sourceTree = "<group>"; };
+		C57EE32929CA8E31002A4875 /* Cryozest-2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cryozest-2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2App.swift; sourceTree = "<group>"; };
+		C57EE32E29CA8E31002A4875 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C57EE33029CA8E34002A4875 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C57EE33329CA8E34002A4875 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C57EE33929CA8E34002A4875 /* Cryozest-2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cryozest-2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C57EE33D29CA8E34002A4875 /* Cryozest_2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2Tests.swift; sourceTree = "<group>"; };
+		C57EE34329CA8E34002A4875 /* Cryozest-2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cryozest-2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C57EE34729CA8E34002A4875 /* Cryozest_2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2UITests.swift; sourceTree = "<group>"; };
+		C57EE34929CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cryozest_2UITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C57EE35629CA8E57002A4875 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		C57EE35829CA8E73002A4875 /* LogbookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogbookView.swift; sourceTree = "<group>"; };
+		C57EE35A29CA8FBF002A4875 /* SessionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRow.swift; sourceTree = "<group>"; };
+		C57EE35C29CB942B002A4875 /* AppTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabView.swift; sourceTree = "<group>"; };
+		C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SessionModel.xcdatamodel; sourceTree = "<group>"; };
+		C57F62812B422E93004515EA /* ExertionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExertionView.swift; sourceTree = "<group>"; };
+		C58619452E97206B0002428A /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LargeStepsWidget.swift; path = "Cryozest-2/LargeStepsWidget.swift"; sourceTree = SOURCE_ROOT; };
+		C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyWarningView.swift; sourceTree = "<group>"; };
+		C598129F2B41007100C13C15 /* TherapyTypeClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeClass.swift; sourceTree = "<group>"; };
+		C59E385B2A48A58000FBD9D0 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
+		C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsIconView.swift; sourceTree = "<group>"; };
+		C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsHighlightsView.swift; sourceTree = "<group>"; };
+		C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeGrid.swift; sourceTree = "<group>"; };
+		C5B6FD7E2A53586F00933029 /* DateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateUtils.swift; sourceTree = "<group>"; };
+		C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCompletedCell.swift; sourceTree = "<group>"; };
+		C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationAnalysisView.swift; sourceTree = "<group>"; };
+		C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyTypeSelectionView.swift; sourceTree = "<group>"; };
+		C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleWorkoutsService.swift; sourceTree = "<group>"; };
+		C5CD67662A255A7A008F455E /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
+		C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepVitalsGraph.swift; sourceTree = "<group>"; };
+		C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakingAnalysisView.swift; sourceTree = "<group>"; };
+		D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyGoalProgressView.swift; path = "Cryozest-2/WeeklyGoalProgressView.swift"; sourceTree = SOURCE_ROOT; };
+		0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetConfigurationView.swift; sourceTree = "<group>"; };
+		27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
+		5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHookView.swift; sourceTree = "<group>"; };
+		91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C57EE32629CA8E31002A4875 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */,
+				C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE33629CA8E34002A4875 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE34029CA8E34002A4875 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C56DDCC82E9809960052946A /* MetricDetailViews */ = {
+			isa = PBXGroup;
+			children = (
+				C56DDCC92E9809AE0052946A /* HRVDetailView.swift */,
+				C56DDCCB2E9809BB0052946A /* RHRDetailView.swift */,
+				C56DDCCD2E9809C90052946A /* SpO2DetailView.swift */,
+				C56DDCCF2E9809D30052946A /* RespiratoryRateDetailView.swift */,
+				C56DDCD12E9809E00052946A /* CaloriesDetailView.swift */,
+				C56DDCD32E9809EB0052946A /* StepsDetailView.swift */,
+				C56DDCD52E9809F70052946A /* VO2MaxDetailView.swift */,
+			);
+			path = MetricDetailViews;
+			sourceTree = "<group>";
+		};
+		C56DDCD92E9811930052946A /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				C56DDCDA2E9811A50052946A /* OnboardingManager.swift */,
+				C56DDCDC2E9811B10052946A /* ContextualTooltip.swift */,
+				C56DDCE02E9811D20052946A /* HabitsEmptyStateView.swift */,
+				C56DDCE22E9811DD0052946A /* AnalysisEmptyStateView.swift */,
+				C597B6FF2E9C6FC40010E62F /* SafetyWarningView.swift */,
+							0F4FC5449C894BB9B8058AE6 /* WidgetConfigurationView.swift */,
+				27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */,
+				5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */,
+				91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */,
+				DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */,
+				614730FBAED44AFE89E2726C /* OnboardingCompletionView.swift */,
+);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		C57EE32029CA8E31002A4875 = {
+			isa = PBXGroup;
+			children = (
+				C57EE32B29CA8E31002A4875 /* Cryozest-2 */,
+				C57EE33C29CA8E34002A4875 /* Cryozest-2Tests */,
+				C57EE34629CA8E34002A4875 /* Cryozest-2UITests */,
+				C57EE32A29CA8E31002A4875 /* Products */,
+				C3F74759ACD814E977BBF7C5 /* StepGoalManager.swift */,
+				8CA24B9CBC3DA5435E71F48E /* StepGoalConfigView.swift */,
+				C592407D8C16F07D008111E4 /* LargeStepsWidget.swift */,
+				5AC9410E81CDA48BB76BDA4E /* CompletedHabitsCard.swift */,
+				02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */,
+				45914F459441A47CB5A96342 /* HeartRateDetailView.swift */,
+				C597B8582EC11C5A0010E62F /* Recovered References */,
+			);
+			sourceTree = "<group>";
+		};
+		C57EE32A29CA8E31002A4875 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C57EE32929CA8E31002A4875 /* Cryozest-2.app */,
+				C57EE33929CA8E34002A4875 /* Cryozest-2Tests.xctest */,
+				C57EE34329CA8E34002A4875 /* Cryozest-2UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C57EE32B29CA8E31002A4875 /* Cryozest-2 */ = {
+			isa = PBXGroup;
+			children = (
+				C56DDCD92E9811930052946A /* Onboarding */,
+				C56DDCC82E9809960052946A /* MetricDetailViews */,
+				0543F28B29D0078200620A55 /* Cryozest-2.entitlements */,
+				0543F28A29D003B600620A55 /* Info.plist */,
+				0531AA8A29CAB86200B5F1AF /* TherapyType.swift */,
+				C59E385B2A48A58000FBD9D0 /* LoadingView.swift */,
+				C57EE32C29CA8E31002A4875 /* Cryozest_2App.swift */,
+				C576E6BD2A4BF62C0042C8A7 /* AppState.swift */,
+				C57EE32E29CA8E31002A4875 /* ContentView.swift */,
+				C5BD39B42A4283FC00BCB3DF /* CalendarView.swift */,
+				C5BD39BB2A42B81F00BCB3DF /* SessionCompletedCell.swift */,
+				C538085429CFD5DC002E90FF /* TherapySession.swift */,
+				C538085629CFD7E1002E90FF /* PersistenceController.swift */,
+				C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */,
+				C5CD67662A255A7A008F455E /* AnalysisView.swift */,
+				C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */,
+				C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */,
+				C57EE35629CA8E57002A4875 /* MainView.swift */,
+				C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */,
+				C576E6C12A510B880042C8A7 /* RecoveryAnalysisView.swift */,
+				C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */,
+				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
+				C538085C29D9ED07002E90FF /* CustomDurationPickerView.swift */,
+				C57EE35829CA8E73002A4875 /* LogbookView.swift */,
+				C57EE35C29CB942B002A4875 /* AppTabView.swift */,
+				C5B6FD7E2A53586F00933029 /* DateUtils.swift */,
+				0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */,
+				C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */,
+				670FCD163C274E75A2BE7E1E /* DeviceSafetyWarningView.swift */,
+				C576E6BB2A4BF21A0042C8A7 /* WelcomeView.swift */,
+				C57EE35A29CA8FBF002A4875 /* SessionRow.swift */,
+				C549EABA2B2B912C00F583C7 /* ManuallyAddSession.swift */,
+				C57EE33029CA8E34002A4875 /* Assets.xcassets */,
+				C57EE33229CA8E34002A4875 /* Preview Content */,
+				C549EAC62B2FCEC200F583C7 /* DailyView.swift */,
+				C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */,
+				C598129F2B41007100C13C15 /* TherapyTypeClass.swift */,
+				C57F62812B422E93004515EA /* ExertionView.swift */,
+				C53817EC2B48A88600F42568 /* DailySleepView.swift */,
+				C568F1322B50B94600EDEAF1 /* SleepComparisonBarGraph.swift */,
+				C525A09C2B51A4CF00A0B34A /* CustomTimePicker.swift */,
+				C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */,
+				C5DC773B2B5CA8CD005CEC3C /* WakingAnalysisView.swift */,
+				C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */,
+				C501E18B2B7E938800FCC9F9 /* SecondOnboardingPage.swift */,
+				C526A22B2B8122B40001F88C /* RecoveryGraphModel.swift */,
+				C526A22D2B8123810001F88C /* RecoveryCardView.swift */,
+				C526A22F2B8124CE0001F88C /* ExertionModel.swift */,
+				C58619452E97206B0002428A /* SplashScreenView.swift */,
+				C50659F52E97484200031B6B /* MetricConfiguration.swift */,
+				C50659F72E97485900031B6B /* MetricConfigurationView.swift */,
+				C50659F92E974AD500031B6B /* HorizontalHabitSelector.swift */,
+				C56DDCB02E97E5150052946A /* ShimmerEffect.swift */,
+				C56DDCB22E97E7AD0052946A /* WeeklyHeatmapView.swift */,
+				C56DDCB42E97E7C40052946A /* TrendIndicator.swift */,
+				C56DDCB62E97E7D30052946A /* PersonalBestsView.swift */,
+				C56DDCB82E97E7E30052946A /* SessionFrequencyChart.swift */,
+				C56DDCBA2E97E7FA0052946A /* AverageDurationTrendGraph.swift */,
+				C56DDCBC2E97E8090052946A /* TimeOfDayAnalysisView.swift */,
+				C56DDCBE2E97E81B0052946A /* ConsistencyScoreCard.swift */,
+				C56DDCC02E97E8280052946A /* ProjectionWidget.swift */,
+				C56DDCC22E97EC560052946A /* GoalSettings.swift */,
+				C56DDCC42E97EEC10052946A /* GoalConfigurationView.swift */,
+				C56DDCC62E9809100052946A /* ExpandedMetricView.swift */,
+				C56DDCD72E980A020052946A /* MetricChartView.swift */,
+				C56DDCE62E9854770052946A /* InsightsView.swift */,
+				C56DDCE82E9854860052946A /* InsightsViewModel.swift */,
+				C56DDCEA2E9854930052946A /* InsightCardComponents.swift */,
+				C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */,
+				C56DDCEE2E9870FE0052946A /* WellnessRating.swift */,
+				C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */,
+				C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */,
+				D6EB4C8598ABA6A5599EA26E /* WeeklyGoalProgressView.swift */,
+				61DF414DB3F8625CEBECC5E5 /* MedicationHelpers.swift */,
+				49B046738978308F7AEF51A8 /* MedicationsCard.swift */,
+				B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */,
+				236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */,
+			);
+			path = "Cryozest-2";
+			sourceTree = "<group>";
+		};
+		C57EE33229CA8E34002A4875 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C57EE33329CA8E34002A4875 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C57EE33C29CA8E34002A4875 /* Cryozest-2Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C57EE33D29CA8E34002A4875 /* Cryozest_2Tests.swift */,
+			);
+			path = "Cryozest-2Tests";
+			sourceTree = "<group>";
+		};
+		C57EE34629CA8E34002A4875 /* Cryozest-2UITests */ = {
+			isa = PBXGroup;
+			children = (
+				C57EE34729CA8E34002A4875 /* Cryozest_2UITests.swift */,
+				C57EE34929CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift */,
+			);
+			path = "Cryozest-2UITests";
+			sourceTree = "<group>";
+		};
+		C597B8582EC11C5A0010E62F /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				0C7CC532FE764495928A086C /* Cryozest-2/WidgetOrderManager.swift */,
+				0D38FBD4E1A94AF8B8ABE99C /* HabitStats.swift */,
+				75AC05F81B80498FA6B703D2 /* HabitStatsCards.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C57EE32829CA8E31002A4875 /* Cryozest-2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C57EE34D29CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2" */;
+			buildPhases = (
+				C57EE32529CA8E31002A4875 /* Sources */,
+				C57EE32629CA8E31002A4875 /* Frameworks */,
+				C57EE32729CA8E31002A4875 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Cryozest-2";
+			packageProductDependencies = (
+				C5BD39B22A42833400BCB3DF /* JTAppleCalendar */,
+				C5BD39B92A428ACC00BCB3DF /* FSCalendar */,
+			);
+			productName = "Cryozest-2";
+			productReference = C57EE32929CA8E31002A4875 /* Cryozest-2.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C57EE33829CA8E34002A4875 /* Cryozest-2Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C57EE35029CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2Tests" */;
+			buildPhases = (
+				C57EE33529CA8E34002A4875 /* Sources */,
+				C57EE33629CA8E34002A4875 /* Frameworks */,
+				C57EE33729CA8E34002A4875 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C57EE33B29CA8E34002A4875 /* PBXTargetDependency */,
+			);
+			name = "Cryozest-2Tests";
+			productName = "Cryozest-2Tests";
+			productReference = C57EE33929CA8E34002A4875 /* Cryozest-2Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C57EE34229CA8E34002A4875 /* Cryozest-2UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C57EE35329CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2UITests" */;
+			buildPhases = (
+				C57EE33F29CA8E34002A4875 /* Sources */,
+				C57EE34029CA8E34002A4875 /* Frameworks */,
+				C57EE34129CA8E34002A4875 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C57EE34529CA8E34002A4875 /* PBXTargetDependency */,
+			);
+			name = "Cryozest-2UITests";
+			productName = "Cryozest-2UITests";
+			productReference = C57EE34329CA8E34002A4875 /* Cryozest-2UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C57EE32129CA8E31002A4875 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					C57EE32829CA8E31002A4875 = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					C57EE33829CA8E34002A4875 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = C57EE32829CA8E31002A4875;
+					};
+					C57EE34229CA8E34002A4875 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = C57EE32829CA8E31002A4875;
+					};
+				};
+			};
+			buildConfigurationList = C57EE32429CA8E31002A4875 /* Build configuration list for PBXProject "Cryozest-2" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C57EE32029CA8E31002A4875;
+			packageReferences = (
+				C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */,
+				C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */,
+			);
+			productRefGroup = C57EE32A29CA8E31002A4875 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C57EE32829CA8E31002A4875 /* Cryozest-2 */,
+				C57EE33829CA8E34002A4875 /* Cryozest-2Tests */,
+				C57EE34229CA8E34002A4875 /* Cryozest-2UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C57EE32729CA8E31002A4875 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C57EE33429CA8E34002A4875 /* Preview Assets.xcassets in Resources */,
+				C57EE33129CA8E34002A4875 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE33729CA8E34002A4875 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE34129CA8E34002A4875 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C57EE32529CA8E31002A4875 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A2BB985F5764FE1B53A23B8 /* OnboardingCoordinator.swift in Sources */,
+				14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */,
+				D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */,
+				EE9FD6E5E9384F48B0A27C8E /* OnboardingHabitSelectionView.swift in Sources */,
+				BA45F14F5DF54020A78FAB4D /* OnboardingCompletionView.swift in Sources */,
+				C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */,
+				C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */,
+				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
+				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
+				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
+				C56DDCBD2E97E8090052946A /* TimeOfDayAnalysisView.swift in Sources */,
+				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
+				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,
+				C59812A02B41007100C13C15 /* TherapyTypeClass.swift in Sources */,
+				C56DDCE32E9811DD0052946A /* AnalysisEmptyStateView.swift in Sources */,
+				C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */,
+				C56DDCB52E97E7C40052946A /* TrendIndicator.swift in Sources */,
+				C56DDCF32E98712B0052946A /* WellnessImpactAnalysis.swift in Sources */,
+				C58619462E97206B0002428A /* SplashScreenView.swift in Sources */,
+				C57EE36029CCDDF5002A4875 /* CryozestModel.xcdatamodeld in Sources */,
+				C538085729CFD7E1002E90FF /* PersistenceController.swift in Sources */,
+				C56DDCB72E97E7D30052946A /* PersonalBestsView.swift in Sources */,
+				C56DDCCA2E9809AE0052946A /* HRVDetailView.swift in Sources */,
+				C50659FA2E974AD500031B6B /* HorizontalHabitSelector.swift in Sources */,
+				C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */,
+				C5BD39B52A4283FC00BCB3DF /* CalendarView.swift in Sources */,
+				C56DDCC72E9809100052946A /* ExpandedMetricView.swift in Sources */,
+				C56DDCB92E97E7E30052946A /* SessionFrequencyChart.swift in Sources */,
+				C56DDCCC2E9809BB0052946A /* RHRDetailView.swift in Sources */,
+				C56DDCED2E9870ED0052946A /* WellnessCheckInCard.swift in Sources */,
+				C576E6C02A51052F0042C8A7 /* CreateTimerView.swift in Sources */,
+				C526A22E2B8123810001F88C /* RecoveryCardView.swift in Sources */,
+				C526A2302B8124CE0001F88C /* ExertionModel.swift in Sources */,
+				C56DDCCE2E9809C90052946A /* SpO2DetailView.swift in Sources */,
+				C56DDCDB2E9811A50052946A /* OnboardingManager.swift in Sources */,
+				C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */,
+				387A4529D67A4EB3B1C7D95D /* DeviceSafetyWarningView.swift in Sources */,
+				C56DDCD22E9809E00052946A /* CaloriesDetailView.swift in Sources */,
+				C5BD39BC2A42B81F00BCB3DF /* SessionCompletedCell.swift in Sources */,
+				C50659F82E97485900031B6B /* MetricConfigurationView.swift in Sources */,
+				C576E6BC2A4BF21A0042C8A7 /* WelcomeView.swift in Sources */,
+				C56DDCE72E9854780052946A /* InsightsView.swift in Sources */,
+				C57EE35B29CA8FBF002A4875 /* SessionRow.swift in Sources */,
+				C526A22C2B8122B40001F88C /* RecoveryGraphModel.swift in Sources */,
+				C568F1332B50B94600EDEAF1 /* SleepComparisonBarGraph.swift in Sources */,
+				C56DDCB12E97E5150052946A /* ShimmerEffect.swift in Sources */,
+				C52223A829E4C18D00081923 /* HealthKitManager.swift in Sources */,
+				C56DDCBF2E97E81B0052946A /* ConsistencyScoreCard.swift in Sources */,
+				C56DDCC52E97EEC10052946A /* GoalConfigurationView.swift in Sources */,
+				C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */,
+				C56DDCDD2E9811B10052946A /* ContextualTooltip.swift in Sources */,
+				C56DDCC32E97EC560052946A /* GoalSettings.swift in Sources */,
+				C57EE32F29CA8E31002A4875 /* ContentView.swift in Sources */,
+				C501E18C2B7E938800FCC9F9 /* SecondOnboardingPage.swift in Sources */,
+				C5CD67672A255A7A008F455E /* AnalysisView.swift in Sources */,
+				C56DDCD02E9809D30052946A /* RespiratoryRateDetailView.swift in Sources */,
+				C56DDCEF2E9870FE0052946A /* WellnessRating.swift in Sources */,
+				C56DDCBB2E97E7FA0052946A /* AverageDurationTrendGraph.swift in Sources */,
+				C56DDCD42E9809EB0052946A /* StepsDetailView.swift in Sources */,
+				C549EAC72B2FCEC200F583C7 /* DailyView.swift in Sources */,
+				C56DDCE92E9854860052946A /* InsightsViewModel.swift in Sources */,
+				C59E385C2A48A58000FBD9D0 /* LoadingView.swift in Sources */,
+				C5DC773C2B5CA8CD005CEC3C /* WakingAnalysisView.swift in Sources */,
+				C57F62822B422E93004515EA /* ExertionView.swift in Sources */,
+				C538085D29D9ED07002E90FF /* CustomDurationPickerView.swift in Sources */,
+				C576E6C22A510B880042C8A7 /* RecoveryAnalysisView.swift in Sources */,
+				C53817ED2B48A88600F42568 /* DailySleepView.swift in Sources */,
+				C525A09D2B51A4CF00A0B34A /* CustomTimePicker.swift in Sources */,
+				C50659F62E97484200031B6B /* MetricConfiguration.swift in Sources */,
+				C57EE35929CA8E73002A4875 /* LogbookView.swift in Sources */,
+				C5BD39C02A4561D300BCB3DF /* DurationAnalysisView.swift in Sources */,
+				C56DDCC12E97E8280052946A /* ProjectionWidget.swift in Sources */,
+				0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */,
+				C56DDCD82E980A020052946A /* MetricChartView.swift in Sources */,
+				C5B6FD682A523F7300933029 /* TherapyTypeGrid.swift in Sources */,
+				C56DDCEB2E9854930052946A /* InsightCardComponents.swift in Sources */,
+				C56DDCD62E9809F70052946A /* VO2MaxDetailView.swift in Sources */,
+				C597B7002E9C6FC40010E62F /* SafetyWarningView.swift in Sources */,
+				C57EE35D29CB942B002A4875 /* AppTabView.swift in Sources */,
+				C56DDCE12E9811D20052946A /* HabitsEmptyStateView.swift in Sources */,
+				C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */,
+				C56DDCB32E97E7AD0052946A /* WeeklyHeatmapView.swift in Sources */,
+				C57EE32D29CA8E31002A4875 /* Cryozest_2App.swift in Sources */,
+				9D474FC6BA704C80AEAE62EE /* StepGoalManager.swift in Sources */,
+				57E847498D42C8F209EBC37A /* StepGoalConfigView.swift in Sources */,
+				3ECF4464BB63682D1E0C0CE6 /* LargeStepsWidget.swift in Sources */,
+				E8DF4D8580D98C5DDC877F6C /* CompletedHabitsCard.swift in Sources */,
+				38134005B430A99ECC2A61F0 /* LargeHeartRateWidget.swift in Sources */,
+				5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */,
+				75BC4B95BE7BF9956DD70B69 /* WeeklyGoalProgressView.swift in Sources */,
+				F01647309F1C9770FB56B47B /* MedicationHelpers.swift in Sources */,
+				D5674464A51881ED01701A91 /* MedicationsCard.swift in Sources */,
+				04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */,
+				602041F38FBCF3EC7338E990 /* MedicationAdherenceSection.swift in Sources */,
+				1C0E19A0909E492CAE2D59E6 /* Cryozest-2/WidgetOrderManager.swift in Sources */,
+				294DAC653674450887468C71 /* HabitStats.swift in Sources */,
+				BC9F067A4E7F466A869A1651 /* HabitStatsCards.swift in Sources */,
+							B1D4FC931BE442769DFED0B6 /* WidgetConfigurationView.swift in Sources */,
+);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE33529CA8E34002A4875 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C57EE33E29CA8E34002A4875 /* Cryozest_2Tests.swift in Sources */,
+				75DC40A882E7A7B6F7D029BF /* StepGoalManager.swift in Sources */,
+				FA5844D08CCB329A3FA84A67 /* StepGoalConfigView.swift in Sources */,
+				D77245F9A115B2F0807D0A6F /* LargeStepsWidget.swift in Sources */,
+				A7634C1295C48EBA7118D768 /* CompletedHabitsCard.swift in Sources */,
+				09964D91A34930B61BC70F60 /* LargeHeartRateWidget.swift in Sources */,
+				212E4E42A5A1AEDF015BCE34 /* HeartRateDetailView.swift in Sources */,
+				674E488A9DF11EE6574AFB19 /* WeeklyGoalProgressView.swift in Sources */,
+				EFC34236873F1C0567412084 /* MedicationHelpers.swift in Sources */,
+				F12944B385E6042D77EA4B60 /* MedicationsCard.swift in Sources */,
+				607241B990C05FF4CF20D00F /* AddMedicationSheet.swift in Sources */,
+				71F64BF2B663EC74B9DC980B /* MedicationAdherenceSection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C57EE33F29CA8E34002A4875 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C57EE34A29CA8E34002A4875 /* Cryozest_2UITestsLaunchTests.swift in Sources */,
+				C57EE34829CA8E34002A4875 /* Cryozest_2UITests.swift in Sources */,
+				8406496DBE660B7215956A6C /* StepGoalManager.swift in Sources */,
+				479547CEAA16327A9B39C26D /* StepGoalConfigView.swift in Sources */,
+				33CE4E24AAC70E0D6B0D4158 /* LargeStepsWidget.swift in Sources */,
+				465E4C16B7D3810BED3BB79B /* CompletedHabitsCard.swift in Sources */,
+				DD9F428987C217EBB888B82D /* LargeHeartRateWidget.swift in Sources */,
+				CEBE4DBE8895C3DDC2670582 /* HeartRateDetailView.swift in Sources */,
+				ACB445EB9E33DE198FDA2263 /* WeeklyGoalProgressView.swift in Sources */,
+				680245BF83D4801F6787FDFA /* MedicationHelpers.swift in Sources */,
+				F3FB4611913770A5F561F7CA /* MedicationsCard.swift in Sources */,
+				F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */,
+				BBC8413E9ABE199BD8E04DD3 /* MedicationAdherenceSection.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C57EE33B29CA8E34002A4875 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C57EE32829CA8E31002A4875 /* Cryozest-2 */;
+			targetProxy = C57EE33A29CA8E34002A4875 /* PBXContainerItemProxy */;
+		};
+		C57EE34529CA8E34002A4875 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C57EE32829CA8E31002A4875 /* Cryozest-2 */;
+			targetProxy = C57EE34429CA8E34002A4875 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C57EE34B29CA8E34002A4875 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C57EE34C29CA8E34002A4875 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C57EE34E29CA8E34002A4875 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Cryozest-2/Cryozest-2.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Cryozest-2/Preview Content\"";
+				DEVELOPMENT_TEAM = VN8U34C2B8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Cryozest-2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CryoZest;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "To determine water intake suggestions";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "To determine water intake suggestions";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.0.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.RobOwen.CryoZest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C57EE34F29CA8E34002A4875 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Cryozest-2/Cryozest-2.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Cryozest-2/Preview Content\"";
+				DEVELOPMENT_TEAM = VN8U34C2B8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Cryozest-2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CryoZest;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "To determine water intake suggestions";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "To determine water intake suggestions";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 3.0.5;
+				PRODUCT_BUNDLE_IDENTIFIER = com.RobOwen.CryoZest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C57EE35129CA8E34002A4875 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Q688K7752;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pretty-decent-apps.Cryozest-2Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cryozest-2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cryozest-2";
+			};
+			name = Debug;
+		};
+		C57EE35229CA8E34002A4875 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Q688K7752;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pretty-decent-apps.Cryozest-2Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cryozest-2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cryozest-2";
+			};
+			name = Release;
+		};
+		C57EE35429CA8E34002A4875 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Q688K7752;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pretty-decent-apps.Cryozest-2UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Cryozest-2";
+			};
+			name = Debug;
+		};
+		C57EE35529CA8E34002A4875 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8Q688K7752;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "pretty-decent-apps.Cryozest-2UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Cryozest-2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C57EE32429CA8E31002A4875 /* Build configuration list for PBXProject "Cryozest-2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C57EE34B29CA8E34002A4875 /* Debug */,
+				C57EE34C29CA8E34002A4875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C57EE34D29CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C57EE34E29CA8E34002A4875 /* Debug */,
+				C57EE34F29CA8E34002A4875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C57EE35029CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C57EE35129CA8E34002A4875 /* Debug */,
+				C57EE35229CA8E34002A4875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C57EE35329CA8E34002A4875 /* Build configuration list for PBXNativeTarget "Cryozest-2UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C57EE35429CA8E34002A4875 /* Debug */,
+				C57EE35529CA8E34002A4875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/patchthecode/JTAppleCalendar.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/WenchaoD/FSCalendar";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C5BD39B22A42833400BCB3DF /* JTAppleCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */;
+			productName = JTAppleCalendar;
+		};
+		C5BD39B92A428ACC00BCB3DF /* FSCalendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */;
+			productName = FSCalendar;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */,
+			);
+			currentVersion = C57EE35F29CCDDF5002A4875 /* SessionModel.xcdatamodel */;
+			path = CryozestModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = C57EE32129CA8E31002A4875 /* Project object */;
+}

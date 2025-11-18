@@ -32,6 +32,7 @@ class RecoveryGraphModel: ObservableObject {
             self.calculateRestingHeartRatePercentage()
         }
     }
+    @Published var mostRecentRestingHeartRateTime: Date?
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
             self.calculateRestingHeartRatePercentage()
@@ -134,6 +135,24 @@ class RecoveryGraphModel: ObservableObject {
         return String(format: "%.1f", hours)
     }
     
+    func refreshHeartRateData(forDate date: Date) {
+        // Quick refresh of just heart rate data (for polling)
+        HealthKitManager.shared.fetchMostRecentRestingHeartRate(for: date) { restingHeartRate, timestamp in
+            DispatchQueue.main.async {
+                if let restingHeartRate = restingHeartRate {
+                    self.mostRecentRestingHeartRate = restingHeartRate
+                    self.mostRecentRestingHeartRateTime = timestamp
+                } else {
+                    self.mostRecentRestingHeartRate = nil
+                    self.mostRecentRestingHeartRateTime = nil
+                }
+
+                // Notify widgets to refresh their graph data
+                NotificationCenter.default.post(name: NSNotification.Name("HeartRateDataRefreshed"), object: nil)
+            }
+        }
+    }
+
     func pullAllRecoveryData(forDate date: Date) {
         print("pull all recovery data for: ", date)
 
@@ -199,12 +218,14 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
-        HealthKitManager.shared.fetchAverageRestingHeartRate(for: date) { restingHeartRate in
+        HealthKitManager.shared.fetchMostRecentRestingHeartRate(for: date) { restingHeartRate, timestamp in
             DispatchQueue.main.async {
                 if let restingHeartRate = restingHeartRate {
                     self.mostRecentRestingHeartRate = restingHeartRate
+                    self.mostRecentRestingHeartRateTime = timestamp
                 } else {
                     self.mostRecentRestingHeartRate = nil
+                    self.mostRecentRestingHeartRateTime = nil
                 }
             }
         }
