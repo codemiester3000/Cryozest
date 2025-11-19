@@ -20,6 +20,8 @@ struct LargeStepsWidget: View {
     @State private var stepsDelta: Int = 0
     @State private var showDeltaAnimation = false
     @State private var animatedProgress: Double = 0
+    @State private var walkingOffset: CGFloat = 0
+    @State private var walkingRotation: Double = 0
 
     private var currentSteps: Int {
         Int(model.mostRecentSteps ?? 0)
@@ -100,6 +102,8 @@ struct LargeStepsWidget: View {
                     Image(systemName: goalProgress >= 1.0 ? "figure.walk.circle.fill" : "figure.walk")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(goalProgress >= 1.0 ? .green : .green)
+                        .offset(y: walkingOffset)
+                        .rotationEffect(.degrees(walkingRotation))
                 }
 
                 // Main metric display
@@ -399,6 +403,22 @@ struct LargeStepsWidget: View {
             animatedProgress = goalProgress
             withAnimation(.easeInOut(duration: 2)) {
                 animate = false
+            }
+
+            // Walking animation - simulate walking in place
+            withAnimation(
+                Animation.easeInOut(duration: 0.4)
+                    .repeatForever(autoreverses: true)
+            ) {
+                walkingOffset = -1.5  // Subtle up/down movement
+            }
+
+            // Slight forward/backward lean
+            withAnimation(
+                Animation.easeInOut(duration: 0.4)
+                    .repeatForever(autoreverses: true)
+            ) {
+                walkingRotation = 3  // Subtle tilt
             }
 
             // Haptic feedback if goal is already met
