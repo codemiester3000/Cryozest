@@ -84,7 +84,7 @@ class DailySleepViewModel: ObservableObject {
     
     private func fetchWakeUpTimePreviousDay(completion: @escaping (Date?) -> Void) {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let today = calendar.startOfDay(for: selectedDate)
         let startOfPreviousDay = calendar.startOfDay(for: today.addingTimeInterval(-24*60*60))
         
         let earliestWakeUpTime = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: startOfPreviousDay)!
@@ -116,7 +116,7 @@ class DailySleepViewModel: ObservableObject {
     
     private func fetchSleepStartTimeCurrentDay(completion: @escaping (Date?) -> Void) {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let today = calendar.startOfDay(for: selectedDate)
         let startOfSleepSearch = calendar.date(bySettingHour: 20, minute: 0, second: 0, of: today.addingTimeInterval(-24*60*60))! // 8 PM on Jan 8th
         let endOfSleepSearch = calendar.date(bySettingHour: 3, minute: 0, second: 0, of: today)! // 3 AM on Jan 9th
         
@@ -153,7 +153,7 @@ class DailySleepViewModel: ObservableObject {
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         
         let calendar = Calendar.current
-        let yesterday = calendar.startOfDay(for: Date()).addingTimeInterval(-24 * 60 * 60)
+        let yesterday = calendar.startOfDay(for: selectedDate).addingTimeInterval(-24 * 60 * 60)
         let startTime = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: yesterday)!
         let endTime = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: yesterday)!
         
@@ -198,10 +198,10 @@ class DailySleepViewModel: ObservableObject {
             return
         }
         
-        // Set the query period (start of today to now)
+        // Set the query period (start of selected day to end of day)
         let calendar = Calendar.current
-        let startDate = calendar.startOfDay(for: Date())
-        let endDate = Date()
+        let startDate = calendar.startOfDay(for: selectedDate)
+        let endDate = calendar.date(byAdding: .day, value: 1, to: startDate) ?? selectedDate
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
         
         // Create the query for sleep analysis

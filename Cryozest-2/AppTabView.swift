@@ -44,9 +44,9 @@ struct AppTabView: View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
                 DailyView(
-                    recoveryModel: RecoveryGraphModel(selectedDate: Date()),
-                    exertionModel: ExertionModel(selectedDate: Date()),
-                    sleepModel: DailySleepViewModel(selectedDate: Date()),
+                    recoveryModel: RecoveryGraphModel(selectedDate: Calendar.current.startOfDay(for: Date())),
+                    exertionModel: ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date())),
+                    sleepModel: DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date())),
                     context: viewContext)
                     .tag(0)
 

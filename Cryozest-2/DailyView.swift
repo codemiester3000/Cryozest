@@ -525,6 +525,12 @@ struct DailyView: View {
             }
         }
         .onChange(of: selectedDate) { newValue in
+            // CRITICAL: Update model selectedDate properties first
+            recoveryModel.selectedDate = selectedDate
+            exertionModel.selectedDate = selectedDate
+            sleepModel.selectedDate = selectedDate
+
+            // Then fetch data with the updated date
             recoveryModel.pullAllRecoveryData(forDate: selectedDate)
             exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
             sleepModel.fetchSleepData(forDate: selectedDate)
@@ -545,7 +551,11 @@ struct DailyView: View {
                 if calendar.isDate(selectedDate, inSameDayAs: yesterday) {
                     selectedDate = now
                 } else {
-                    // Otherwise just refresh data for current selectedDate
+                    // Otherwise update model dates and refresh data for current selectedDate
+                    recoveryModel.selectedDate = selectedDate
+                    exertionModel.selectedDate = selectedDate
+                    sleepModel.selectedDate = selectedDate
+
                     recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                     exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                     sleepModel.fetchSleepData(forDate: selectedDate)
