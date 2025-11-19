@@ -182,78 +182,76 @@ struct LogbookView: View {
                     // Scrollable content
                     ScrollView(showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 24) {
-                        CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.white.opacity(0.08))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                                    )
-                            )
-                            .cornerRadius(16)
-                            .frame(maxWidth: .infinity)
+                            CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(Color.white.opacity(0.08))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                        )
+                                )
+                                .cornerRadius(16)
+                                .frame(maxWidth: .infinity)
 
-                        // Stats Dashboard
-                        if !sessionDates.isEmpty {
-                            VStack(spacing: 12) {
-                                HStack {
-                                    Image(systemName: "chart.bar.fill")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                        // Stats Dashboard - always show
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "chart.bar.fill")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
 
-                                    Text("Statistics")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
+                                Text("Statistics")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
 
-                                    Spacer()
-                                }
+                                Spacer()
+                            }
 
-                                // Top Row - Current Streak & Longest Streak
-                                HStack(spacing: 12) {
-                                    // Current Streak
-                                    HabitsStatCard(
-                                        icon: "flame.fill",
-                                        title: "Current Streak",
-                                        value: "\(currentStreak)",
-                                        unit: currentStreak == 1 ? "day" : "days",
-                                        color: currentStreak > 0 ? .orange : .white.opacity(0.3),
-                                        accentColor: therapyTypeSelection.selectedTherapyType.color
-                                    )
+                            // Top Row - Current Streak & Longest Streak
+                            HStack(spacing: 12) {
+                                // Current Streak
+                                HabitsStatCard(
+                                    icon: "flame.fill",
+                                    title: "Current Streak",
+                                    value: "\(currentStreak)",
+                                    unit: currentStreak == 1 ? "day" : "days",
+                                    color: currentStreak > 0 ? .orange : .white.opacity(0.3),
+                                    accentColor: therapyTypeSelection.selectedTherapyType.color
+                                )
 
-                                    // Longest Streak
-                                    HabitsStatCard(
-                                        icon: "trophy.fill",
-                                        title: "Best Streak",
-                                        value: "\(longestStreak)",
-                                        unit: longestStreak == 1 ? "day" : "days",
-                                        color: .yellow,
-                                        accentColor: therapyTypeSelection.selectedTherapyType.color
-                                    )
-                                }
+                                // Longest Streak
+                                HabitsStatCard(
+                                    icon: "trophy.fill",
+                                    title: "Best Streak",
+                                    value: "\(longestStreak)",
+                                    unit: longestStreak == 1 ? "day" : "days",
+                                    color: .yellow,
+                                    accentColor: therapyTypeSelection.selectedTherapyType.color
+                                )
+                            }
 
-                                // Bottom Row - This Week & This Month
-                                HStack(spacing: 12) {
-                                    // This Week
-                                    HabitsStatCard(
-                                        icon: "calendar",
-                                        title: "This Week",
-                                        value: "\(thisWeekCount)",
-                                        unit: thisWeekCount == 1 ? "session" : "sessions",
-                                        color: .cyan,
-                                        accentColor: therapyTypeSelection.selectedTherapyType.color
-                                    )
+                            // Bottom Row - This Week & This Month
+                            HStack(spacing: 12) {
+                                // This Week
+                                HabitsStatCard(
+                                    icon: "calendar",
+                                    title: "This Week",
+                                    value: "\(thisWeekCount)",
+                                    unit: thisWeekCount == 1 ? "session" : "sessions",
+                                    color: .cyan,
+                                    accentColor: therapyTypeSelection.selectedTherapyType.color
+                                )
 
-                                    // This Month
-                                    HabitsStatCard(
-                                        icon: "calendar.badge.clock",
-                                        title: "This Month",
-                                        value: "\(thisMonthCount)",
-                                        unit: thisMonthCount == 1 ? "session" : "sessions",
-                                        color: .green,
-                                        accentColor: therapyTypeSelection.selectedTherapyType.color
-                                    )
-                                }
+                                // This Month
+                                HabitsStatCard(
+                                    icon: "calendar.badge.clock",
+                                    title: "This Month",
+                                    value: "\(thisMonthCount)",
+                                    unit: thisMonthCount == 1 ? "session" : "sessions",
+                                    color: .green,
+                                    accentColor: therapyTypeSelection.selectedTherapyType.color
+                                )
                             }
                         }
 
@@ -297,6 +295,7 @@ struct LogbookView: View {
                         }
                         }
                         .padding(.horizontal)
+                        .padding(.top, 8)
                         .padding(.bottom, 100)
                     }
                 }
