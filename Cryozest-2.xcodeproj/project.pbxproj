@@ -136,6 +136,7 @@
 		D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */; };
 		A8B9BDAB7B00485E8DF61CDB /* WeeklyMoodScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */; };
 			15F11316F27E493C949C7C7B /* InsightsConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E31614F37C486AB690E74E /* InsightsConfigSheet.swift */; };
+		AB1234CD5678EF901234CDEF /* HabitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8E7D6C5B4A32109876FEDC /* HabitsView.swift */; };
 		/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -266,6 +267,7 @@
 		91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyMoodScoresView.swift; sourceTree = "<group>"; };
 			10E31614F37C486AB690E74E /* InsightsConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsConfigSheet.swift; sourceTree = "<group>"; };
+		9F8E7D6C5B4A32109876FEDC /* HabitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsView.swift; sourceTree = "<group>"; };
 		/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -375,7 +377,7 @@
 				C5B6FD672A523F7300933029 /* TherapyTypeGrid.swift */,
 				C5BD39BF2A4561D300BCB3DF /* DurationAnalysisView.swift */,
 				C57EE35629CA8E57002A4875 /* MainView.swift */,
-				C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */,
+				9F8E7D6C5B4A32109876FEDC /* HabitsView.swift */,				C576E6BF2A51052F0042C8A7 /* CreateTimerView.swift */,
 				C576E6C12A510B880042C8A7 /* RecoveryAnalysisView.swift */,
 				C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */,
 				C52223A729E4C18D00081923 /* HealthKitManager.swift */,
@@ -622,7 +624,7 @@
 				C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */,
 				C538085529CFD5DC002E90FF /* TherapySession.swift in Sources */,
 				C57EE35729CA8E57002A4875 /* MainView.swift in Sources */,
-				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
+				AB1234CD5678EF901234CDEF /* HabitsView.swift in Sources */,				C549EABB2B2B912C00F583C7 /* ManuallyAddSession.swift in Sources */,
 				C56DDCBD2E97E8090052946A /* TimeOfDayAnalysisView.swift in Sources */,
 				C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */,
 				0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */,

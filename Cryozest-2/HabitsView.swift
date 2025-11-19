@@ -179,7 +179,7 @@ struct TherapyTypePills: View {
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     @Environment(\.managedObjectContext) private var viewContext
 
-    private let allTypes: [TherapyType] = [.coldPlunge, .sauna, .running, .walking, .cycling]
+    private let allTypes: [TherapyType] = [.running, .weightTraining, .cycling, .meditation, .walking]
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -618,40 +618,3 @@ struct RecentSessionsList: View {
     }
 }
 
-// MARK: - Scale Button Style
-
-struct ScaleButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
-    }
-}
-
-// MARK: - Calendar Extension (if not already present)
-
-extension Calendar {
-    func generateDates(
-        inside interval: DateInterval,
-        matching components: DateComponents
-    ) -> [Date] {
-        var dates: [Date] = []
-        dates.append(interval.start)
-
-        enumerateDates(
-            startingAfter: interval.start,
-            matching: components,
-            matchingPolicy: .nextTime
-        ) { date, _, stop in
-            if let date = date {
-                if date < interval.end {
-                    dates.append(date)
-                } else {
-                    stop = true
-                }
-            }
-        }
-
-        return dates
-    }
-}
