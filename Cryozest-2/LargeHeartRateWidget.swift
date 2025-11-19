@@ -15,6 +15,8 @@ struct LargeHeartRateWidget: View {
 
     @State private var todayRHRReadings: [(String, Int)] = []
     @State private var animate = true
+    @State private var heartPulse = false
+    @State private var monitoringPulse = false
 
     private var currentRHR: Int? {
         model.mostRecentRestingHeartRate
@@ -186,27 +188,30 @@ struct LargeHeartRateWidget: View {
             HStack(alignment: .center) {
                 // Animated heart icon with pulse
                 ZStack {
-                    // Pulse rings
+                    // Outer pulse rings for monitoring indication
                     Circle()
                         .stroke(Color.red.opacity(0.3), lineWidth: 2)
                         .frame(width: 40, height: 40)
-                        .scaleEffect(animate ? 1.0 : 1.2)
-                        .opacity(animate ? 0.8 : 0.0)
+                        .scaleEffect(animate ? 1.0 : 1.3)
+                        .opacity(animate ? 0.7 : 0.0)
 
                     Circle()
                         .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
                         .frame(width: 40, height: 40)
-                        .scaleEffect(animate ? 1.0 : 1.4)
-                        .opacity(animate ? 0.6 : 0.0)
+                        .scaleEffect(animate ? 1.0 : 1.5)
+                        .opacity(animate ? 0.5 : 0.0)
 
-                    // Icon background
+                    // Icon background with subtle glow
                     Circle()
-                        .fill(Color.red.opacity(0.15))
+                        .fill(Color.red.opacity(monitoringPulse ? 0.2 : 0.15))
                         .frame(width: 40, height: 40)
+                        .shadow(color: Color.red.opacity(monitoringPulse ? 0.4 : 0.2), radius: monitoringPulse ? 8 : 4)
 
+                    // Heart icon with subtle scale animation
                     Image(systemName: "heart.fill")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.red)
+                        .scaleEffect(heartPulse ? 1.1 : 1.0)
                 }
 
                 // Main metric display
@@ -234,6 +239,24 @@ struct LargeHeartRateWidget: View {
                             .background(
                                 Capsule()
                                     .fill(Color.red.opacity(0.15))
+                            )
+                        } else {
+                            // Monitoring indicator when not live
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.cyan)
+                                    .frame(width: 4, height: 4)
+                                    .opacity(monitoringPulse ? 0.3 : 0.8)
+
+                                Text("MONITORING")
+                                    .font(.system(size: 7, weight: .semibold))
+                                    .foregroundColor(.cyan.opacity(0.7))
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.cyan.opacity(0.1))
                             )
                         }
                     }
@@ -423,9 +446,31 @@ struct LargeHeartRateWidget: View {
         .onAppear {
             print("🫀 [WIDGET] LargeHeartRateWidget appeared with selectedDate: \(selectedDate)")
             print("🫀 [WIDGET] Current todayRHRReadings count: \(todayRHRReadings.count)")
-            withAnimation(.easeInOut(duration: 2)) {
+
+            // Continuous pulse animation for monitoring rings
+            withAnimation(
+                Animation.easeInOut(duration: 2.0)
+                    .repeatForever(autoreverses: true)
+            ) {
                 animate = false
             }
+
+            // Subtle heart beat pulse
+            withAnimation(
+                Animation.easeInOut(duration: 0.8)
+                    .repeatForever(autoreverses: true)
+            ) {
+                heartPulse = true
+            }
+
+            // Monitoring indicator pulse
+            withAnimation(
+                Animation.easeInOut(duration: 1.5)
+                    .repeatForever(autoreverses: true)
+            ) {
+                monitoringPulse = true
+            }
+
             fetchTodayRHRReadings()
 
             // Listen for heart rate data refresh notifications
