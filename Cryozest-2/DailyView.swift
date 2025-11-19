@@ -1764,42 +1764,114 @@ struct DailyHeaderSection: View {
 
     @State private var showingDatePicker = false
 
-    private var dateFormatter: DateFormatter {
+    private var compactDateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMM d"
+        formatter.dateFormat = "MMM d"
         return formatter
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(alignment: .top) {
+        VStack(spacing: 10) {
+            // Title and date selector on same line
+            HStack(alignment: .center, spacing: 12) {
                 Text("Daily Health")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
 
                 Spacer()
+
+                // Ultra-compact date selector pill
+                Button(action: {
+                    showingDatePicker = true
+                }) {
+                    HStack(spacing: 6) {
+                        // Today badge when applicable
+                        if isToday {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color.cyan)
+                                    .frame(width: 6, height: 6)
+
+                                Text("Today")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(.cyan)
+                            }
+                            .padding(.trailing, 2)
+                        } else {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+
+                        Text(compactDateFormatter.string(from: selectedDate))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: isToday ? [
+                                        Color.cyan.opacity(0.25),
+                                        Color.cyan.opacity(0.15)
+                                    ] : [
+                                        Color.white.opacity(0.12),
+                                        Color.white.opacity(0.08)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: isToday ? [
+                                                Color.cyan.opacity(0.4),
+                                                Color.cyan.opacity(0.2)
+                                            ] : [
+                                                Color.white.opacity(0.25),
+                                                Color.white.opacity(0.1)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                            .shadow(color: isToday ? Color.cyan.opacity(0.2) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
 
+            // Compact customize button
             HStack(spacing: 12) {
                 Button(action: {
                     showingMetricConfig = true
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
                         Image(systemName: "slider.horizontal.3")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 11, weight: .semibold))
                         Text("Customize")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundColor(.cyan)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.cyan.opacity(0.15))
+                        Capsule()
+                            .fill(Color.cyan.opacity(0.12))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
+                                Capsule()
+                                    .stroke(Color.cyan.opacity(0.25), lineWidth: 1)
                             )
                     )
                 }
@@ -1815,48 +1887,6 @@ struct DailyHeaderSection: View {
                 )
 
                 Spacer()
-
-                // Date indicator
-                Button(action: {
-                    showingDatePicker = true
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.5))
-
-                        Text(dateFormatter.string(from: selectedDate))
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-
-                        if isToday {
-                            Text("Today")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.cyan)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.cyan.opacity(0.15))
-                                )
-                        }
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(isToday ? .white.opacity(0.2) : .white.opacity(0.5))
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.white.opacity(0.08))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                            )
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
             }
             .sheet(isPresented: $showingDatePicker) {
                 DatePickerSheet(selectedDate: $selectedDate)
