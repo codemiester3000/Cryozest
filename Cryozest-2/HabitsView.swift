@@ -23,6 +23,9 @@ struct HabitsView: View {
     @State private var showCompletionAnimation = false
     @State private var animationScale: CGFloat = 0.5
     @State private var animationOpacity: Double = 0
+    @State private var showHabitSelection = false
+    @State private var showUndoButton = false
+    @State private var lastCompletedSession: TherapySessionEntity?
 
     private var sortedSessions: [TherapySessionEntity] {
         let therapyTypeSessions = sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
@@ -69,6 +72,17 @@ struct HabitsView: View {
                             .foregroundColor(.white)
 
                         Spacer()
+
+                        // Settings button
+                        Button(action: {
+                            showHabitSelection = true
+                        }) {
+                            Image(systemName: "gear")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Circle().fill(Color.white.opacity(0.1)))
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 60)
@@ -102,6 +116,31 @@ struct HabitsView: View {
                         )
                     )
 
+                    // Undo button (shown after completion)
+                    if showUndoButton {
+                        Button(action: undoCompletion) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.uturn.backward")
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text("Undo")
+                                    .font(.system(size: 15, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(
+                                Capsule()
+                                    .fill(Color.orange)
+                            )
+                            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                        }
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                        .padding(.horizontal, 20)
+                    }
+
                     // 3. Weekly Goal Progress
                     WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
                         .padding(.horizontal, 20)
@@ -124,6 +163,10 @@ struct HabitsView: View {
         .onChange(of: therapyTypeSelection.selectedTherapyType) { _ in
             updateSessionDates()
         }
+        .sheet(isPresented: $showHabitSelection) {
+            TherapyTypeSelectionView()
+                .environment(\.managedObjectContext, viewContext)
+        }
     }
 
     private func logTodaySession() {
@@ -135,10 +178,43 @@ struct HabitsView: View {
 
         do {
             try viewContext.save()
+            lastCompletedSession = newSession
             updateSessionDates()
             triggerCompletionAnimation()
+
+            // Show undo button
+            showUndoButton = true
+
+            // Auto-hide undo button after 5 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                withAnimation {
+                    showUndoButton = false
+                }
+            }
         } catch {
             print("Error saving session: \(error)")
+        }
+    }
+
+    private func undoCompletion() {
+        guard let session = lastCompletedSession else { return }
+
+        viewContext.delete(session)
+
+        do {
+            try viewContext.save()
+            lastCompletedSession = nil
+            updateSessionDates()
+
+            withAnimation {
+                showUndoButton = false
+            }
+
+            // Haptic feedback
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
+        } catch {
+            print("Error undoing session: \(error)")
         }
     }
 
@@ -231,6 +307,7 @@ struct ModernCalendarHeatmap: View {
     let therapyType: TherapyType
 
     @State private var currentMonth: Date = Date()
+    @State private var dragOffset: CGFloat = 0
 
     private var daysInMonth: [Date] {
         let calendar = Calendar.current
@@ -263,7 +340,7 @@ struct ModernCalendarHeatmap: View {
     }()
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // Month navigation
             HStack {
                 Button(action: previousMonth) {
@@ -292,12 +369,12 @@ struct ModernCalendarHeatmap: View {
             }
 
             // Calendar grid
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 // Day labels
-                HStack(spacing: 4) {
+                HStack(spacing: 3) {
                     ForEach(0..<min(7, daysInMonth.count), id: \.self) { col in
                         Text(String(dayFormatter.string(from: daysInMonth[col]).prefix(1)))
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(.white.opacity(0.5))
                             .frame(maxWidth: .infinity)
                     }
@@ -307,9 +384,9 @@ struct ModernCalendarHeatmap: View {
                 let columns = 7
                 let rows = Int(ceil(Double(daysInMonth.count) / Double(columns)))
 
-                VStack(spacing: 4) {
+                VStack(spacing: 3) {
                     ForEach(0..<rows, id: \.self) { row in
-                        HStack(spacing: 4) {
+                        HStack(spacing: 3) {
                             ForEach(0..<columns, id: \.self) { col in
                                 let index = row * columns + col
                                 if index < daysInMonth.count {
@@ -319,26 +396,26 @@ struct ModernCalendarHeatmap: View {
                                     let dayNumber = Calendar.current.component(.day, from: date)
 
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: 8)
+                                        RoundedRectangle(cornerRadius: 6)
                                             .fill(completed ?
                                                  therapyType.color.opacity(0.8) :
                                                  Color.white.opacity(0.08))
-                                            .frame(height: 44)
+                                            .frame(height: 36)
 
                                         Text("\(dayNumber)")
-                                            .font(.system(size: 13, weight: completed ? .bold : .medium))
+                                            .font(.system(size: 12, weight: completed ? .bold : .medium))
                                             .foregroundColor(completed ? .white : .white.opacity(0.4))
 
                                         if isToday {
-                                            RoundedRectangle(cornerRadius: 8)
+                                            RoundedRectangle(cornerRadius: 6)
                                                 .stroke(therapyType.color, lineWidth: 2)
-                                                .frame(height: 44)
+                                                .frame(height: 36)
                                         }
                                     }
                                 } else {
-                                    RoundedRectangle(cornerRadius: 8)
+                                    RoundedRectangle(cornerRadius: 6)
                                         .fill(Color.clear)
-                                        .frame(height: 44)
+                                        .frame(height: 36)
                                 }
                             }
                         }
@@ -346,7 +423,7 @@ struct ModernCalendarHeatmap: View {
                 }
             }
         }
-        .padding(20)
+        .padding(16)
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 20)
@@ -366,11 +443,32 @@ struct ModernCalendarHeatmap: View {
                     )
             }
         )
+        .gesture(
+            DragGesture(minimumDistance: 30)
+                .onChanged { value in
+                    dragOffset = value.translation.width
+                }
+                .onEnded { value in
+                    let threshold: CGFloat = 50
+                    if value.translation.width > threshold {
+                        // Swipe right - go to previous month
+                        previousMonth()
+                    } else if value.translation.width < -threshold {
+                        // Swipe left - go to next month
+                        nextMonth()
+                    }
+                    dragOffset = 0
+                }
+        )
     }
 
     private func previousMonth() {
         let calendar = Calendar.current
         if let newMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) {
+            // Haptic feedback
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
+
             withAnimation(.easeInOut(duration: 0.3)) {
                 currentMonth = newMonth
             }
@@ -380,6 +478,10 @@ struct ModernCalendarHeatmap: View {
     private func nextMonth() {
         let calendar = Calendar.current
         if let newMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) {
+            // Haptic feedback
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
+
             withAnimation(.easeInOut(duration: 0.3)) {
                 currentMonth = newMonth
             }

@@ -12,7 +12,7 @@ struct DailyView: View {
 
     var appleWorkoutsService: AppleWorkoutsService
 
-    @State private var selectedDate: Date = Date()
+    @State private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
     @State private var dragOffset: CGFloat = 0
 
     @State private var showingRecoveryPopover = false
@@ -103,7 +103,7 @@ struct DailyView: View {
         let calendar = Calendar.current
         if let previousDay = calendar.date(byAdding: .day, value: -1, to: selectedDate) {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                selectedDate = previousDay
+                selectedDate = calendar.startOfDay(for: previousDay)
             }
             triggerHapticFeedback()
         }
@@ -122,12 +122,9 @@ struct DailyView: View {
                 let nextDayStart = calendar.startOfDay(for: nextDay)
 
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    // If navigating to today, use current time instead of start of day
-                    if calendar.isDate(nextDayStart, inSameDayAs: now) {
-                        selectedDate = now
-                    } else {
-                        selectedDate = nextDay
-                    }
+                    // If navigating to today, use startOfDay for consistency
+                    // (The heart rate widget and other widgets will fetch up to current time anyway)
+                    selectedDate = nextDayStart
                 }
                 triggerHapticFeedback()
             }
@@ -549,7 +546,7 @@ struct DailyView: View {
 
                 // If selectedDate is yesterday, automatically move to today
                 if calendar.isDate(selectedDate, inSameDayAs: yesterday) {
-                    selectedDate = now
+                    selectedDate = calendar.startOfDay(for: now)
                 } else {
                     // Otherwise update model dates and refresh data for current selectedDate
                     recoveryModel.selectedDate = selectedDate
