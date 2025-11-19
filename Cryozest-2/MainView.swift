@@ -467,6 +467,7 @@ struct MainView: View {
                                     )
                                     .frame(height: 240)
                                     .frame(maxWidth: .infinity)
+                                    .padding(.top, 8)
 
                                 if sortedSessions.isEmpty {
                                     VStack(spacing: 16) {
