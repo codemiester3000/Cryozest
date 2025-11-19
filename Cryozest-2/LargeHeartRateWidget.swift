@@ -444,26 +444,44 @@ struct LargeHeartRateWidget: View {
             }
         }
         .onChange(of: selectedDate) { newDate in
-            print("🫀 [WIDGET] Selected date changed to: \(newDate)")
+            let calendar = Calendar.current
+            let startOfNewDate = calendar.startOfDay(for: newDate)
+            print("🫀 [WIDGET] Selected date changed to: \(newDate) (startOfDay: \(startOfNewDate))")
             fetchTodayRHRReadings()
         }
         .onDisappear {
             // Clean up notification observer
             NotificationCenter.default.removeObserver(self, name: NSNotification.Name("HeartRateDataRefreshed"), object: nil)
         }
+        .id(Calendar.current.startOfDay(for: selectedDate))
     }
 
     private func fetchTodayRHRReadings() {
+        // Clear existing readings immediately to prevent showing stale data
+        DispatchQueue.main.async {
+            self.todayRHRReadings = []
+        }
+
         let calendar = Calendar.current
 
-        // Fetch entire day for selected date
+        // CRITICAL: Ensure we're using start of day for the selected date
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
 
-        print("🫀 [DEBUG] Fetching heart rate data from \(startOfDay) to \(endOfDay) for selected date: \(selectedDate)")
+        // For today, limit endOfDay to current time
+        let effectiveEndOfDay: Date
+        if calendar.isDateInToday(selectedDate) {
+            effectiveEndOfDay = min(endOfDay, Date())
+        } else {
+            effectiveEndOfDay = endOfDay
+        }
+
+        print("🫀 [DEBUG] Fetching heart rate data for selected date: \(selectedDate)")
+        print("🫀 [DEBUG] Start of day: \(startOfDay)")
+        print("🫀 [DEBUG] End of day: \(effectiveEndOfDay)")
         print("🫀 [DEBUG] Is today: \(calendar.isDateInToday(selectedDate))")
 
-        HealthKitManager.shared.fetchHeartRateData(from: startOfDay, to: endOfDay) { samples, error in
+        HealthKitManager.shared.fetchHeartRateData(from: startOfDay, to: effectiveEndOfDay) { samples, error in
             if let error = error {
                 print("🫀 [ERROR] Error fetching heart rate data: \(error)")
                 DispatchQueue.main.async {
