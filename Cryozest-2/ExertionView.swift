@@ -62,7 +62,7 @@ struct ExertionWidget: View {
         if exertionScore == 0 {
             return "No activity yet"
         } else if progress >= 1.0 {
-            return "Target exceeded"
+            return "High load"
         } else if progress >= 0.8 {
             return "Near target"
         } else if progress >= 0.5 {
@@ -72,85 +72,118 @@ struct ExertionWidget: View {
         }
     }
 
+    private var recoveryScore: Int {
+        Int(recoveryModel.recoveryScores.last ?? 0)
+    }
+
+    private var actionableMessage: String {
+        if exertionScore == 0 {
+            return "Start moving to build your training load"
+        } else if progress >= 1.2 {
+            return "High intensity - prioritize recovery tomorrow"
+        } else if progress >= 1.0 {
+            return "Target met - avoid overtraining"
+        } else if progress >= 0.8 {
+            return "Almost there - stay consistent"
+        } else if progress >= 0.5 {
+            return "Good pace - room for more intensity"
+        } else {
+            return "Light day - consider adding activity"
+        }
+    }
+
+    private func formatTime(timeInMinutes: Double) -> String {
+        let totalSeconds = Int(timeInMinutes * 60)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Header with icon and main metric
-            HStack(alignment: .center, spacing: 12) {
-                // Animated flame icon
-                ZStack {
-                    // Pulse effect
-                    if progress >= 0.8 {
+            // Header with title and recovery context
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .center, spacing: 12) {
+                    // Animated flame icon
+                    ZStack {
+                        // Pulse effect
+                        if progress >= 0.8 {
+                            Circle()
+                                .stroke(progressColor.opacity(0.3), lineWidth: 2)
+                                .frame(width: 40, height: 40)
+                                .scaleEffect(animate ? 1.0 : 1.2)
+                                .opacity(animate ? 0.8 : 0.0)
+                        }
+
                         Circle()
-                            .stroke(progressColor.opacity(0.3), lineWidth: 2)
+                            .fill(progressColor.opacity(0.2))
                             .frame(width: 40, height: 40)
-                            .scaleEffect(animate ? 1.0 : 1.2)
-                            .opacity(animate ? 0.8 : 0.0)
+
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(progressColor)
                     }
 
-                    Circle()
-                        .fill(progressColor.opacity(0.2))
-                        .frame(width: 40, height: 40)
+                    // Main metric display
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Training Load")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
 
-                    Image(systemName: "flame.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(progressColor)
-                }
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(String(format: "%.1f", exertionScore))
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
 
-                // Main metric display
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Text("Exertion")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
+                            Text("of \(String(format: "%.1f", targetExertionUpperBound))")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
 
-                        // Status badge
+                    Spacer()
+
+                    // Status badge
+                    VStack(alignment: .trailing, spacing: 4) {
                         Text(statusText)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(progressColor)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
                             .background(
                                 Capsule()
                                     .fill(progressColor.opacity(0.15))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(progressColor.opacity(0.3), lineWidth: 1)
+                                    )
                             )
-                    }
 
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(String(format: "%.1f", exertionScore))
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.white)
-
-                        Text("/ \(String(format: "%.1f", targetExertionUpperBound))")
-                            .font(.system(size: 16, weight: .medium))
+                        Text("\(Int(progress * 100))% of target")
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.5))
                     }
                 }
 
-                Spacer()
-
-                // Target zone badge
-                VStack(alignment: .trailing, spacing: 4) {
-                    HStack(spacing: 3) {
-                        Image(systemName: "target")
+                // Recovery-based recommendation
+                if recoveryScore > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "heart.fill")
                             .font(.system(size: 10, weight: .semibold))
-                        Text("\(Int(progress * 100))%")
-                            .font(.system(size: 12, weight: .bold))
-                    }
-                    .foregroundColor(progressColor)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(progressColor.opacity(0.15))
-                            .overlay(
-                                Capsule()
-                                    .stroke(progressColor.opacity(0.3), lineWidth: 1)
-                            )
-                    )
+                            .foregroundColor(.cyan.opacity(0.8))
 
-                    Text("Target: \(targetExertionZone)")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
+                        Text("Recovery: \(Int(recoveryScore))%")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        Text("•")
+                            .foregroundColor(.white.opacity(0.3))
+
+                        Text("Target: \(targetExertionZone)")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                    .padding(.leading, 52)
                 }
             }
 
@@ -178,33 +211,60 @@ struct ExertionWidget: View {
             }
             .frame(height: 12)
 
-            // Activity breakdown - compact
-            HStack(spacing: 10) {
-                ActivityStatView(
-                    label: "Light",
-                    minutes: Int(exertionModel.recoveryMinutes),
-                    color: .teal
-                )
+            // Heart rate zones breakdown
+            VStack(spacing: 8) {
+                let zoneColors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                let maxTime = exertionModel.zoneTimes.max() ?? 1
 
-                Divider()
-                    .frame(height: 24)
-                    .background(Color.white.opacity(0.2))
+                ForEach(0..<5, id: \.self) { index in
+                    let timeInMinutes = index < exertionModel.zoneTimes.count ? exertionModel.zoneTimes[index] : 0
+                    let range = index < exertionModel.heartRateZoneRanges.count ? exertionModel.heartRateZoneRanges[index] : (lowerBound: 0.0, upperBound: 0.0)
 
-                ActivityStatView(
-                    label: "Moderate",
-                    minutes: Int(exertionModel.conditioningMinutes),
-                    color: .green
-                )
+                    HStack(spacing: 10) {
+                        // Zone indicator
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(zoneColors[index])
+                                .frame(width: 8, height: 8)
 
-                Divider()
-                    .frame(height: 24)
-                    .background(Color.white.opacity(0.2))
+                            Text("Zone \(index + 1)")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                                .frame(width: 50, alignment: .leading)
+                        }
 
-                ActivityStatView(
-                    label: "Intense",
-                    minutes: Int(exertionModel.overloadMinutes),
-                    color: .red
-                )
+                        // Progress bar
+                        GeometryReader { geometry in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(Color.white.opacity(0.08))
+                                    .frame(height: 6)
+
+                                let fillWidth: CGFloat = timeInMinutes > 0 ?
+                                    CGFloat(timeInMinutes / maxTime) * geometry.size.width : 0
+
+                                if fillWidth > 0 {
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(zoneColors[index])
+                                        .frame(width: max(fillWidth, 6), height: 6)
+                                }
+                            }
+                        }
+                        .frame(height: 6)
+
+                        // Time
+                        Text(formatTime(timeInMinutes: timeInMinutes))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.7))
+                            .frame(width: 40, alignment: .trailing)
+
+                        // Heart rate range
+                        Text("\(Int(range.lowerBound))-\(Int(range.upperBound))")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(width: 50, alignment: .trailing)
+                    }
+                }
             }
         }
         .padding(16)
@@ -306,7 +366,7 @@ struct ExpandedExertionWidget: View {
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Exertion")
+                            Text("Training Load")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
 
@@ -314,7 +374,7 @@ struct ExpandedExertionWidget: View {
                                 Text(String(format: "%.1f", exertionScore))
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.white)
-                                Text("/ \(String(format: "%.1f", targetExertionUpperBound))")
+                                Text("of \(String(format: "%.1f", targetExertionUpperBound))")
                                     .font(.system(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.5))
                             }
@@ -400,29 +460,36 @@ struct ExpandedExertionWidget: View {
                     }
 
                     // Info card
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 6) {
                             Image(systemName: "info.circle.fill")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.orange.opacity(0.8))
+                                .foregroundColor(.cyan.opacity(0.8))
 
-                            Text("About Exertion")
+                            Text("What is Training Load?")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.8))
                         }
 
-                        Text("Your exertion score (0-10) reflects cardiovascular load based on heart rate zones. Higher zones mean more intense effort. The target adjusts to your recovery level—stay below target to avoid overtraining.")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                            .fixedSize(horizontal: false, vertical: true)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Your training load measures how hard you're pushing your cardiovascular system today. It's calculated from time spent in different heart rate zones.")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Text("Your recommended target adapts to your recovery score—when recovery is high, you can handle more load. Stay within your target to avoid overtraining.")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white.opacity(0.6))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
-                    .padding(12)
+                    .padding(14)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.white.opacity(0.05))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
                             )
                     )
                 }

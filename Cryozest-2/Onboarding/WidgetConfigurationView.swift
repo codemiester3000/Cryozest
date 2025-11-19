@@ -301,7 +301,7 @@ struct WidgetSelectionCard: View {
         case .largeHeartRate:
             return "Resting heart rate trends"
         case .exertion:
-            return "Daily cardiovascular load"
+            return "Track your daily training intensity"
         case .metricsGrid:
             return "HRV, sleep, and more"
         }

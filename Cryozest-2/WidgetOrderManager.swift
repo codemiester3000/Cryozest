@@ -15,7 +15,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
     case heroScores = "Hero Scores"
     case largeSteps = "Steps"
     case largeHeartRate = "Heart Rate"
-    case exertion = "Exertion"
+    case exertion = "Training Load"
     case metricsGrid = "Health Metrics"
 
     var id: String { rawValue }

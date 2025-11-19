@@ -392,8 +392,16 @@ struct DailyView: View {
                                             )
                                             .padding(.horizontal)
                                         } else {
-                                            // Other metrics handled by MetricsGridSection
-                                            EmptyView()
+                                            // Other metrics handled by ExpandedMetricView
+                                            ExpandedMetricView(
+                                                metricType: metric,
+                                                model: recoveryModel,
+                                                isPresented: Binding(
+                                                    get: { expandedMetric != nil },
+                                                    set: { if !$0 { expandedMetric = nil } }
+                                                )
+                                            )
+                                            .padding(.horizontal)
                                         }
                                     }
                                     .zIndex(1)
@@ -1244,27 +1252,15 @@ struct HeroScoresView: View {
             EmptyView()
         case .readiness:
             if configManager.isEnabled(.readiness) {
-                ExpandedHeroCard(
-                    title: "Readiness",
-                    score: readinessScore,
-                    icon: "bolt.fill",
-                    color: .green,
-                    subtitle: readinessScore > 0 ? "Ready to train" : "No data today",
-                    details: [],
-                    requiresAppleWatch: true,
+                ReadinessWidget(
+                    readinessScore: readinessScore,
                     action: onReadinessTap
                 )
             }
         case .sleep:
             if configManager.isEnabled(.sleep) {
-                ExpandedHeroCard(
-                    title: "Sleep",
-                    score: sleepDurationScore,
-                    icon: "bed.double.fill",
-                    color: .purple,
-                    subtitle: sleepDuration != nil ? "\(sleepDuration!) hours" : "No data today",
-                    details: [],
-                    requiresAppleWatch: true,
+                SleepWidget(
+                    sleepDuration: sleepDuration,
                     action: onSleepTap
                 )
             }
@@ -1356,88 +1352,107 @@ struct ExpandedHeroCard: View {
 
     @State private var isPressed = false
 
+    private var scoreColor: Color {
+        if score >= 80 {
+            return color
+        } else if score >= 60 {
+            return .yellow
+        } else if score >= 40 {
+            return .orange
+        } else {
+            return .red
+        }
+    }
+
+    private var statusText: String {
+        if score == 0 {
+            return "No data"
+        } else if score >= 80 {
+            return "Excellent"
+        } else if score >= 60 {
+            return "Good"
+        } else if score >= 40 {
+            return "Fair"
+        } else {
+            return "Low"
+        }
+    }
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 12) {
-                // Left side: Icon inline with score
-                HStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header with icon and score
+                HStack(alignment: .center, spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(color.opacity(0.2))
-                            .frame(width: 44, height: 44)
+                            .fill(scoreColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
 
                         Image(systemName: icon)
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(color)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(scoreColor)
                     }
 
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(title)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
 
-                        Text("\(score)")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("\(score)")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
 
-                Spacer()
-
-                // Right side: Subtitle and details
-                VStack(alignment: .trailing, spacing: 6) {
-                    Text(subtitle)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
-                        .multilineTextAlignment(.trailing)
-
-                    if !details.isEmpty {
-                        HStack(spacing: 8) {
-                            ForEach(details.indices, id: \.self) { index in
-                                HStack(spacing: 3) {
-                                    Circle()
-                                        .fill(details[index].color)
-                                        .frame(width: 5, height: 5)
-
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(details[index].label)
-                                            .font(.system(size: 8, weight: .medium))
-                                            .foregroundColor(.white.opacity(0.5))
-
-                                        Text(details[index].value)
-                                            .font(.system(size: 10, weight: .semibold))
-                                            .foregroundColor(.white)
-                                    }
-                                }
+                            if score > 0 {
+                                Text("/ 100")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
                             }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Status badge
+                    if score > 0 {
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text(statusText)
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(scoreColor)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(
+                                    Capsule()
+                                        .fill(scoreColor.opacity(0.15))
+                                        .overlay(
+                                            Capsule()
+                                                .stroke(scoreColor.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
                         }
                     }
                 }
 
-                // Chevron
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.3))
+                // Subtitle
+                Text(subtitle)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(14)
+            .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.white.opacity(0.12),
-                                Color.white.opacity(0.08)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(color.opacity(0.3), lineWidth: 1)
-                    )
+                ZStack {
+                    // Decorative icon pattern
+                    GeometryReader { geo in
+                        Image(systemName: icon)
+                            .font(.system(size: 60, weight: .ultraLight))
+                            .foregroundColor(scoreColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(x: geo.size.width - 50, y: 10)
+                    }
+                }
             )
-            .shadow(color: color.opacity(0.2), radius: 8, x: 0, y: 4)
+            .modernWidgetCard(style: .hero)
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
@@ -2451,6 +2466,420 @@ struct ModernWidgetCardStyle: ViewModifier {
                     y: style.shadowConfiguration.y
                 )
             )
+    }
+}
+
+// MARK: - Readiness Widget
+
+struct ReadinessWidget: View {
+    let readinessScore: Int
+    let action: () -> Void
+
+    @State private var isPressed = false
+
+    private var scoreColor: Color {
+        if readinessScore >= 80 {
+            return .green
+        } else if readinessScore >= 60 {
+            return .yellow
+        } else if readinessScore >= 40 {
+            return .orange
+        } else if readinessScore > 0 {
+            return .red
+        } else {
+            return .gray
+        }
+    }
+
+    private var statusText: String {
+        if readinessScore == 0 {
+            return "No data"
+        } else if readinessScore >= 80 {
+            return "Prime condition"
+        } else if readinessScore >= 60 {
+            return "Ready to train"
+        } else if readinessScore >= 40 {
+            return "Take it easy"
+        } else {
+            return "Prioritize recovery"
+        }
+    }
+
+    private var actionableMessage: String {
+        if readinessScore == 0 {
+            return "Connect Apple Watch to track recovery metrics"
+        } else if readinessScore >= 80 {
+            return "Your body is fully recovered - perfect for intense training"
+        } else if readinessScore >= 60 {
+            return "Good recovery - you can handle moderate to high intensity"
+        } else if readinessScore >= 40 {
+            return "Partial recovery - stick to light to moderate activity"
+        } else {
+            return "Low recovery - focus on rest and light movement only"
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header
+                HStack(alignment: .center, spacing: 12) {
+                    ZStack {
+                        // Pulse effect when ready
+                        if readinessScore >= 80 {
+                            Circle()
+                                .stroke(scoreColor.opacity(0.3), lineWidth: 2)
+                                .frame(width: 40, height: 40)
+                        }
+
+                        Circle()
+                            .fill(scoreColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+
+                        Image(systemName: readinessScore >= 80 ? "bolt.circle.fill" : "bolt.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(scoreColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Readiness")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(readinessScore > 0 ? "\(readinessScore)" : "--")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+
+                            if readinessScore > 0 {
+                                Text("/ 100")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Status badge
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(statusText)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(scoreColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(scoreColor.opacity(0.15))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(scoreColor.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                    }
+                }
+
+                // Recommendation card
+                HStack(spacing: 10) {
+                    Image(systemName: readinessScore == 0 ? "applewatch" : "lightbulb.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(readinessScore == 0 ? .gray : .cyan)
+
+                    Text(actionableMessage)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(
+                                    readinessScore == 0 ? Color.gray.opacity(0.3) : Color.cyan.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+                )
+
+                // Contributing factors (if we have data)
+                if readinessScore > 0 {
+                    VStack(spacing: 6) {
+                        Text("Based on:")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        HStack(spacing: 12) {
+                            FactorPill(icon: "waveform.path.ecg", label: "HRV", color: .cyan)
+                            FactorPill(icon: "heart.fill", label: "RHR", color: .red)
+                            FactorPill(icon: "bed.double.fill", label: "Sleep", color: .purple)
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                ZStack {
+                    GeometryReader { geo in
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 60, weight: .ultraLight))
+                            .foregroundColor(scoreColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(x: geo.size.width - 50, y: 10)
+                    }
+                }
+            )
+            .modernWidgetCard(style: .hero)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+    }
+}
+
+// MARK: - Sleep Widget
+
+struct SleepWidget: View {
+    let sleepDuration: String?
+    let action: () -> Void
+
+    @State private var isPressed = false
+
+    private var sleepHours: Double {
+        guard let duration = sleepDuration,
+              let hours = Double(duration) else {
+            return 0
+        }
+        return hours
+    }
+
+    private var scoreColor: Color {
+        if sleepHours >= 7.5 {
+            return .purple
+        } else if sleepHours >= 6.5 {
+            return .blue
+        } else if sleepHours >= 5.5 {
+            return .yellow
+        } else if sleepHours > 0 {
+            return .orange
+        } else {
+            return .gray
+        }
+    }
+
+    private var statusText: String {
+        if sleepHours == 0 {
+            return "No data"
+        } else if sleepHours >= 7.5 {
+            return "Excellent"
+        } else if sleepHours >= 6.5 {
+            return "Good"
+        } else if sleepHours >= 5.5 {
+            return "Fair"
+        } else {
+            return "Poor"
+        }
+    }
+
+    private var actionableMessage: String {
+        if sleepHours == 0 {
+            return "Wear Apple Watch to bed to track sleep stages and quality"
+        } else if sleepHours >= 7.5 {
+            return "Great sleep duration - your body is well-rested"
+        } else if sleepHours >= 6.5 {
+            return "Decent sleep - try to add 30-60 more minutes tonight"
+        } else if sleepHours >= 5.5 {
+            return "Below optimal - prioritize getting more sleep tonight"
+        } else {
+            return "Insufficient sleep - recovery will be impacted"
+        }
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header
+                HStack(alignment: .center, spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(scoreColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+
+                        Image(systemName: sleepHours >= 7.5 ? "bed.double.circle.fill" : "bed.double.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(scoreColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sleep")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(sleepHours > 0 ? String(format: "%.1f", sleepHours) : "--")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+
+                            if sleepHours > 0 {
+                                Text("hours")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Status badge
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(statusText)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(scoreColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(scoreColor.opacity(0.15))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(scoreColor.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+
+                        if sleepHours > 0 {
+                            Text("of 8h goal")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
+                }
+
+                // Progress bar showing sleep vs goal
+                if sleepHours > 0 {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.white.opacity(0.1))
+                                .frame(height: 10)
+
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            scoreColor,
+                                            scoreColor.opacity(0.7)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: geometry.size.width * min(sleepHours / 8.0, 1.0), height: 10)
+                        }
+                    }
+                    .frame(height: 10)
+                }
+
+                // Recommendation card
+                HStack(spacing: 10) {
+                    Image(systemName: sleepHours == 0 ? "applewatch" : "moon.stars.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(sleepHours == 0 ? .gray : .indigo)
+
+                    Text(actionableMessage)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(
+                                    sleepHours == 0 ? Color.gray.opacity(0.3) : Color.indigo.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+                )
+
+                // Sleep stages preview (if we have data)
+                if sleepHours > 0 {
+                    VStack(spacing: 6) {
+                        Text("Tap to view sleep stages:")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        HStack(spacing: 12) {
+                            FactorPill(icon: "bed.double.fill", label: "Deep", color: .indigo)
+                            FactorPill(icon: "moon.stars.fill", label: "REM", color: .purple)
+                            FactorPill(icon: "moon.fill", label: "Core", color: .blue)
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                ZStack {
+                    GeometryReader { geo in
+                        Image(systemName: "moon.stars.fill")
+                            .font(.system(size: 60, weight: .ultraLight))
+                            .foregroundColor(scoreColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(x: geo.size.width - 50, y: 10)
+                    }
+                }
+            )
+            .modernWidgetCard(style: .hero)
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+    }
+}
+
+// MARK: - Helper Views
+
+struct FactorPill: View {
+    let icon: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundColor(color)
+
+            Text(label)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.8))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            Capsule()
+                .fill(Color.white.opacity(0.08))
+                .overlay(
+                    Capsule()
+                        .stroke(color.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
 }
 
