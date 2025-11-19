@@ -1,101 +1,220 @@
 import SwiftUI
-import FSCalendar
 
-struct CalendarView: UIViewRepresentable {
+struct CalendarView: View {
     @Binding var sessionDates: [Date]
     @Binding var therapyType: TherapyType
-    
-    func makeUIView(context: Context) -> FSCalendar {
-        let calendar = FSCalendar()
-        calendar.delegate = context.coordinator
-        calendar.dataSource = context.coordinator
-        
-        // Register cell identifier
-        calendar.register(SessionCompleteCell.self, forCellReuseIdentifier: "cell")
-        
-        // Customize calendar appearance here:
-        calendar.allowsMultipleSelection = false // Disable selecting multiple dates
-        calendar.swipeToChooseGesture.isEnabled = false // Disable swipe to choose multiple dates
-        calendar.appearance.caseOptions = [.headerUsesUpperCase, .weekdayUsesUpperCase] // Use uppercase for headers and weekdays
-        
-        // Change colors for better contrast
-        calendar.appearance.headerTitleColor = .white
-        calendar.appearance.titleDefaultColor = .white
-        calendar.appearance.selectionColor = UIColor.red
 
-        // Compact font sizes
-        calendar.appearance.titleFont = UIFont.systemFont(ofSize: 12, weight: .medium)
-        calendar.appearance.headerTitleFont = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        calendar.appearance.weekdayFont = UIFont.systemFont(ofSize: 10, weight: .regular)
+    @State private var currentMonth: Date = Date()
 
-        // Reduce spacing for compact view
-        calendar.weekdayHeight = 20
-        calendar.headerHeight = 35
+    private let columns = 7
 
-        // Set todayColor to clear
-        calendar.appearance.todayColor = .clear
-        calendar.appearance.weekdayTextColor = .white.withAlphaComponent(0.5)
+    private let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter
+    }()
 
-        // Hide out-of-month dates
-        calendar.placeholderType = .none
+    private let monthYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
 
-        calendar.backgroundColor = .clear
+    // Get all days in current month
+    private var daysInMonth: [Date] {
+        let calendar = Calendar.current
+        guard let monthInterval = calendar.dateInterval(of: .month, for: currentMonth) else {
+            return []
+        }
 
-        
-        return calendar
+        let days = calendar.generateDates(
+            inside: monthInterval,
+            matching: DateComponents(hour: 12)
+        )
+
+        return days
     }
-    
-    func updateUIView(_ uiView: FSCalendar, context: Context) {
-        // Here we update the calendar with the selected dates
-        uiView.reloadData()
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, FSCalendarDelegate, FSCalendarDataSource {
-        var parent: CalendarView
-        
-        init(_ parent: CalendarView) {
-            self.parent = parent
-        }
-        
-        func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
-            let cell = (calendar.dequeueReusableCell(withIdentifier: "cell", for: date, at: position) as? SessionCompleteCell) ?? SessionCompleteCell()
-            
-            let sessionExistsOnDate = parent.sessionDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
-            
-            // Show the circle view if the session is complete
-            cell.showCircle(sessionExistsOnDate)
 
-            // Set the therapy type of the cell
-            cell.therapyType = parent.therapyType
-            
-            return cell
+    // Check if session exists on date
+    private func hasSession(on date: Date) -> Bool {
+        sessionDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) })
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            // Month navigation header
+            HStack {
+                Button(action: previousMonth) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.white.opacity(0.1))
+                        )
+                }
+
+                Spacer()
+
+                Text(monthYearFormatter.string(from: currentMonth))
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(.white)
+
+                Spacer()
+
+                Button(action: nextMonth) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(Color.white.opacity(0.1))
+                        )
+                }
+            }
+            .padding(.horizontal)
+
+            // Heatmap calendar
+            VStack(spacing: 12) {
+                // Day labels
+                HStack(spacing: 4) {
+                    ForEach(0..<min(7, daysInMonth.count), id: \.self) { col in
+                        Text(String(dayFormatter.string(from: daysInMonth[col]).prefix(1)))
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+
+                // Calendar grid
+                let monthRows = Int(ceil(Double(daysInMonth.count) / Double(columns)))
+                VStack(spacing: 4) {
+                    ForEach(0..<monthRows, id: \.self) { row in
+                        HStack(spacing: 4) {
+                            ForEach(0..<columns, id: \.self) { col in
+                                let index = row * columns + col
+                                if index < daysInMonth.count {
+                                    let date = daysInMonth[index]
+                                    let hasActivity = hasSession(on: date)
+                                    let isToday = Calendar.current.isDateInToday(date)
+                                    let dayNumber = Calendar.current.component(.day, from: date)
+
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(hasActivity ? therapyType.color : Color.white.opacity(0.1))
+                                            .frame(height: 32)
+
+                                        // Day number
+                                        Text("\(dayNumber)")
+                                            .font(.system(size: 9, weight: .semibold))
+                                            .foregroundColor(hasActivity ? Color.white : Color.white.opacity(0.3))
+
+                                        // Today indicator ring
+                                        if isToday {
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .stroke(Color.white, lineWidth: 2)
+                                                .frame(height: 32)
+                                        }
+                                    }
+                                } else {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.clear)
+                                        .frame(height: 32)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+
+            // Legend
+            HStack(spacing: 16) {
+                HStack(spacing: 6) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(therapyType.color)
+                        .frame(width: 12, height: 12)
+
+                    Text("Completed")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+
+                HStack(spacing: 6) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 12, height: 12)
+
+                    Text("No activity")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+
+                HStack(spacing: 6) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(therapyType.color)
+                            .frame(width: 12, height: 12)
+
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color.white, lineWidth: 1.5)
+                            .frame(width: 12, height: 12)
+                    }
+
+                    Text("Today")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+            .padding(.horizontal)
         }
-        
-        func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
-            // Disable date selection
-            return false
+        .padding(.vertical, 16)
+    }
+
+    private func previousMonth() {
+        let calendar = Calendar.current
+        if let newMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentMonth = newMonth
+            }
         }
-        
-        func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-            // Do nothing as selection is disabled
+    }
+
+    private func nextMonth() {
+        let calendar = Calendar.current
+        if let newMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentMonth = newMonth
+            }
         }
-        
-        func calendar(_ calendar: FSCalendar, didDeselect date: Date, at monthPosition: FSCalendarMonthPosition) {
-            // Do nothing as selection is disabled
+    }
+}
+
+// Calendar extension to generate dates
+extension Calendar {
+    func generateDates(
+        inside interval: DateInterval,
+        matching components: DateComponents
+    ) -> [Date] {
+        var dates: [Date] = []
+        dates.append(interval.start)
+
+        enumerateDates(
+            startingAfter: interval.start,
+            matching: components,
+            matchingPolicy: .nextTime
+        ) { date, _, stop in
+            if let date = date {
+                if date < interval.end {
+                    dates.append(date)
+                } else {
+                    stop = true
+                }
+            }
         }
-        
-        func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, fillDefaultColorFor date: Date) -> UIColor? {
-            // Set default background color
-            return .clear
-        }
-        
-        func calendar(_ calendar: FSCalendar, appearance: FSCalendarAppearance, fillSelectionColorFor date: Date) -> UIColor? {
-            // Set default selection color
-            return .clear
-        }
+
+        return dates
     }
 }
