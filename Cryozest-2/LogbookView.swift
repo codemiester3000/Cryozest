@@ -147,37 +147,41 @@ struct LogbookView: View {
                 )
                 .ignoresSafeArea()
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 0) {
                     NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {
                         EmptyView()
                     }
-                    VStack {
-                        HStack {
-                            Text("Activity")
-                                .font(.title2)
-                                .fontWeight(.semibold)
+
+                    // Header
+                    HStack {
+                        Text("Activity")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.leading)
+
+                        Spacer()
+
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.15))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white)
-                                .padding(.leading)
-
-                            Spacer()
-
-                            ZStack {
-                                Circle()
-                                    .fill(Color.white.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.white)
-                            }
-                            .padding(.trailing, 24)
-                            .onTapGesture {
-                                showAddSession = true
-                            }
                         }
-                        .padding(.top, 170)
-                    
-                    VStack(alignment: .leading, spacing: 16) {
+                        .padding(.trailing, 24)
+                        .onTapGesture {
+                            showAddSession = true
+                        }
+                    }
+                    .padding(.top, 170)
+                    .padding(.bottom, 16)
+
+                    // Scrollable content
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 24) {
                         CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
@@ -187,10 +191,8 @@ struct LogbookView: View {
                                             .stroke(Color.white.opacity(0.15), lineWidth: 1)
                                     )
                             )
-                            .frame(height: 300) // Set a fixed height for the calendar
                             .cornerRadius(16)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical)
 
                         // Stats Dashboard
                         if !sessionDates.isEmpty {
@@ -253,7 +255,6 @@ struct LogbookView: View {
                                     )
                                 }
                             }
-                            .padding(.vertical)
                         }
 
                         // Session History Header
@@ -294,16 +295,16 @@ struct LogbookView: View {
                                     .foregroundColor(.white)
                             }
                         }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 100)
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 100)
                 }
                 .onAppear {
                     updateSessionDates()
                 }
                 .onChange(of: therapyTypeSelection.selectedTherapyType) { _ in
                     updateSessionDates()
-                }
                 }
             }
         }
