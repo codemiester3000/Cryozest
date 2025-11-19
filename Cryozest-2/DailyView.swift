@@ -111,14 +111,23 @@ struct DailyView: View {
 
     private func goToNextDay() {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let now = Date()
+        let today = calendar.startOfDay(for: now)
         let currentDay = calendar.startOfDay(for: selectedDate)
 
         // Only navigate forward if not already at today
         if currentDay < today {
+            // Check if next day would be today - if so, use current time instead of start of day
             if let nextDay = calendar.date(byAdding: .day, value: 1, to: selectedDate) {
+                let nextDayStart = calendar.startOfDay(for: nextDay)
+
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    selectedDate = nextDay
+                    // If navigating to today, use current time instead of start of day
+                    if calendar.isDate(nextDayStart, inSameDayAs: now) {
+                        selectedDate = now
+                    } else {
+                        selectedDate = nextDay
+                    }
                 }
                 triggerHapticFeedback()
             }

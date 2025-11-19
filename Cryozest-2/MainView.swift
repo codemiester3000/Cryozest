@@ -91,11 +91,62 @@ struct MainView: View {
 
     @ViewBuilder
     private var habitCompletionSection: some View {
-        if isSessionCompleteForToday {
-            completedStateView
-        } else {
-            incompleteStateView
+        Group {
+            if isSessionCompleteForToday {
+                completedStateView
+            } else {
+                incompleteStateView
+            }
         }
+        .overlay(
+            // Completion animation overlay
+            Group {
+                if showCompletionAnimation {
+                    ZStack {
+                        // Ripple effect circles
+                        ForEach(0..<3, id: \.self) { index in
+                            Circle()
+                                .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.3), lineWidth: 2)
+                                .frame(width: 80, height: 80)
+                                .scaleEffect(completionAnimationScale * (1 + CGFloat(index) * 0.3))
+                                .opacity(completionAnimationOpacity * (1 - Double(index) * 0.3))
+                        }
+
+                        // Center checkmark with glow
+                        ZStack {
+                            Circle()
+                                .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.2))
+                                .frame(width: 70, height: 70)
+                                .blur(radius: 10)
+
+                            Circle()
+                                .fill(therapyTypeSelection.selectedTherapyType.color)
+                                .frame(width: 60, height: 60)
+
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 30, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .scaleEffect(completionAnimationScale)
+                        .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.5), radius: 20)
+
+                        // Particle burst
+                        ForEach(0..<8, id: \.self) { index in
+                            Circle()
+                                .fill(therapyTypeSelection.selectedTherapyType.color)
+                                .frame(width: 6, height: 6)
+                                .offset(
+                                    x: cos(Double(index) * .pi / 4) * 60 * completionAnimationScale,
+                                    y: sin(Double(index) * .pi / 4) * 60 * completionAnimationScale
+                                )
+                                .opacity(completionAnimationOpacity * 0.8)
+                        }
+                    }
+                    .opacity(completionAnimationOpacity)
+                }
+            }
+            .allowsHitTesting(false)
+        )
     }
 
     private var completedStateView: some View {
@@ -329,97 +380,7 @@ struct MainView: View {
 
                 Spacer()
 
-                // Habit Completion Section
-                VStack(spacing: 0) {
-                    habitCompletionSection
-                }
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.05))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(
-                                    isSessionCompleteForToday
-                                        ? LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color.green.opacity(0.6),
-                                                Color.green.opacity(0.3)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                        : LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color.white.opacity(0.1),
-                                                Color.white.opacity(0.1)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                    lineWidth: isSessionCompleteForToday ? 1.5 : 1
-                                )
-                        )
-                )
-                .shadow(
-                    color: isSessionCompleteForToday ? Color.green.opacity(0.3) : Color.clear,
-                    radius: isSessionCompleteForToday ? 12 : 0,
-                    x: 0,
-                    y: 0
-                )
-                .padding(.horizontal, 24)
-                .padding(.bottom, 16)
-                .overlay(
-                    // Completion animation overlay
-                    Group {
-                        if showCompletionAnimation {
-                            ZStack {
-                                // Ripple effect circles
-                                ForEach(0..<3, id: \.self) { index in
-                                    Circle()
-                                        .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.3), lineWidth: 2)
-                                        .frame(width: 80, height: 80)
-                                        .scaleEffect(completionAnimationScale * (1 + CGFloat(index) * 0.3))
-                                        .opacity(completionAnimationOpacity * (1 - Double(index) * 0.3))
-                                }
-
-                                // Center checkmark with glow
-                                ZStack {
-                                    Circle()
-                                        .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.2))
-                                        .frame(width: 70, height: 70)
-                                        .blur(radius: 10)
-
-                                    Circle()
-                                        .fill(therapyTypeSelection.selectedTherapyType.color)
-                                        .frame(width: 60, height: 60)
-
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 30, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
-                                .scaleEffect(completionAnimationScale)
-                                .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.5), radius: 20)
-
-                                // Particle burst
-                                ForEach(0..<8, id: \.self) { index in
-                                    Circle()
-                                        .fill(therapyTypeSelection.selectedTherapyType.color)
-                                        .frame(width: 6, height: 6)
-                                        .offset(
-                                            x: cos(Double(index) * .pi / 4) * 60 * completionAnimationScale,
-                                            y: sin(Double(index) * .pi / 4) * 60 * completionAnimationScale
-                                        )
-                                        .opacity(completionAnimationOpacity * 0.8)
-                                }
-                            }
-                            .opacity(completionAnimationOpacity)
-                        }
-                    }
-                    .allowsHitTesting(false)
-                )
-
-                // Health status - below completion area
+                // Health status - below carousel
                 if !isHealthDataAvailable {
                     HealthDataStatusView(isHealthDataAvailable: isHealthDataAvailable)
                         .padding(.bottom, 16)
@@ -434,28 +395,8 @@ struct MainView: View {
                         }
                         VStack {
 
-                            VStack(alignment: .leading, spacing: 12) {
-                                // Weekly Goal Progress
-                                WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
-
-                                // Streak Card
-                                if habitStats.totalSessions > 0 {
-                                    StreakCard(
-                                        currentStreak: habitStats.currentStreak,
-                                        bestStreak: habitStats.bestStreak,
-                                        habitColor: habitColor
-                                    )
-                                }
-
-                                // Quick Stats Card
-                                if habitStats.totalSessions > 0 {
-                                    QuickStatsCard(
-                                        stats: habitStats,
-                                        habitColor: habitColor
-                                    )
-                                }
-
-                                // Calendar
+                            VStack(alignment: .leading, spacing: 16) {
+                                // 1. Calendar (First)
                                 CalendarView(sessionDates: $sessionDates, therapyType: $therapyTypeSelection.selectedTherapyType)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
@@ -467,7 +408,15 @@ struct MainView: View {
                                     )
                                     .frame(height: 240)
                                     .frame(maxWidth: .infinity)
-                                    .padding(.top, 8)
+
+                                // 2. Mark as Complete (Second)
+                                habitCompletionSection
+
+                                // 3. Weekly Goal (Third)
+                                WeeklyGoalProgressView(therapyTypeSelection: therapyTypeSelection)
+
+                                // 4. Monthly Goal (Fourth) - Coming soon
+                                // TODO: Add MonthlyGoalProgressView
 
                                 if sortedSessions.isEmpty {
                                     VStack(spacing: 16) {
