@@ -527,10 +527,20 @@ struct DailyView: View {
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
-                // Refresh all metrics when app becomes active
-                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
-                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
-                sleepModel.fetchSleepData(forDate: selectedDate)
+                // Check if the calendar day has changed since last view
+                let calendar = Calendar.current
+                let now = Date()
+                let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
+
+                // If selectedDate is yesterday, automatically move to today
+                if calendar.isDate(selectedDate, inSameDayAs: yesterday) {
+                    selectedDate = now
+                } else {
+                    // Otherwise just refresh data for current selectedDate
+                    recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                    exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                    sleepModel.fetchSleepData(forDate: selectedDate)
+                }
 
                 // Start polling for heart rate every minute
                 startHeartRatePolling()
