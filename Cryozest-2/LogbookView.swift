@@ -48,6 +48,77 @@ struct LogbookView: View {
             .filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
             .compactMap { $0.date }
     }
+
+    // Calculate current streak (consecutive days)
+    private var currentStreak: Int {
+        let calendar = Calendar.current
+        let sortedDates = sessionDates.sorted(by: >)
+
+        guard !sortedDates.isEmpty else { return 0 }
+
+        var streak = 0
+        var currentDate = calendar.startOfDay(for: Date())
+
+        for date in sortedDates {
+            let sessionDay = calendar.startOfDay(for: date)
+
+            if calendar.isDate(sessionDay, inSameDayAs: currentDate) {
+                streak += 1
+                currentDate = calendar.date(byAdding: .day, value: -1, to: currentDate) ?? currentDate
+            } else if sessionDay < currentDate {
+                break
+            }
+        }
+
+        return streak
+    }
+
+    // Calculate longest streak ever
+    private var longestStreak: Int {
+        let calendar = Calendar.current
+        let uniqueDays = Set(sessionDates.map { calendar.startOfDay(for: $0) })
+        let sortedDays = uniqueDays.sorted()
+
+        guard !sortedDays.isEmpty else { return 0 }
+
+        var maxStreak = 1
+        var currentStreak = 1
+
+        for i in 1..<sortedDays.count {
+            let previousDay = sortedDays[i - 1]
+            let currentDay = sortedDays[i]
+
+            if let nextDay = calendar.date(byAdding: .day, value: 1, to: previousDay),
+               calendar.isDate(nextDay, inSameDayAs: currentDay) {
+                currentStreak += 1
+                maxStreak = max(maxStreak, currentStreak)
+            } else {
+                currentStreak = 1
+            }
+        }
+
+        return maxStreak
+    }
+
+    // Sessions this week
+    private var thisWeekCount: Int {
+        let calendar = Calendar.current
+        let now = Date()
+
+        return sessionDates.filter { date in
+            calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear)
+        }.count
+    }
+
+    // Sessions this month
+    private var thisMonthCount: Int {
+        let calendar = Calendar.current
+        let now = Date()
+
+        return sessionDates.filter { date in
+            calendar.isDate(date, equalTo: now, toGranularity: .month)
+        }.count
+    }
     
     var body: some View {
         NavigationView {
@@ -121,6 +192,96 @@ struct LogbookView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical)
 
+                        // Stats Dashboard
+                        if !sessionDates.isEmpty {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Image(systemName: "chart.bar.fill")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+
+                                    Text("Statistics")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white)
+
+                                    Spacer()
+                                }
+
+                                // Top Row - Current Streak & Longest Streak
+                                HStack(spacing: 12) {
+                                    // Current Streak
+                                    HabitsStatCard(
+                                        icon: "flame.fill",
+                                        title: "Current Streak",
+                                        value: "\(currentStreak)",
+                                        unit: currentStreak == 1 ? "day" : "days",
+                                        color: currentStreak > 0 ? .orange : .white.opacity(0.3),
+                                        accentColor: therapyTypeSelection.selectedTherapyType.color
+                                    )
+
+                                    // Longest Streak
+                                    HabitsStatCard(
+                                        icon: "trophy.fill",
+                                        title: "Best Streak",
+                                        value: "\(longestStreak)",
+                                        unit: longestStreak == 1 ? "day" : "days",
+                                        color: .yellow,
+                                        accentColor: therapyTypeSelection.selectedTherapyType.color
+                                    )
+                                }
+
+                                // Bottom Row - This Week & This Month
+                                HStack(spacing: 12) {
+                                    // This Week
+                                    HabitsStatCard(
+                                        icon: "calendar",
+                                        title: "This Week",
+                                        value: "\(thisWeekCount)",
+                                        unit: thisWeekCount == 1 ? "session" : "sessions",
+                                        color: .cyan,
+                                        accentColor: therapyTypeSelection.selectedTherapyType.color
+                                    )
+
+                                    // This Month
+                                    HabitsStatCard(
+                                        icon: "calendar.badge.clock",
+                                        title: "This Month",
+                                        value: "\(thisMonthCount)",
+                                        unit: thisMonthCount == 1 ? "session" : "sessions",
+                                        color: .green,
+                                        accentColor: therapyTypeSelection.selectedTherapyType.color
+                                    )
+                                }
+                            }
+                            .padding(.vertical)
+                        }
+
+                        // Session History Header
+                        if !sortedSessions.isEmpty {
+                            HStack {
+                                Image(systemName: "clock.fill")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+
+                                Text("Recent Sessions")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
+
+                                Spacer()
+
+                                Text("\(sortedSessions.count)")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        Capsule()
+                                            .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.2))
+                                    )
+                            }
+                            .padding(.vertical, 8)
+                        }
+
                         if sortedSessions.isEmpty {
                             Text("Begin recording sessions to see data here")
                                 .foregroundColor(.white.opacity(0.7))
@@ -146,5 +307,86 @@ struct LogbookView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Stat Card Component
+
+struct HabitsStatCard: View {
+    let icon: String
+    let title: String
+    let value: String
+    let unit: String
+    let color: Color
+    let accentColor: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Icon and Title
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.2))
+                        .frame(width: 32, height: 32)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(color)
+                }
+
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.8))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+            }
+
+            // Value and Unit
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(.white)
+                    .monospacedDigit()
+
+                Text(unit)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            ZStack {
+                // Base background
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.08))
+
+                // Gradient overlay
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        accentColor.opacity(0.15),
+                        Color.clear
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                // Border
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                accentColor.opacity(0.3),
+                                accentColor.opacity(0.1)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+        )
+        .shadow(color: accentColor.opacity(0.1), radius: 8, x: 0, y: 4)
     }
 }
