@@ -593,21 +593,28 @@ struct LargeHeartRateWidget: View {
 
             print("🫀 [DEBUG] Showing all hours: \(sampledHours)")
 
-            // Create readings for all sampled hours
-            let readings: [(String, Int)] = sampledHours.map { hour in
+            // Create a dictionary of all 24 hours with optional values
+            var hourlyData: [Int: Int] = [:]
+            for hour in sampledHours {
                 let values = hourlyReadings[hour]!
                 let avgValue = Int(values.reduce(0, +) / Double(values.count))
+                hourlyData[hour] = avgValue
 
-                // Convert to 12-hour format with AM/PM
+                let period = hour >= 12 ? "PM" : "AM"
+                let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
+                print("🫀 [DEBUG] Hour \(displayHour) \(period): \(values.count) samples, avg = \(avgValue) bpm")
+            }
+
+            // Create readings array with all 24 hours (will show bars only where we have data)
+            let readings: [(String, Int)] = (0...23).map { hour in
                 let period = hour >= 12 ? "PM" : "AM"
                 let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
                 let timeString = "\(displayHour) \(period)"
-
-                print("🫀 [DEBUG] Hour \(timeString): \(values.count) samples, avg = \(avgValue) bpm")
-                return (timeString, avgValue)
+                let value = hourlyData[hour] ?? 0  // 0 means no data for this hour
+                return (timeString, value)
             }
 
-            print("🫀 [SUCCESS] Created \(readings.count) hourly readings: \(readings)")
+            print("🫀 [SUCCESS] Created 24-hour readings array with \(hourlyData.count) hours having data")
             DispatchQueue.main.async {
                 print("🫀 [DEBUG] Setting todayRHRReadings on main thread")
                 self.todayRHRReadings = readings
@@ -649,62 +656,85 @@ struct RHRReadingsGraph: View {
                     }
                 } else {
                     let _ = print("🫀 [GRAPH] Showing graph with data")
-                    let values = readings.map { $0.1 }
-                    let maxValue = values.max() ?? 100
-                    let minValue = values.min() ?? 40
+                    // Split into AM (0-11) and PM (12-23)
+                    let amReadings = Array(readings[0...11])
+                    let pmReadings = Array(readings[12...23])
+
+                    // Get min/max from non-zero values only
+                    let nonZeroValues = readings.map { $0.1 }.filter { $0 > 0 }
+                    let maxValue = nonZeroValues.max() ?? 100
+                    let minValue = nonZeroValues.min() ?? 40
                     let range = Double(maxValue - minValue)
 
-                    VStack(spacing: 0) {
-                        // Graph area
-                        ZStack(alignment: .bottomLeading) {
-                            // Y-axis labels
-                            VStack {
-                                Text("\(maxValue)")
-                                    .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.4))
-                                Spacer()
-                                Text("\(minValue)")
-                                    .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.4))
-                            }
-                            .frame(width: 25)
-                            .padding(.leading, 4)
+                    VStack(spacing: 8) {
+                        // AM Row (12am - 11am)
+                        HourRow(hourReadings: amReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2)
 
-                            // Graph
-                            HStack(alignment: .bottom, spacing: 0) {
-                                ForEach(Array(readings.enumerated()), id: \.offset) { index, reading in
-                                    VStack(spacing: 4) {
-                                        // Value label
-                                        Text("\(reading.1)")
-                                            .font(.system(size: 9, weight: .bold))
-                                            .foregroundColor(color)
-                                            .opacity(0.9)
-
-                                        // Bar
-                                        let height = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) * (geometry.size.height - 40) : 0
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(
-                                                LinearGradient(
-                                                    colors: [color, color.opacity(0.6)],
-                                                    startPoint: .top,
-                                                    endPoint: .bottom
-                                                )
-                                            )
-                                            .frame(height: max(height, 4))
-
-                                        // Time label
-                                        Text(reading.0)
-                                            .font(.system(size: 8, weight: .medium))
-                                            .foregroundColor(.white.opacity(0.5))
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .padding(.leading, 30)
-                            .padding(.trailing, 8)
-                        }
+                        // PM Row (12pm - 11pm)
+                        HourRow(hourReadings: pmReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2)
                     }
                     .padding(8)
+                }
+            }
+        }
+    }
+}
+
+struct HourRow: View {
+    let hourReadings: [(String, Int)]
+    let minValue: Int
+    let maxValue: Int
+    let range: Double
+    let color: Color
+    let rowHeight: CGFloat
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 2) {
+            ForEach(Array(hourReadings.enumerated()), id: \.offset) { index, reading in
+                if reading.1 > 0 {
+                    // Has data - show bar
+                    VStack(spacing: 2) {
+                        // Value label
+                        Text("\(reading.1)")
+                            .font(.system(size: 7, weight: .bold))
+                            .foregroundColor(color)
+                            .opacity(0.9)
+
+                        // Bar
+                        let height = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) * (rowHeight - 20) : 0
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(
+                                LinearGradient(
+                                    colors: [color, color.opacity(0.6)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(height: max(height, 4))
+
+                        // Time label
+                        Text(reading.0)
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    // No data - show empty placeholder
+                    VStack(spacing: 2) {
+                        Spacer()
+                            .frame(height: 10)
+
+                        // Empty placeholder
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(height: 4)
+
+                        // Time label
+                        Text(reading.0)
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundColor(.white.opacity(0.3))
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
