@@ -18,6 +18,7 @@ enum MetricType: String, CaseIterable {
     case deepSleep = "Deep Sleep"
     case remSleep = "REM Sleep"
     case coreSleep = "Core Sleep"
+    case exertion = "Exertion"
 
     var icon: String {
         switch self {
@@ -31,6 +32,7 @@ enum MetricType: String, CaseIterable {
         case .deepSleep: return "bed.double.fill"
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
+        case .exertion: return "flame.fill"
         }
     }
 
@@ -46,6 +48,7 @@ enum MetricType: String, CaseIterable {
         case .deepSleep: return .indigo
         case .remSleep: return .purple
         case .coreSleep: return .blue
+        case .exertion: return .orange
         }
     }
 }
@@ -163,6 +166,9 @@ struct ExpandedMetricView: View {
             VO2MaxDetailView(model: model)
         case .deepSleep, .remSleep, .coreSleep:
             SleepMetricDetailView(metricType: metricType, model: model)
+        case .exertion:
+            // Exertion has its own dedicated widget with expanded state
+            EmptyView()
         }
     }
 }

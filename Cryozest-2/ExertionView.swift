@@ -1,6 +1,534 @@
 import SwiftUI
 import HealthKit
 
+// MARK: - Exertion Widget (Collapsed State)
+
+struct ExertionWidget: View {
+    @ObservedObject var exertionModel: ExertionModel
+    @ObservedObject var recoveryModel: RecoveryGraphModel
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
+
+    @State private var animate = true
+
+    private var exertionScore: Double {
+        exertionModel.exertionScore
+    }
+
+    private var targetExertionUpperBound: Double {
+        let recoveryScore = recoveryModel.recoveryScores.last ?? 0
+
+        if recoveryScore == 0 {
+            return 6.0 // Default target when no data
+        }
+
+        switch recoveryScore {
+        case 90...100: return 10.0
+        case 80..<90: return 9.0
+        case 70..<80: return 8.0
+        case 60..<70: return 7.0
+        case 50..<60: return 6.0
+        case 40..<50: return 5.0
+        case 30..<40: return 4.0
+        case 20..<30: return 3.0
+        case 10..<20: return 2.0
+        case 0..<10: return 1.0
+        default: return 6.0
+        }
+    }
+
+    private var targetExertionZone: String {
+        let lowerBound = max(0, targetExertionUpperBound - 1.0)
+        return String(format: "%.1f-%.1f", lowerBound, targetExertionUpperBound)
+    }
+
+    private var progress: Double {
+        min(exertionScore / targetExertionUpperBound, 1.0)
+    }
+
+    private var progressColor: Color {
+        if progress >= 1.0 {
+            return .red
+        } else if progress >= 0.8 {
+            return .orange
+        } else if progress >= 0.5 {
+            return .yellow
+        } else {
+            return .green
+        }
+    }
+
+    private var statusText: String {
+        if exertionScore == 0 {
+            return "No activity yet"
+        } else if progress >= 1.0 {
+            return "Target exceeded"
+        } else if progress >= 0.8 {
+            return "Near target"
+        } else if progress >= 0.5 {
+            return "On track"
+        } else {
+            return "Light day"
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Header with icon and main metric
+            HStack(alignment: .center, spacing: 12) {
+                // Animated flame icon
+                ZStack {
+                    // Pulse effect
+                    if progress >= 0.8 {
+                        Circle()
+                            .stroke(progressColor.opacity(0.3), lineWidth: 2)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.2)
+                            .opacity(animate ? 0.8 : 0.0)
+                    }
+
+                    Circle()
+                        .fill(progressColor.opacity(0.2))
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(progressColor)
+                }
+
+                // Main metric display
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text("Exertion")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        // Status badge
+                        Text(statusText)
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(progressColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(progressColor.opacity(0.15))
+                            )
+                    }
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(String(format: "%.1f", exertionScore))
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.white)
+
+                        Text("/ \(String(format: "%.1f", targetExertionUpperBound))")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                Spacer()
+
+                // Target zone badge
+                VStack(alignment: .trailing, spacing: 4) {
+                    HStack(spacing: 3) {
+                        Image(systemName: "target")
+                            .font(.system(size: 10, weight: .semibold))
+                        Text("\(Int(progress * 100))%")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(progressColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(progressColor.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(progressColor.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+
+                    Text("Target: \(targetExertionZone)")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+            }
+
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 12)
+
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    progressColor,
+                                    progressColor.opacity(0.7)
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geometry.size.width * min(progress, 1.0), height: 12)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
+                }
+            }
+            .frame(height: 12)
+
+            // Activity breakdown - compact
+            HStack(spacing: 10) {
+                ActivityStatView(
+                    label: "Light",
+                    minutes: Int(exertionModel.recoveryMinutes),
+                    color: .teal
+                )
+
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.white.opacity(0.2))
+
+                ActivityStatView(
+                    label: "Moderate",
+                    minutes: Int(exertionModel.conditioningMinutes),
+                    color: .green
+                )
+
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.white.opacity(0.2))
+
+                ActivityStatView(
+                    label: "Intense",
+                    minutes: Int(exertionModel.overloadMinutes),
+                    color: .red
+                )
+            }
+        }
+        .padding(16)
+        .background(
+            // Decorative flame pattern
+            ZStack {
+                GeometryReader { geo in
+                    ForEach(0..<2, id: \.self) { index in
+                        Image(systemName: "flame")
+                            .font(.system(size: 50, weight: .ultraLight))
+                            .foregroundColor(progressColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(
+                                x: CGFloat(index) * (geo.size.width / 2) + 30,
+                                y: 30
+                            )
+                    }
+                }
+            }
+        )
+        .modernWidgetCard(style: .hero)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            expandedMetric = .exertion
+        }
+        .matchedGeometryEffect(id: "exertion-widget", in: namespace)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                animate = false
+            }
+        }
+    }
+}
+
+// MARK: - Exertion Widget (Expanded State)
+
+struct ExpandedExertionWidget: View {
+    @ObservedObject var exertionModel: ExertionModel
+    @ObservedObject var recoveryModel: RecoveryGraphModel
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
+
+    private var exertionScore: Double {
+        exertionModel.exertionScore
+    }
+
+    private var targetExertionUpperBound: Double {
+        let recoveryScore = recoveryModel.recoveryScores.last ?? 0
+
+        if recoveryScore == 0 {
+            return 6.0
+        }
+
+        switch recoveryScore {
+        case 90...100: return 10.0
+        case 80..<90: return 9.0
+        case 70..<80: return 8.0
+        case 60..<70: return 7.0
+        case 50..<60: return 6.0
+        case 40..<50: return 5.0
+        case 30..<40: return 4.0
+        case 20..<30: return 3.0
+        case 10..<20: return 2.0
+        case 0..<10: return 1.0
+        default: return 6.0
+        }
+    }
+
+    private var progress: Double {
+        min(exertionScore / targetExertionUpperBound, 1.0)
+    }
+
+    private var progressColor: Color {
+        if progress >= 1.0 {
+            return .red
+        } else if progress >= 0.8 {
+            return .orange
+        } else if progress >= 0.5 {
+            return .yellow
+        } else {
+            return .green
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header
+                HStack {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(progressColor.opacity(0.2))
+                                .frame(width: 36, height: 36)
+
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(progressColor)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Exertion")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text(String(format: "%.1f", exertionScore))
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                Text("/ \(String(format: "%.1f", targetExertionUpperBound))")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    Button(action: {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                            expandedMetric = nil
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                // Expanded content
+                VStack(alignment: .leading, spacing: 20) {
+                    // Activity categories - expanded
+                    VStack(spacing: 12) {
+                        Text("Activity Breakdown")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+
+                        ExertionBarView(
+                            label: "Light Activity",
+                            description: "Easy pace, conversational",
+                            zoneRange: "Zone 1",
+                            minutes: exertionModel.recoveryMinutes,
+                            color: .teal,
+                            fullScaleTime: 30.0
+                        )
+
+                        ExertionBarView(
+                            label: "Moderate Activity",
+                            description: "Building fitness, steady effort",
+                            zoneRange: "Zones 2-3",
+                            minutes: exertionModel.conditioningMinutes,
+                            color: .green,
+                            fullScaleTime: 45.0
+                        )
+
+                        ExertionBarView(
+                            label: "Vigorous Activity",
+                            description: "High effort, pushing limits",
+                            zoneRange: "Zones 4-5",
+                            minutes: exertionModel.overloadMinutes,
+                            color: .red,
+                            fullScaleTime: 20.0
+                        )
+                    }
+
+                    // Heart rate zones
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Heart Rate Zones")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+
+                        let zoneColors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                        let maxTime = exertionModel.zoneTimes.max() ?? 1
+
+                        VStack(spacing: 8) {
+                            ForEach(0..<5, id: \.self) { index in
+                                let timeInMinutes = index < exertionModel.zoneTimes.count ? exertionModel.zoneTimes[index] : 0
+                                let range = index < exertionModel.heartRateZoneRanges.count ? exertionModel.heartRateZoneRanges[index] : (lowerBound: 0.0, upperBound: 0.0)
+
+                                HeroZoneRow(
+                                    zoneNumber: index + 1,
+                                    timeInMinutes: timeInMinutes,
+                                    heartRateRange: "\(Int(range.lowerBound))-\(Int(range.upperBound)) BPM",
+                                    color: zoneColors[index],
+                                    maxTime: maxTime
+                                )
+                            }
+                        }
+                    }
+
+                    // Info card
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "info.circle.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.orange.opacity(0.8))
+
+                            Text("About Exertion")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+
+                        Text("Your exertion score (0-10) reflects cardiovascular load based on heart rate zones. Higher zones mean more intense effort. The target adjusts to your recovery level—stay below target to avoid overtraining.")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                }
+            }
+            .padding(16)
+        }
+        .modernWidgetCard(style: .hero)
+        .matchedGeometryEffect(id: "exertion-widget", in: namespace)
+    }
+}
+
+struct ActivityStatView: View {
+    let label: String
+    let minutes: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "circle.fill")
+                .font(.system(size: 8, weight: .bold))
+                .foregroundColor(color)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+
+                Text("\(minutes) min")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct HeroZoneRow: View {
+    let zoneNumber: Int
+    let timeInMinutes: Double
+    let heartRateRange: String
+    let color: Color
+    let maxTime: Double
+
+    private var timeString: String {
+        let totalSeconds = Int(timeInMinutes * 60)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // Zone indicator
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(color)
+                    .frame(width: 8, height: 8)
+
+                Text("Zone \(zoneNumber)")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 55, alignment: .leading)
+            }
+
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 6)
+
+                    let fillWidth: CGFloat = timeInMinutes > 0 ?
+                        CGFloat(timeInMinutes / maxTime) * geometry.size.width : 0
+
+                    if fillWidth > 0 {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(color)
+                            .frame(width: max(fillWidth, 6), height: 6)
+                    }
+                }
+            }
+            .frame(height: 6)
+
+            // Time
+            Text(timeString)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.8))
+                .frame(width: 45, alignment: .trailing)
+
+            // Heart rate range
+            Text(heartRateRange)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white.opacity(0.5))
+                .frame(width: 75, alignment: .trailing)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.white.opacity(0.03))
+        )
+    }
+}
+
+// MARK: - Original Exertion Views
+
 struct ExertionRingView: View {
     var exertionScore: Double
     var targetExertionUpperBound: Double

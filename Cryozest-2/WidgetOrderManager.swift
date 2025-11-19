@@ -15,6 +15,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
     case heroScores = "Hero Scores"
     case largeSteps = "Steps"
     case largeHeartRate = "Heart Rate"
+    case exertion = "Exertion"
     case metricsGrid = "Health Metrics"
 
     var id: String { rawValue }
@@ -27,6 +28,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         case .heroScores: return "gauge.with.dots.needle.67percent"
         case .largeSteps: return "figure.walk"
         case .largeHeartRate: return "heart.fill"
+        case .exertion: return "flame.fill"
         case .metricsGrid: return "square.grid.2x2.fill"
         }
     }
@@ -39,6 +41,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         case .heroScores: return .purple
         case .largeSteps: return .orange
         case .largeHeartRate: return .red
+        case .exertion: return .orange
         case .metricsGrid: return .blue
         }
     }
@@ -58,13 +61,30 @@ class WidgetOrderManager: ObservableObject {
     func loadOrder() {
         if let data = UserDefaults.standard.data(forKey: orderKey),
            let decoded = try? JSONDecoder().decode([DailyWidgetSection].self, from: data) {
-            widgetOrder = decoded
+            // Migrate: add exertion if not present
+            var updatedOrder = decoded
+            if !updatedOrder.contains(.exertion) {
+                // Insert exertion after heart rate if present, otherwise after steps
+                if let heartRateIndex = updatedOrder.firstIndex(of: .largeHeartRate) {
+                    updatedOrder.insert(.exertion, at: heartRateIndex + 1)
+                } else if let stepsIndex = updatedOrder.firstIndex(of: .largeSteps) {
+                    updatedOrder.insert(.exertion, at: stepsIndex + 1)
+                } else {
+                    // Just append it
+                    updatedOrder.append(.exertion)
+                }
+                widgetOrder = updatedOrder
+                saveOrder()
+            } else {
+                widgetOrder = decoded
+            }
         } else {
             // Default order
             widgetOrder = [
                 .wellnessCheckIn,
                 .largeSteps,
                 .largeHeartRate,
+                .exertion,
                 .medications,
                 .metricsGrid,
                 .heroScores,
@@ -90,6 +110,7 @@ class WidgetOrderManager: ObservableObject {
             .wellnessCheckIn,
             .largeSteps,
             .largeHeartRate,
+            .exertion,
             .medications,
             .metricsGrid,
             .heroScores,

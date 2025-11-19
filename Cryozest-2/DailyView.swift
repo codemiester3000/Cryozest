@@ -15,7 +15,6 @@ struct DailyView: View {
     @State private var selectedDate: Date = Date()
     @State private var dragOffset: CGFloat = 0
 
-    @State private var showingExertionPopover = false
     @State private var showingRecoveryPopover = false
     @State private var showingSleepPopover = false
     @State private var showingMetricConfig = false
@@ -195,8 +194,7 @@ struct DailyView: View {
                 sleepDuration: recoveryModel.previousNightSleepDuration,
                 calculatedUpperBound: calculatedUpperBoundDailyView,
                 onExertionTap: {
-                    triggerHapticFeedback()
-                    showingExertionPopover = true
+                    // Exertion now uses dedicated widget, not hero card
                 },
                 onReadinessTap: {
                     triggerHapticFeedback()
@@ -236,6 +234,21 @@ struct DailyView: View {
                     model: recoveryModel,
                     expandedMetric: $expandedMetric,
                     selectedDate: selectedDate
+                )
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                ))
+            }
+
+        case .exertion:
+            if metricConfig.isEnabled(.exertion) {
+                ExertionWidget(
+                    exertionModel: exertionModel,
+                    recoveryModel: recoveryModel,
+                    expandedMetric: $expandedMetric,
+                    namespace: metricAnimation
                 )
                 .modifier(ReorderableWidgetModifier(
                     section: section,
@@ -370,6 +383,14 @@ struct DailyView: View {
                                                 namespace: metricAnimation
                                             )
                                             .padding(.horizontal)
+                                        } else if metric == .exertion {
+                                            ExpandedExertionWidget(
+                                                exertionModel: exertionModel,
+                                                recoveryModel: recoveryModel,
+                                                expandedMetric: $expandedMetric,
+                                                namespace: metricAnimation
+                                            )
+                                            .padding(.horizontal)
                                         } else {
                                             // Other metrics handled by MetricsGridSection
                                             EmptyView()
@@ -443,9 +464,6 @@ struct DailyView: View {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
-            }
-            .sheet(isPresented: $showingExertionPopover) {
-                ExertionView(exertionModel: exertionModel, recoveryModel: recoveryModel)
             }
             .sheet(isPresented: $showingSleepPopover) {
                 DailySleepView(dailySleepModel: sleepModel)
@@ -692,6 +710,7 @@ private func formatRespRateValue(_ respRate: Double?) -> String {
 struct DailyGridMetrics: View {
     @ObservedObject var model: RecoveryGraphModel
     @ObservedObject var sleepModel: DailySleepViewModel
+    @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var configManager: MetricConfigurationManager
     @Binding var expandedMetric: MetricType?
     var selectedDate: Date
@@ -717,6 +736,16 @@ struct DailyGridMetrics: View {
                             model: model,
                             expandedMetric: $expandedMetric,
                             selectedDate: selectedDate
+                        )
+                    }
+
+                    // Exertion Widget (full width)
+                    if configManager.isEnabled(.exertion) {
+                        ExertionWidget(
+                            exertionModel: exertionModel,
+                            recoveryModel: model,
+                            expandedMetric: $expandedMetric,
+                            namespace: animation
                         )
                     }
 
@@ -894,6 +923,7 @@ struct DailyGridMetrics: View {
         case .deepSleep: return "bed.double.fill"
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
+        case .exertion: return "flame.fill"
         }
     }
 
@@ -909,6 +939,7 @@ struct DailyGridMetrics: View {
         case .deepSleep: return "Deep Sleep"
         case .remSleep: return "REM Sleep"
         case .coreSleep: return "Core Sleep"
+        case .exertion: return "Exertion"
         }
     }
 
@@ -924,6 +955,7 @@ struct DailyGridMetrics: View {
         case .deepSleep: return sleepModel.totalDeepSleep
         case .remSleep: return sleepModel.totalRemSleep
         case .coreSleep: return sleepModel.totalCoreSleep
+        case .exertion: return "N/A" // Exertion uses dedicated widget
         }
     }
 
@@ -939,6 +971,7 @@ struct DailyGridMetrics: View {
         case .deepSleep: return "hrs"
         case .remSleep: return "hrs"
         case .coreSleep: return "hrs"
+        case .exertion: return ""
         }
     }
 }
@@ -1153,6 +1186,9 @@ struct ExpandedGridItemView: View {
                     .lineSpacing(4)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        case .exertion:
+            // Exertion has its own dedicated widget with expanded state
+            EmptyView()
         }
     }
 }
@@ -1204,22 +1240,8 @@ struct HeroScoresView: View {
     private func scoreCard(for heroScore: HeroScore) -> some View {
         switch heroScore {
         case .exertion:
-            if configManager.isEnabled(.exertion) {
-                ExpandedHeroCard(
-                    title: "Exertion",
-                    score: Int((exertionScore / calculatedUpperBound) * 100),
-                    icon: "flame.fill",
-                    color: .orange,
-                    subtitle: exertionScore > 0 ? String(format: "%.1f of %.1f target", exertionScore, calculatedUpperBound) : "No data today",
-                    details: exertionScore > 0 ? [
-                        ("Light", "\(Int(recoveryMinutes)) min", Color.teal),
-                        ("Moderate", "\(Int(conditioningMinutes)) min", Color.green),
-                        ("Intense", "\(Int(overloadMinutes)) min", Color.red)
-                    ] : [],
-                    requiresAppleWatch: true,
-                    action: onExertionTap
-                )
-            }
+            // Exertion now uses dedicated widget in metrics section, not hero card
+            EmptyView()
         case .readiness:
             if configManager.isEnabled(.readiness) {
                 ExpandedHeroCard(
@@ -2064,6 +2086,7 @@ struct MetricsGridSection: View {
         case .deepSleep: return "bed.double.fill"
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
+        case .exertion: return "flame.fill"
         }
     }
 
@@ -2079,6 +2102,7 @@ struct MetricsGridSection: View {
         case .deepSleep: return "Deep Sleep"
         case .remSleep: return "REM Sleep"
         case .coreSleep: return "Core Sleep"
+        case .exertion: return "Exertion"
         }
     }
 
@@ -2094,6 +2118,7 @@ struct MetricsGridSection: View {
         case .deepSleep: return sleepModel.totalDeepSleep
         case .remSleep: return sleepModel.totalRemSleep
         case .coreSleep: return sleepModel.totalCoreSleep
+        case .exertion: return "N/A" // Exertion uses dedicated widget
         }
     }
 
@@ -2109,6 +2134,7 @@ struct MetricsGridSection: View {
         case .deepSleep: return "hrs"
         case .remSleep: return "hrs"
         case .coreSleep: return "hrs"
+        case .exertion: return ""
         }
     }
 }
@@ -2150,6 +2176,9 @@ struct ExpandedMetricOverlay: View {
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .padding()
+            case .exertion:
+                // Exertion has its own dedicated widget with expanded state
+                EmptyView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
