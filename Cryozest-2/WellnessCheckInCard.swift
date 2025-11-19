@@ -155,34 +155,8 @@ struct WellnessCheckInCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.12),
-                            Color.white.opacity(0.06)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.cyan.opacity(0.3),
-                                    Color.purple.opacity(0.2)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.5
-                        )
-                )
-        )
+        .padding(20)
+        .modernWidgetCard(style: .hero)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showFeedback)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedRating)
     }
@@ -245,28 +219,9 @@ struct WellnessCheckInCard: View {
             }
             .buttonStyle(PlainButtonStyle())
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.08),
-                            Color.white.opacity(0.04)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(
-                            moodColor(for: rating).opacity(0.3),
-                            lineWidth: 1
-                        )
-                )
-        )
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .modernWidgetCard(style: .hero)
     }
 
     private func undoRating() {

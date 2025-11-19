@@ -2173,3 +2173,261 @@ struct ExpandedMetricOverlay: View {
         ))
     }
 }
+
+// MARK: - Modern Widget Card Styling System
+// Based on 2024-2025 UX trends: Glassmorphism, Bento Box, Material You, Variable Hierarchy
+
+enum WidgetCardStyle {
+    case hero           // Primary interactive widget (Wellness)
+    case success        // Achievement/completion widget (Completed Habits)
+    case medical        // Health tracking widget (Medications)
+    case healthData     // Biometric data widget (Heart Rate)
+    case activity       // Movement data widget (Steps)
+
+    var cornerRadius: CGFloat {
+        switch self {
+        case .hero: return 22
+        case .success: return 18
+        case .medical: return 16
+        case .healthData: return 20  // Larger, softer for biometric data
+        case .activity: return 14     // Tighter, more energetic
+        }
+    }
+
+    var backgroundGradient: LinearGradient {
+        switch self {
+        case .hero:
+            return LinearGradient(
+                colors: [
+                    Color.white.opacity(0.14),
+                    Color.white.opacity(0.08),
+                    Color.cyan.opacity(0.06)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .success:
+            return LinearGradient(
+                colors: [
+                    Color.green.opacity(0.12),
+                    Color.white.opacity(0.08)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .medical:
+            return LinearGradient(
+                colors: [
+                    Color.blue.opacity(0.08),
+                    Color.white.opacity(0.07)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .healthData:
+            // Diagonal gradient with red accent for vital signs
+            return LinearGradient(
+                colors: [
+                    Color.red.opacity(0.12),
+                    Color.white.opacity(0.10),
+                    Color.red.opacity(0.06),
+                    Color.white.opacity(0.08)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .activity:
+            // Dual-tone split background for dynamic movement feel
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.14),
+                    Color.cyan.opacity(0.10),
+                    Color.green.opacity(0.08),
+                    Color.white.opacity(0.08)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+
+    var borderGradient: LinearGradient {
+        switch self {
+        case .hero:
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.4),
+                    Color.purple.opacity(0.25),
+                    Color.white.opacity(0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .success:
+            return LinearGradient(
+                colors: [
+                    Color.green.opacity(0.35),
+                    Color.green.opacity(0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .medical:
+            return LinearGradient(
+                colors: [
+                    Color.blue.opacity(0.25),
+                    Color.cyan.opacity(0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .healthData:
+            // Thin, vibrant red border for vital signs emphasis
+            return LinearGradient(
+                colors: [
+                    Color.red.opacity(0.6),
+                    Color.red.opacity(0.45),
+                    Color.red.opacity(0.3)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .activity:
+            // Energetic cyan-to-green gradient border
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.5),
+                    Color.green.opacity(0.4),
+                    Color.cyan.opacity(0.3)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+
+    var borderWidth: CGFloat {
+        switch self {
+        case .hero: return 1.5
+        case .success: return 1.3
+        case .medical: return 1.0
+        case .healthData: return 1.8  // Thin but vibrant red border
+        case .activity: return 2.0     // Bolder border for energy
+        }
+    }
+
+    var shadowConfiguration: (color: Color, radius: CGFloat, y: CGFloat) {
+        switch self {
+        case .hero:
+            return (Color.cyan.opacity(0.25), 12, 6)
+        case .success:
+            return (Color.green.opacity(0.15), 8, 4)
+        case .medical:
+            return (Color.blue.opacity(0.10), 6, 3)
+        case .healthData:
+            // Subtle red glow for vital signs
+            return (Color.red.opacity(0.20), 10, 5)
+        case .activity:
+            // Energetic cyan-green glow
+            return (Color.cyan.opacity(0.18), 12, 5)
+        }
+    }
+
+    var innerShadow: Bool {
+        switch self {
+        case .hero: return true
+        default: return false
+        }
+    }
+
+    // Accent decorations for visual distinction
+    var hasAccentBar: Bool {
+        switch self {
+        case .healthData, .activity: return true
+        default: return false
+        }
+    }
+
+    var accentBarColor: LinearGradient {
+        switch self {
+        case .healthData:
+            return LinearGradient(
+                colors: [
+                    Color.red.opacity(0.7),
+                    Color.red.opacity(0.4)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .activity:
+            return LinearGradient(
+                colors: [
+                    Color.cyan.opacity(0.6),
+                    Color.green.opacity(0.5)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        default:
+            return LinearGradient(colors: [.clear], startPoint: .top, endPoint: .bottom)
+        }
+    }
+}
+
+struct ModernWidgetCardStyle: ViewModifier {
+    let style: WidgetCardStyle
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    // Main background with gradient
+                    RoundedRectangle(cornerRadius: style.cornerRadius)
+                        .fill(style.backgroundGradient)
+
+                    // Inner glow for hero cards
+                    if style.innerShadow {
+                        RoundedRectangle(cornerRadius: style.cornerRadius)
+                            .fill(
+                                RadialGradient(
+                                    colors: [
+                                        Color.white.opacity(0.08),
+                                        Color.clear
+                                    ],
+                                    center: .topLeading,
+                                    startRadius: 0,
+                                    endRadius: 200
+                                )
+                            )
+                    }
+
+                    // Accent bar for distinctive widgets
+                    if style.hasAccentBar {
+                        HStack(spacing: 0) {
+                            RoundedRectangle(cornerRadius: style.cornerRadius)
+                                .fill(style.accentBarColor)
+                                .frame(width: 4)
+
+                            Spacer()
+                        }
+                    }
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: style.cornerRadius)
+                        .stroke(style.borderGradient, lineWidth: style.borderWidth)
+                )
+                .shadow(
+                    color: style.shadowConfiguration.color,
+                    radius: style.shadowConfiguration.radius,
+                    x: 0,
+                    y: style.shadowConfiguration.y
+                )
+            )
+    }
+}
+
+extension View {
+    func modernWidgetCard(style: WidgetCardStyle) -> some View {
+        self.modifier(ModernWidgetCardStyle(style: style))
+    }
+}

@@ -159,23 +159,7 @@ struct MedicationsCard: View {
             }  // Close expanded state else
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.1),
-                            Color.white.opacity(0.06)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                )
-        )
+        .modernWidgetCard(style: .medical)
         .sheet(isPresented: $showAddMedication) {
             AddMedicationSheet()
                 .environment(\.managedObjectContext, viewContext)

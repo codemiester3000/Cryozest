@@ -67,24 +67,8 @@ struct CompletedHabitsCard: View {
                     }
                 }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.white.opacity(0.1),
-                                Color.white.opacity(0.06)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                    )
-            )
+            .padding(18)
+            .modernWidgetCard(style: .success)
             .transition(.opacity.combined(with: .move(edge: .top)))
             .onAppear {
                 loadCompletedHabits()

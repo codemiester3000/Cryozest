@@ -168,32 +168,8 @@ struct LargeHeartRateWidget: View {
                 }
             }
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.08),
-                            Color.white.opacity(0.05)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(
-                            LinearGradient(
-                                colors: [trendColor.opacity(0.3), trendColor.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-        )
-        .shadow(color: trendColor.opacity(0.1), radius: 4, x: 0, y: 2)
+        .padding(16)
+        .modernWidgetCard(style: .healthData)
         .onAppear {
             withAnimation(
                 Animation.easeInOut(duration: 1.5)
