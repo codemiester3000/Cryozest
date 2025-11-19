@@ -282,13 +282,8 @@ struct LargeHeartRateWidget: View {
                                     .stroke(trendColor.opacity(0.3), lineWidth: 1)
                             )
                     )
-
-                    if let avg = weeklyAverageRHR {
-                        Text("Avg: \(avg) bpm")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.5))
-                    }
                 }
+                .padding(.top, 8)
             }
 
             // Heart rate graph
