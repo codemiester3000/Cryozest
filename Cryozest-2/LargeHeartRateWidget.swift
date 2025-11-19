@@ -688,29 +688,53 @@ struct HourRow: View {
     let color: Color
     let rowHeight: CGFloat
 
+    // Color coding based on heart rate zones
+    private func colorForHeartRate(_ bpm: Int) -> Color {
+        switch bpm {
+        case 0:
+            return .clear
+        case 1..<50:
+            return Color.purple  // Very low
+        case 50..<60:
+            return Color.blue    // Low resting
+        case 60..<80:
+            return Color.green   // Normal resting
+        case 80..<100:
+            return Color.cyan    // Elevated
+        case 100..<120:
+            return Color.yellow  // Moderate activity
+        case 120..<140:
+            return Color.orange  // High activity
+        default:
+            return Color.red     // Very high
+        }
+    }
+
     var body: some View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(Array(hourReadings.enumerated()), id: \.offset) { index, reading in
                 if reading.1 > 0 {
                     // Has data - show bar
+                    let barColor = colorForHeartRate(reading.1)
+
                     VStack(spacing: 2) {
                         // Value label
                         Text("\(reading.1)")
                             .font(.system(size: 7, weight: .bold))
-                            .foregroundColor(color)
+                            .foregroundColor(barColor)
                             .opacity(0.9)
 
-                        // Bar
+                        // Bar with height varying based on value
                         let height = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) * (rowHeight - 20) : 0
                         RoundedRectangle(cornerRadius: 3)
                             .fill(
                                 LinearGradient(
-                                    colors: [color, color.opacity(0.6)],
+                                    colors: [barColor, barColor.opacity(0.6)],
                                     startPoint: .top,
                                     endPoint: .bottom
                                 )
                             )
-                            .frame(height: max(height, 4))
+                            .frame(height: max(height, 8))
 
                         // Time label
                         Text(reading.0)
