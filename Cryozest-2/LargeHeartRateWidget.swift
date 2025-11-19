@@ -498,7 +498,7 @@ struct LargeHeartRateWidget: View {
                 return
             }
 
-            print("🫀 [SUCCESS] Found \(samples.count) heart rate samples for selected date")
+            print("🫀 [SUCCESS] Found \(samples.count) heart rate samples BEFORE filtering")
             if let firstSample = samples.first {
                 print("🫀 [DEBUG] First sample date: \(firstSample.endDate)")
             }
@@ -506,13 +506,39 @@ struct LargeHeartRateWidget: View {
                 print("🫀 [DEBUG] Last sample date: \(lastSample.endDate)")
             }
 
+            // CRITICAL: Filter samples to ONLY include data from the selected day
+            let filteredSamples = samples.filter { sample in
+                calendar.isDate(sample.endDate, inSameDayAs: startOfDay)
+            }
+
+            print("🫀 [FILTER] Filtered to \(filteredSamples.count) samples that are actually from selected day")
+
+            guard !filteredSamples.isEmpty else {
+                print("🫀 [WARNING] No samples found after filtering for selected day")
+                DispatchQueue.main.async {
+                    self.todayRHRReadings = []
+                }
+                return
+            }
+
+            // Log the actual date range of filtered samples
+            if let firstFiltered = filteredSamples.first {
+                print("🫀 [DEBUG] First FILTERED sample: \(firstFiltered.endDate)")
+            }
+            if let lastFiltered = filteredSamples.last {
+                print("🫀 [DEBUG] Last FILTERED sample: \(lastFiltered.endDate)")
+            }
+
             // Group readings by hour and calculate average
             var hourlyReadings: [Int: [Double]] = [:]
 
-            for sample in samples {
+            for sample in filteredSamples {
                 let hour = calendar.component(.hour, from: sample.endDate)
                 let heartRate = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
                 hourlyReadings[hour, default: []].append(heartRate)
+
+                // Log each sample for debugging
+                print("🫀 [SAMPLE] \(sample.endDate) - Hour: \(hour), HR: \(Int(heartRate)) bpm")
             }
 
             print("🫀 [DEBUG] Grouped into \(hourlyReadings.count) hours with data")
