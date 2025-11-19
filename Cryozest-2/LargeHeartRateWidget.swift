@@ -587,19 +587,11 @@ struct LargeHeartRateWidget: View {
             let hoursWithData = hourlyReadings.keys.sorted()
             print("🫀 [DEBUG] Hours with data: \(hoursWithData)")
 
-            // Sample hours if we have too many (max 10 for readability)
-            let sampledHours: [Int]
-            if hoursWithData.count <= 10 {
-                sampledHours = hoursWithData
-            } else {
-                // Sample evenly across available hours
-                let step = max(1, hoursWithData.count / 10)
-                sampledHours = stride(from: 0, to: hoursWithData.count, by: step)
-                    .prefix(10)
-                    .map { hoursWithData[$0] }
-            }
+            // Show all hours without sampling to ensure recent data is visible
+            // The graph component will handle displaying them appropriately
+            let sampledHours: [Int] = hoursWithData
 
-            print("🫀 [DEBUG] Sampled hours: \(sampledHours)")
+            print("🫀 [DEBUG] Showing all hours: \(sampledHours)")
 
             // Create readings for all sampled hours
             let readings: [(String, Int)] = sampledHours.map { hour in
