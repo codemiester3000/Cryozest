@@ -75,21 +75,79 @@ struct LargeStepsWidget: View {
         VStack(alignment: .leading, spacing: 20) {
             // Compact header with icon inline and goal badge
             HStack(alignment: .center, spacing: 12) {
-                // Icon inline with main metric
-                Image(systemName: goalProgress >= 1.0 ? "figure.walk.circle.fill" : "figure.walk")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(goalProgress >= 1.0 ? .green : .green)
-                    .frame(width: 40, height: 40)
-                    .background(
+                // Animated icon inline with main metric
+                ZStack {
+                    // Celebration rings when goal achieved
+                    if goalProgress >= 1.0 {
                         Circle()
-                            .fill(goalProgress >= 1.0 ? Color.green.opacity(0.25) : Color.green.opacity(0.15))
-                    )
+                            .stroke(Color.green.opacity(0.3), lineWidth: 2)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.3)
+                            .opacity(animate ? 0.8 : 0.0)
+
+                        Circle()
+                            .stroke(Color.cyan.opacity(0.2), lineWidth: 1.5)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.5)
+                            .opacity(animate ? 0.6 : 0.0)
+                    }
+
+                    // Icon background
+                    Circle()
+                        .fill(goalProgress >= 1.0 ? Color.green.opacity(0.25) : Color.green.opacity(0.15))
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: goalProgress >= 1.0 ? "figure.walk.circle.fill" : "figure.walk")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(goalProgress >= 1.0 ? .green : .green)
+                }
 
                 // Main metric display
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Steps")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Text("Steps")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        // Achievement badge for exceeding goal
+                        if actualProgress >= 2.0 {
+                            HStack(spacing: 2) {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 8, weight: .bold))
+                                Text("2x Goal!")
+                                    .font(.system(size: 8, weight: .bold))
+                            }
+                            .foregroundColor(.yellow)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.yellow.opacity(0.2))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.yellow.opacity(0.4), lineWidth: 1)
+                                    )
+                            )
+                        } else if actualProgress >= 1.5 {
+                            HStack(spacing: 2) {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 8, weight: .bold))
+                                Text("On Fire!")
+                                    .font(.system(size: 8, weight: .bold))
+                            }
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.orange.opacity(0.2))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.orange.opacity(0.4), lineWidth: 1)
+                                    )
+                            )
+                        }
+                    }
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(currentSteps)")
@@ -100,6 +158,11 @@ struct LargeStepsWidget: View {
                             Text("/ \(goalManager.dailyStepGoal)")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
+                        } else if actualProgress > 1.0 {
+                            // Show exceeded amount
+                            Text("+\(currentSteps - goalManager.dailyStepGoal)")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.green.opacity(0.8))
                         }
                     }
                 }
@@ -109,20 +172,20 @@ struct LargeStepsWidget: View {
                 // Goal badge
                 VStack(alignment: .trailing, spacing: 6) {
                     HStack(spacing: 4) {
-                        Image(systemName: "target")
+                        Image(systemName: goalProgress >= 1.0 ? "trophy.fill" : "target")
                             .font(.system(size: 10, weight: .semibold))
                         Text("\(Int(min(goalProgress, 1.0) * 100))%")
                             .font(.system(size: 12, weight: .bold))
                     }
-                    .foregroundColor(.green)
+                    .foregroundColor(goalProgress >= 1.0 ? .yellow : .green)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .fill(Color.green.opacity(0.15))
+                            .fill(goalProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
                             .overlay(
                                 Capsule()
-                                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                                    .stroke(goalProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
                             )
                     )
 
@@ -208,23 +271,71 @@ struct LargeStepsWidget: View {
         }
         .padding(20)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.1),
-                            Color.white.opacity(0.06)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(borderColor, lineWidth: borderWidth)
-                )
+            ZStack {
+                // Decorative footprint pattern in background
+                GeometryReader { geo in
+                    ForEach(0..<3, id: \.self) { index in
+                        Image(systemName: "figure.walk")
+                            .font(.system(size: 40, weight: .ultraLight))
+                            .foregroundColor(Color.cyan.opacity(0.04))
+                            .rotationEffect(.degrees(15))
+                            .offset(
+                                x: CGFloat(index) * (geo.size.width / 3) + 20,
+                                y: CGFloat(index % 2 == 0 ? 20 : 60)
+                            )
+                    }
+                }
+            }
         )
-        .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: 3)
+        .modernWidgetCard(style: .activity)
+        .overlay(
+            // Corner achievement badge for major milestones
+            VStack {
+                HStack {
+                    Spacer()
+                    if actualProgress >= 2.0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "medal.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("Champion")
+                                .font(.system(size: 9, weight: .bold))
+                        }
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.yellow.opacity(0.25))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.yellow.opacity(0.5), lineWidth: 1)
+                                )
+                        )
+                        .offset(x: -12, y: 12)
+                    } else if goalProgress >= 1.0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("Goal Met")
+                                .font(.system(size: 9, weight: .bold))
+                        }
+                        .foregroundColor(.green)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.25))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.green.opacity(0.5), lineWidth: 1)
+                                )
+                        )
+                        .offset(x: -12, y: 12)
+                    }
+                }
+                Spacer()
+            }
+        )
         .overlay(
             // Delta animation overlay
             Group {

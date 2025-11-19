@@ -2343,7 +2343,6 @@ enum WidgetCardStyle {
     // Accent decorations for visual distinction
     var hasAccentBar: Bool {
         switch self {
-        case .healthData, .activity: return true
         default: return false
         }
     }

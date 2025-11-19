@@ -184,21 +184,59 @@ struct LargeHeartRateWidget: View {
         VStack(alignment: .leading, spacing: 12) {
             // Compact header with icon inline
             HStack(alignment: .center) {
-                // Icon inline with main metric
-                Image(systemName: "heart.fill")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.red)
-                    .frame(width: 40, height: 40)
-                    .background(
-                        Circle()
-                            .fill(Color.red.opacity(0.15))
-                    )
+                // Animated heart icon with pulse
+                ZStack {
+                    // Pulse rings
+                    Circle()
+                        .stroke(Color.red.opacity(0.3), lineWidth: 2)
+                        .frame(width: 40, height: 40)
+                        .scaleEffect(animate ? 1.0 : 1.2)
+                        .opacity(animate ? 0.8 : 0.0)
+
+                    Circle()
+                        .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
+                        .frame(width: 40, height: 40)
+                        .scaleEffect(animate ? 1.0 : 1.4)
+                        .opacity(animate ? 0.6 : 0.0)
+
+                    // Icon background
+                    Circle()
+                        .fill(Color.red.opacity(0.15))
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.red)
+                }
 
                 // Main metric display
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Heart Rate")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Text("Heart Rate")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        // LIVE indicator for recent data
+                        if let recentTime = mostRecentReadingTime,
+                           Date().timeIntervalSince(recentTime) < 300 { // < 5 minutes
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 5, height: 5)
+                                    .opacity(animate ? 0.4 : 1.0)
+
+                                Text("LIVE")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundColor(.red)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.red.opacity(0.15))
+                            )
+                        }
+                    }
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         if let rhr = currentRHR {
@@ -331,23 +369,62 @@ struct LargeHeartRateWidget: View {
         }
         .padding(14)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.1),
-                            Color.white.opacity(0.06)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(animate ? trendColor.opacity(0.5) : Color.white.opacity(0.12), lineWidth: 1)
-                )
+            ZStack {
+                // Decorative ECG wave pattern in background
+                GeometryReader { geo in
+                    Path { path in
+                        let width = geo.size.width
+                        let height = geo.size.height
+                        let waveHeight: CGFloat = 20
+                        let waveWidth: CGFloat = 40
+
+                        path.move(to: CGPoint(x: 0, y: height - 30))
+
+                        var x: CGFloat = 0
+                        while x < width {
+                            // ECG-style wave pattern
+                            path.addLine(to: CGPoint(x: x, y: height - 30))
+                            path.addLine(to: CGPoint(x: x + 5, y: height - 30 - waveHeight))
+                            path.addLine(to: CGPoint(x: x + 10, y: height - 30))
+                            path.addLine(to: CGPoint(x: x + 15, y: height - 30 + waveHeight/2))
+                            path.addLine(to: CGPoint(x: x + 20, y: height - 30))
+                            x += waveWidth
+                        }
+                    }
+                    .stroke(Color.red.opacity(0.08), lineWidth: 1.5)
+                }
+            }
         )
-        .shadow(color: animate ? trendColor.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
+        .modernWidgetCard(style: .healthData)
+        .overlay(
+            // Corner health status badge
+            VStack {
+                HStack {
+                    Spacer()
+                    if trend == .improving {
+                        HStack(spacing: 3) {
+                            Image(systemName: "heart.circle.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("Healthy")
+                                .font(.system(size: 9, weight: .bold))
+                        }
+                        .foregroundColor(.green)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.2))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.green.opacity(0.4), lineWidth: 1)
+                                )
+                        )
+                        .offset(x: -12, y: 12)
+                    }
+                }
+                Spacer()
+            }
+        )
         .onAppear {
             print("🫀 [WIDGET] LargeHeartRateWidget appeared with selectedDate: \(selectedDate)")
             print("🫀 [WIDGET] Current todayRHRReadings count: \(todayRHRReadings.count)")
