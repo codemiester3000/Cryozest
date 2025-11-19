@@ -32,6 +32,8 @@ struct InsightsView: View {
 
     @StateObject private var viewModelWrapper = InsightsViewModelWrapper()
     @State private var showInfoSheet = false
+    @State private var showConfigSheet = false
+    @ObservedObject var insightsConfig = InsightsConfigurationManager.shared
 
     private var selectedTherapyTypes: [TherapyType] {
         if selectedTherapies.isEmpty {
@@ -95,6 +97,9 @@ struct InsightsView: View {
         .sheet(isPresented: $showInfoSheet) {
             InsightsInfoSheet()
         }
+        .sheet(isPresented: $showConfigSheet) {
+            InsightsConfigSheet()
+        }
     }
 
     private var loadingView: some View {
@@ -126,6 +131,21 @@ struct InsightsView: View {
 
                     Spacer()
 
+                    // Config button
+                    Button(action: {
+                        showConfigSheet = true
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.15))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.cyan)
+                        }
+                    }
+
                     // Info button
                     Button(action: {
                         showInfoSheet = true
@@ -145,28 +165,32 @@ struct InsightsView: View {
                 .padding(.top, 16)
 
                 // Wellness Trends Section
-                WellnessInsightsSection(
-                    ratings: Array(wellnessRatings),
-                    sessions: Array(sessions),
-                    therapyTypes: selectedTherapyTypes
-                )
+                if insightsConfig.isEnabled(.wellnessTrends) {
+                    WellnessInsightsSection(
+                        ratings: Array(wellnessRatings),
+                        sessions: Array(sessions),
+                        therapyTypes: selectedTherapyTypes
+                    )
 
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                }
 
                 // Medication Adherence Section
-                MedicationAdherenceSection()
-                    .environment(\.managedObjectContext, viewContext)
+                if insightsConfig.isEnabled(.medicationAdherence) {
+                    MedicationAdherenceSection()
+                        .environment(\.managedObjectContext, viewContext)
 
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                }
 
-                // Health Trends Section (always show if available)
-                if !viewModel.healthTrends.isEmpty {
+                // Health Trends Section
+                if insightsConfig.isEnabled(.healthTrends) && !viewModel.healthTrends.isEmpty {
                     VStack(alignment: .leading, spacing: 16) {
                         InsightsSectionHeader(
                             title: "Your Health This Week",
@@ -183,128 +207,134 @@ struct InsightsView: View {
                         }
                     }
 
-                    if !viewModel.topHabitImpacts.isEmpty {
-                        Divider()
-                            .background(Color.white.opacity(0.2))
-                            .padding(.vertical, 8)
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                }
+
+                // Top Performers Section
+                if insightsConfig.isEnabled(.topPerformers) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        InsightsSectionHeader(
+                            title: "Top Performers",
+                            icon: "trophy.fill",
+                            color: .yellow
+                        )
+                        .padding(.horizontal)
+
+                        if viewModel.topHabitImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "Track Your Habits",
+                                message: "Track your habits for at least 3 days to see which ones have the biggest positive impact on your health metrics.",
+                                icon: "chart.bar.fill"
+                            )
                             .padding(.horizontal)
-                    }
-                }
-
-                // Top Performers Section (always show)
-                VStack(alignment: .leading, spacing: 16) {
-                    InsightsSectionHeader(
-                        title: "Top Performers",
-                        icon: "trophy.fill",
-                        color: .yellow
-                    )
-                    .padding(.horizontal)
-
-                    if viewModel.topHabitImpacts.isEmpty {
-                        InsightsEmptyStateCard(
-                            title: "Track Your Habits",
-                            message: "Track your habits for at least 3 days to see which ones have the biggest positive impact on your health metrics.",
-                            icon: "chart.bar.fill"
-                        )
-                        .padding(.horizontal)
-                    } else {
-                        VStack(spacing: 12) {
-                            ForEach(Array(viewModel.topHabitImpacts.enumerated()), id: \.element.id) { index, impact in
-                                TopImpactCard(impact: impact, rank: index + 1)
-                                    .padding(.horizontal)
+                        } else {
+                            VStack(spacing: 12) {
+                                ForEach(Array(viewModel.topHabitImpacts.enumerated()), id: \.element.id) { index, impact in
+                                    TopImpactCard(impact: impact, rank: index + 1)
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
+
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
                 }
 
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
-
-                // Sleep Impact Section (always show)
-                VStack(alignment: .leading, spacing: 16) {
-                    InsightsSectionHeader(
-                        title: "Sleep Impact",
-                        icon: "bed.double.fill",
-                        color: .purple
-                    )
-                    .padding(.horizontal)
-
-                    if viewModel.sleepImpacts.isEmpty {
-                        InsightsEmptyStateCard(
-                            title: "Sleep Tracking Needed",
-                            message: "Sleep tracking in the Health app or an Apple Watch is needed to see how your habits affect your sleep duration.",
-                            icon: "bed.double.fill"
+                // Sleep Impact Section
+                if insightsConfig.isEnabled(.sleepImpact) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        InsightsSectionHeader(
+                            title: "Sleep Impact",
+                            icon: "bed.double.fill",
+                            color: .purple
                         )
                         .padding(.horizontal)
-                    } else {
-                        VStack(spacing: 10) {
-                            ForEach(viewModel.sleepImpacts) { impact in
-                                MetricImpactRow(impact: impact)
-                                    .padding(.horizontal)
+
+                        if viewModel.sleepImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "Sleep Tracking Needed",
+                                message: "Sleep tracking in the Health app or an Apple Watch is needed to see how your habits affect your sleep duration.",
+                                icon: "bed.double.fill"
+                            )
+                            .padding(.horizontal)
+                        } else {
+                            VStack(spacing: 10) {
+                                ForEach(viewModel.sleepImpacts) { impact in
+                                    MetricImpactRow(impact: impact)
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
+
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
                 }
 
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
-
-                // HRV Impact Section (always show)
-                VStack(alignment: .leading, spacing: 16) {
-                    InsightsSectionHeader(
-                        title: "HRV Impact",
-                        icon: "waveform.path.ecg",
-                        color: .green
-                    )
-                    .padding(.horizontal)
-
-                    if viewModel.hrvImpacts.isEmpty {
-                        InsightsEmptyStateCard(
-                            title: "Apple Watch Required",
-                            message: "Wear an Apple Watch to track Heart Rate Variability and see how your habits improve your HRV.",
-                            icon: "applewatch"
+                // HRV Impact Section
+                if insightsConfig.isEnabled(.hrvImpact) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        InsightsSectionHeader(
+                            title: "HRV Impact",
+                            icon: "waveform.path.ecg",
+                            color: .green
                         )
                         .padding(.horizontal)
-                    } else {
-                        VStack(spacing: 10) {
-                            ForEach(viewModel.hrvImpacts) { impact in
-                                MetricImpactRow(impact: impact)
-                                    .padding(.horizontal)
+
+                        if viewModel.hrvImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "Apple Watch Required",
+                                message: "Wear an Apple Watch to track Heart Rate Variability and see how your habits improve your HRV.",
+                                icon: "applewatch"
+                            )
+                            .padding(.horizontal)
+                        } else {
+                            VStack(spacing: 10) {
+                                ForEach(viewModel.hrvImpacts) { impact in
+                                    MetricImpactRow(impact: impact)
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
+
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
                 }
 
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal)
-
-                // RHR Impact Section (always show)
-                VStack(alignment: .leading, spacing: 16) {
-                    InsightsSectionHeader(
-                        title: "Resting Heart Rate Impact",
-                        icon: "heart.fill",
-                        color: .red
-                    )
-                    .padding(.horizontal)
-
-                    if viewModel.rhrImpacts.isEmpty {
-                        InsightsEmptyStateCard(
-                            title: "Apple Watch Required",
-                            message: "Wear an Apple Watch to track Resting Heart Rate and see how your habits optimize your RHR.",
-                            icon: "applewatch"
+                // RHR Impact Section
+                if insightsConfig.isEnabled(.rhrImpact) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        InsightsSectionHeader(
+                            title: "Heart Rate Impact",
+                            icon: "heart.fill",
+                            color: .red
                         )
                         .padding(.horizontal)
-                    } else {
-                        VStack(spacing: 10) {
-                            ForEach(viewModel.rhrImpacts) { impact in
-                                MetricImpactRow(impact: impact)
-                                    .padding(.horizontal)
+
+                        if viewModel.rhrImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "Apple Watch Required",
+                                message: "Wear an Apple Watch to track heart rate and see how your habits optimize your resting heart rate.",
+                                icon: "applewatch"
+                            )
+                            .padding(.horizontal)
+                        } else {
+                            VStack(spacing: 10) {
+                                ForEach(viewModel.rhrImpacts) { impact in
+                                    MetricImpactRow(impact: impact)
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }

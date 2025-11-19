@@ -135,7 +135,8 @@
 		14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */; };
 		D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */; };
 		A8B9BDAB7B00485E8DF61CDB /* WeeklyMoodScoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */; };
-	/* End PBXBuildFile section */
+			15F11316F27E493C949C7C7B /* InsightsConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E31614F37C486AB690E74E /* InsightsConfigSheet.swift */; };
+		/* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		C57EE33A29CA8E34002A4875 /* PBXContainerItemProxy */ = {
@@ -264,7 +265,8 @@
 		5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHookView.swift; sourceTree = "<group>"; };
 		91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		36C6E59388AA45108587E3A1 /* WeeklyMoodScoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyMoodScoresView.swift; sourceTree = "<group>"; };
-	/* End PBXFileReference section */
+			10E31614F37C486AB690E74E /* InsightsConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsConfigSheet.swift; sourceTree = "<group>"; };
+		/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C57EE32629CA8E31002A4875 /* Frameworks */ = {
@@ -421,6 +423,7 @@
 				C56DDCC62E9809100052946A /* ExpandedMetricView.swift */,
 				C56DDCD72E980A020052946A /* MetricChartView.swift */,
 				C56DDCE62E9854770052946A /* InsightsView.swift */,
+				10E31614F37C486AB690E74E /* InsightsConfigSheet.swift */,
 				C56DDCE82E9854860052946A /* InsightsViewModel.swift */,
 				C56DDCEA2E9854930052946A /* InsightCardComponents.swift */,
 				C56DDCEC2E9870ED0052946A /* WellnessCheckInCard.swift */,
@@ -709,7 +712,8 @@
 				BC9F067A4E7F466A869A1651 /* HabitStatsCards.swift in Sources */,
 							B1D4FC931BE442769DFED0B6 /* WidgetConfigurationView.swift in Sources */,
 				A8B9BDAB7B00485E8DF61CDB /* WeeklyMoodScoresView.swift in Sources */,
-			);
+			
+				15F11316F27E493C949C7C7B /* InsightsConfigSheet.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C57EE33529CA8E34002A4875 /* Sources */ = {

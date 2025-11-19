@@ -36,15 +36,25 @@ struct MedicationAdherenceSection: View {
     private func overallAdherence(for date: Date) -> AdherenceLevel {
         guard !activeMedications.isEmpty else { return .noData }
 
+        // Only count medications that were created on or before this date
+        let relevantMedications = activeMedications.filter { medication in
+            if let createdDate = medication.createdDate {
+                return date >= createdDate
+            }
+            return false
+        }
+
+        guard !relevantMedications.isEmpty else { return .noData }
+
         var takenCount = 0
-        for medication in activeMedications {
+        for medication in relevantMedications {
             if let medId = medication.id,
                MedicationIntake.wasTaken(medicationId: medId, on: date, context: viewContext) {
                 takenCount += 1
             }
         }
 
-        let percentage = Double(takenCount) / Double(activeMedications.count)
+        let percentage = Double(takenCount) / Double(relevantMedications.count)
         if percentage == 1.0 {
             return .perfect
         } else if percentage > 0 {
@@ -63,10 +73,13 @@ struct MedicationAdherenceSection: View {
 
         for date in last30Days {
             for medication in activeMedications {
-                totalExpected += 1
-                if let medId = medication.id,
-                   MedicationIntake.wasTaken(medicationId: medId, on: date, context: viewContext) {
-                    totalTaken += 1
+                // Only count days after medication was created
+                if let createdDate = medication.createdDate, date >= createdDate {
+                    totalExpected += 1
+                    if let medId = medication.id,
+                       MedicationIntake.wasTaken(medicationId: medId, on: date, context: viewContext) {
+                        totalTaken += 1
+                    }
                 }
             }
         }
@@ -307,6 +320,11 @@ struct IndividualMedicationCard: View {
     private func adherence(for date: Date) -> AdherenceLevel {
         guard let medId = medication.id else { return .noData }
 
+        // Show no data for days before medication was created
+        if let createdDate = medication.createdDate, date < createdDate {
+            return .noData
+        }
+
         if MedicationIntake.wasTaken(medicationId: medId, on: date, context: viewContext) {
             return .perfect
         } else {
@@ -360,14 +378,20 @@ struct IndividualMedicationCard: View {
     private var adherencePercentage: Int {
         guard let medId = medication.id else { return 0 }
 
+        // Only count days after medication was created
+        guard let createdDate = medication.createdDate else { return 0 }
+        let relevantDays = last30Days.filter { $0 >= createdDate }
+
+        guard !relevantDays.isEmpty else { return 0 }
+
         var taken = 0
-        for date in last30Days {
+        for date in relevantDays {
             if MedicationIntake.wasTaken(medicationId: medId, on: date, context: viewContext) {
                 taken += 1
             }
         }
 
-        return Int((Double(taken) / Double(last30Days.count)) * 100)
+        return Int((Double(taken) / Double(relevantDays.count)) * 100)
     }
 
     var body: some View {

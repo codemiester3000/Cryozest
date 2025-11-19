@@ -201,10 +201,10 @@ class InsightsViewModel: ObservableObject {
                     changePercentage: change,
                     isPositive: recent < previous, // Lower RHR is better
                     icon: "heart.fill",
-                    color: abs(change) > 5 ? (recent < previous ? .green : .red) : .orange,
-                    description: abs(change) > 5
-                        ? (recent < previous ? "Your RHR has improved this week" : "Your RHR has elevated this week")
-                        : "Your RHR is stable this week"
+                    color: abs(change) > 3 ? (recent < previous ? .green : .red) : .orange,
+                    description: abs(change) > 3
+                        ? (recent < previous ? "Improving recovery capacity" : "May indicate increased stress")
+                        : "Maintaining steady baseline"
                 )
                 trendsQueue.async(flags: .barrier) {
                     trends.append(trend)
@@ -242,8 +242,8 @@ class InsightsViewModel: ObservableObject {
                     icon: "waveform.path.ecg",
                     color: abs(change) > 5 ? (recent > previous ? .green : .red) : .orange,
                     description: abs(change) > 5
-                        ? (recent > previous ? "Your HRV has improved this week" : "Your HRV has declined this week")
-                        : "Your HRV is stable this week"
+                        ? (recent > previous ? "Better stress resilience" : "May indicate fatigue or stress")
+                        : "Consistent stress response"
                 )
                 trendsQueue.async(flags: .barrier) {
                     trends.append(trend)
@@ -284,8 +284,8 @@ class InsightsViewModel: ObservableObject {
                     icon: "bed.double.fill",
                     color: abs(change) > 10 ? (recent > previous ? .green : .red) : .purple,
                     description: abs(change) > 10
-                        ? (recent > previous ? "You're sleeping more this week" : "You're sleeping less this week")
-                        : "Your sleep duration is consistent"
+                        ? (recent > previous ? "Getting more restorative sleep" : "Sleep time has decreased")
+                        : "Maintaining sleep routine"
                 )
                 trendsQueue.async(flags: .barrier) {
                     trends.append(trend)
@@ -323,8 +323,8 @@ class InsightsViewModel: ObservableObject {
                     icon: "figure.walk",
                     color: abs(change) > 10 ? (recent > previous ? .green : .red) : .cyan,
                     description: abs(change) > 10
-                        ? (recent > previous ? "You're walking more this week" : "You're walking less this week")
-                        : "Your step count is consistent"
+                        ? (recent > previous ? "More daily movement" : "Less daily activity")
+                        : "Steady activity level"
                 )
                 trendsQueue.async(flags: .barrier) {
                     trends.append(trend)
@@ -362,8 +362,8 @@ class InsightsViewModel: ObservableObject {
                     icon: "flame.fill",
                     color: abs(change) > 10 ? (recent > previous ? .green : .red) : .orange,
                     description: abs(change) > 10
-                        ? (recent > previous ? "You're burning more calories this week" : "You're burning fewer calories this week")
-                        : "Your calorie burn is consistent"
+                        ? (recent > previous ? "Increased energy expenditure" : "Reduced activity intensity")
+                        : "Stable calorie burn"
                 )
                 trendsQueue.async(flags: .barrier) {
                     trends.append(trend)

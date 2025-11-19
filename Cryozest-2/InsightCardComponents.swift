@@ -15,62 +15,93 @@ struct TopImpactCard: View {
     @Environment(\.managedObjectContext) private var managedObjectContext
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Rank badge
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: rankGradientColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                // Rank badge
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: rankGradientColors,
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 44, height: 44)
+                        .frame(width: 44, height: 44)
 
-                Text("\(rank)")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
-            }
+                    Text("\(rank)")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                }
 
-            // Habit icon
-            ZStack {
-                Circle()
-                    .fill(impact.habitType.color.opacity(0.2))
-                    .frame(width: 44, height: 44)
+                // Habit icon
+                ZStack {
+                    Circle()
+                        .fill(impact.habitType.color.opacity(0.2))
+                        .frame(width: 44, height: 44)
 
-                Image(systemName: impact.habitType.icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(impact.habitType.color)
-            }
+                    Image(systemName: impact.habitType.icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(impact.habitType.color)
+                }
 
-            // Details
-            VStack(alignment: .leading, spacing: 4) {
-                Text(impact.habitType.displayName(managedObjectContext))
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
+                // Details
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(impact.habitType.displayName(managedObjectContext))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
 
-                Text(impact.metricName)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-            }
+                    Text(impact.metricName)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
 
-            Spacer()
+                Spacer()
 
-            // Impact change
-            VStack(alignment: .trailing, spacing: 4) {
+                // Impact change
                 Text(impact.changeDescription)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundColor(impact.isPositive ? .green : .red)
+            }
 
+            // Value comparison
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Without")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+
+                    Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.3))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("With \(impact.habitType.displayName(managedObjectContext))")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(impact.habitType.color.opacity(0.8))
+                        .lineLimit(1)
+
+                    Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(impact.habitType.color)
+                }
+
+                Spacer()
+
+                // Data quality indicator
                 HStack(spacing: 4) {
-                    Image(systemName: impact.isPositive ? "arrow.up.right" : "arrow.down.right")
+                    Image(systemName: impact.sampleSize >= 14 ? "checkmark.circle.fill" : (impact.sampleSize >= 7 ? "circle.lefthalf.filled" : "circle.dotted"))
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(impact.isPositive ? .green : .red)
+                        .foregroundColor(dataQualityColor)
 
                     Text("\(impact.sampleSize) days")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(dataQualityColor)
                 }
             }
         }
@@ -104,6 +135,35 @@ struct TopImpactCard: View {
             return [Color.white.opacity(0.3), Color.white.opacity(0.2)]
         }
     }
+
+    private var dataQualityColor: Color {
+        if impact.sampleSize >= 14 {
+            return .green.opacity(0.8)
+        } else if impact.sampleSize >= 7 {
+            return .orange.opacity(0.8)
+        } else {
+            return .yellow.opacity(0.8)
+        }
+    }
+
+    private func formatValueWithUnit(_ value: Double, metric: String) -> String {
+        switch metric {
+        case "Sleep Duration":
+            return String(format: "%.1fh", value)
+        case "HRV":
+            return "\(Int(value)) ms"
+        case "RHR":
+            return "\(Int(value)) bpm"
+        default:
+            if value >= 100 {
+                return String(format: "%.0f", value)
+            } else if value >= 10 {
+                return String(format: "%.1f", value)
+            } else {
+                return String(format: "%.2f", value)
+            }
+        }
+    }
 }
 
 // MARK: - Metric Impact Row
@@ -112,44 +172,66 @@ struct MetricImpactRow: View {
     @Environment(\.managedObjectContext) private var managedObjectContext
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Habit icon
-            ZStack {
-                Circle()
-                    .fill(impact.habitType.color.opacity(0.15))
-                    .frame(width: 40, height: 40)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                // Habit icon
+                ZStack {
+                    Circle()
+                        .fill(impact.habitType.color.opacity(0.15))
+                        .frame(width: 40, height: 40)
 
-                Image(systemName: impact.habitType.icon)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(impact.habitType.color)
-            }
-
-            // Habit name
-            Text(impact.habitType.displayName(managedObjectContext))
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.white)
-
-            Spacer()
-
-            // Baseline vs Habit value
-            VStack(alignment: .trailing, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(formatValue(impact.baselineValue))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
-
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 10))
-                        .foregroundColor(.white.opacity(0.3))
-
-                    Text(formatValue(impact.habitValue))
-                        .font(.system(size: 16, weight: .bold))
+                    Image(systemName: impact.habitType.icon)
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(impact.habitType.color)
                 }
 
+                // Habit name
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(impact.habitType.displayName(managedObjectContext))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Text(dataQualityLabel)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(dataQualityColor)
+                }
+
+                Spacer()
+
+                // Change percentage
                 Text(impact.changeDescription)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(impact.isPositive ? .green : .red)
+            }
+
+            // Comparison values
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Without")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+
+                    Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.3))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("With \(impact.habitType.displayName(managedObjectContext))")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(impact.habitType.color.opacity(0.8))
+                        .lineLimit(1)
+
+                    Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(impact.habitType.color)
+                }
+
+                Spacer()
             }
         }
         .padding(14)
@@ -158,18 +240,47 @@ struct MetricImpactRow: View {
                 .fill(Color.white.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        .stroke(impact.habitType.color.opacity(0.2), lineWidth: 1)
                 )
         )
     }
 
-    private func formatValue(_ value: Double) -> String {
-        if value >= 100 {
-            return String(format: "%.0f", value)
-        } else if value >= 10 {
-            return String(format: "%.1f", value)
+    private var dataQualityLabel: String {
+        if impact.sampleSize >= 14 {
+            return "\(impact.sampleSize) days • High confidence"
+        } else if impact.sampleSize >= 7 {
+            return "\(impact.sampleSize) days • Medium confidence"
         } else {
-            return String(format: "%.2f", value)
+            return "\(impact.sampleSize) days • Low confidence"
+        }
+    }
+
+    private var dataQualityColor: Color {
+        if impact.sampleSize >= 14 {
+            return .green.opacity(0.8)
+        } else if impact.sampleSize >= 7 {
+            return .orange.opacity(0.8)
+        } else {
+            return .yellow.opacity(0.8)
+        }
+    }
+
+    private func formatValueWithUnit(_ value: Double, metric: String) -> String {
+        switch metric {
+        case "Sleep Duration":
+            return String(format: "%.1fh", value)
+        case "HRV":
+            return "\(Int(value)) ms"
+        case "RHR":
+            return "\(Int(value)) bpm"
+        default:
+            if value >= 100 {
+                return String(format: "%.0f", value)
+            } else if value >= 10 {
+                return String(format: "%.1f", value)
+            } else {
+                return String(format: "%.2f", value)
+            }
         }
     }
 }
@@ -273,7 +384,7 @@ struct HealthTrendCard: View {
                     .lineLimit(2)
 
                 HStack(spacing: 8) {
-                    Text(formatValue(trend.previousValue))
+                    Text(formatValueWithUnit(trend.previousValue, metric: trend.metric))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.5))
 
@@ -281,7 +392,7 @@ struct HealthTrendCard: View {
                         .font(.system(size: 10))
                         .foregroundColor(.white.opacity(0.3))
 
-                    Text(formatValue(trend.currentValue))
+                    Text(formatValueWithUnit(trend.currentValue, metric: trend.metric))
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(trend.color)
                 }
@@ -301,7 +412,7 @@ struct HealthTrendCard: View {
                         .foregroundColor(trend.isPositive ? .green : .red)
                 }
 
-                Text("vs last week")
+                Text("7-day avg")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.5))
             }
@@ -317,13 +428,26 @@ struct HealthTrendCard: View {
         )
     }
 
-    private func formatValue(_ value: Double) -> String {
-        if value >= 100 {
+    private func formatValueWithUnit(_ value: Double, metric: String) -> String {
+        switch metric {
+        case "RHR":
+            return "\(Int(value)) bpm"
+        case "HRV":
+            return "\(Int(value)) ms"
+        case "Sleep":
+            return String(format: "%.1fh", value)
+        case "Steps":
             return String(format: "%.0f", value)
-        } else if value >= 10 {
-            return String(format: "%.1f", value)
-        } else {
-            return String(format: "%.2f", value)
+        case "Calories":
+            return "\(Int(value)) cal"
+        default:
+            if value >= 100 {
+                return String(format: "%.0f", value)
+            } else if value >= 10 {
+                return String(format: "%.1f", value)
+            } else {
+                return String(format: "%.2f", value)
+            }
         }
     }
 }

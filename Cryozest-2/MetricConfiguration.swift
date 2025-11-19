@@ -187,3 +187,99 @@ class MetricConfigurationManager: ObservableObject {
         }
     }
 }
+
+// MARK: - Insights Configuration
+
+enum InsightSection: String, CaseIterable, Identifiable {
+    case wellnessTrends = "Wellness Trends"
+    case medicationAdherence = "Medication Adherence"
+    case healthTrends = "Health Trends"
+    case topPerformers = "Top Performers"
+    case sleepImpact = "Sleep Impact"
+    case hrvImpact = "HRV Impact"
+    case rhrImpact = "Heart Rate Impact"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .wellnessTrends: return "heart.fill"
+        case .medicationAdherence: return "pills.fill"
+        case .healthTrends: return "chart.line.uptrend.xyaxis"
+        case .topPerformers: return "trophy.fill"
+        case .sleepImpact: return "bed.double.fill"
+        case .hrvImpact: return "waveform.path.ecg"
+        case .rhrImpact: return "heart.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .wellnessTrends: return .pink
+        case .medicationAdherence: return .green
+        case .healthTrends: return .cyan
+        case .topPerformers: return .yellow
+        case .sleepImpact: return .purple
+        case .hrvImpact: return .green
+        case .rhrImpact: return .red
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .wellnessTrends:
+            return "Track your daily mood ratings and see week-over-week wellness changes"
+        case .medicationAdherence:
+            return "View your medication adherence patterns and streaks"
+        case .healthTrends:
+            return "See how your health metrics are changing this week"
+        case .topPerformers:
+            return "Discover which habits have the biggest positive impact on your metrics"
+        case .sleepImpact:
+            return "Understand how your habits affect your sleep duration"
+        case .hrvImpact:
+            return "See which habits improve your heart rate variability"
+        case .rhrImpact:
+            return "Learn which habits optimize your resting heart rate"
+        }
+    }
+}
+
+class InsightsConfigurationManager: ObservableObject {
+    static let shared = InsightsConfigurationManager()
+
+    @Published var enabledSections: Set<InsightSection> {
+        didSet {
+            saveSectionConfiguration()
+        }
+    }
+
+    private let sectionConfigKey = "enabledInsightSections"
+
+    private init() {
+        // Load saved configuration or default to all enabled
+        if let saved = UserDefaults.standard.stringArray(forKey: sectionConfigKey) {
+            self.enabledSections = Set(saved.compactMap { InsightSection(rawValue: $0) })
+        } else {
+            // Default: enable all sections
+            self.enabledSections = Set(InsightSection.allCases)
+        }
+    }
+
+    private func saveSectionConfiguration() {
+        let sectionStrings = enabledSections.map { $0.rawValue }
+        UserDefaults.standard.set(sectionStrings, forKey: sectionConfigKey)
+    }
+
+    func isEnabled(_ section: InsightSection) -> Bool {
+        enabledSections.contains(section)
+    }
+
+    func toggle(_ section: InsightSection) {
+        if enabledSections.contains(section) {
+            enabledSections.remove(section)
+        } else {
+            enabledSections.insert(section)
+        }
+    }
+}
