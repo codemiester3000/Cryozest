@@ -233,9 +233,6 @@ struct AdherenceHeatmap: View {
     let getAdherence: (Date) -> AdherenceLevel
 
     private let columns = 7
-    private var rows: Int {
-        Int(ceil(Double(days.count) / Double(columns)))
-    }
 
     private let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -243,45 +240,151 @@ struct AdherenceHeatmap: View {
         return formatter
     }()
 
+    private let monthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM"
+        return formatter
+    }()
+
+    private let monthYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM yyyy"
+        return formatter
+    }()
+
+    // Get the month range being displayed
+    private var dateRangeText: String {
+        guard let firstDate = days.first,
+              let lastDate = days.last else {
+            return ""
+        }
+
+        let calendar = Calendar.current
+        let firstMonth = calendar.component(.month, from: firstDate)
+        let lastMonth = calendar.component(.month, from: lastDate)
+        let firstYear = calendar.component(.year, from: firstDate)
+        let lastYear = calendar.component(.year, from: lastDate)
+
+        if firstMonth == lastMonth && firstYear == lastYear {
+            return monthYearFormatter.string(from: firstDate)
+        } else if firstYear == lastYear {
+            return "\(monthFormatter.string(from: firstDate)) - \(monthYearFormatter.string(from: lastDate))"
+        } else {
+            return "\(monthYearFormatter.string(from: firstDate)) - \(monthYearFormatter.string(from: lastDate))"
+        }
+    }
+
+    // Group dates by month
+    private var datesByMonth: [(monthLabel: String, dates: [Date])] {
+        let calendar = Calendar.current
+        var grouped: [(String, [Date])] = []
+
+        for date in days {
+            let monthLabel = monthYearFormatter.string(from: date)
+
+            if let lastIndex = grouped.indices.last, grouped[lastIndex].0 == monthLabel {
+                grouped[lastIndex].1.append(date)
+            } else {
+                grouped.append((monthLabel, [date]))
+            }
+        }
+
+        return grouped
+    }
+
     var body: some View {
-        VStack(spacing: 8) {
-            // Day labels - use first 7 days from the array to get correct weekdays
-            HStack(spacing: 0) {
-                ForEach(0..<min(7, days.count), id: \.self) { col in
-                    Text(String(dayFormatter.string(from: days[col]).prefix(1)))
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.5))
-                        .frame(maxWidth: .infinity)
-                }
+        VStack(spacing: 12) {
+            // Date range header
+            HStack {
+                Image(systemName: "calendar")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+
+                Text(dateRangeText)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.8))
+
+                Spacer()
             }
 
-            // Heatmap grid
+            // Heatmap grid - organized by month
             VStack(spacing: 4) {
-                ForEach(0..<rows, id: \.self) { row in
-                    HStack(spacing: 4) {
-                        ForEach(0..<columns, id: \.self) { col in
-                            let index = row * columns + col
-                            if index < days.count {
-                                let date = days[index]
-                                let adherence = getAdherence(date)
-                                let isToday = Calendar.current.isDateInToday(date)
+                ForEach(Array(datesByMonth.enumerated()), id: \.offset) { monthIndex, monthGroup in
+                    VStack(spacing: 6) {
+                        // Month label and divider
+                        HStack(spacing: 8) {
+                            Text(monthGroup.monthLabel)
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.7))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            Capsule()
+                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                )
 
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 3)
-                                        .fill(adherence.color)
-                                        .frame(height: 16)
+                            Rectangle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(height: 1)
+                        }
+                        .padding(.top, monthIndex > 0 ? 12 : 0)
 
-                                    // Today indicator ring
-                                    if isToday {
-                                        RoundedRectangle(cornerRadius: 3)
-                                            .stroke(Color.white, lineWidth: 2)
-                                            .frame(height: 16)
+                        // Day labels for this month
+                        HStack(spacing: 4) {
+                            ForEach(0..<min(7, monthGroup.dates.count), id: \.self) { col in
+                                Text(String(dayFormatter.string(from: monthGroup.dates[col]).prefix(1)))
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .frame(maxWidth: .infinity)
+                            }
+                            if monthGroup.dates.count < 7 {
+                                ForEach(monthGroup.dates.count..<7, id: \.self) { _ in
+                                    Color.clear.frame(maxWidth: .infinity)
+                                }
+                            }
+                        }
+
+                        // Grid for this month's dates
+                        let monthRows = Int(ceil(Double(monthGroup.dates.count) / Double(columns)))
+                        VStack(spacing: 4) {
+                            ForEach(0..<monthRows, id: \.self) { row in
+                                HStack(spacing: 4) {
+                                    ForEach(0..<columns, id: \.self) { col in
+                                        let index = row * columns + col
+                                        if index < monthGroup.dates.count {
+                                            let date = monthGroup.dates[index]
+                                            let adherence = getAdherence(date)
+                                            let isToday = Calendar.current.isDateInToday(date)
+                                            let dayNumber = Calendar.current.component(.day, from: date)
+
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 4)
+                                                    .fill(adherence.color)
+                                                    .frame(height: 32)
+
+                                                // Day number
+                                                Text("\(dayNumber)")
+                                                    .font(.system(size: 9, weight: .semibold))
+                                                    .foregroundColor(adherence != .noData ? Color.white : Color.white.opacity(0.3))
+
+                                                // Today indicator ring
+                                                if isToday {
+                                                    RoundedRectangle(cornerRadius: 4)
+                                                        .stroke(Color.white, lineWidth: 2)
+                                                        .frame(height: 32)
+                                                }
+                                            }
+                                        } else {
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .fill(Color.clear)
+                                                .frame(height: 32)
+                                        }
                                     }
                                 }
-                            } else {
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color.clear)
-                                    .frame(height: 16)
                             }
                         }
                     }
