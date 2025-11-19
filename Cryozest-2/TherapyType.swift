@@ -319,10 +319,15 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
     func displayName(_ managedObjectContext: NSManagedObjectContext) -> String {
         switch self {
         case .custom1, .custom2, .custom3, .custom4:
+            // Guard against nil persistent store coordinator (happens during onboarding)
+            guard managedObjectContext.persistentStoreCoordinator != nil else {
+                return self.rawValue
+            }
+
             let therapyID = therapyTypeToID()
             let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
-            
+
             do {
                 let results = try managedObjectContext.fetch(fetchRequest)
                 if let customTherapy = results.first, let customName = customTherapy.name, !customName.isEmpty {
