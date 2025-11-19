@@ -50,7 +50,8 @@ struct AppTabView: View {
                     context: viewContext)
                     .tag(0)
 
-                MainView(therapyTypeSelection: therapyTypeSelection)
+                HabitsView(therapyTypeSelection: therapyTypeSelection)
+                    .environment(\.managedObjectContext, viewContext)
                     .tag(1)
 
                 InsightsView()
