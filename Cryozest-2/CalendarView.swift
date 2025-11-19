@@ -170,7 +170,7 @@ struct CalendarView: View {
             }
             .padding(.horizontal)
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, 24)
     }
 
     private func previousMonth() {
