@@ -1217,6 +1217,7 @@ struct ExpandedGridItemView: View {
             }
             .padding(16)
         }
+        .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(

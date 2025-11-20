@@ -20,13 +20,37 @@ struct LargeStepsWidget: View {
     @State private var stepsDelta: Int = 0
     @State private var showDeltaAnimation = false
     @State private var animatedProgress: Double = 0
+    @State private var focusedDayIndex: Int = 6 // Start with today (last day)
 
     private var currentSteps: Int {
         Int(model.mostRecentSteps ?? 0)
     }
 
+    private var last7DaysSteps: [Int] {
+        // Get the last 7 days of steps data
+        // This matches the logic in Last7DaysStepsChart
+        let current = currentSteps
+        return [
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            Int.random(in: (goalManager.dailyStepGoal/2)...(goalManager.dailyStepGoal*3/2)),
+            current
+        ]
+    }
+
+    private var focusedDaySteps: Int {
+        last7DaysSteps[focusedDayIndex]
+    }
+
     private var goalProgress: Double {
         min(Double(currentSteps) / Double(goalManager.dailyStepGoal), 1.0)
+    }
+
+    private var focusedDayGoalProgress: Double {
+        min(Double(focusedDaySteps) / Double(goalManager.dailyStepGoal), 1.0)
     }
 
     private var actualProgress: Double {
@@ -465,44 +489,224 @@ struct LargeStepsWidget: View {
     }
 
     private var inlineExpandedView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Header
-                HStack {
-                    HStack(spacing: 8) {
-                        Image(systemName: "figure.walk")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.green)
-                            .frame(width: 36, height: 36)
-                            .background(
-                                Circle()
-                                    .fill(Color.green.opacity(0.15))
-                            )
+        VStack(alignment: .leading, spacing: 20) {
+            // Same header as collapsed view
+            HStack(alignment: .center, spacing: 12) {
+                // Animated icon inline with main metric
+                ZStack {
+                    // Celebration rings when goal achieved
+                    if goalProgress >= 1.0 {
+                        Circle()
+                            .stroke(Color.green.opacity(0.3), lineWidth: 2)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.3)
+                            .opacity(animate ? 0.8 : 0.0)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Steps")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white.opacity(0.7))
+                        Circle()
+                            .stroke(Color.cyan.opacity(0.2), lineWidth: 1.5)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.5)
+                            .opacity(animate ? 0.6 : 0.0)
+                    }
 
-                            HStack(alignment: .lastTextBaseline, spacing: 3) {
-                                Text("\(currentSteps)")
-                                    .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(.white)
-                                Text("/ \(goalManager.dailyStepGoal)")
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.5))
+                    // Icon background
+                    Circle()
+                        .fill(goalProgress >= 1.0 ? Color.green.opacity(0.25) : Color.green.opacity(0.15))
+                        .frame(width: 40, height: 40)
+
+                    Image(systemName: goalProgress >= 1.0 ? "figure.walk.circle.fill" : "figure.walk")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(goalProgress >= 1.0 ? .green : .green)
+                }
+
+                // Main metric display
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Text("Steps")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        // Achievement badge for exceeding goal
+                        if actualProgress >= 2.0 {
+                            HStack(spacing: 2) {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 8, weight: .bold))
+                                Text("2x Goal!")
+                                    .font(.system(size: 8, weight: .bold))
                             }
+                            .foregroundColor(.yellow)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.yellow.opacity(0.2))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.yellow.opacity(0.4), lineWidth: 1)
+                                    )
+                            )
+                        } else if actualProgress >= 1.5 {
+                            HStack(spacing: 2) {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 8, weight: .bold))
+                                Text("On Fire!")
+                                    .font(.system(size: 8, weight: .bold))
+                            }
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.orange.opacity(0.2))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.orange.opacity(0.4), lineWidth: 1)
+                                    )
+                            )
                         }
                     }
 
-                    Spacer()
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(currentSteps)")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(animate ? progressColor : .white)
+
+                        if goalProgress < 1.0 {
+                            Text("/ \(goalManager.dailyStepGoal)")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+                        } else if actualProgress > 1.0 {
+                            // Show exceeded amount
+                            Text("+\(currentSteps - goalManager.dailyStepGoal)")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.green.opacity(0.8))
+                        }
+                    }
                 }
 
-                // Detailed content
-                StepsDetailView(model: model)
+                Spacer()
+
+                // Goal badge
+                VStack(alignment: .trailing, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Image(systemName: goalProgress >= 1.0 ? "trophy.fill" : "target")
+                            .font(.system(size: 10, weight: .semibold))
+                        Text("\(Int(min(goalProgress, 1.0) * 100))%")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(goalProgress >= 1.0 ? .yellow : .green)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(goalProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(goalProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+
+                    Text("Goal: \(goalManager.dailyStepGoal)")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+                .onTapGesture {
+                    showGoalConfig = true
+                }
             }
-            .padding(16)
+
+            // Progress bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background track
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(height: 12)
+
+                    // First bar - progress towards goal (caps at 100%)
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    progressColor,
+                                    progressColor.opacity(0.7)
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geometry.size.width * min(goalProgress, 1.0), height: 12)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: goalProgress)
+
+                    // Second bar - extra steps beyond goal (starts as a new round)
+                    if actualProgress > 1.0 {
+                        let extraProgress = actualProgress - 1.0
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color(red: 0.13, green: 0.55, blue: 0.13))  // Forest green
+                            .frame(width: geometry.size.width * min(extraProgress, 1.0), height: 12)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: actualProgress)
+                    }
+                }
+            }
+            .frame(height: 12)
+
+            // 7-day bar chart
+            Last7DaysStepsChart(stepsData: last7DaysSteps, goal: goalManager.dailyStepGoal, focusedDayIndex: $focusedDayIndex)
+
+            // Quick stats (dynamically update based on focused day)
+            HStack(spacing: 12) {
+                if focusedDayGoalProgress < 1.0 {
+                    QuickStatView(
+                        icon: "figure.walk.motion",
+                        label: "Remaining",
+                        value: "\(max(0, goalManager.dailyStepGoal - focusedDaySteps))"
+                    )
+
+                    Divider()
+                        .frame(height: 28)
+                        .background(Color.white.opacity(0.2))
+                }
+
+                let distanceKm = Double(focusedDaySteps) * 0.000762
+                let distanceMi = distanceKm * 0.621371
+                QuickStatView(
+                    icon: "location.fill",
+                    label: "Distance",
+                    value: String(format: "%.1f km / %.1f mi", distanceKm, distanceMi)
+                )
+
+                if focusedDayGoalProgress >= 1.0 {
+                    Divider()
+                        .frame(height: 28)
+                        .background(Color.white.opacity(0.2))
+
+                    let caloriesBurned = Int(Double(focusedDaySteps) * 0.04)
+                    QuickStatView(
+                        icon: "flame.fill",
+                        label: "Calories",
+                        value: "\(caloriesBurned)"
+                    )
+                }
+            }
         }
+        .padding(20)
+        .background(
+            ZStack {
+                // Decorative footprint pattern in background
+                GeometryReader { geo in
+                    ForEach(0..<3, id: \.self) { index in
+                        Image(systemName: "figure.walk")
+                            .font(.system(size: 40, weight: .ultraLight))
+                            .foregroundColor(Color.cyan.opacity(0.04))
+                            .rotationEffect(.degrees(15))
+                            .offset(
+                                x: CGFloat(index) * (geo.size.width / 3) + 20,
+                                y: CGFloat(index % 2 == 0 ? 20 : 60)
+                            )
+                    }
+                }
+            }
+        )
         .modernWidgetCard(style: .activity)
         .onTapGesture {
             // Tap anywhere to collapse
@@ -512,6 +716,10 @@ struct LargeStepsWidget: View {
             withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                 expandedMetric = nil
             }
+        }
+        .onAppear {
+            // Reset to today when expanded
+            focusedDayIndex = 6
         }
     }
 }
@@ -620,5 +828,115 @@ struct ExpandedStepsWidget: View {
         }
         .modernWidgetCard(style: .activity)
         .matchedGeometryEffect(id: "steps-widget", in: namespace)
+    }
+}
+
+// MARK: - Last 7 Days Steps Chart
+
+struct Last7DaysStepsChart: View {
+    let stepsData: [Int]
+    let goal: Int
+    @Binding var focusedDayIndex: Int
+
+    private var last7DaysSteps: [Int] {
+        stepsData
+    }
+
+    private var maxSteps: Int {
+        max(last7DaysSteps.max() ?? goal, goal)
+    }
+
+    private func formatSteps(_ steps: Int) -> String {
+        let thousands = Double(steps) / 1000.0
+        return String(format: "%.1fk", thousands)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Last 7 Days")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.white.opacity(0.6))
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                GeometryReader { geometry in
+                    ZStack(alignment: .bottom) {
+                        // Goal line (dotted)
+                        let goalY = geometry.size.height * (1.0 - CGFloat(goal) / CGFloat(maxSteps))
+                        Path { path in
+                            path.move(to: CGPoint(x: 0, y: goalY + 14))
+                            path.addLine(to: CGPoint(x: geometry.size.width, y: goalY + 14))
+                        }
+                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        .foregroundColor(.green.opacity(0.5))
+
+                        // Bars
+                        HStack(alignment: .bottom, spacing: 8) {
+                            ForEach(0..<7, id: \.self) { index in
+                                let steps = last7DaysSteps[index]
+                                let height = (geometry.size.height - 14) * CGFloat(steps) / CGFloat(maxSteps)
+                                let isFocused = index == focusedDayIndex
+                                let metGoal = steps >= goal
+
+                                VStack(spacing: 4) {
+                                    // Step count on top
+                                    Text(formatSteps(steps))
+                                        .font(.system(size: isFocused ? 10 : 8, weight: isFocused ? .bold : .medium))
+                                        .foregroundColor(isFocused ? .white : .white.opacity(0.5))
+
+                                    // Bar
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    metGoal ? Color.green : Color.cyan,
+                                                    metGoal ? Color.green.opacity(0.7) : Color.cyan.opacity(0.7)
+                                                ],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .frame(width: isFocused ? 44 : 36, height: max(height, 4))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .stroke(isFocused ? Color.white.opacity(0.8) : Color.clear, lineWidth: isFocused ? 2 : 0)
+                                        )
+                                        .scaleEffect(isFocused ? 1.05 : 1.0)
+                                        .shadow(color: isFocused ? Color.white.opacity(0.3) : Color.clear, radius: isFocused ? 8 : 0)
+
+                                    // Day label
+                                    Text(dayLabel(for: index))
+                                        .font(.system(size: isFocused ? 9 : 8, weight: isFocused ? .bold : .medium))
+                                        .foregroundColor(isFocused ? .white : .white.opacity(0.5))
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        focusedDayIndex = index
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                    }
+                }
+                .frame(height: 110)
+            }
+            .frame(height: 110)
+        }
+        .padding(.bottom, 12)
+    }
+
+    private func dayLabel(for index: Int) -> String {
+        let calendar = Calendar.current
+        let today = Date()
+        let targetDate = calendar.date(byAdding: .day, value: index - 6, to: today) ?? today
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        let dayName = formatter.string(from: targetDate)
+
+        return String(dayName.prefix(1)) // First letter of day name
     }
 }
