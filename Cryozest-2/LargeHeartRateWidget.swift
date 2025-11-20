@@ -81,8 +81,16 @@ struct LargeHeartRateWidget: View {
     }
 
     var body: some View {
-        // Always show expanded view with graph
-        expandedView
+        if expandedMetric == .rhr {
+            fullyExpandedView
+        } else {
+            expandedView
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                        expandedMetric = .rhr
+                    }
+                }
+        }
     }
 
     private var collapsedView: some View {
@@ -497,6 +505,113 @@ struct LargeHeartRateWidget: View {
         .id(Calendar.current.startOfDay(for: selectedDate))
     }
 
+    private var fullyExpandedView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header with close button
+                HStack {
+                    HStack(spacing: 12) {
+                        // Heart icon
+                        ZStack {
+                            Circle()
+                                .fill(Color.red.opacity(monitoringPulse ? 0.2 : 0.15))
+                                .frame(width: 44, height: 44)
+                                .shadow(color: Color.red.opacity(monitoringPulse ? 0.4 : 0.2), radius: monitoringPulse ? 8 : 4)
+
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundColor(.red)
+                                .scaleEffect(heartPulse ? 1.1 : 1.0)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Heart Rate")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            if let rhr = currentRHR {
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    Text("\(rhr)")
+                                        .font(.system(size: 34, weight: .bold))
+                                        .foregroundColor(.white)
+
+                                    Text("bpm")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.5))
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Close button
+                    Button(action: {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                            expandedMetric = nil
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                // Large detailed graph
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Throughout Day")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+
+                    RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
+                        .frame(height: 200)
+                }
+                .padding(.vertical, 8)
+
+                // Stats grid
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        // Current reading
+                        HeartRateStatCard(
+                            icon: "heart.fill",
+                            label: "Current",
+                            value: currentRHR != nil ? "\(currentRHR!) bpm" : "-- bpm",
+                            color: trendColor
+                        )
+
+                        // Weekly average
+                        HeartRateStatCard(
+                            icon: "chart.line.uptrend.xyaxis",
+                            label: "Weekly Avg",
+                            value: weeklyAverageRHR != nil ? "\(weeklyAverageRHR!) bpm" : "-- bpm",
+                            color: .cyan
+                        )
+                    }
+
+                    HStack(spacing: 12) {
+                        // Trend
+                        HeartRateStatCard(
+                            icon: trendIcon,
+                            label: "Trend",
+                            value: trend.rawValue,
+                            color: trendColor
+                        )
+
+                        // Last updated
+                        HeartRateStatCard(
+                            icon: "clock.fill",
+                            label: "Updated",
+                            value: timeAgoText ?? "Unknown",
+                            color: .purple
+                        )
+                    }
+                }
+            }
+            .padding(20)
+        }
+        .modernWidgetCard(style: .healthData)
+    }
+
     private func fetchTodayRHRReadings() {
         // Clear existing readings immediately to prevent showing stale data
         DispatchQueue.main.async {
@@ -726,10 +841,13 @@ struct HourRow: View {
                             .opacity(0.9)
 
                         // Bar with height varying based on value
+                        // Use the actual BPM value directly for more variation
                         let normalizedHeight = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) : 0
-                        let minBarHeight: CGFloat = 8
-                        let maxBarHeight = rowHeight - 20
-                        let height = minBarHeight + (normalizedHeight * (maxBarHeight - minBarHeight))
+                        let minBarHeight: CGFloat = 6
+                        let maxBarHeight = rowHeight - 15
+                        // Apply exponential scaling for more dramatic height differences
+                        let scaledHeight = pow(normalizedHeight, 0.7)
+                        let height = minBarHeight + (scaledHeight * (maxBarHeight - minBarHeight))
 
                         RoundedRectangle(cornerRadius: 3)
                             .fill(
@@ -767,5 +885,49 @@ struct HourRow: View {
                 }
             }
         }
+    }
+}
+
+struct HeartRateStatCard: View {
+    let icon: String
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.15))
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(color)
+            }
+
+            // Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+
+                Text(value)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+            }
+
+            Spacer()
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
 }
