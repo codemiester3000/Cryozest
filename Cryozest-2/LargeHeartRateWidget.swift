@@ -91,7 +91,7 @@ struct LargeHeartRateWidget: View {
             if isExpanded {
                 inlineExpandedView
             } else {
-                expandedView
+                collapsedView
                     .onTapGesture {
                         // Haptic feedback
                         let generator = UIImpactFeedbackGenerator(style: .medium)

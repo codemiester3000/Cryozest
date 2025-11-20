@@ -241,6 +241,7 @@ struct DailyView: View {
                         expandedMetric = expandedMetric == .sleep ? nil : .sleep
                     }
                 },
+                expandedMetric: $expandedMetric,
                 recoveryMinutes: exertionModel.recoveryMinutes,
                 conditioningMinutes: exertionModel.conditioningMinutes,
                 overloadMinutes: exertionModel.overloadMinutes
@@ -1044,7 +1045,19 @@ struct GridItemView: View {
         self.namespace = namespace
     }
 
+    private var isExpanded: Bool {
+        expandedMetric == metricType
+    }
+
     var body: some View {
+        if isExpanded {
+            expandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: symbolName)
@@ -1107,15 +1120,41 @@ struct GridItemView: View {
         )
         .shadow(color: animate ? Color.cyan.opacity(0.25) : Color.black.opacity(0.05), radius: 6, x: 0, y: 3)
         .scaleEffect(isPressed ? 0.95 : 1.0)
-        .matchedGeometryEffect(id: "metric-\(metricType.rawValue)", in: namespace, properties: .frame)
         .onTapGesture {
-            expandedMetric = metricType
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                expandedMetric = metricType
+            }
         }
         .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
             }
         }, perform: {})
+    }
+
+    @ViewBuilder
+    private var expandedView: some View {
+        ExpandedGridItemView(
+            symbolName: symbolName,
+            title: title,
+            value: value,
+            unit: unit,
+            metricType: metricType,
+            model: model,
+            expandedMetric: $expandedMetric,
+            namespace: namespace
+        )
+        .onTapGesture {
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                expandedMetric = nil
+            }
+        }
     }
 }
 
@@ -1247,6 +1286,7 @@ struct HeroScoresView: View {
     let onExertionTap: () -> Void
     let onReadinessTap: () -> Void
     let onSleepTap: () -> Void
+    @Binding var expandedMetric: MetricType?
 
     @ObservedObject var configManager = MetricConfigurationManager.shared
 
@@ -1292,14 +1332,16 @@ struct HeroScoresView: View {
             if configManager.isEnabled(.readiness) {
                 ReadinessWidget(
                     readinessScore: readinessScore,
-                    action: onReadinessTap
+                    action: onReadinessTap,
+                    expandedMetric: $expandedMetric
                 )
             }
         case .sleep:
             if configManager.isEnabled(.sleep) {
                 SleepWidget(
                     sleepDuration: sleepDuration,
-                    action: onSleepTap
+                    action: onSleepTap,
+                    expandedMetric: $expandedMetric
                 )
             }
         }
@@ -2519,8 +2561,13 @@ struct ModernWidgetCardStyle: ViewModifier {
 struct ReadinessWidget: View {
     let readinessScore: Int
     let action: () -> Void
+    @Binding var expandedMetric: MetricType?
 
     @State private var isPressed = false
+
+    private var isExpanded: Bool {
+        expandedMetric == .recovery
+    }
 
     private var scoreColor: Color {
         if readinessScore >= 80 {
@@ -2565,6 +2612,14 @@ struct ReadinessWidget: View {
     }
 
     var body: some View {
+        if isExpanded {
+            expandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 14) {
                 // Header
@@ -2688,6 +2743,138 @@ struct ReadinessWidget: View {
             }
         }, perform: {})
     }
+
+    private var expandedView: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header
+                HStack(alignment: .center, spacing: 12) {
+                    ZStack {
+                        // Pulse effect when ready
+                        if readinessScore >= 80 {
+                            Circle()
+                                .stroke(scoreColor.opacity(0.3), lineWidth: 2)
+                                .frame(width: 40, height: 40)
+                        }
+
+                        Circle()
+                            .fill(scoreColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+
+                        Image(systemName: readinessScore >= 80 ? "bolt.circle.fill" : "bolt.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(scoreColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Readiness")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(readinessScore > 0 ? "\(readinessScore)" : "--")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+
+                            if readinessScore > 0 {
+                                Text("/ 100")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Status badge
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(statusText)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(scoreColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(scoreColor.opacity(0.15))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(scoreColor.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                    }
+                }
+
+                // Recommendation card
+                HStack(spacing: 10) {
+                    Image(systemName: readinessScore == 0 ? "applewatch" : "lightbulb.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(readinessScore == 0 ? .gray : .cyan)
+
+                    Text(actionableMessage)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(
+                                    readinessScore == 0 ? Color.gray.opacity(0.3) : Color.cyan.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+                )
+
+                // Contributing factors (if we have data)
+                if readinessScore > 0 {
+                    VStack(spacing: 6) {
+                        Text("Based on:")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        HStack(spacing: 12) {
+                            FactorPill(icon: "waveform.path.ecg", label: "HRV", color: .cyan)
+                            FactorPill(icon: "heart.fill", label: "RHR", color: .red)
+                            FactorPill(icon: "bed.double.fill", label: "Sleep", color: .purple)
+                        }
+                    }
+                }
+
+                // Additional expanded content
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("About Your Readiness")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+
+                    Text("Your readiness score combines multiple recovery metrics to help you understand how prepared your body is for training. Higher scores indicate better recovery and readiness for intense activity.")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.6))
+                        .lineSpacing(4)
+                }
+                .padding(.top, 8)
+            }
+            .padding(16)
+            .background(
+                ZStack {
+                    GeometryReader { geo in
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 60, weight: .ultraLight))
+                            .foregroundColor(scoreColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(x: geo.size.width - 50, y: 10)
+                    }
+                }
+            )
+            .modernWidgetCard(style: .hero)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
 // MARK: - Sleep Widget
@@ -2695,8 +2882,13 @@ struct ReadinessWidget: View {
 struct SleepWidget: View {
     let sleepDuration: String?
     let action: () -> Void
+    @Binding var expandedMetric: MetricType?
 
     @State private var isPressed = false
+
+    private var isExpanded: Bool {
+        expandedMetric == .sleep
+    }
 
     private var sleepHours: Double {
         guard let duration = sleepDuration,
@@ -2749,6 +2941,14 @@ struct SleepWidget: View {
     }
 
     var body: some View {
+        if isExpanded {
+            expandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 14) {
                 // Header
@@ -2895,6 +3095,115 @@ struct SleepWidget: View {
                 isPressed = pressing
             }
         }, perform: {})
+    }
+
+    private var expandedView: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Header
+                HStack(alignment: .center, spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(scoreColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+
+                        Image(systemName: sleepHours >= 7.5 ? "bed.double.circle.fill" : "bed.double.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(scoreColor)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Sleep")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(sleepHours > 0 ? String(format: "%.1f", sleepHours) : "--")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+
+                            if sleepHours > 0 {
+                                Text("hours")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // Status badge
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(statusText)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(scoreColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(
+                                Capsule()
+                                    .fill(scoreColor.opacity(0.15))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(scoreColor.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                    }
+                }
+
+                // Recommendation card
+                HStack(spacing: 10) {
+                    Image(systemName: sleepHours == 0 ? "applewatch" : "moon.zzz.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(sleepHours == 0 ? .gray : .purple)
+
+                    Text(actionableMessage)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(
+                                    sleepHours == 0 ? Color.gray.opacity(0.3) : Color.purple.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+                )
+
+                // Additional expanded content
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("About Sleep Tracking")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.7))
+
+                    Text("Quality sleep is essential for recovery and performance. Most adults need 7-9 hours of sleep per night. Your Apple Watch tracks sleep stages including Deep, REM, and Core sleep.")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.6))
+                        .lineSpacing(4)
+                }
+                .padding(.top, 8)
+            }
+            .padding(16)
+            .background(
+                ZStack {
+                    GeometryReader { geo in
+                        Image(systemName: "moon.zzz.fill")
+                            .font(.system(size: 60, weight: .ultraLight))
+                            .foregroundColor(scoreColor.opacity(0.04))
+                            .rotationEffect(.degrees(-15))
+                            .offset(x: geo.size.width - 50, y: 10)
+                    }
+                }
+            )
+            .modernWidgetCard(style: .hero)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
