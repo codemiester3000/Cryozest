@@ -19,6 +19,8 @@ enum MetricType: String, CaseIterable {
     case remSleep = "REM Sleep"
     case coreSleep = "Core Sleep"
     case exertion = "Exertion"
+    case recovery = "Recovery"
+    case sleep = "Sleep"
 
     var icon: String {
         switch self {
@@ -33,6 +35,8 @@ enum MetricType: String, CaseIterable {
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
         case .exertion: return "flame.fill"
+        case .recovery: return "heart.fill"
+        case .sleep: return "moon.zzz.fill"
         }
     }
 
@@ -49,6 +53,8 @@ enum MetricType: String, CaseIterable {
         case .remSleep: return .purple
         case .coreSleep: return .blue
         case .exertion: return .orange
+        case .recovery: return .cyan
+        case .sleep: return .indigo
         }
     }
 }
@@ -169,6 +175,10 @@ struct ExpandedMetricView: View {
         case .exertion:
             // Exertion has its own dedicated widget with expanded state
             EmptyView()
+        case .recovery:
+            RecoveryDetailView(model: model)
+        case .sleep:
+            SleepDetailView(model: model)
         }
     }
 }
@@ -184,6 +194,42 @@ struct SleepMetricDetailView: View {
                 .foregroundColor(.white.opacity(0.9))
 
             Text("Tap on the Sleep hero card or visit the Sleep tab for detailed sleep analysis and trends.")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundColor(.white.opacity(0.7))
+                .lineSpacing(4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct RecoveryDetailView: View {
+    let model: RecoveryGraphModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Recovery Score Details")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white.opacity(0.9))
+
+            Text("Your recovery score is calculated based on HRV, resting heart rate, sleep quality, and other metrics to help you understand how ready you are for activity.")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundColor(.white.opacity(0.7))
+                .lineSpacing(4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct SleepDetailView: View {
+    let model: RecoveryGraphModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Sleep Score Details")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white.opacity(0.9))
+
+            Text("Your sleep score is based on total sleep duration, sleep stages, and sleep consistency. Visit the Sleep tab for more detailed analysis.")
                 .font(.system(size: 14, weight: .regular))
                 .foregroundColor(.white.opacity(0.7))
                 .lineSpacing(4)

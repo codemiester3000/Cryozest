@@ -15,8 +15,6 @@ struct DailyView: View {
     @State private var selectedDate: Date = Calendar.current.startOfDay(for: Date())
     @State private var dragOffset: CGFloat = 0
 
-    @State private var showingRecoveryPopover = false
-    @State private var showingSleepPopover = false
     @State private var showingMetricConfig = false
     @State private var calculatedUpperBound: Double = 8.0
     @ObservedObject var metricConfig = MetricConfigurationManager.shared
@@ -44,19 +42,32 @@ struct DailyView: View {
     }
 
     private func supportsInlineExpansion(_ section: DailyWidgetSection) -> Bool {
-        section == .largeHeartRate || section == .largeSteps || section == .exertion
+        // All widget sections now support inline expansion
+        section == .largeHeartRate || section == .largeSteps || section == .exertion ||
+        section == .metricsGrid || section == .heroScores
     }
 
     private func isInlineExpanded(_ section: DailyWidgetSection) -> Bool {
-        (section == .largeHeartRate && expandedMetric == .rhr) ||
-        (section == .largeSteps && expandedMetric == .steps) ||
-        (section == .exertion && expandedMetric == .exertion)
+        guard let metric = expandedMetric else { return false }
+
+        switch section {
+        case .largeHeartRate: return metric == .rhr
+        case .largeSteps: return metric == .steps
+        case .exertion: return metric == .exertion
+        case .metricsGrid:
+            // MetricsGrid expands when any individual metric from the grid is expanded
+            return [.hrv, .spo2, .respiratoryRate, .calories, .vo2Max, .deepSleep, .remSleep, .coreSleep].contains(metric)
+        case .heroScores:
+            // HeroScores expands when recovery or sleep is expanded
+            return metric == .recovery || metric == .sleep
+        default: return false
+        }
     }
 
     private func shouldHideWidget(_ section: DailyWidgetSection) -> Bool {
         guard let metric = expandedMetric else { return false }
-        // Don't hide if this widget is expanded or if the expanded metric supports inline expansion
-        return !isInlineExpanded(section) && (metric != .rhr && metric != .steps && metric != .exertion)
+        // Only hide if another widget is expanded (not this one)
+        return !isInlineExpanded(section)
     }
 
     private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
@@ -220,11 +231,15 @@ struct DailyView: View {
                 },
                 onReadinessTap: {
                     triggerHapticFeedback()
-                    showingRecoveryPopover = true
+                    withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                        expandedMetric = expandedMetric == .recovery ? nil : .recovery
+                    }
                 },
                 onSleepTap: {
                     triggerHapticFeedback()
-                    showingSleepPopover = true
+                    withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                        expandedMetric = expandedMetric == .sleep ? nil : .sleep
+                    }
                 },
                 recoveryMinutes: exertionModel.recoveryMinutes,
                 conditioningMinutes: exertionModel.conditioningMinutes,
@@ -399,18 +414,7 @@ struct DailyView: View {
                                     }
                                 }
 
-                                // Show expanded overlay for widgets that don't support inline expansion (old behavior)
-                                if let metric = expandedMetric, metric != .rhr && metric != .steps && metric != .exertion {
-                                    ExpandedMetricView(
-                                        metricType: metric,
-                                        model: recoveryModel,
-                                        isPresented: Binding(
-                                            get: { expandedMetric != nil },
-                                            set: { if !$0 { expandedMetric = nil } }
-                                        )
-                                    )
-                                    .padding(.horizontal)
-                                }
+                                // All widgets now use inline expansion - no overlay needed
                             }
                             .animation(.spring(response: 0.8, dampingFraction: 0.85), value: expandedMetric)
                             .padding(.bottom, 12)
@@ -479,12 +483,6 @@ struct DailyView: View {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
-            }
-            .sheet(isPresented: $showingSleepPopover) {
-                DailySleepView(dailySleepModel: sleepModel)
-            }
-            .sheet(isPresented: $showingRecoveryPopover) {
-                RecoveryCardView(model: recoveryModel)
             }
             .sheet(isPresented: $showingMetricConfig) {
                 MetricConfigurationView()
@@ -960,6 +958,8 @@ struct DailyGridMetrics: View {
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
         case .exertion: return "flame.fill"
+        case .recovery: return "heart.fill"
+        case .sleep: return "moon.zzz.fill"
         }
     }
 
@@ -976,6 +976,8 @@ struct DailyGridMetrics: View {
         case .remSleep: return "REM Sleep"
         case .coreSleep: return "Core Sleep"
         case .exertion: return "Exertion"
+        case .recovery: return "Recovery"
+        case .sleep: return "Sleep"
         }
     }
 
@@ -992,6 +994,8 @@ struct DailyGridMetrics: View {
         case .remSleep: return sleepModel.totalRemSleep
         case .coreSleep: return sleepModel.totalCoreSleep
         case .exertion: return "N/A" // Exertion uses dedicated widget
+        case .recovery: return "N/A" // Recovery uses dedicated widget
+        case .sleep: return "N/A" // Sleep uses dedicated widget
         }
     }
 
@@ -1008,6 +1012,8 @@ struct DailyGridMetrics: View {
         case .remSleep: return "hrs"
         case .coreSleep: return "hrs"
         case .exertion: return ""
+        case .recovery: return ""
+        case .sleep: return ""
         }
     }
 }
@@ -1225,6 +1231,10 @@ struct ExpandedGridItemView: View {
         case .exertion:
             // Exertion has its own dedicated widget with expanded state
             EmptyView()
+        case .recovery:
+            RecoveryDetailView(model: model)
+        case .sleep:
+            SleepDetailView(model: model)
         }
     }
 }
@@ -1971,9 +1981,7 @@ struct MetricsGridSection: View {
     @Namespace private var animation
 
     var body: some View {
-        ZStack {
-            if expandedMetric == nil {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 12) {
             if configManager.isEnabled(.hrv) {
                 GridItemView(
                     symbolName: "waveform.path.ecg",
@@ -2078,28 +2086,7 @@ struct MetricsGridSection: View {
                 )
             }
         }
-            }  // Close expandedMetric == nil
-
-            // Show expanded view when a metric is tapped
-            if let metric = expandedMetric {
-                ExpandedGridItemView(
-                    symbolName: iconFor(metric),
-                    title: titleFor(metric),
-                    value: valueFor(metric),
-                    unit: unitFor(metric),
-                    metricType: metric,
-                    model: model,
-                    expandedMetric: $expandedMetric,
-                    namespace: animation
-                )
-                .transition(.asymmetric(
-                    insertion: .identity,
-                    removal: .identity
-                ))
-                .zIndex(1)
-            }
-        }  // Close ZStack
-        .animation(.spring(response: 0.6, dampingFraction: 0.85), value: expandedMetric)
+        .animation(.spring(response: 0.8, dampingFraction: 0.85), value: expandedMetric)
     }
 
     private func formatSPO2Value(_ spo2: Double?) -> String {
@@ -2130,6 +2117,8 @@ struct MetricsGridSection: View {
         case .remSleep: return "moon.stars.fill"
         case .coreSleep: return "moon.fill"
         case .exertion: return "flame.fill"
+        case .recovery: return "heart.fill"
+        case .sleep: return "moon.zzz.fill"
         }
     }
 
@@ -2146,6 +2135,8 @@ struct MetricsGridSection: View {
         case .remSleep: return "REM Sleep"
         case .coreSleep: return "Core Sleep"
         case .exertion: return "Exertion"
+        case .recovery: return "Recovery"
+        case .sleep: return "Sleep"
         }
     }
 
@@ -2162,6 +2153,8 @@ struct MetricsGridSection: View {
         case .remSleep: return sleepModel.totalRemSleep
         case .coreSleep: return sleepModel.totalCoreSleep
         case .exertion: return "N/A" // Exertion uses dedicated widget
+        case .recovery: return "N/A" // Recovery uses dedicated widget
+        case .sleep: return "N/A" // Sleep uses dedicated widget
         }
     }
 
@@ -2178,6 +2171,8 @@ struct MetricsGridSection: View {
         case .remSleep: return "hrs"
         case .coreSleep: return "hrs"
         case .exertion: return ""
+        case .recovery: return ""
+        case .sleep: return ""
         }
     }
 }
@@ -2222,6 +2217,28 @@ struct ExpandedMetricOverlay: View {
             case .exertion:
                 // Exertion has its own dedicated widget with expanded state
                 EmptyView()
+            case .recovery:
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Recovery Score Details")
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(.white)
+
+                    Text("Your recovery score is calculated based on HRV, resting heart rate, sleep quality, and other metrics to help you understand how ready you are for activity.")
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding()
+            case .sleep:
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Sleep Score Details")
+                        .font(.title2)
+                        .bold()
+                        .foregroundColor(.white)
+
+                    Text("Your sleep score is based on total sleep duration, sleep stages, and sleep consistency. Visit the Sleep tab for more detailed analysis.")
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
