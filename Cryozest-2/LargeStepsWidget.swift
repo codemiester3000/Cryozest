@@ -71,7 +71,19 @@ struct LargeStepsWidget: View {
         goalProgress >= 1.0 ? 8 : 6
     }
 
+    private var isExpanded: Bool {
+        expandedMetric == .steps
+    }
+
     var body: some View {
+        if isExpanded {
+            inlineExpandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Compact header with icon inline and goal badge
             HStack(alignment: .center, spacing: 12) {
@@ -375,7 +387,12 @@ struct LargeStepsWidget: View {
         )
         .contentShape(Rectangle())  // Make entire area tappable
         .onTapGesture {
-            expandedMetric = .steps
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                expandedMetric = .steps
+            }
         }
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
@@ -444,6 +461,57 @@ struct LargeStepsWidget: View {
         }
         .sheet(isPresented: $showGoalConfig) {
             StepGoalConfigView()
+        }
+    }
+
+    private var inlineExpandedView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "figure.walk")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.green)
+                            .frame(width: 36, height: 36)
+                            .background(
+                                Circle()
+                                    .fill(Color.green.opacity(0.15))
+                            )
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Steps")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text("\(currentSteps)")
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                Text("/ \(goalManager.dailyStepGoal)")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+                }
+
+                // Detailed content
+                StepsDetailView(model: model)
+            }
+            .padding(16)
+        }
+        .modernWidgetCard(style: .activity)
+        .onTapGesture {
+            // Tap anywhere to collapse
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                expandedMetric = nil
+            }
         }
     }
 }

@@ -43,6 +43,21 @@ struct DailyView: View {
         widgetOrderManager.widgetOrder.filter { shouldShowWidget($0) }
     }
 
+    private func supportsInlineExpansion(_ section: DailyWidgetSection) -> Bool {
+        section == .largeHeartRate || section == .largeSteps
+    }
+
+    private func isInlineExpanded(_ section: DailyWidgetSection) -> Bool {
+        (section == .largeHeartRate && expandedMetric == .rhr) ||
+        (section == .largeSteps && expandedMetric == .steps)
+    }
+
+    private func shouldHideWidget(_ section: DailyWidgetSection) -> Bool {
+        guard let metric = expandedMetric else { return false }
+        // Don't hide if this widget is expanded or if the expanded metric supports inline expansion
+        return !isInlineExpanded(section) && (metric != .rhr && metric != .steps)
+    }
+
     private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
         // Throttle rapid moves
         let now = Date()
@@ -336,74 +351,63 @@ struct DailyView: View {
                             .padding(.top)
                             .padding(.bottom, 12)
 
-                            // Reorderable widgets with expansion support
-                            ZStack {
-                                if expandedMetric == nil {
-                                    VStack(spacing: 12) {
-                                        ForEach(visibleWidgets) { section in
-                                    widgetView(for: section)
-                                        .padding(.horizontal)
-                                        .simultaneousGesture(
-                                            LongPressGesture(minimumDuration: 0.6)
-                                                .onEnded { _ in
-                                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                                    generator.impactOccurred()
+                            // Reorderable widgets with inline expansion
+                            VStack(spacing: 12) {
+                                ForEach(visibleWidgets) { section in
+                                    // For heart rate and steps widgets, expansion happens inline
+                                    if shouldHideWidget(section) {
+                                        // Hide widgets when a different widget is expanded (overlay behavior)
+                                        EmptyView()
+                                    } else if isInlineExpanded(section) {
+                                        widgetView(for: section)
+                                            .padding(.horizontal)
+                                            .transition(.scale(scale: 0.95).combined(with: .opacity))
+                                    } else {
+                                        widgetView(for: section)
+                                            .padding(.horizontal)
+                                            .simultaneousGesture(
+                                                LongPressGesture(minimumDuration: 0.6)
+                                                    .onEnded { _ in
+                                                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                        generator.impactOccurred()
+                                                        withAnimation(.spring(response: 0.3)) {
+                                                            isReorderMode = true
+                                                        }
+                                                    }
+                                            )
+                                            .onDrag {
+                                                // Enter reorder mode if not already in it
+                                                if !isReorderMode {
                                                     withAnimation(.spring(response: 0.3)) {
                                                         isReorderMode = true
                                                     }
+                                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                                    generator.impactOccurred()
                                                 }
-                                        )
-                                        .onDrag {
 
-                                            // Enter reorder mode if not already in it
-                                            if !isReorderMode {
-                                                withAnimation(.spring(response: 0.3)) {
-                                                    isReorderMode = true
+                                                self.draggedWidget = section
+                                                triggerHapticFeedback()
+                                                return NSItemProvider(object: section.rawValue as NSString)
+                                            }
+                                            .onDrop(of: [.text], delegate: WidgetDropDelegate(
+                                                draggedWidget: $draggedWidget,
+                                                currentWidget: section,
+                                                onMove: { from, to in
+                                                    moveWidget(from: from, to: to)
                                                 }
-                                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                                generator.impactOccurred()
-                                            }
-
-                                            self.draggedWidget = section
-                                            triggerHapticFeedback()
-                                            return NSItemProvider(object: section.rawValue as NSString)
-                                        }
-                                        .onDrop(of: [.text], delegate: WidgetDropDelegate(
-                                            draggedWidget: $draggedWidget,
-                                            currentWidget: section,
-                                            onMove: { from, to in
-                                                moveWidget(from: from, to: to)
-                                            }
-                                        ))
+                                            ))
+                                    }
                                 }
-                            }
-                            .padding(.bottom, 12)
-                                }  // Close expandedMetric == nil
 
-                                // Show expanded metric view when tapped
-                                if let metric = expandedMetric {
+                                // Show expanded overlay for widgets that don't support inline expansion (old behavior)
+                                if let metric = expandedMetric, metric != .rhr && metric != .steps {
                                     Group {
-                                        if metric == .steps {
-                                            ExpandedStepsWidget(
-                                                model: recoveryModel,
-                                                expandedMetric: $expandedMetric,
-                                                namespace: metricAnimation
-                                            )
-                                            .padding(.horizontal)
-                                        } else if metric == .exertion {
+                                        if metric == .exertion {
                                             ExpandedExertionWidget(
                                                 exertionModel: exertionModel,
                                                 recoveryModel: recoveryModel,
                                                 expandedMetric: $expandedMetric,
                                                 namespace: metricAnimation
-                                            )
-                                            .padding(.horizontal)
-                                        } else if metric == .rhr {
-                                            ExpandedHeartRateWidget(
-                                                model: recoveryModel,
-                                                expandedMetric: $expandedMetric,
-                                                namespace: metricAnimation,
-                                                selectedDate: selectedDate
                                             )
                                             .padding(.horizontal)
                                         } else {
@@ -419,9 +423,10 @@ struct DailyView: View {
                                             .padding(.horizontal)
                                         }
                                     }
-                                    .zIndex(1)
                                 }
-                            }  // Close ZStack
+                            }
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: expandedMetric)
+                            .padding(.bottom, 12)
 
                             // Bottom spacer to prevent tab bar overlap
                             Color.clear

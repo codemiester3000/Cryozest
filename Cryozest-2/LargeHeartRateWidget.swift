@@ -82,17 +82,27 @@ struct LargeHeartRateWidget: View {
 
     var namespace: Namespace.ID
 
-    var body: some View {
-        expandedView
-            .onTapGesture {
-                // Haptic feedback
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
+    private var isExpanded: Bool {
+        expandedMetric == .rhr
+    }
 
-                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                    expandedMetric = .rhr
-                }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if isExpanded {
+                inlineExpandedView
+            } else {
+                expandedView
+                    .onTapGesture {
+                        // Haptic feedback
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            expandedMetric = .rhr
+                        }
+                    }
             }
+        }
     }
 
     private var collapsedView: some View {
@@ -507,7 +517,286 @@ struct LargeHeartRateWidget: View {
         .id(Calendar.current.startOfDay(for: selectedDate))
     }
 
+    private var inlineExpandedView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Compact header with icon inline
+            HStack(alignment: .center) {
+                // Animated heart icon with pulse
+                ZStack {
+                    // Outer pulse rings for monitoring indication
+                    Circle()
+                        .stroke(Color.red.opacity(0.3), lineWidth: 2)
+                        .frame(width: 40, height: 40)
+                        .scaleEffect(animate ? 1.0 : 1.3)
+                        .opacity(animate ? 0.7 : 0.0)
+
+                    Circle()
+                        .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
+                        .frame(width: 40, height: 40)
+                        .scaleEffect(animate ? 1.0 : 1.5)
+                        .opacity(animate ? 0.5 : 0.0)
+
+                    // Icon background with subtle glow
+                    Circle()
+                        .fill(Color.red.opacity(monitoringPulse ? 0.2 : 0.15))
+                        .frame(width: 40, height: 40)
+                        .shadow(color: Color.red.opacity(monitoringPulse ? 0.4 : 0.2), radius: monitoringPulse ? 8 : 4)
+
+                    // Heart icon with subtle scale animation
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.red)
+                        .scaleEffect(heartPulse ? 1.1 : 1.0)
+                }
+
+                // Main metric display
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text("Heart Rate")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        // LIVE indicator for recent data
+                        if let recentTime = mostRecentReadingTime,
+                           Date().timeIntervalSince(recentTime) < 300 { // < 5 minutes
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 5, height: 5)
+                                    .opacity(animate ? 0.4 : 1.0)
+
+                                Text("LIVE")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundColor(.red)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.red.opacity(0.15))
+                            )
+                        } else {
+                            // Monitoring indicator when not live
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.cyan)
+                                    .frame(width: 4, height: 4)
+                                    .opacity(monitoringPulse ? 0.3 : 0.8)
+
+                                Text("MONITORING")
+                                    .font(.system(size: 7, weight: .semibold))
+                                    .foregroundColor(.cyan.opacity(0.7))
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.cyan.opacity(0.1))
+                            )
+                        }
+                    }
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        if let rhr = currentRHR {
+                            Text("\(rhr)")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("--")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+
+                        Text("bpm")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    if let timeText = timeAgoText {
+                        Text(timeText)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                Spacer()
+
+                // Trend badge
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 3) {
+                        Image(systemName: trendIcon)
+                            .font(.system(size: 10, weight: .bold))
+                        Text(trend.rawValue)
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(trendColor)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(trendColor.opacity(0.15))
+                            .overlay(
+                                Capsule()
+                                    .stroke(trendColor.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .padding(.top, 8)
+            }
+
+            // Heart rate graph - LARGER with two-row layout
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Throughout Day")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
+
+                RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
+                    .frame(height: 200)
+            }
+            .padding(.bottom, 8)
+
+            // Stats row
+            HStack(spacing: 10) {
+                // Weekly average comparison
+                HStack(spacing: 5) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.cyan)
+
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Weekly Avg")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+
+                        if let avg = weeklyAverageRHR {
+                            Text("\(avg) bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("-- bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.white.opacity(0.2))
+
+                // Difference from average
+                HStack(spacing: 5) {
+                    if let current = currentRHR, let avg = weeklyAverageRHR {
+                        let diff = current - avg
+                        Image(systemName: diff < 0 ? "arrow.down" : "arrow.up")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(diff < 0 ? .green : .orange)
+
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("vs Average")
+                                .font(.system(size: 8, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+
+                            Text("\(abs(diff)) bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(diff < 0 ? .green : .orange)
+                        }
+                    } else {
+                        Image(systemName: "minus")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.3))
+
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("vs Average")
+                                .font(.system(size: 8, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+
+                            Text("-- bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(14)
+        .background(
+            ZStack {
+                // Decorative ECG wave pattern in background
+                GeometryReader { geo in
+                    Path { path in
+                        let width = geo.size.width
+                        let height = geo.size.height
+                        let waveHeight: CGFloat = 20
+                        let waveWidth: CGFloat = 40
+
+                        path.move(to: CGPoint(x: 0, y: height - 30))
+
+                        var x: CGFloat = 0
+                        while x < width {
+                            // ECG-style wave pattern
+                            path.addLine(to: CGPoint(x: x, y: height - 30))
+                            path.addLine(to: CGPoint(x: x + 5, y: height - 30 - waveHeight))
+                            path.addLine(to: CGPoint(x: x + 10, y: height - 30))
+                            path.addLine(to: CGPoint(x: x + 15, y: height - 30 + waveHeight/2))
+                            path.addLine(to: CGPoint(x: x + 20, y: height - 30))
+                            x += waveWidth
+                        }
+                    }
+                    .stroke(Color.red.opacity(0.08), lineWidth: 1.5)
+                }
+            }
+        )
+        .modernWidgetCard(style: .healthData)
+        .overlay(
+            // Corner health status badge
+            VStack {
+                HStack {
+                    Spacer()
+                    if trend == .improving {
+                        HStack(spacing: 3) {
+                            Image(systemName: "heart.circle.fill")
+                                .font(.system(size: 10, weight: .bold))
+                            Text("Healthy")
+                                .font(.system(size: 9, weight: .bold))
+                        }
+                        .foregroundColor(.green)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.green.opacity(0.2))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.green.opacity(0.4), lineWidth: 1)
+                                )
+                        )
+                        .offset(x: -12, y: 12)
+                    }
+                }
+                Spacer()
+            }
+        )
+        .onTapGesture {
+            // Tap anywhere to collapse
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                expandedMetric = nil
+            }
+        }
+        .onAppear {
+            // Ensure data is loaded when expanding
+            fetchTodayRHRReadings()
+        }
+    }
+
     private func fetchTodayRHRReadings() {
+        print("🫀 [FETCH] fetchTodayRHRReadings called, isExpanded: \(isExpanded)")
+
         // Clear existing readings immediately to prevent showing stale data
         DispatchQueue.main.async {
             self.todayRHRReadings = []
