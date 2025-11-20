@@ -1,0 +1,10 @@
+Target dependency graph (5 targets)
+Target 'Cryozest-2' in project 'Cryozest-2'
+➜ Explicit dependency on target 'JTAppleCalendar' in project 'JTAppleCalendar'
+➜ Explicit dependency on target 'FSCalendar' in project 'FSCalendar'
+Target 'FSCalendar' in project 'FSCalendar'
+➜ Explicit dependency on target 'FSCalendar' in project 'FSCalendar'
+Target 'FSCalendar' in project 'FSCalendar' (no dependencies)
+Target 'JTAppleCalendar' in project 'JTAppleCalendar'
+➜ Explicit dependency on target 'JTAppleCalendar' in project 'JTAppleCalendar'
+Target 'JTAppleCalendar' in project 'JTAppleCalendar' (no dependencies)

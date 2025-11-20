@@ -1,0 +1,48 @@
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MetricConfigurationView.swift":
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MetricConfigurationView.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MetricConfigurationView.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MetricConfigurationView.o"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MetricConfigurationView.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MetricConfigurationView.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/SessionRow.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionRow.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionRow.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionRow.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionRow.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionRow.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/SessionCompletedCell.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionCompletedCell.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionCompletedCell.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionCompletedCell.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionCompletedCell.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SessionCompletedCell.dia"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/InsightsView.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/InsightsView.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/InsightsView.swiftconstvalues"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/InsightsView.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/InsightsView.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/InsightsView.d"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/WelcomeView.swift":
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WelcomeView.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WelcomeView.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WelcomeView.o"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WelcomeView.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WelcomeView.swiftdeps"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/DeviceSafetyWarningView.swift":
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DeviceSafetyWarningView.swiftconstvalues"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DeviceSafetyWarningView.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DeviceSafetyWarningView.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DeviceSafetyWarningView.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DeviceSafetyWarningView.d"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MetricDetailViews/CaloriesDetailView.swift":
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CaloriesDetailView.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CaloriesDetailView.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CaloriesDetailView.swiftdeps"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CaloriesDetailView.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CaloriesDetailView.dia"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/RecoveryGraphModel.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/RecoveryGraphModel.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/RecoveryGraphModel.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/RecoveryGraphModel.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/RecoveryGraphModel.swiftconstvalues"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/RecoveryGraphModel.dia"

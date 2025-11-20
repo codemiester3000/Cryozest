@@ -1,0 +1,48 @@
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MedicationsCard.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationsCard.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationsCard.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationsCard.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationsCard.d"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationsCard.o"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/LargeStepsWidget.swift":
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeStepsWidget.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeStepsWidget.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeStepsWidget.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeStepsWidget.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeStepsWidget.o"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/LargeHeartRateWidget.swift":
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeHeartRateWidget.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeHeartRateWidget.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeHeartRateWidget.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeHeartRateWidget.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/LargeHeartRateWidget.d"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/StepGoalConfigView.swift":
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalConfigView.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalConfigView.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalConfigView.swiftconstvalues"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalConfigView.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalConfigView.o"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/WeeklyGoalProgressView.swift":
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyGoalProgressView.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyGoalProgressView.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyGoalProgressView.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyGoalProgressView.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyGoalProgressView.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MetricDetailViews/HeartRateDetailView.swift":
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HeartRateDetailView.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HeartRateDetailView.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HeartRateDetailView.o"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HeartRateDetailView.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HeartRateDetailView.d"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MedicationHelpers.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationHelpers.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationHelpers.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationHelpers.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationHelpers.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationHelpers.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/CompletedHabitsCard.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CompletedHabitsCard.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CompletedHabitsCard.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CompletedHabitsCard.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CompletedHabitsCard.swiftconstvalues"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CompletedHabitsCard.swiftdeps"

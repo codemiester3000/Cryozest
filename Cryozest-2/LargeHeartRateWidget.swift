@@ -80,17 +80,19 @@ struct LargeHeartRateWidget: View {
         }
     }
 
+    var namespace: Namespace.ID
+
     var body: some View {
-        if expandedMetric == .rhr {
-            fullyExpandedView
-        } else {
-            expandedView
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
-                        expandedMetric = .rhr
-                    }
+        expandedView
+            .onTapGesture {
+                // Haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    expandedMetric = .rhr
                 }
-        }
+            }
     }
 
     private var collapsedView: some View {
@@ -505,113 +507,6 @@ struct LargeHeartRateWidget: View {
         .id(Calendar.current.startOfDay(for: selectedDate))
     }
 
-    private var fullyExpandedView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Header with close button
-                HStack {
-                    HStack(spacing: 12) {
-                        // Heart icon
-                        ZStack {
-                            Circle()
-                                .fill(Color.red.opacity(monitoringPulse ? 0.2 : 0.15))
-                                .frame(width: 44, height: 44)
-                                .shadow(color: Color.red.opacity(monitoringPulse ? 0.4 : 0.2), radius: monitoringPulse ? 8 : 4)
-
-                            Image(systemName: "heart.fill")
-                                .font(.system(size: 22, weight: .semibold))
-                                .foregroundColor(.red)
-                                .scaleEffect(heartPulse ? 1.1 : 1.0)
-                        }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Heart Rate")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.7))
-
-                            if let rhr = currentRHR {
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    Text("\(rhr)")
-                                        .font(.system(size: 34, weight: .bold))
-                                        .foregroundColor(.white)
-
-                                    Text("bpm")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.white.opacity(0.5))
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer()
-
-                    // Close button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
-                            expandedMetric = nil
-                        }
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white.opacity(0.5))
-                    }
-                }
-
-                // Large detailed graph
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Throughout Day")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.7))
-
-                    RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
-                        .frame(height: 200)
-                }
-                .padding(.vertical, 8)
-
-                // Stats grid
-                VStack(spacing: 12) {
-                    HStack(spacing: 12) {
-                        // Current reading
-                        HeartRateStatCard(
-                            icon: "heart.fill",
-                            label: "Current",
-                            value: currentRHR != nil ? "\(currentRHR!) bpm" : "-- bpm",
-                            color: trendColor
-                        )
-
-                        // Weekly average
-                        HeartRateStatCard(
-                            icon: "chart.line.uptrend.xyaxis",
-                            label: "Weekly Avg",
-                            value: weeklyAverageRHR != nil ? "\(weeklyAverageRHR!) bpm" : "-- bpm",
-                            color: .cyan
-                        )
-                    }
-
-                    HStack(spacing: 12) {
-                        // Trend
-                        HeartRateStatCard(
-                            icon: trendIcon,
-                            label: "Trend",
-                            value: trend.rawValue,
-                            color: trendColor
-                        )
-
-                        // Last updated
-                        HeartRateStatCard(
-                            icon: "clock.fill",
-                            label: "Updated",
-                            value: timeAgoText ?? "Unknown",
-                            color: .purple
-                        )
-                    }
-                }
-            }
-            .padding(20)
-        }
-        .modernWidgetCard(style: .healthData)
-    }
-
     private func fetchTodayRHRReadings() {
         // Clear existing readings immediately to prevent showing stale data
         DispatchQueue.main.async {
@@ -929,5 +824,263 @@ struct HeartRateStatCard: View {
                         .stroke(color.opacity(0.2), lineWidth: 1)
                 )
         )
+    }
+}
+
+// MARK: - Expanded Heart Rate Widget
+struct ExpandedHeartRateWidget: View {
+    @ObservedObject var model: RecoveryGraphModel
+    @Binding var expandedMetric: MetricType?
+    var namespace: Namespace.ID
+    let selectedDate: Date
+
+    @State private var todayRHRReadings: [(String, Int)] = []
+    @State private var animate = false
+    @State private var heartPulse = false
+    @State private var monitoringPulse = false
+
+    private var currentRHR: Int? {
+        model.mostRecentRestingHeartRate
+    }
+
+    private var mostRecentReadingTime: Date? {
+        model.mostRecentRestingHeartRateTime
+    }
+
+    private var weeklyAverageRHR: Int? {
+        model.avgRestingHeartRate60Days
+    }
+
+    private var trendColor: Color {
+        guard let current = currentRHR, let avg = weeklyAverageRHR else { return .cyan }
+        let diff = current - avg
+        if diff < -3 {
+            return .green
+        } else if diff > 3 {
+            return .orange
+        } else {
+            return .cyan
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header
+                HStack(alignment: .center) {
+                    // Animated heart icon
+                    ZStack {
+                        // Outer pulse rings
+                        Circle()
+                            .stroke(Color.red.opacity(0.3), lineWidth: 2)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.3)
+                            .opacity(animate ? 0.7 : 0.0)
+
+                        Circle()
+                            .stroke(Color.red.opacity(0.2), lineWidth: 1.5)
+                            .frame(width: 40, height: 40)
+                            .scaleEffect(animate ? 1.0 : 1.5)
+                            .opacity(animate ? 0.5 : 0.0)
+
+                        // Icon background
+                        Circle()
+                            .fill(Color.red.opacity(monitoringPulse ? 0.2 : 0.15))
+                            .frame(width: 40, height: 40)
+                            .shadow(color: Color.red.opacity(monitoringPulse ? 0.4 : 0.2), radius: monitoringPulse ? 8 : 4)
+
+                        // Heart icon
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.red)
+                            .scaleEffect(heartPulse ? 1.1 : 1.0)
+                    }
+
+                    // Main metric display
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 4) {
+                            Text("Heart Rate")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            // LIVE indicator
+                            if let recentTime = mostRecentReadingTime,
+                               Date().timeIntervalSince(recentTime) < 300 {
+                                HStack(spacing: 3) {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 5, height: 5)
+                                        .opacity(animate ? 0.4 : 1.0)
+
+                                    Text("LIVE")
+                                        .font(.system(size: 8, weight: .bold))
+                                        .foregroundColor(.red)
+                                }
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.red.opacity(0.15))
+                                )
+                            } else {
+                                // Monitoring indicator
+                                HStack(spacing: 3) {
+                                    Circle()
+                                        .fill(Color.cyan)
+                                        .frame(width: 4, height: 4)
+                                        .opacity(monitoringPulse ? 0.3 : 0.8)
+
+                                    Text("MONITORING")
+                                        .font(.system(size: 7, weight: .semibold))
+                                        .foregroundColor(.cyan.opacity(0.7))
+                                }
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.cyan.opacity(0.1))
+                                )
+                            }
+                        }
+
+                        HStack(alignment: .lastTextBaseline, spacing: 3) {
+                            if let rhr = currentRHR {
+                                Text("\(rhr)")
+                                    .font(.system(size: 32, weight: .bold))
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("--")
+                                    .font(.system(size: 32, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+                            Text("bpm")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                    }
+
+                    Spacer()
+
+                    // Close button
+                    Button(action: {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                            expandedMetric = nil
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                // Detailed graph
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Throughout Day")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.7))
+
+                    RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
+                        .frame(height: 200)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.05))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.red.opacity(0.1), lineWidth: 1)
+                        )
+                )
+
+                // Stats row
+                HStack(spacing: 12) {
+                    HeartRateStatCard(
+                        icon: "chart.line.uptrend.xyaxis",
+                        label: "Weekly Avg",
+                        value: weeklyAverageRHR.map { "\($0) bpm" } ?? "-- bpm",
+                        color: .cyan
+                    )
+
+                    if let current = currentRHR, let avg = weeklyAverageRHR {
+                        let diff = current - avg
+                        HeartRateStatCard(
+                            icon: diff < 0 ? "arrow.down.heart" : "arrow.up",
+                            label: "vs Average",
+                            value: "\(abs(diff)) bpm",
+                            color: diff < 0 ? .green : .orange
+                        )
+                    }
+                }
+            }
+            .padding(16)
+        }
+        .modernWidgetCard(style: .activity)
+        .matchedGeometryEffect(id: "heart-rate-widget", in: namespace)
+        .onAppear {
+            // Fetch heart rate data
+            fetchTodayRHRReadings()
+
+            // Start animations
+            withAnimation(Animation.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
+                animate = true
+            }
+            withAnimation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                heartPulse = true
+            }
+            withAnimation(Animation.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                monitoringPulse = true
+            }
+        }
+    }
+
+    private func fetchTodayRHRReadings() {
+        DispatchQueue.main.async {
+            self.todayRHRReadings = []
+        }
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+        let effectiveEndOfDay = calendar.isDateInToday(selectedDate) ? min(endOfDay, Date()) : endOfDay
+
+        HealthKitManager.shared.fetchHeartRateData(from: startOfDay, to: effectiveEndOfDay) { samples, error in
+            guard let samples = samples, !samples.isEmpty, error == nil else {
+                DispatchQueue.main.async { self.todayRHRReadings = [] }
+                return
+            }
+
+            let filteredSamples = samples.filter { calendar.isDate($0.endDate, inSameDayAs: startOfDay) }
+            guard !filteredSamples.isEmpty else {
+                DispatchQueue.main.async { self.todayRHRReadings = [] }
+                return
+            }
+
+            var hourlyReadings: [Int: [Double]] = [:]
+            for sample in filteredSamples {
+                let hour = calendar.component(.hour, from: sample.endDate)
+                let heartRate = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                hourlyReadings[hour, default: []].append(heartRate)
+            }
+
+            var hourlyData: [Int: Int] = [:]
+            for (hour, values) in hourlyReadings {
+                hourlyData[hour] = Int(values.reduce(0, +) / Double(values.count))
+            }
+
+            let readings: [(String, Int)] = (0...23).map { hour in
+                let period = hour >= 12 ? "PM" : "AM"
+                let displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
+                let timeString = "\(displayHour) \(period)"
+                let value = hourlyData[hour] ?? 0
+                return (timeString, value)
+            }
+
+            DispatchQueue.main.async {
+                self.todayRHRReadings = readings
+            }
+        }
     }
 }

@@ -1,0 +1,4 @@
+module JTAppleCalendar {
+header "JTAppleCalendar-Swift.h"
+export *
+}

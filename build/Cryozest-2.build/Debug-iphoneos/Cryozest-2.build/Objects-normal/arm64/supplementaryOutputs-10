@@ -1,0 +1,48 @@
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/Cryozest_2App.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Cryozest_2App.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Cryozest_2App.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Cryozest_2App.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Cryozest_2App.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Cryozest_2App.dia"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/StepGoalManager.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalManager.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalManager.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalManager.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalManager.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/StepGoalManager.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/WeeklyHeatmapView.swift":
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyHeatmapView.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyHeatmapView.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyHeatmapView.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyHeatmapView.swiftconstvalues"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WeeklyHeatmapView.swiftdeps"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/Onboarding/SafetyWarningView.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SafetyWarningView.o"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SafetyWarningView.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SafetyWarningView.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SafetyWarningView.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/SafetyWarningView.dia"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/MetricDetailViews/VO2MaxDetailView.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/VO2MaxDetailView.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/VO2MaxDetailView.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/VO2MaxDetailView.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/VO2MaxDetailView.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/VO2MaxDetailView.d"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/DateUtils.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DateUtils.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DateUtils.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DateUtils.swiftconstvalues"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DateUtils.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/DateUtils.swiftdeps"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/Onboarding/HabitsEmptyStateView.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HabitsEmptyStateView.swiftdeps"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HabitsEmptyStateView.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HabitsEmptyStateView.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HabitsEmptyStateView.o"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/HabitsEmptyStateView.dia"
+"/Users/owenkhoury/Business/Cryozest/Cryozest-2/AppTabView.swift":
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/AppTabView.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/AppTabView.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/AppTabView.o"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/AppTabView.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/AppTabView.dia"

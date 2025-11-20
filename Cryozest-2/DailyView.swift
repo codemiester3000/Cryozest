@@ -239,7 +239,8 @@ struct DailyView: View {
                 LargeHeartRateWidget(
                     model: recoveryModel,
                     expandedMetric: $expandedMetric,
-                    selectedDate: selectedDate
+                    selectedDate: selectedDate,
+                    namespace: metricAnimation
                 )
                 .modifier(ReorderableWidgetModifier(
                     section: section,
@@ -395,6 +396,14 @@ struct DailyView: View {
                                                 recoveryModel: recoveryModel,
                                                 expandedMetric: $expandedMetric,
                                                 namespace: metricAnimation
+                                            )
+                                            .padding(.horizontal)
+                                        } else if metric == .rhr {
+                                            ExpandedHeartRateWidget(
+                                                model: recoveryModel,
+                                                expandedMetric: $expandedMetric,
+                                                namespace: metricAnimation,
+                                                selectedDate: selectedDate
                                             )
                                             .padding(.horizontal)
                                         } else {
@@ -769,7 +778,8 @@ struct DailyGridMetrics: View {
                         LargeHeartRateWidget(
                             model: model,
                             expandedMetric: $expandedMetric,
-                            selectedDate: selectedDate
+                            selectedDate: selectedDate,
+                            namespace: animation
                         )
                     }
 

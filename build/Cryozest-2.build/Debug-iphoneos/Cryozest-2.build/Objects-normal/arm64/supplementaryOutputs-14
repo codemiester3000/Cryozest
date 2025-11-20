@@ -1,0 +1,48 @@
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/Medication+CoreDataClass.swift":
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataClass.dia"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataClass.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataClass.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataClass.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataClass.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/MedicationIntake+CoreDataProperties.swift":
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataProperties.dia"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataProperties.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataProperties.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataProperties.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataProperties.o"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/WellnessRating+CoreDataProperties.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataProperties.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataProperties.dia"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataProperties.o"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataProperties.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataProperties.d"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/CryozestModel+CoreDataModel.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CryozestModel+CoreDataModel.swiftdeps"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CryozestModel+CoreDataModel.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CryozestModel+CoreDataModel.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CryozestModel+CoreDataModel.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/CryozestModel+CoreDataModel.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/GeneratedAssetSymbols.swift":
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/GeneratedAssetSymbols.d"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/GeneratedAssetSymbols.dia"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues"
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/Medication+CoreDataProperties.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataProperties.o"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataProperties.dia"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataProperties.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataProperties.swiftdeps"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/Medication+CoreDataProperties.swiftconstvalues"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/MedicationIntake+CoreDataClass.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataClass.o"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataClass.swiftconstvalues"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataClass.d"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataClass.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/MedicationIntake+CoreDataClass.dia"
+"/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/DerivedSources/CoreDataGenerated/CryozestModel/WellnessRating+CoreDataClass.swift":
+  object: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataClass.o"
+  dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataClass.d"
+  const-values: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataClass.swiftconstvalues"
+  swift-dependencies: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataClass.swiftdeps"
+  diagnostics: "/Users/owenkhoury/Business/Cryozest/build/Cryozest-2.build/Debug-iphoneos/Cryozest-2.build/Objects-normal/arm64/WellnessRating+CoreDataClass.dia"
