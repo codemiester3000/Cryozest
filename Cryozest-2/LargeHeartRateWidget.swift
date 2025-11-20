@@ -97,7 +97,7 @@ struct LargeHeartRateWidget: View {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
 
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                             expandedMetric = .rhr
                         }
                     }
@@ -784,7 +784,7 @@ struct LargeHeartRateWidget: View {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
 
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                 expandedMetric = nil
             }
         }
@@ -1255,7 +1255,7 @@ struct ExpandedHeartRateWidget: View {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
 
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                        withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                             expandedMetric = nil
                         }
                     }) {

@@ -361,7 +361,6 @@ struct DailyView: View {
                                     } else if isInlineExpanded(section) {
                                         widgetView(for: section)
                                             .padding(.horizontal)
-                                            .transition(.scale(scale: 0.95).combined(with: .opacity))
                                     } else {
                                         widgetView(for: section)
                                             .padding(.horizontal)
@@ -425,7 +424,7 @@ struct DailyView: View {
                                     }
                                 }
                             }
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: expandedMetric)
+                            .animation(.spring(response: 0.8, dampingFraction: 0.85), value: expandedMetric)
                             .padding(.bottom, 12)
 
                             // Bottom spacer to prevent tab bar overlap

@@ -390,7 +390,7 @@ struct LargeStepsWidget: View {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
 
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                 expandedMetric = .steps
             }
         }
@@ -509,7 +509,7 @@ struct LargeStepsWidget: View {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
 
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                 expandedMetric = nil
             }
         }
@@ -601,7 +601,7 @@ struct ExpandedStepsWidget: View {
                     Spacer()
                     
                     Button(action: {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                        withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                             expandedMetric = nil
                         }
                     }) {
