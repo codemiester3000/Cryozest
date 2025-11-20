@@ -65,9 +65,8 @@ struct DailyView: View {
     }
 
     private func shouldHideWidget(_ section: DailyWidgetSection) -> Bool {
-        guard let metric = expandedMetric else { return false }
-        // Only hide if another widget is expanded (not this one)
-        return !isInlineExpanded(section)
+        // For inline expansion, never hide widgets - they all stay visible
+        return false
     }
 
     private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
@@ -1147,6 +1146,7 @@ struct GridItemView: View {
             expandedMetric: $expandedMetric,
             namespace: namespace
         )
+        .gridCellColumns(2)
         .onTapGesture {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
