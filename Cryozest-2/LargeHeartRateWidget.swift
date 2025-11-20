@@ -265,7 +265,7 @@ struct LargeHeartRateWidget: View {
                         if let rhr = currentRHR {
                             Text("\(rhr)")
                                 .font(.system(size: 32, weight: .bold))
-                                .foregroundColor(animate ? trendColor : .white)
+                                .foregroundColor(.white)
                         } else {
                             Text("--")
                                 .font(.system(size: 32, weight: .bold))
@@ -316,8 +316,9 @@ struct LargeHeartRateWidget: View {
                     .foregroundColor(.white.opacity(0.6))
 
                 RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
-                    .frame(height: 65)
+                    .frame(height: 75)
             }
+            .padding(.bottom, 8)
 
             // Stats row
             HStack(spacing: 10) {
@@ -725,7 +726,11 @@ struct HourRow: View {
                             .opacity(0.9)
 
                         // Bar with height varying based on value
-                        let height = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) * (rowHeight - 20) : 0
+                        let normalizedHeight = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) : 0
+                        let minBarHeight: CGFloat = 8
+                        let maxBarHeight = rowHeight - 20
+                        let height = minBarHeight + (normalizedHeight * (maxBarHeight - minBarHeight))
+
                         RoundedRectangle(cornerRadius: 3)
                             .fill(
                                 LinearGradient(
@@ -734,7 +739,7 @@ struct HourRow: View {
                                     endPoint: .bottom
                                 )
                             )
-                            .frame(height: max(height, 8))
+                            .frame(height: height)
 
                         // Time label
                         Text(reading.0)
