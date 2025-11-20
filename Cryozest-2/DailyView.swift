@@ -44,18 +44,19 @@ struct DailyView: View {
     }
 
     private func supportsInlineExpansion(_ section: DailyWidgetSection) -> Bool {
-        section == .largeHeartRate || section == .largeSteps
+        section == .largeHeartRate || section == .largeSteps || section == .exertion
     }
 
     private func isInlineExpanded(_ section: DailyWidgetSection) -> Bool {
         (section == .largeHeartRate && expandedMetric == .rhr) ||
-        (section == .largeSteps && expandedMetric == .steps)
+        (section == .largeSteps && expandedMetric == .steps) ||
+        (section == .exertion && expandedMetric == .exertion)
     }
 
     private func shouldHideWidget(_ section: DailyWidgetSection) -> Bool {
         guard let metric = expandedMetric else { return false }
         // Don't hide if this widget is expanded or if the expanded metric supports inline expansion
-        return !isInlineExpanded(section) && (metric != .rhr && metric != .steps)
+        return !isInlineExpanded(section) && (metric != .rhr && metric != .steps && metric != .exertion)
     }
 
     private func moveWidget(from: DailyWidgetSection, to: DailyWidgetSection) {
@@ -399,29 +400,16 @@ struct DailyView: View {
                                 }
 
                                 // Show expanded overlay for widgets that don't support inline expansion (old behavior)
-                                if let metric = expandedMetric, metric != .rhr && metric != .steps {
-                                    Group {
-                                        if metric == .exertion {
-                                            ExpandedExertionWidget(
-                                                exertionModel: exertionModel,
-                                                recoveryModel: recoveryModel,
-                                                expandedMetric: $expandedMetric,
-                                                namespace: metricAnimation
-                                            )
-                                            .padding(.horizontal)
-                                        } else {
-                                            // Other metrics handled by ExpandedMetricView
-                                            ExpandedMetricView(
-                                                metricType: metric,
-                                                model: recoveryModel,
-                                                isPresented: Binding(
-                                                    get: { expandedMetric != nil },
-                                                    set: { if !$0 { expandedMetric = nil } }
-                                                )
-                                            )
-                                            .padding(.horizontal)
-                                        }
-                                    }
+                                if let metric = expandedMetric, metric != .rhr && metric != .steps && metric != .exertion {
+                                    ExpandedMetricView(
+                                        metricType: metric,
+                                        model: recoveryModel,
+                                        isPresented: Binding(
+                                            get: { expandedMetric != nil },
+                                            set: { if !$0 { expandedMetric = nil } }
+                                        )
+                                    )
+                                    .padding(.horizontal)
                                 }
                             }
                             .animation(.spring(response: 0.8, dampingFraction: 0.85), value: expandedMetric)

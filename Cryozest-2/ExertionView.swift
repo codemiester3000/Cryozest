@@ -11,6 +11,10 @@ struct ExertionWidget: View {
 
     @State private var animate = true
 
+    private var isExpanded: Bool {
+        expandedMetric == .exertion
+    }
+
     private var exertionScore: Double {
         exertionModel.exertionScore
     }
@@ -100,6 +104,14 @@ struct ExertionWidget: View {
     }
 
     var body: some View {
+        if isExpanded {
+            inlineExpandedView
+        } else {
+            collapsedView
+        }
+    }
+
+    private var collapsedView: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Header with title and recovery context
             VStack(alignment: .leading, spacing: 8) {
@@ -288,12 +300,165 @@ struct ExertionWidget: View {
         .modernWidgetCard(style: .hero)
         .contentShape(Rectangle())
         .onTapGesture {
-            expandedMetric = .exertion
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                expandedMetric = .exertion
+            }
         }
         .matchedGeometryEffect(id: "exertion-widget", in: namespace)
         .onAppear {
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 animate = false
+            }
+        }
+    }
+
+    private var inlineExpandedView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Header
+                HStack {
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(progressColor.opacity(0.2))
+                                .frame(width: 36, height: 36)
+
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(progressColor)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Training Load")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+
+                            HStack(alignment: .lastTextBaseline, spacing: 3) {
+                                Text(String(format: "%.1f", exertionScore))
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
+                                Text("of \(String(format: "%.1f", targetExertionUpperBound))")
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.5))
+                            }
+                        }
+                    }
+
+                    Spacer()
+                }
+
+                // Expanded content
+                VStack(alignment: .leading, spacing: 20) {
+                    // Activity categories - expanded
+                    VStack(spacing: 12) {
+                        Text("Activity Breakdown")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+
+                        ExertionBarView(
+                            label: "Light Activity",
+                            description: "Easy pace, conversational",
+                            zoneRange: "Zone 1",
+                            minutes: exertionModel.recoveryMinutes,
+                            color: .teal,
+                            fullScaleTime: 30.0
+                        )
+
+                        ExertionBarView(
+                            label: "Moderate Activity",
+                            description: "Building fitness, steady effort",
+                            zoneRange: "Zones 2-3",
+                            minutes: exertionModel.conditioningMinutes,
+                            color: .green,
+                            fullScaleTime: 45.0
+                        )
+
+                        ExertionBarView(
+                            label: "Vigorous Activity",
+                            description: "High effort, pushing limits",
+                            zoneRange: "Zones 4-5",
+                            minutes: exertionModel.overloadMinutes,
+                            color: .red,
+                            fullScaleTime: 20.0
+                        )
+                    }
+
+                    // Heart rate zones
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Heart Rate Zones")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+
+                        let zoneColors: [Color] = [.blue, .cyan, .green, .orange, .pink]
+                        let maxTime = exertionModel.zoneTimes.max() ?? 1
+
+                        VStack(spacing: 8) {
+                            ForEach(0..<5, id: \.self) { index in
+                                let timeInMinutes = index < exertionModel.zoneTimes.count ? exertionModel.zoneTimes[index] : 0
+                                let range = index < exertionModel.heartRateZoneRanges.count ? exertionModel.heartRateZoneRanges[index] : (lowerBound: 0.0, upperBound: 0.0)
+
+                                HeroZoneRow(
+                                    zoneNumber: index + 1,
+                                    timeInMinutes: timeInMinutes,
+                                    heartRateRange: "\(Int(range.lowerBound))-\(Int(range.upperBound)) BPM",
+                                    color: zoneColors[index],
+                                    maxTime: maxTime
+                                )
+                            }
+                        }
+                    }
+
+                    // Info card
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "info.circle.fill")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.cyan.opacity(0.8))
+
+                            Text("What is Training Load?")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Your training load measures how hard you're pushing your cardiovascular system today. It's calculated from time spent in different heart rate zones.")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            Text("Your recommended target adapts to your recovery score—when recovery is high, you can handle more load. Stay within your target to avoid overtraining.")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white.opacity(0.6))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                }
+            }
+            .padding(16)
+        }
+        .modernWidgetCard(style: .hero)
+        .onTapGesture {
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
+                expandedMetric = nil
             }
         }
     }
@@ -384,7 +549,7 @@ struct ExpandedExertionWidget: View {
                     Spacer()
 
                     Button(action: {
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.85)) {
+                        withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                             expandedMetric = nil
                         }
                     }) {
