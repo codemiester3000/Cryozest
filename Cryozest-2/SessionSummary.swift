@@ -66,29 +66,9 @@ struct SessionSummary: View {
 
     var body: some View {
         ZStack {
-            // Modern gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            // Subtle gradient overlay
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    therapyType.color.opacity(0.2),
-                    Color.clear
-                ]),
-                center: .topTrailing,
-                startRadius: 100,
-                endRadius: 500
-            )
-            .ignoresSafeArea()
+            // Deep navy background
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
@@ -714,15 +694,8 @@ struct DurationPickerSheet: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
 
             VStack(spacing: 32) {
                 Text("Edit Duration")
@@ -811,15 +784,9 @@ struct TemperaturePickerSheet: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Deep navy background
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
 
             VStack(spacing: 32) {
                 Text("Edit Temperature")

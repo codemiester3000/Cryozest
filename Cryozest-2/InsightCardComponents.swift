@@ -294,23 +294,23 @@ struct InsightsLoadingSkeleton: View {
             ForEach(0..<4, id: \.self) { _ in
                 HStack(spacing: 14) {
                     Circle()
-                        .fill(Color.white.opacity(0.06))
+                        .fill(Color.white.opacity(0.08))
                         .frame(width: 44, height: 44)
 
                     VStack(alignment: .leading, spacing: 6) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.white.opacity(0.06))
+                            .fill(Color.white.opacity(0.08))
                             .frame(width: 100, height: 14)
 
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.white.opacity(0.04))
+                            .fill(Color.white.opacity(0.08))
                             .frame(width: 70, height: 12)
                     }
 
                     Spacer()
 
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white.opacity(0.06))
+                        .fill(Color.white.opacity(0.08))
                         .frame(width: 50, height: 20)
                 }
                 .padding(.vertical, 10)
@@ -329,7 +329,7 @@ struct InsightsLoadingSkeleton: View {
 struct InsightsDivider: View {
     var body: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.06))
+            .fill(Color.white.opacity(0.08))
             .frame(height: 1)
             .padding(.vertical, 16)
     }

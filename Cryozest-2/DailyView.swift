@@ -4,6 +4,7 @@ import CoreData
 struct DailyView: View {
     // Environment
     @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject var appState: AppState
 
     // Data Models
     @ObservedObject var recoveryModel: RecoveryGraphModel
@@ -312,49 +313,12 @@ struct DailyView: View {
 
     var body: some View {
         ZStack {
-            // Modern gradient background matching app theme
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Deep navy background
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
 
-            // Subtle gradient overlay
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color.blue.opacity(0.3),
-                    Color.clear
-                ]),
-                center: .topTrailing,
-                startRadius: 100,
-                endRadius: 500
-            )
-            .ignoresSafeArea()
-
-            // Show onboarding or content
-            if showOnboarding {
-                OnboardingFlowView(onComplete: {
-                    showOnboarding = false
-
-                    // Load health data
-                    recoveryModel.pullAllRecoveryData(forDate: selectedDate)
-                    exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
-                    sleepModel.fetchSleepData(forDate: selectedDate)
-
-                    // Show metric tooltip after onboarding
-                    if OnboardingManager.shared.shouldShowMetricTooltip {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                            showMetricTooltip = true
-                        }
-                    }
-                })
-            } else {
-                ZStack(alignment: .topTrailing) {
+            // Main content
+            ZStack(alignment: .topTrailing) {
                     ScrollView {
                         VStack(spacing: 0) {
                             // Fixed header (title, customize, date selector)
@@ -487,14 +451,34 @@ struct DailyView: View {
             .sheet(isPresented: $showingMetricConfig) {
                 MetricConfigurationView()
             }
-            }
+        }
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingFlowView(onComplete: {
+                // Mark onboarding complete so it doesn't show again
+                OnboardingManager.shared.markDailyTabSeen()
+
+                showOnboarding = false
+
+                // Load health data
+                recoveryModel.pullAllRecoveryData(forDate: selectedDate)
+                exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
+                sleepModel.fetchSleepData(forDate: selectedDate)
+
+                // Show metric tooltip after onboarding
+                if OnboardingManager.shared.shouldShowMetricTooltip {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showMetricTooltip = true
+                    }
+                }
+            })
+            .environmentObject(appState)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear() {
-            // Check if should show onboarding
-            if OnboardingManager.shared.shouldShowDailyEmptyState {
+            // Check if should show onboarding (only if not already showing)
+            if !showOnboarding && OnboardingManager.shared.shouldShowDailyEmptyState {
                 showOnboarding = true
-            } else {
+            } else if !showOnboarding {
                 // User has already seen the onboarding, check if they granted HealthKit permissions
                 HealthKitManager.shared.areHealthMetricsAuthorized() { isAuthorized in
                     if isAuthorized {
@@ -1680,17 +1664,9 @@ struct DatePickerSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.05, green: 0.15, blue: 0.25),
-                        Color(red: 0.1, green: 0.2, blue: 0.35),
-                        Color(red: 0.15, green: 0.25, blue: 0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // Deep navy background
+                Color(red: 0.06, green: 0.10, blue: 0.18)
+                    .ignoresSafeArea()
 
                 VStack(spacing: 24) {
                     // Calendar icon
@@ -2285,7 +2261,7 @@ struct ExpandedMetricOverlay: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.08, green: 0.18, blue: 0.28))
+        .background(Color(red: 0.10, green: 0.14, blue: 0.22))
         .overlay(alignment: .topTrailing) {
             // Close button
             Button(action: {

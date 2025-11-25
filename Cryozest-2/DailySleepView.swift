@@ -415,17 +415,7 @@ struct DailySleepView: View {
                 fetchSleepTimes()
             }
         }
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
+        .background(Color(red: 0.06, green: 0.10, blue: 0.18))
     }
     
     

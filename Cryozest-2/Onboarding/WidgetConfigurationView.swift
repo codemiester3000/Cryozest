@@ -135,28 +135,8 @@ struct WidgetConfigurationView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.05, green: 0.15, blue: 0.25),
-                        Color(red: 0.1, green: 0.2, blue: 0.35),
-                        Color(red: 0.15, green: 0.25, blue: 0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-
-                RadialGradient(
-                    gradient: Gradient(colors: [
-                        Color.purple.opacity(0.2),
-                        Color.clear
-                    ]),
-                    center: .topTrailing,
-                    startRadius: 100,
-                    endRadius: 500
-                )
-            }
-            .ignoresSafeArea()
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
         )
         .opacity(showContent ? 1 : 0)
         .offset(y: showContent ? 0 : 20)

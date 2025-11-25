@@ -83,37 +83,51 @@ struct FloatingTabBar: View {
     ]
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 0) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
 
-                    withAnimation(.easeOut(duration: 0.2)) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = tab.tag
                     }
                 }) {
                     VStack(spacing: 5) {
-                        // Icon with indicator dot
+                        // Icon with glow effect when selected
                         ZStack {
+                            if selectedTab == tab.tag {
+                                // Glow behind icon
+                                Image(systemName: tab.icon)
+                                    .font(.system(size: 22, weight: .semibold))
+                                    .foregroundColor(.cyan)
+                                    .blur(radius: 8)
+                                    .opacity(0.6)
+                            }
+
                             Image(systemName: tab.icon)
                                 .font(.system(size: 22, weight: selectedTab == tab.tag ? .semibold : .regular))
-                                .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.35))
+                                .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.4))
                         }
 
                         // Label
                         Text(tab.title)
-                            .font(.system(size: 10, weight: selectedTab == tab.tag ? .semibold : .medium))
-                            .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.35))
-
-                        // Selection indicator line
-                        Rectangle()
-                            .fill(selectedTab == tab.tag ? Color.white : Color.clear)
-                            .frame(width: 20, height: 2)
-                            .cornerRadius(1)
+                            .font(.system(size: 11, weight: selectedTab == tab.tag ? .bold : .medium))
+                            .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.4))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 14)
+                    .background(
+                        // Selected tab highlight
+                        Group {
+                            if selectedTab == tab.tag {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.cyan.opacity(0.15))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                            }
+                        }
+                    )
                 }
                 .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel(tab.title)
@@ -121,29 +135,32 @@ struct FloatingTabBar: View {
                 .accessibilityAddTraits(selectedTab == tab.tag ? [.isSelected, .isButton] : .isButton)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 12)
         .padding(.top, 8)
-        .padding(.bottom, 6)
+        .padding(.bottom, 10)
         .background(
-            // Clean dark background with subtle gradient
-            LinearGradient(
-                colors: [
-                    Color(red: 0.08, green: 0.1, blue: 0.14),
-                    Color(red: 0.06, green: 0.08, blue: 0.11)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            // Solid darker background for maximum contrast
+            RoundedRectangle(cornerRadius: 28)
+                .fill(Color(red: 0.08, green: 0.10, blue: 0.14))
         )
         .overlay(
-            // Top border line
-            Rectangle()
-                .fill(Color.white.opacity(0.08))
-                .frame(height: 0.5),
-            alignment: .top
+            // Prominent cyan accent border
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color.cyan.opacity(0.5),
+                            Color.cyan.opacity(0.2),
+                            Color.cyan.opacity(0.1)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 1.5
+                )
         )
-        .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.4), radius: 16, x: 0, y: -4)
+        .shadow(color: Color.cyan.opacity(0.15), radius: 20, x: 0, y: 0)
+        .shadow(color: Color.black.opacity(0.5), radius: 16, x: 0, y: 8)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Navigation tabs")
     }

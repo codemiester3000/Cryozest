@@ -123,29 +123,9 @@ struct LogbookView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Modern gradient background matching app theme
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.05, green: 0.15, blue: 0.25),
-                        Color(red: 0.1, green: 0.2, blue: 0.35),
-                        Color(red: 0.15, green: 0.25, blue: 0.4)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-
-                // Subtle gradient overlay
-                RadialGradient(
-                    gradient: Gradient(colors: [
-                        Color.blue.opacity(0.3),
-                        Color.clear
-                    ]),
-                    center: .topTrailing,
-                    startRadius: 100,
-                    endRadius: 500
-                )
-                .ignoresSafeArea()
+                // Deep navy background
+                Color(red: 0.06, green: 0.10, blue: 0.18)
+                    .ignoresSafeArea()
 
                 VStack(alignment: .leading, spacing: 0) {
                     NavigationLink(destination: ManuallyAddSession(), isActive: $showAddSession) {

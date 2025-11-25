@@ -14,16 +14,9 @@ struct InsightsConfigSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background matching app theme
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 0.05, green: 0.15, blue: 0.25),
-                        Color(red: 0.1, green: 0.2, blue: 0.35)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // Deep navy background
+                Color(red: 0.06, green: 0.10, blue: 0.18)
+                    .ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 24) {

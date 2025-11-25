@@ -12,299 +12,211 @@ struct TherapyTypeSelectionView: View {
     @State var selectedCategory: Category = Category.category0
     @State private var showExtremeTempAlert = false
     @State private var pendingExtremeTempTherapy: TherapyType?
-    
+
     @State private var isCustomTypeViewPresented = false
     @State private var selectedCustomType: TherapyType?
-    
-    @State private var customTherapyNames: [String] = ["custom 1", "custom 2", "custom 3", "custom 4"]
-    
+
+    @State private var customTherapyNames: [String] = ["Custom 1", "Custom 2", "Custom 3", "Custom 4"]
+
     @FetchRequest(
         entity: SelectedTherapy.entity(),
         sortDescriptors: []
     ) private var selectedTherapies: FetchedResults<SelectedTherapy>
-    
-    @State private var animateContent = false
+
+    private let maxSelections = 6
+    private let minSelections = 2
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 14),
+        GridItem(.flexible(), spacing: 14)
+    ]
 
     var body: some View {
         ZStack {
-            // Modern gradient background matching welcome screen
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Our navy background
+            Color(red: 0.06, green: 0.10, blue: 0.18)
+                .ignoresSafeArea()
 
-            // Subtle gradient overlay
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color.blue.opacity(0.3),
-                    Color.clear
-                ]),
-                center: .topTrailing,
-                startRadius: 100,
-                endRadius: 500
-            )
-            .ignoresSafeArea()
-
-            VStack {
-                ScrollView(showsIndicators: false) {
-
-                    HStack {
-                        Spacer()
-
-                        Text("Choose your habits")
-                            .font(.system(size: 28, weight: .bold))
+            VStack(spacing: 0) {
+                // Header
+                HStack(alignment: .top) {
+                    // Left - title
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Choose Habits")
+                            .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(.white)
 
-                        Spacer()
-                    }
-                    .padding(.top, 60)
-                    .padding(.bottom, 20)
-                    .opacity(animateContent ? 1.0 : 0)
-
-
-                    CategoryPillsView(selectedCategory: $selectedCategory)
-                        .frame(height: 60)
-                        .padding(.bottom, 20)
-
-                    // Apple Watch sync info card
-                    if selectedCategory == Category.category0 {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color.green.opacity(0.3),
-                                                Color.green.opacity(0.1)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "applewatch.watchface")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(.green)
-                            }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 6) {
-                                    Text("Auto-Sync Enabled")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.green)
-                                }
-
-                                Text("Workouts recorded on your Apple Watch automatically sync to the app")
-                                    .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                        }
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.green.opacity(0.12))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 24)
-                    } else if selectedCategory != .category1 {
-                        // Manual entry info for other categories
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.cyan.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "hand.tap.fill")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(.cyan)
-                            }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Manual Tracking")
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
-
-                                Text("Use the in-app timer to track these habits")
-                                    .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                        }
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white.opacity(0.06))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
-                                )
-                        )
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 24)
+                        Text("\(selectedTypes.count) of \(maxSelections) selected")
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.5))
                     }
 
-                    ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
-                        let isWorkout = selectedCategory == .category0 || (selectedCategory == .category1 && Category.category0.therapies().contains(therapyType))
-                        Button(action: {
-                            switch therapyType {
-                            case .custom1:
-                                if !selectedTypes.contains(therapyType) {
-                                    selectedCustomType = therapyType
-                                    isCustomTypeViewPresented = true
-                                }
-                            case .custom2:
-                                if !selectedTypes.contains(therapyType) {
-                                    selectedCustomType = therapyType
-                                    isCustomTypeViewPresented = true
-                                }
-                            case .custom3:
-                                if !selectedTypes.contains(therapyType) {
-                                    selectedCustomType = therapyType
-                                    isCustomTypeViewPresented = true
-                                }
-                            case .custom4:
-                                if !selectedTypes.contains(therapyType) {
-                                    selectedCustomType = therapyType
-                                    isCustomTypeViewPresented = true
-                                }
-                            default:
-                                print()
-                            }
-                            if selectedTypes.contains(therapyType) {
-                                selectedTypes.removeAll(where: { $0 == therapyType })
-                            } else if selectedTypes.count < 6 {
-                                // Check if this is an extreme temp therapy
-                                if isExtremeTempTherapy(therapyType) {
-                                    pendingExtremeTempTherapy = therapyType
-                                    showExtremeTempAlert = true
-                                } else {
-                                    selectedTypes.append(therapyType)
-                                }
-                            } else {
-                                // user tried to select a 5th type
-                                alertTitle = "Too Many Types"
-                                alertMessage = "Please remove a type before adding another."
-                                showAlert = true
-                                isCustomTypeViewPresented = false
-                            }
-                        }) {
-                            ModernTherapyCard(
-                                therapyType: therapyType,
-                                displayName: getDisplayName(therapyType: therapyType),
-                                isSelected: selectedTypes.contains(therapyType),
-                                isWorkout: isWorkout
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 8)
-                    }
-
-                    // Bottom padding to ensure last card isn't cut off
                     Spacer()
-                        .frame(height: 100)
+
+                    // Right - close
+                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.6))
+                            .frame(width: 32, height: 32)
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(Circle())
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 60)
 
-                Spacer()
-
-                // Modern Continue button
-                Button(action: {
-                    if selectedTypes.count < 2 {
-                        alertTitle = "Select More Types"
-                        alertMessage = "Please select at least 2 habits to continue."
-                        showAlert = true
-                    } else {
-                        saveSelectedTherapies(therapyTypes: selectedTypes, context: managedObjectContext)
-                        appState.hasSelectedTherapyTypes = true
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                }) {
-                    HStack(spacing: 12) {
-                        Text("Continue")
-                            .font(.system(size: 18, weight: .semibold))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .foregroundColor(selectedTypes.count >= 2 ? Color(red: 0.05, green: 0.15, blue: 0.25) : .white.opacity(0.5))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 18)
-                    .background(
-                        Group {
-                            if selectedTypes.count >= 2 {
-                                LinearGradient(
-                                    gradient: Gradient(colors: [.white, Color.white.opacity(0.95)]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            } else {
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.15)]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                // Category tabs
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(Category.allCases, id: \.self) { category in
+                            CategoryChip(
+                                title: category.rawValue,
+                                isSelected: selectedCategory == category,
+                                hasWatch: category == .category0
+                            ) {
+                                withAnimation(.easeOut(duration: 0.15)) {
+                                    selectedCategory = category
+                                }
                             }
                         }
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: selectedTypes.count >= 2 ? .white.opacity(0.3) : .clear, radius: 20, x: 0, y: 10)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .disabled(selectedTypes.count < 2)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 50)
-                .opacity(animateContent ? 1.0 : 0)
-                .alert(isPresented: $showAlert) {
-                    Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+
+                // Grid
+                ScrollView(showsIndicators: false) {
+                    LazyVGrid(columns: columns, spacing: 14) {
+                        ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
+                            let isWorkout = selectedCategory == .category0 || (selectedCategory == .category1 && Category.category0.therapies().contains(therapyType))
+
+                            HabitSelectionCard(
+                                therapyType: therapyType,
+                                name: getDisplayName(therapyType: therapyType),
+                                isSelected: selectedTypes.contains(therapyType),
+                                syncs: isWorkout
+                            ) {
+                                handleTap(therapyType)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 140)
                 }
-                
             }
-            .onAppear {
-                selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
-                fetchCustomTherapyNames()
-                withAnimation(.easeOut(duration: 0.8)) {
-                    animateContent = true
-                }
+
+            // Bottom
+            VStack {
+                Spacer()
+                bottomSection
             }
+        }
+        .onAppear {
+            selectedTypes = selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType!) }
+            fetchCustomTherapyNames()
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
-        .sheet(isPresented: $isCustomTypeViewPresented, onDismiss: {
-            isCustomTypeViewPresented = false
-        }) {
+        .sheet(isPresented: $isCustomTypeViewPresented) {
             if let selectedCustomType = selectedCustomType {
-                CustomTherapyTypeNameView(therapyType: Binding.constant(selectedCustomType), customTherapyNames: $customTherapyNames)
+                CustomHabitSheet(
+                    therapyType: Binding.constant(selectedCustomType),
+                    customTherapyNames: $customTherapyNames
+                )
             }
         }
-        .alert("Device Safety Warning", isPresented: $showExtremeTempAlert) {
-            Button("Cancel", role: .cancel) {
-                pendingExtremeTempTherapy = nil
-            }
-            Button("I Understand") {
+        .alert("Safety Notice", isPresented: $showExtremeTempAlert) {
+            Button("Cancel", role: .cancel) { pendingExtremeTempTherapy = nil }
+            Button("Continue") {
                 if let therapy = pendingExtremeTempTherapy {
-                    selectedTypes.append(therapy)
+                    withAnimation { selectedTypes.append(therapy) }
                     pendingExtremeTempTherapy = nil
                 }
             }
         } message: {
-            Text("Please ensure your device is in a safe location during your wellness activity.")
+            Text("Ensure your device is safe during this activity.")
         }
     }
-    
+
+    // MARK: - Bottom Section
+    private var bottomSection: some View {
+        VStack(spacing: 0) {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.06, green: 0.10, blue: 0.18).opacity(0),
+                    Color(red: 0.06, green: 0.10, blue: 0.18)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 60)
+
+            VStack(spacing: 16) {
+                Button(action: handleContinue) {
+                    HStack(spacing: 8) {
+                        Text(selectedTypes.count >= minSelections ? "Continue" : "Select at least \(minSelections)")
+                            .font(.system(size: 16, weight: .semibold))
+
+                        if selectedTypes.count >= minSelections {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                    }
+                    .foregroundColor(selectedTypes.count >= minSelections ? .black : .white.opacity(0.4))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(selectedTypes.count >= minSelections ? Color.cyan : Color.white.opacity(0.1))
+                    )
+                }
+                .disabled(selectedTypes.count < minSelections)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 40)
+            .background(Color(red: 0.06, green: 0.10, blue: 0.18))
+        }
+    }
+
+    // MARK: - Actions
+    private func handleTap(_ therapyType: TherapyType) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+        if [.custom1, .custom2, .custom3, .custom4].contains(therapyType) && !selectedTypes.contains(therapyType) {
+            selectedCustomType = therapyType
+            isCustomTypeViewPresented = true
+        }
+
+        withAnimation(.easeOut(duration: 0.15)) {
+            if selectedTypes.contains(therapyType) {
+                selectedTypes.removeAll { $0 == therapyType }
+            } else if selectedTypes.count < maxSelections {
+                if isExtremeTempTherapy(therapyType) {
+                    pendingExtremeTempTherapy = therapyType
+                    showExtremeTempAlert = true
+                } else {
+                    selectedTypes.append(therapyType)
+                }
+            } else {
+                alertTitle = "Limit Reached"
+                alertMessage = "Remove a habit to add another."
+                showAlert = true
+                isCustomTypeViewPresented = false
+            }
+        }
+    }
+
+    private func handleContinue() {
+        if selectedTypes.count >= minSelections {
+            saveSelectedTherapies(therapyTypes: selectedTypes, context: managedObjectContext)
+            appState.hasSelectedTherapyTypes = true
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+
+    // MARK: - Data
     func fetchCustomTherapyNames() {
         let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
         do {
@@ -318,432 +230,324 @@ struct TherapyTypeSelectionView: View {
             print("Error fetching custom therapies: \(error)")
         }
     }
-    
-    
+
     func getDisplayName(therapyType: TherapyType) -> String {
-        if therapyType == .custom1 {
-            return customTherapyNames[0]
+        switch therapyType {
+        case .custom1: return customTherapyNames[0]
+        case .custom2: return customTherapyNames[1]
+        case .custom3: return customTherapyNames[2]
+        case .custom4: return customTherapyNames[3]
+        default: return therapyType.displayName(managedObjectContext)
         }
-
-        if therapyType == .custom2 {
-            return customTherapyNames[1]
-        }
-
-        if therapyType == .custom3 {
-            return customTherapyNames[2]
-        }
-
-        if therapyType == .custom4 {
-            return customTherapyNames[3]
-        }
-
-        return therapyType.displayName(managedObjectContext)
     }
 
-    func isExtremeTempTherapy(_ therapy: TherapyType) -> Bool {
-        // Extreme temp warnings disabled for App Store compliance
-        return false
-    }
-    
-    // Saves a therapy type to Core Data.
+    func isExtremeTempTherapy(_ therapy: TherapyType) -> Bool { false }
+
     func saveTherapyType(type: TherapyType, context: NSManagedObjectContext) {
         let selectedTherapy = SelectedTherapy(context: context)
         selectedTherapy.therapyType = type.rawValue
-        do {
-            try context.save()
-        } catch let error {
-            print("Failed to save therapy type: \(error)")
-        }
+        try? context.save()
     }
-    
-    // Deletes all selected therapies from Core Data.
+
     func deleteAllTherapies(context: NSManagedObjectContext) {
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = SelectedTherapy.fetchRequest()
-        
-        do {
-            if let results = try context.fetch(fetchRequest) as? [NSManagedObject] {
-                for object in results {
-                    context.delete(object)
-                }
-                try context.save()
-            }
-        } catch let error {
-            print("Failed to delete therapies: \(error)")
+        if let results = try? context.fetch(fetchRequest) as? [NSManagedObject] {
+            results.forEach { context.delete($0) }
+            try? context.save()
         }
     }
-    
-    
-    // Saves the selected therapies, deleting any existing selections first.
+
     func saveSelectedTherapies(therapyTypes: [TherapyType], context: NSManagedObjectContext) {
-        // Delete all existing selections.
         deleteAllTherapies(context: context)
-        
-        // Save new selections.
-        for type in therapyTypes {
-            saveTherapyType(type: type, context: context)
+        therapyTypes.forEach { saveTherapyType(type: $0, context: context) }
+    }
+}
+
+// MARK: - Category Chip
+struct CategoryChip: View {
+    let title: String
+    let isSelected: Bool
+    let hasWatch: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if hasWatch {
+                    Image(systemName: "applewatch")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.green)
+                }
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+            }
+            .foregroundColor(isSelected ? .white : .white.opacity(0.6))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(
+                Capsule()
+                    .fill(isSelected ? Color.cyan.opacity(0.25) : Color.white.opacity(0.08))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(isSelected ? Color.cyan.opacity(0.5) : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Habit Selection Card
+struct HabitSelectionCard: View {
+    let therapyType: TherapyType
+    let name: String
+    let isSelected: Bool
+    let syncs: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 14) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(therapyType.color.opacity(0.2))
+                        .frame(width: 56, height: 56)
+
+                    Image(systemName: therapyType.icon)
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundColor(therapyType.color)
+                }
+
+                // Name
+                Text(name)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+
+                // Sync indicator
+                if syncs {
+                    HStack(spacing: 4) {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 9))
+                        Text("syncs")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .foregroundColor(.green.opacity(0.8))
+                } else {
+                    Text(" ")
+                        .font(.system(size: 11))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(isSelected ? 0.12 : 0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isSelected ? Color.cyan : Color.white.opacity(0.08), lineWidth: isSelected ? 2 : 1)
+            )
+            .overlay(
+                // Checkmark
+                VStack {
+                    HStack {
+                        Spacer()
+                        if isSelected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.cyan)
+                                .padding(10)
+                        }
+                    }
+                    Spacer()
+                }
+            )
+        }
+        .buttonStyle(HabitScaleButtonStyle())
+    }
+}
+
+// MARK: - Habit Scale Button Style
+struct HabitScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Custom Habit Sheet
+struct CustomHabitSheet: View {
+    @Binding var therapyType: TherapyType
+    @Binding var customTherapyNames: [String]
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var managedObjectContext
+    @State private var customName: String = ""
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        ZStack {
+            Color(red: 0.06, green: 0.10, blue: 0.18).ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Handle
+                Capsule()
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 36, height: 4)
+                    .padding(.top, 12)
+
+                // Header
+                HStack {
+                    Button("Cancel") { dismiss() }
+                        .font(.system(size: 16))
+                        .foregroundColor(.white.opacity(0.5))
+
+                    Spacer()
+
+                    Text("Custom Habit")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    Button("Save") {
+                        saveCustomTherapy()
+                        dismiss()
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(customName.isEmpty ? .white.opacity(0.3) : .cyan)
+                    .disabled(customName.isEmpty)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(Color.purple.opacity(0.2))
+                        .frame(width: 72, height: 72)
+
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(.purple)
+                }
+                .padding(.top, 40)
+
+                // Input
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Name")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.5))
+
+                    TextField("", text: $customName, prompt: Text("Enter habit name").foregroundColor(.white.opacity(0.3)))
+                        .font(.system(size: 17))
+                        .foregroundColor(.white)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.08))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(isFocused ? Color.cyan.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                        )
+                        .focused($isFocused)
+                        .autocapitalization(.words)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+                Spacer()
+            }
+        }
+        .onAppear {
+            loadCustomTherapyName()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                isFocused = true
+            }
+        }
+    }
+
+    private func loadCustomTherapyName() {
+        let therapyID = therapyTypeToID(therapyType)
+        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+
+        if let result = try? managedObjectContext.fetch(fetchRequest).first {
+            customName = result.name ?? ""
+        }
+    }
+
+    private func saveCustomTherapy() {
+        let therapyID = therapyTypeToID(therapyType)
+        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
+
+        let therapy: CustomTherapy
+        if let existing = try? managedObjectContext.fetch(fetchRequest).first {
+            therapy = existing
+        } else {
+            therapy = CustomTherapy(context: managedObjectContext)
+            therapy.id = therapyID
+        }
+
+        customTherapyNames[Int(therapyID) - 1] = customName
+        therapy.name = customName
+        try? managedObjectContext.save()
+    }
+
+    private func therapyTypeToID(_ type: TherapyType) -> Int16 {
+        switch type {
+        case .custom1: return 1
+        case .custom2: return 2
+        case .custom3: return 3
+        case .custom4: return 4
+        default: return 0
         }
     }
 }
 
-// Helper extension for Category
+// MARK: - Category Extension
 extension Category {
     func therapies() -> [TherapyType] {
         return TherapyType.therapies(forCategory: self)
     }
 }
 
-// Modern therapy card component
-struct ModernTherapyCard: View {
-    let therapyType: TherapyType
-    let displayName: String
-    let isSelected: Bool
-    let isWorkout: Bool
-
-    var body: some View {
-        HStack(spacing: 16) {
-            // Icon with gradient background
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                therapyType.color.opacity(0.8),
-                                therapyType.color.opacity(0.6)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 56, height: 56)
-
-                Image(systemName: therapyType.icon)
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(.white)
-            }
-
-            // Therapy type name and badge
-            VStack(alignment: .leading, spacing: 4) {
-                Text(displayName)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-
-                // Apple Watch badge for workout types
-                if isWorkout {
-                    HStack(spacing: 4) {
-                        Image(systemName: "applewatch")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.green)
-
-                        Text("Auto-Sync")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.green)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(
-                        Capsule()
-                            .fill(Color.green.opacity(0.15))
-                    )
-                }
-            }
-
-            Spacer()
-
-            // Selection indicator
-            Circle()
-                .strokeBorder(isSelected ? Color.cyan : Color.white.opacity(0.3), lineWidth: 2)
-                .background(
-                    Circle()
-                        .fill(isSelected ? Color.cyan : Color.clear)
-                )
-                .frame(width: 28, height: 28)
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    isSelected
-                        ? Color.white.opacity(0.12)
-                        : Color.white.opacity(0.06)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(
-                            isSelected
-                                ? Color.cyan.opacity(0.5)
-                                : Color.white.opacity(0.1),
-                            lineWidth: isSelected ? 2 : 1
-                        )
-                )
-        )
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .shadow(
-            color: isSelected ? therapyType.color.opacity(0.3) : .clear,
-            radius: 12,
-            x: 0,
-            y: 6
-        )
-    }
-}
-
-import CoreData
-
-struct CustomTherapyTypeNameView: View {
-    @Binding var therapyType: TherapyType
-    @Binding var customTherapyNames: [String]
-    @Environment(\.presentationMode) var presentationMode
-    @Environment(\.managedObjectContext) private var managedObjectContext
-    @State private var customName: String = ""
-
-    var body: some View {
-        ZStack {
-            // Modern gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.05, green: 0.15, blue: 0.25),
-                    Color(red: 0.1, green: 0.2, blue: 0.35),
-                    Color(red: 0.15, green: 0.25, blue: 0.4)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            // Subtle gradient overlay
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color.blue.opacity(0.3),
-                    Color.clear
-                ]),
-                center: .topTrailing,
-                startRadius: 100,
-                endRadius: 500
-            )
-            .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-                // Header
-                HStack {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-
-                    Spacer()
-
-                    Text("Custom Habit")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-
-                    Spacer()
-
-                    // Invisible placeholder for symmetry
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 28))
-                        .opacity(0)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 60)
-                .padding(.bottom, 20)
-
-                Text("Create a custom habit to track your unique wellness routine")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 40)
-
-                Spacer()
-
-                // Input Section
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Habit Name")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-
-                    TextField("", text: $customName, prompt: Text("e.g., Breathwork, Yoga, Stretching").foregroundColor(.white.opacity(0.4)))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white.opacity(0.1))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
-                                )
-                        )
-                        .autocapitalization(.words)
-                }
-                .padding(.horizontal, 24)
-
-                Spacer()
-
-                // Save Button
-                Button(action: {
-                    saveCustomTherapy()
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    Text("Save Habit")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(customName.isEmpty ? .white.opacity(0.5) : .white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            Group {
-                                if !customName.isEmpty {
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.cyan,
-                                            Color.cyan.opacity(0.8)
-                                        ]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                } else {
-                                    Color.white.opacity(0.15)
-                                }
-                            }
-                        )
-                        .cornerRadius(14)
-                        .shadow(color: customName.isEmpty ? .clear : Color.cyan.opacity(0.4), radius: 12, x: 0, y: 6)
-                }
-                .disabled(customName.isEmpty)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 50)
-            }
-        }
-        .onAppear() {
-            loadCustomTherapyName()
-        }
-    }
-    
-    
-    private func loadCustomTherapyName() {
-        let therapyID = therapyTypeToID(therapyType)
-        
-        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
-        
-        do {
-            let results = try managedObjectContext.fetch(fetchRequest)
-            if let existingTherapy = results.first {
-                self.customName = existingTherapy.name ?? ""
-            }
-        } catch {
-            // Handle error
-            print("Error loading custom therapy: \(error)")
-        }
-    }
-    
-    private func saveCustomTherapy() {
-        let therapyID = therapyTypeToID(therapyType)
-        
-        let fetchRequest: NSFetchRequest<CustomTherapy> = CustomTherapy.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %d", therapyID)
-        
-        do {
-            let results = try managedObjectContext.fetch(fetchRequest)
-            let therapy: CustomTherapy
-            
-            if let existingTherapy = results.first {
-                // Update existing therapy
-                therapy = existingTherapy
-            } else {
-                // Create new therapy
-                therapy = CustomTherapy(context: managedObjectContext)
-                therapy.id = therapyID
-            }
-            
-            customTherapyNames[Int(therapyID) - 1] = customName
-            therapy.name = customName
-            try managedObjectContext.save()
-        } catch {
-            // Handle error
-            print("Error saving custom therapy: \(error)")
-        }
-    }
-    
-    private func therapyTypeToID(_ therapyType: TherapyType) -> Int16 {
-        switch therapyType {
-        case .custom1:
-            return 1
-        case .custom2:
-            return 2
-        case .custom3:
-            return 3
-        case .custom4:
-            return 4
-        default:
-            return 0 // Or handle other cases as needed
-        }
-    }
-}
-
+// MARK: - Legacy Support
 struct CategoryPillsView: View {
     @Binding var selectedCategory: Category
-    @State private var scrollViewWidth: CGFloat = 0
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(Category.allCases, id: \.self) { category in
-                            PillView(category: category, isSelected: Binding(get: {
-                                self.selectedCategory == category
-                            }, set: { _ in }))
-                                .id(category.id)
-                                .onTapGesture {
-                                    self.selectedCategory = category
-                                    withAnimation {
-                                        proxy.scrollTo(category.id, anchor: .center)
-                                    }
-                                }
-                        }
-                    }
-                    .padding()
-                    .onAppear {
-                        scrollViewWidth = geometry.size.width
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(Category.allCases, id: \.self) { category in
+                    CategoryChip(
+                        title: category.rawValue,
+                        isSelected: selectedCategory == category,
+                        hasWatch: category == .category0
+                    ) {
+                        selectedCategory = category
                     }
                 }
             }
+            .padding(.horizontal, 20)
         }
     }
 }
-
 
 struct PillView: View {
     let category: Category
     let isSelected: Binding<Bool>
 
     var body: some View {
-        HStack(spacing: 6) {
-            if category == .category0 {
-                Image(systemName: "applewatch")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(isSelected.wrappedValue ? .white : .green)
-            }
-            Text(category.rawValue)
-                .font(.system(size: 14, weight: .semibold))
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(
-            Capsule()
-                .fill(isSelected.wrappedValue ? Color.blue : Color.clear)
-        )
-        .foregroundColor(isSelected.wrappedValue ? .white : Color.blue)
-        .overlay(
-            Capsule()
-                .stroke(
-                    isSelected.wrappedValue ? Color.clear : (category == .category0 ? Color.green.opacity(0.5) : Color.blue),
-                    lineWidth: 1.5
-                )
+        CategoryChip(
+            title: category.rawValue,
+            isSelected: isSelected.wrappedValue,
+            hasWatch: category == .category0,
+            action: {}
         )
     }
 }
