@@ -125,6 +125,7 @@ class InsightsViewModel: ObservableObject {
     @Published var hrvImpacts: [HabitImpact] = []
     @Published var rhrImpacts: [HabitImpact] = []
     @Published var painImpacts: [HabitImpact] = []
+    @Published var waterImpacts: [HabitImpact] = []
     @Published var healthTrends: [HealthTrend] = []
     @Published var habitAttributions: [HabitAttribution] = []
     @Published var isLoading: Bool = true
@@ -225,6 +226,15 @@ class InsightsViewModel: ObservableObject {
                     }
                     group.leave()
                 }
+
+                // Fetch Water intake impact
+                group.enter()
+                self.fetchWaterImpact(for: therapyType) { impact in
+                    if let impact = impact {
+                        allImpacts.append(impact)
+                    }
+                    group.leave()
+                }
             }
         }
 
@@ -240,6 +250,7 @@ class InsightsViewModel: ObservableObject {
             self.hrvImpacts = allImpacts.filter { $0.metricName == "HRV" }
             self.rhrImpacts = allImpacts.filter { $0.metricName == "RHR" }
             self.painImpacts = allImpacts.filter { $0.metricName == "Pain Level" }
+            self.waterImpacts = allImpacts.filter { $0.metricName == "Hydration" }
 
             print("🔍 InsightsViewModel: Setting isLoading = false")
             self.isLoading = false
@@ -843,6 +854,92 @@ class InsightsViewModel: ObservableObject {
             habitValue: habitValue,
             percentageChange: change,
             isPositive: habitValue < baselineValue, // Lower pain is better
+            sampleSize: habitValues.count,
+            correlation: correlation,
+            optimalLag: optimalLag
+        )
+        completion(impact)
+    }
+
+    private func fetchWaterImpact(for therapyType: TherapyType, completion: @escaping (HabitImpact?) -> Void) {
+        guard let context = viewContext else {
+            completion(nil)
+            return
+        }
+
+        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
+        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+
+        // Minimum sample size for statistical validity
+        let minSample = Self.minimumSampleSize
+        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+            completion(nil)
+            return
+        }
+
+        var baselineValues: [Double] = []
+        var habitValues: [Double] = []
+        var allMetricData: [(date: Date, value: Double)] = []
+
+        // Fetch water intake for non-therapy days
+        for date in nonTherapyDates {
+            let cups = WaterIntake.getTotalCups(for: date, context: context)
+            if cups > 0 {
+                let value = Double(cups)
+                baselineValues.append(value)
+                allMetricData.append((date: date, value: value))
+            }
+        }
+
+        // Fetch water intake for therapy days
+        for date in therapyDates {
+            let cups = WaterIntake.getTotalCups(for: date, context: context)
+            if cups > 0 {
+                let value = Double(cups)
+                habitValues.append(value)
+                allMetricData.append((date: date, value: value))
+            }
+        }
+
+        // Remove outliers
+        let cleanBaseline = statsUtility.removeOutliers(baselineValues)
+        let cleanHabit = statsUtility.removeOutliers(habitValues)
+
+        guard !cleanBaseline.isEmpty && !cleanHabit.isEmpty else {
+            completion(nil)
+            return
+        }
+
+        let baselineValue = statsUtility.mean(cleanBaseline)
+        let habitValue = statsUtility.mean(cleanHabit)
+
+        // Calculate correlation (for water, positive correlation is good - more hydration is better)
+        let x = therapyDates.prefix(habitValues.count).map { _ in 1.0 } + nonTherapyDates.prefix(baselineValues.count).map { _ in 0.0 }
+        let y = habitValues + baselineValues
+
+        guard x.count == y.count && !y.isEmpty else {
+            completion(nil)
+            return
+        }
+
+        let correlation = statsUtility.pearsonCorrelation(x, y)
+
+        // Calculate lagged correlations
+        let laggedResults = statsUtility.laggedCorrelations(
+            habitDates: therapyDates,
+            metricData: allMetricData,
+            maxLag: 2
+        )
+        let optimalLag = statsUtility.optimalLag(from: laggedResults)
+
+        let change = statsUtility.percentageChange(baseline: baselineValue, new: habitValue)
+        let impact = HabitImpact(
+            habitType: therapyType,
+            metricName: "Hydration",
+            baselineValue: baselineValue,
+            habitValue: habitValue,
+            percentageChange: change,
+            isPositive: habitValue > baselineValue, // Higher hydration is better
             sampleSize: habitValues.count,
             correlation: correlation,
             optimalLag: optimalLag

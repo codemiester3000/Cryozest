@@ -11,6 +11,7 @@ import SwiftUI
 enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
     case wellnessCheckIn = "Wellness Check-In"
     case painTracking = "Pain Tracking"
+    case waterIntake = "Water Intake"
     case completedHabits = "Completed Habits"
     case medications = "Medications"
     case heroScores = "Hero Scores"
@@ -25,6 +26,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .wellnessCheckIn: return "star.fill"
         case .painTracking: return "bolt.heart.fill"
+        case .waterIntake: return "drop.fill"
         case .completedHabits: return "checkmark.circle.fill"
         case .medications: return "pills.fill"
         case .heroScores: return "gauge.with.dots.needle.67percent"
@@ -39,6 +41,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .wellnessCheckIn: return .pink
         case .painTracking: return .orange
+        case .waterIntake: return .cyan
         case .completedHabits: return .cyan
         case .medications: return .green
         case .heroScores: return .purple
@@ -92,6 +95,19 @@ class WidgetOrderManager: ObservableObject {
                 needsSave = true
             }
 
+            // Migrate: add waterIntake if not present
+            if !updatedOrder.contains(.waterIntake) {
+                // Insert water intake after pain tracking
+                if let painIndex = updatedOrder.firstIndex(of: .painTracking) {
+                    updatedOrder.insert(.waterIntake, at: painIndex + 1)
+                } else if let wellnessIndex = updatedOrder.firstIndex(of: .wellnessCheckIn) {
+                    updatedOrder.insert(.waterIntake, at: wellnessIndex + 1)
+                } else {
+                    updatedOrder.insert(.waterIntake, at: min(2, updatedOrder.count))
+                }
+                needsSave = true
+            }
+
             widgetOrder = updatedOrder
             if needsSave {
                 saveOrder()
@@ -101,6 +117,7 @@ class WidgetOrderManager: ObservableObject {
             widgetOrder = [
                 .wellnessCheckIn,
                 .painTracking,
+                .waterIntake,
                 .largeSteps,
                 .largeHeartRate,
                 .exertion,
@@ -128,6 +145,7 @@ class WidgetOrderManager: ObservableObject {
         widgetOrder = [
             .wellnessCheckIn,
             .painTracking,
+            .waterIntake,
             .largeSteps,
             .largeHeartRate,
             .exertion,

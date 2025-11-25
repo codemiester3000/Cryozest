@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5FDAFBFADBA44040A8251FE7 /* WaterIntakeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066F60381334407BD631143 /* WaterIntakeCard.swift */; };
+		21C8CA05880D4E07B0121D0F /* WaterIntake.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA67D199941D4A729437DFF8 /* WaterIntake.swift */; };
 		04D1467AA590C69BBF9AB672 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		0531AA8B29CAB86200B5F1AF /* TherapyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8A29CAB86200B5F1AF /* TherapyType.swift */; };
 		0531AA8F29CABCBE00B5F1AF /* SessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */; };
@@ -161,6 +163,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C066F60381334407BD631143 /* WaterIntakeCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WaterIntakeCard.swift; path = "Cryozest-2/WaterIntakeCard.swift"; sourceTree = SOURCE_ROOT; };
+		AA67D199941D4A729437DFF8 /* WaterIntake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WaterIntake.swift; path = "Cryozest-2/WaterIntake.swift"; sourceTree = SOURCE_ROOT; };
 		02B446DD8B1BFE22436BA450 /* LargeHeartRateWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LargeHeartRateWidget.swift; path = "Cryozest-2/LargeHeartRateWidget.swift"; sourceTree = SOURCE_ROOT; };
 		0531AA8A29CAB86200B5F1AF /* TherapyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyType.swift; sourceTree = "<group>"; };
 		0531AA8E29CABCBE00B5F1AF /* SessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummary.swift; sourceTree = "<group>"; };
@@ -733,7 +737,9 @@
 			
 				955C3F5BD4E54E58BD8BC33F /* StatisticsUtility.swift in Sources */,
 				920DD9BD304B4BAB945FE486 /* PainRating.swift in Sources */,
-				F41C66C81D7F4574BD0A2F79 /* PainTrackingCard.swift in Sources */,);
+				F41C66C81D7F4574BD0A2F79 /* PainTrackingCard.swift in Sources */,				21C8CA05880D4E07B0121D0F /* WaterIntake.swift in Sources */,
+				5FDAFBFADBA44040A8251FE7 /* WaterIntakeCard.swift in Sources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C57EE33529CA8E34002A4875 /* Sources */ = {

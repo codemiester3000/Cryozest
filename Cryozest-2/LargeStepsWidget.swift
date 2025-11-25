@@ -253,6 +253,31 @@ struct LargeStepsWidget: View {
             // Week stats
             weekStatsSection
 
+            // Edit Goal button
+            Button(action: {
+                showGoalConfig = true
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text("Edit Step Goal")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+                .foregroundColor(.cyan)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.cyan.opacity(0.12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.cyan.opacity(0.25), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+
         }
         .padding(20)
         .modernWidgetCard(style: .activity)
@@ -266,6 +291,9 @@ struct LargeStepsWidget: View {
         }
         .onAppear {
             loadWeeklyData()
+        }
+        .sheet(isPresented: $showGoalConfig) {
+            StepGoalConfigView()
         }
     }
 

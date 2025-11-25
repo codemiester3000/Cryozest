@@ -164,6 +164,12 @@ struct DailyView: View {
 
     private func shouldShowWidget(_ section: DailyWidgetSection) -> Bool {
         switch section {
+        case .wellnessCheckIn:
+            return metricConfig.isEnabled(.wellnessCheckIn)
+        case .painTracking:
+            return metricConfig.isEnabled(.painTracking)
+        case .waterIntake:
+            return metricConfig.isEnabled(.waterIntake)
         case .medications:
             return metricConfig.isEnabled(.medications)
         case .largeSteps:
@@ -204,6 +210,14 @@ struct DailyView: View {
 
         case .painTracking:
             PainTrackingCard(selectedDate: $selectedDate)
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                ))
+
+        case .waterIntake:
+            WaterIntakeCard(selectedDate: $selectedDate)
                 .modifier(ReorderableWidgetModifier(
                     section: section,
                     isReorderMode: isReorderMode,

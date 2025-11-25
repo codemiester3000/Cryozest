@@ -39,6 +39,9 @@ enum HealthMetric: String, CaseIterable, Identifiable {
 }
 
 enum DailyWidget: String, CaseIterable, Identifiable {
+    case wellnessCheckIn = "Wellness Check-In"
+    case painTracking = "Pain Tracking"
+    case waterIntake = "Hydration"
     case medications = "Medications"
     case heartRate = "Heart Rate"
 
@@ -46,6 +49,9 @@ enum DailyWidget: String, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
+        case .wellnessCheckIn: return "star.fill"
+        case .painTracking: return "bolt.heart.fill"
+        case .waterIntake: return "drop.fill"
         case .medications: return "pills.fill"
         case .heartRate: return "heart.fill"
         }
@@ -53,8 +59,21 @@ enum DailyWidget: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
+        case .wellnessCheckIn: return .pink
+        case .painTracking: return .orange
+        case .waterIntake: return .cyan
         case .medications: return .green
         case .heartRate: return .red
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .wellnessCheckIn: return "Rate your daily mood"
+        case .painTracking: return "Track your pain levels"
+        case .waterIntake: return "Track water intake"
+        case .medications: return "Manage medications"
+        case .heartRate: return "View heart rate trends"
         }
     }
 }
@@ -198,6 +217,8 @@ enum InsightSection: String, CaseIterable, Identifiable {
     case sleepImpact = "Sleep Impact"
     case hrvImpact = "HRV Impact"
     case rhrImpact = "Heart Rate Impact"
+    case painImpact = "Pain Impact"
+    case waterImpact = "Hydration Impact"
 
     var id: String { rawValue }
 
@@ -210,6 +231,8 @@ enum InsightSection: String, CaseIterable, Identifiable {
         case .sleepImpact: return "bed.double.fill"
         case .hrvImpact: return "waveform.path.ecg"
         case .rhrImpact: return "heart.fill"
+        case .painImpact: return "bolt.fill"
+        case .waterImpact: return "drop.fill"
         }
     }
 
@@ -222,6 +245,8 @@ enum InsightSection: String, CaseIterable, Identifiable {
         case .sleepImpact: return .purple
         case .hrvImpact: return .green
         case .rhrImpact: return .red
+        case .painImpact: return .orange
+        case .waterImpact: return .cyan
         }
     }
 
@@ -241,6 +266,10 @@ enum InsightSection: String, CaseIterable, Identifiable {
             return "See which habits improve your heart rate variability"
         case .rhrImpact:
             return "Learn which habits optimize your resting heart rate"
+        case .painImpact:
+            return "Discover which habits help reduce your pain levels"
+        case .waterImpact:
+            return "See which habits correlate with better hydration"
         }
     }
 }

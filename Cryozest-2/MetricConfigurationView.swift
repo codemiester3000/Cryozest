@@ -297,10 +297,16 @@ struct WidgetToggleRow: View {
                             .fill(isEnabled ? widget.color.opacity(0.2) : Color.white.opacity(0.05))
                     )
 
-                // Widget name
-                Text(widget.rawValue)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
+                // Widget name and description
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(widget.rawValue)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(isEnabled ? .white : .white.opacity(0.5))
+
+                    Text(widget.description)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
+                }
 
                 Spacer()
 

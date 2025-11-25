@@ -131,28 +131,7 @@ struct InsightsView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 24)
 
-                // Wellness Trends Section (kept as is per request)
-                if insightsConfig.isEnabled(.wellnessTrends) {
-                    WellnessInsightsSection(
-                        ratings: Array(wellnessRatings),
-                        sessions: Array(sessions),
-                        therapyTypes: selectedTherapyTypes
-                    )
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // Medication Adherence Section (kept as is per request)
-                if insightsConfig.isEnabled(.medicationAdherence) {
-                    MedicationAdherenceSection()
-                        .environment(\.managedObjectContext, viewContext)
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // Health Trends Section
+                // Health Trends Section (moved to top)
                 if insightsConfig.isEnabled(.healthTrends) && !viewModel.healthTrends.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
@@ -182,7 +161,7 @@ struct InsightsView: View {
                         .padding(.horizontal, 20)
                 }
 
-                // Top Performers Section
+                // Top Performers Section (moved to second)
                 if insightsConfig.isEnabled(.topPerformers) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
@@ -216,6 +195,27 @@ struct InsightsView: View {
                             }
                         }
                     }
+
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
+                }
+
+                // Wellness Trends Section
+                if insightsConfig.isEnabled(.wellnessTrends) {
+                    WellnessInsightsSection(
+                        ratings: Array(wellnessRatings),
+                        sessions: Array(sessions),
+                        therapyTypes: selectedTherapyTypes
+                    )
+
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
+                }
+
+                // Medication Adherence Section
+                if insightsConfig.isEnabled(.medicationAdherence) {
+                    MedicationAdherenceSection()
+                        .environment(\.managedObjectContext, viewContext)
 
                     InsightsDivider()
                         .padding(.horizontal, 20)
@@ -303,6 +303,68 @@ struct InsightsView: View {
                         } else {
                             VStack(spacing: 0) {
                                 ForEach(viewModel.rhrImpacts) { impact in
+                                    MetricImpactRow(impact: impact)
+                                        .padding(.horizontal, 20)
+                                }
+                            }
+                        }
+                    }
+
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
+                }
+
+                // Pain Association Section
+                if insightsConfig.isEnabled(.painImpact) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        InsightsSectionHeader(
+                            title: "Pain Level Associations",
+                            icon: "bolt.fill",
+                            color: .orange
+                        )
+                        .padding(.horizontal, 20)
+
+                        if viewModel.painImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "More Data Needed",
+                                message: "Track your pain levels and habits for 14+ days to see associations.",
+                                icon: "bolt.fill"
+                            )
+                            .padding(.horizontal, 20)
+                        } else {
+                            VStack(spacing: 0) {
+                                ForEach(viewModel.painImpacts) { impact in
+                                    MetricImpactRow(impact: impact)
+                                        .padding(.horizontal, 20)
+                                }
+                            }
+                        }
+                    }
+
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
+                }
+
+                // Water Intake Association Section
+                if insightsConfig.isEnabled(.waterImpact) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        InsightsSectionHeader(
+                            title: "Hydration Associations",
+                            icon: "drop.fill",
+                            color: .cyan
+                        )
+                        .padding(.horizontal, 20)
+
+                        if viewModel.waterImpacts.isEmpty {
+                            InsightsEmptyStateCard(
+                                title: "More Data Needed",
+                                message: "Track your water intake and habits for 14+ days to see associations.",
+                                icon: "drop.fill"
+                            )
+                            .padding(.horizontal, 20)
+                        } else {
+                            VStack(spacing: 0) {
+                                ForEach(viewModel.waterImpacts) { impact in
                                     MetricImpactRow(impact: impact)
                                         .padding(.horizontal, 20)
                                 }
