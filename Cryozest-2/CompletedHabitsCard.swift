@@ -13,14 +13,28 @@ struct CompletedHabitsCard: View {
     @Binding var selectedDate: Date
 
     @State private var completedHabits: [TherapySessionEntity] = []
+    @State private var checkGlow: CGFloat = 0
 
     var body: some View {
         if !completedHabits.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.green)
+                    ZStack {
+                        // Subtle success glow
+                        Circle()
+                            .fill(Color.green.opacity(0.2 + checkGlow * 0.15))
+                            .frame(width: 22 + checkGlow * 4, height: 22 + checkGlow * 4)
+                            .blur(radius: 4)
+
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.green)
+                    }
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                            checkGlow = 1.0
+                        }
+                    }
 
                     Text("Completed Today")
                         .font(.system(size: 14, weight: .medium))

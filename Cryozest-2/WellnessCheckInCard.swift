@@ -18,6 +18,7 @@ struct WellnessCheckInCard: View {
     @State private var selectedRating: Int?
     @State private var showFeedback = false
     @State private var isExpanded = false
+    @State private var iconGlow: CGFloat = 0
 
     var body: some View {
         Group {
@@ -50,6 +51,12 @@ struct WellnessCheckInCard: View {
             // Header with icon
             HStack(spacing: 12) {
                 ZStack {
+                    // Subtle glow ring
+                    Circle()
+                        .fill(Color.cyan.opacity(0.15 + iconGlow * 0.1))
+                        .frame(width: 40 + iconGlow * 4, height: 40 + iconGlow * 4)
+                        .blur(radius: 4)
+
                     Circle()
                         .fill(
                             LinearGradient(
@@ -66,6 +73,11 @@ struct WellnessCheckInCard: View {
                     Image(systemName: "face.smiling")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.cyan)
+                }
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                        iconGlow = 1.0
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {

@@ -22,6 +22,7 @@ struct MedicationsCard: View {
     @State private var takenStates: [UUID: Bool] = [:]
     @State private var isCollapsed = false
     @State private var lastToggledMedication: Medication?
+    @State private var pillsShimmer: CGFloat = 0
 
     private var activeMedications: [Medication] {
         allMedications.filter { $0.isActive }
@@ -97,9 +98,22 @@ struct MedicationsCard: View {
                 // Expanded state - Header
                 HStack {
                     HStack(spacing: 8) {
-                        Image(systemName: "pills.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.green)
+                        ZStack {
+                            // Subtle shimmer glow
+                            Circle()
+                                .fill(Color.green.opacity(0.2 + pillsShimmer * 0.15))
+                                .frame(width: 28 + pillsShimmer * 3, height: 28 + pillsShimmer * 3)
+                                .blur(radius: 4)
+
+                            Image(systemName: "pills.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.green)
+                        }
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
+                                pillsShimmer = 1.0
+                            }
+                        }
 
                         Text("Medications")
                             .font(.system(size: 14, weight: .medium))

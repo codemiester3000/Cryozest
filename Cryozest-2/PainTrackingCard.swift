@@ -18,6 +18,7 @@ struct PainTrackingCard: View {
     @State private var selectedRating: Int?
     @State private var showFeedback = false
     @State private var isExpanded = false
+    @State private var iconPulse: CGFloat = 0
 
     var body: some View {
         Group {
@@ -50,6 +51,13 @@ struct PainTrackingCard: View {
             // Header with icon
             HStack(spacing: 12) {
                 ZStack {
+                    // Subtle pulse ring
+                    Circle()
+                        .fill(Color.orange.opacity(0.15))
+                        .frame(width: 40 + iconPulse * 6, height: 40 + iconPulse * 6)
+                        .opacity(Double(1.0 - iconPulse * 0.5))
+                        .blur(radius: 3)
+
                     Circle()
                         .fill(
                             LinearGradient(
@@ -66,6 +74,12 @@ struct PainTrackingCard: View {
                     Image(systemName: "bolt.heart.fill")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.orange)
+                        .scaleEffect(1 + iconPulse * 0.05)
+                }
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                        iconPulse = 1.0
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
