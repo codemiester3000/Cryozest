@@ -66,8 +66,48 @@ class RecoveryGraphModel: ObservableObject {
     init(selectedDate: Date) {
         self.selectedDate = selectedDate
         self.dailySleepViewModel = DailySleepViewModel(selectedDate: selectedDate)
-        
-        pullAllRecoveryData(forDate: selectedDate)
+
+        if ScreenshotDataManager.isScreenshotMode {
+            injectMockData()
+        } else {
+            pullAllRecoveryData(forDate: selectedDate)
+        }
+    }
+
+    // MARK: - Mock Data for Screenshots
+    private func injectMockData() {
+        let mock = ScreenshotDataManager.mockHeartRate
+        let mockHRV = ScreenshotDataManager.mockHRV
+        let mockSleep = ScreenshotDataManager.mockSleep
+        let mockScores = ScreenshotDataManager.mockScores
+
+        // Heart rate
+        self.mostRecentRestingHeartRate = mock.restingHeartRate
+        self.mostRecentRestingHeartRateTime = mock.lastReadingTime
+        self.avgRestingHeartRate60Days = mock.weeklyAverage
+        self.averageDailyRHR = mock.lastHourAverage
+
+        // HRV
+        self.avgHrvDuringSleep = mockHRV.currentHRV
+        self.avgHrvDuringSleep60Days = mockHRV.weeklyAverage
+        self.lastKnownHRV = mockHRV.currentHRV
+
+        // Sleep
+        let hours = mockSleep.totalSleep / 3600
+        self.previousNightSleepDuration = String(format: "%.1f", hours)
+
+        // Other metrics
+        self.mostRecentSPO2 = 98.0
+        self.mostRecentRespiratoryRate = 14.5
+        self.mostRecentActiveCalories = 485.0
+        self.mostRecentRestingCalories = 1650.0
+        self.mostRecentSteps = Double(ScreenshotDataManager.mockSteps.todaySteps)
+        self.mostRecentVO2Max = 42.5
+
+        // Recovery scores (last 7 days)
+        self.recoveryScores = [72, 78, 75, 82, 80, 85, mockScores.recoveryScore]
+
+        self.lastDataRefresh = Date()
     }
     
     

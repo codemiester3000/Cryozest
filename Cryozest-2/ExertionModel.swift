@@ -22,7 +22,25 @@ class ExertionModel: ObservableObject {
 
     init(selectedDate: Date) {
         self.selectedDate = selectedDate
-        fetchExertionScoreAndTimes(forDate: selectedDate)
+
+        if ScreenshotDataManager.isScreenshotMode {
+            injectMockData()
+        } else {
+            fetchExertionScoreAndTimes(forDate: selectedDate)
+        }
+    }
+
+    // MARK: - Mock Data for Screenshots
+    private func injectMockData() {
+        let mock = ScreenshotDataManager.mockExertion
+
+        self.exertionScore = mock.exertionScore
+        self.avgRestingHeartRate = mock.avgRestingHeartRate
+        self.zoneTimes = mock.zoneTimes
+        self.recoveryMinutes = mock.recoveryMinutes
+        self.conditioningMinutes = mock.conditioningMinutes
+        self.overloadMinutes = mock.overloadMinutes
+        self.heartRateZoneRanges = mock.heartRateZoneRanges
     }
     
     func fetchExertionScoreAndTimes(forDate date: Date) {

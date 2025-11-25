@@ -1,19 +1,19 @@
 //
-//  WellnessCheckInCard.swift
+//  PainTrackingCard.swift
 //  Cryozest-2
 //
-//  Created by Owen Khoury on 10/9/25.
+//  Pain tracking widget for daily health monitoring
 //  Supports multiple entries per day
 //
 
 import SwiftUI
 import Combine
 
-struct WellnessCheckInCard: View {
+struct PainTrackingCard: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Binding var selectedDate: Date
 
-    @State private var todayRatings: [WellnessRating] = []
+    @State private var todayRatings: [PainRating] = []
     @State private var isAddingNew = false
     @State private var selectedRating: Int?
     @State private var showFeedback = false
@@ -36,7 +36,7 @@ struct WellnessCheckInCard: View {
     }
 
     private func loadRatingsForSelectedDate() {
-        todayRatings = WellnessRating.getAllRatingsForDay(date: selectedDate, context: viewContext)
+        todayRatings = PainRating.getAllRatingsForDay(date: selectedDate, context: viewContext)
         isAddingNew = false
         selectedRating = nil
         showFeedback = false
@@ -54,8 +54,8 @@ struct WellnessCheckInCard: View {
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color.cyan.opacity(0.3),
-                                    Color.purple.opacity(0.2)
+                                    Color.red.opacity(0.3),
+                                    Color.orange.opacity(0.2)
                                 ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -63,17 +63,17 @@ struct WellnessCheckInCard: View {
                         )
                         .frame(width: 40, height: 40)
 
-                    Image(systemName: "face.smiling")
+                    Image(systemName: "bolt.heart.fill")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.cyan)
+                        .foregroundColor(.orange)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("How are you feeling?")
+                    Text("Pain Level")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
 
-                    Text(isAddingNew ? "Add another entry" : "Track your mood right now")
+                    Text(isAddingNew ? "Add another entry" : "How are you feeling?")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -96,40 +96,38 @@ struct WellnessCheckInCard: View {
                 }
             }
 
-            // Mood rating buttons with emojis
-            HStack(spacing: 10) {
-                ForEach(1...5, id: \.self) { rating in
+            // Pain rating buttons (0-5 scale)
+            HStack(spacing: 8) {
+                ForEach(0...5, id: \.self) { rating in
                     Button(action: {
                         selectRating(rating)
                     }) {
-                        VStack(spacing: 6) {
-                            Text(moodEmoji(for: rating))
-                                .font(.system(size: 28))
+                        VStack(spacing: 4) {
+                            Text(painEmoji(for: rating))
+                                .font(.system(size: 24))
 
-                            Text(moodLabel(for: rating))
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(selectedRating == rating ? .white : moodColor(for: rating))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
+                            Text("\(rating)")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(selectedRating == rating ? .white : painColor(for: rating))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 10)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(
                                     selectedRating == rating
                                         ? LinearGradient(
                                             gradient: Gradient(colors: [
-                                                moodColor(for: rating),
-                                                moodColor(for: rating).opacity(0.8)
+                                                painColor(for: rating),
+                                                painColor(for: rating).opacity(0.8)
                                             ]),
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
                                         : LinearGradient(
                                             gradient: Gradient(colors: [
-                                                moodColor(for: rating).opacity(0.15),
-                                                moodColor(for: rating).opacity(0.08)
+                                                painColor(for: rating).opacity(0.15),
+                                                painColor(for: rating).opacity(0.08)
                                             ]),
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
@@ -139,8 +137,8 @@ struct WellnessCheckInCard: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(
                                             selectedRating == rating
-                                                ? moodColor(for: rating).opacity(0.6)
-                                                : moodColor(for: rating).opacity(0.3),
+                                                ? painColor(for: rating).opacity(0.6)
+                                                : painColor(for: rating).opacity(0.3),
                                             lineWidth: selectedRating == rating ? 2 : 1
                                         )
                                 )
@@ -151,22 +149,37 @@ struct WellnessCheckInCard: View {
                 }
             }
 
+            // Pain level label
+            if let rating = selectedRating {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(painColor(for: rating))
+                        .frame(width: 8, height: 8)
+
+                    Text(painLabel(for: rating))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(painColor(for: rating))
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             if showFeedback, let rating = selectedRating {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(moodColor(for: rating))
+                        .foregroundColor(painColor(for: rating))
 
                     Text(feedbackMessage(for: rating))
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(moodColor(for: rating).opacity(0.9))
+                        .foregroundColor(painColor(for: rating).opacity(0.9))
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(20)
-        .modernWidgetCard(style: .hero)
+        .modernWidgetCard(style: .medical)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showFeedback)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedRating)
     }
@@ -178,7 +191,7 @@ struct WellnessCheckInCard: View {
         selectedRating = rating
         showFeedback = true
 
-        WellnessRating.addRating(rating: rating, for: selectedDate, context: viewContext)
+        PainRating.addRating(rating: rating, for: selectedDate, context: viewContext)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
@@ -198,20 +211,20 @@ struct WellnessCheckInCard: View {
                 }
             }) {
                 HStack(spacing: 12) {
-                    // Mood icon
-                    Image(systemName: "face.smiling")
+                    // Pain icon
+                    Image(systemName: "bolt.heart.fill")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.cyan)
+                        .foregroundColor(.orange)
 
                     // Average and count
                     if let average = averageRating {
-                        Text(moodEmoji(for: Int(average.rounded())))
+                        Text(painEmoji(for: Int(average.rounded())))
                             .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(moodLabel(for: Int(average.rounded())))
+                            Text(painLabel(for: Int(average.rounded())))
                                 .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(moodColor(for: Int(average.rounded())))
+                                .foregroundColor(painColor(for: Int(average.rounded())))
 
                             Text(entryCountLabel)
                                 .font(.system(size: 11, weight: .medium))
@@ -225,7 +238,7 @@ struct WellnessCheckInCard: View {
                     HStack(spacing: 3) {
                         ForEach(todayRatings.prefix(5).reversed(), id: \.id) { rating in
                             Circle()
-                                .fill(moodColor(for: Int(rating.rating)))
+                                .fill(painColor(for: Int(rating.rating)))
                                 .frame(width: 8, height: 8)
                         }
                         if todayRatings.count > 5 {
@@ -252,7 +265,7 @@ struct WellnessCheckInCard: View {
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 24))
-                            .foregroundColor(.cyan)
+                            .foregroundColor(.orange)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -277,18 +290,18 @@ struct WellnessCheckInCard: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .modernWidgetCard(style: .hero)
+        .modernWidgetCard(style: .medical)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
     }
 
-    private func entryRow(for rating: WellnessRating) -> some View {
+    private func entryRow(for rating: PainRating) -> some View {
         HStack(spacing: 10) {
-            Text(moodEmoji(for: Int(rating.rating)))
+            Text(painEmoji(for: Int(rating.rating)))
                 .font(.system(size: 16))
 
-            Text(moodLabel(for: Int(rating.rating)))
+            Text(painLabel(for: Int(rating.rating)))
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(moodColor(for: Int(rating.rating)))
+                .foregroundColor(painColor(for: Int(rating.rating)))
 
             Spacer()
 
@@ -317,12 +330,12 @@ struct WellnessCheckInCard: View {
         )
     }
 
-    private func deleteEntry(_ rating: WellnessRating) {
+    private func deleteEntry(_ rating: PainRating) {
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
 
         if let id = rating.id {
-            WellnessRating.deleteRating(id: id, context: viewContext)
+            PainRating.deleteRating(id: id, context: viewContext)
 
             // Reload after a brief delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -336,7 +349,7 @@ struct WellnessCheckInCard: View {
     // MARK: - Helpers
 
     private var averageRating: Double? {
-        WellnessRating.getAverageRatingForDay(date: selectedDate, context: viewContext)
+        PainRating.getAverageRatingForDay(date: selectedDate, context: viewContext)
     }
 
     private var entryCountLabel: String {
@@ -354,46 +367,50 @@ struct WellnessCheckInCard: View {
         return formatter.string(from: date)
     }
 
-    private func moodColor(for rating: Int) -> Color {
+    private func painColor(for rating: Int) -> Color {
         switch rating {
-        case 1: return Color.red
-        case 2: return Color.orange
-        case 3: return Color.yellow
-        case 4: return Color.green
-        case 5: return Color.cyan
-        default: return Color.cyan
+        case 0: return Color.green
+        case 1: return Color.mint
+        case 2: return Color.yellow
+        case 3: return Color.orange
+        case 4: return Color.red
+        case 5: return Color.purple
+        default: return Color.gray
         }
     }
 
-    private func moodLabel(for rating: Int) -> String {
+    private func painLabel(for rating: Int) -> String {
         switch rating {
-        case 1: return "Rough"
-        case 2: return "Low"
-        case 3: return "Okay"
-        case 4: return "Good"
-        case 5: return "Great"
-        default: return "Good"
+        case 0: return "No Pain"
+        case 1: return "Minimal"
+        case 2: return "Mild"
+        case 3: return "Moderate"
+        case 4: return "Severe"
+        case 5: return "Extreme"
+        default: return "Unknown"
         }
     }
 
-    private func moodEmoji(for rating: Int) -> String {
+    private func painEmoji(for rating: Int) -> String {
         switch rating {
-        case 1: return "😞"
-        case 2: return "😕"
-        case 3: return "😐"
-        case 4: return "😊"
-        case 5: return "😄"
-        default: return "😊"
+        case 0: return "😌"
+        case 1: return "🙂"
+        case 2: return "😐"
+        case 3: return "😣"
+        case 4: return "😖"
+        case 5: return "😫"
+        default: return "😐"
         }
     }
 
     private func feedbackMessage(for rating: Int) -> String {
         let messages: [Int: [String]] = [
-            5: ["Outstanding!", "Excellent", "Keep it up"],
-            4: ["Great to hear", "Solid", "Going well"],
-            3: ["Onwards", "Tomorrow's new", "Steady"],
-            2: ["Hang in there", "Be patient", "Rest up"],
-            1: ["Tough days happen", "Take care", "You've got this"]
+            0: ["Pain-free!", "Feeling great", "Keep it up"],
+            1: ["Minor discomfort", "Nearly there", "Good progress"],
+            2: ["Manageable", "Take it easy", "Listen to your body"],
+            3: ["Consider rest", "Take care", "Monitor closely"],
+            4: ["Rest recommended", "Be gentle", "Recovery time"],
+            5: ["Prioritize rest", "Seek care if needed", "Take it slow"]
         ]
 
         return messages[rating]?.randomElement() ?? "Logged"

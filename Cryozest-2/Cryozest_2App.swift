@@ -7,6 +7,12 @@ struct Cryozest_2App: App {
     @StateObject private var appState = AppState()
     @State private var showSplash = true
 
+    init() {
+        // Enable screenshot mode by uncommenting the line below
+        // This generates fake data for App Store screenshots
+        // ScreenshotDataManager.setupForScreenshots(context: PersistenceController.shared.container.viewContext)
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {

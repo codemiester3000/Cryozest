@@ -202,6 +202,14 @@ struct DailyView: View {
                     draggedWidget: $draggedWidget,
                 ))
 
+        case .painTracking:
+            PainTrackingCard(selectedDate: $selectedDate)
+                .modifier(ReorderableWidgetModifier(
+                    section: section,
+                    isReorderMode: isReorderMode,
+                    draggedWidget: $draggedWidget,
+                ))
+
         case .completedHabits:
             CompletedHabitsCard(selectedDate: $selectedDate)
                 .modifier(ReorderableWidgetModifier(

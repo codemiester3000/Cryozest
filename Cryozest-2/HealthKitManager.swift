@@ -1582,7 +1582,7 @@ class HealthKitManager {
     // Duration in Seconds
     func fetchAvgSleepDurationForDays(days: [Date], completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
-        
+
         // Convert dates into just the day component
         var includedDays: [Date] = []
         for date in days {
@@ -1591,38 +1591,38 @@ class HealthKitManager {
                 includedDays.append(dayStart)
             }
         }
-        
+
         // Calculate earliest and latest date in the days array
         let earliestDate = includedDays.min() ?? Date.distantPast
-        
+
         // Create a predicate to fetch heart rate samples within the range of the earliest and latest dates
         let predicate = HKQuery.predicateForSamples(withStart: earliestDate, end: Date(), options: .strictStartDate)
-        
+
         let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
-        
+
         let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
-            
+
             guard let sleepSamples = samples as? [HKCategorySample] else {
                 DispatchQueue.main.async {
                     completion(nil)
                 }
                 return
             }
-            
+
             // Sum up all of the time the user spent asleep during the time frame.
             var totalDuration = 0.0
             var sampleDays = Set<Date>()
             for sleepSample in sleepSamples {
                 if let sampleDayStart = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: sleepSample.endDate)), includedDays.contains(sampleDayStart) {
                     let duration = sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
-                    
+
                     if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue || sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
                         totalDuration += duration
                         sampleDays.insert(sampleDayStart)
                     }
                 }
             }
-            
+
             DispatchQueue.main.async {
                 if !sampleDays.isEmpty {
                     let avgDuration = totalDuration / Double(sampleDays.count)
@@ -1632,7 +1632,44 @@ class HealthKitManager {
                 }
             }
         }
-        
+
+        healthStore.execute(sleepQuery)
+    }
+
+    /// Fetch sleep duration for a specific day (in seconds)
+    func fetchSleepDurationForDay(date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let dayStart = calendar.startOfDay(for: date)
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: dayStart, end: dayEnd, options: .strictStartDate)
+        let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!
+
+        let sleepQuery = HKSampleQuery(sampleType: sleepAnalysisType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, samples, error) in
+            guard let sleepSamples = samples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+
+            var totalDuration = 0.0
+            for sleepSample in sleepSamples {
+                if sleepSample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue ||
+                   sleepSample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+                   sleepSample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                    totalDuration += sleepSample.endDate.timeIntervalSince(sleepSample.startDate)
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(totalDuration > 0 ? totalDuration : nil)
+            }
+        }
+
         healthStore.execute(sleepQuery)
     }
     

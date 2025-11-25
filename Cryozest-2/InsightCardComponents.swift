@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreData
 
-// MARK: - Top Impact Card (Reimagined as clean data display)
+// MARK: - Top Impact Card (With statistical confidence)
 struct TopImpactCard: View {
     let impact: HabitImpact
     let rank: Int
@@ -35,9 +35,14 @@ struct TopImpactCard: View {
 
             // Content
             VStack(alignment: .leading, spacing: 4) {
-                Text(impact.habitType.displayName(managedObjectContext))
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
+                HStack(spacing: 6) {
+                    Text(impact.habitType.displayName(managedObjectContext))
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    // Confidence indicator
+                    ConfidenceIndicator(level: impact.confidenceLevel)
+                }
 
                 HStack(spacing: 6) {
                     Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
@@ -51,6 +56,13 @@ struct TopImpactCard: View {
                     Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(impact.habitType.color)
+
+                    // Show lag if next-day effect
+                    if let lagDesc = impact.lagDescription {
+                        Text("(\(lagDesc))")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.cyan.opacity(0.7))
+                    }
                 }
             }
 
@@ -62,9 +74,20 @@ struct TopImpactCard: View {
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(impact.isPositive ? .green : .red)
 
-                Text(impact.metricName)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.4))
+                HStack(spacing: 4) {
+                    Text(impact.metricName)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
+
+                    if impact.isStatisticallySignificant {
+                        Text("•")
+                            .font(.system(size: 8))
+                            .foregroundColor(.white.opacity(0.3))
+                        Text("sig")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.green.opacity(0.8))
+                    }
+                }
             }
         }
         .padding(.vertical, 12)
@@ -92,57 +115,82 @@ struct TopImpactCard: View {
     }
 }
 
-// MARK: - Metric Impact Row (Clean horizontal layout)
+// MARK: - Metric Impact Row (Clean horizontal layout with confidence)
 struct MetricImpactRow: View {
     let impact: HabitImpact
     @Environment(\.managedObjectContext) private var managedObjectContext
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Habit indicator
-            ZStack {
-                Circle()
-                    .fill(impact.habitType.color.opacity(0.12))
-                    .frame(width: 38, height: 38)
+        VStack(spacing: 8) {
+            HStack(spacing: 14) {
+                // Habit indicator
+                ZStack {
+                    Circle()
+                        .fill(impact.habitType.color.opacity(0.12))
+                        .frame(width: 38, height: 38)
 
-                Image(systemName: impact.habitType.icon)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(impact.habitType.color)
-            }
+                    Image(systemName: impact.habitType.icon)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(impact.habitType.color)
+                }
 
-            // Habit name and confidence
-            VStack(alignment: .leading, spacing: 2) {
-                Text(impact.habitType.displayName(managedObjectContext))
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                // Habit name and confidence
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(impact.habitType.displayName(managedObjectContext))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
 
-                Text("\(impact.sampleSize) days tracked")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.white.opacity(0.35))
-            }
+                    HStack(spacing: 4) {
+                        // Confidence indicator
+                        ConfidenceIndicator(level: impact.confidenceLevel)
 
-            Spacer()
+                        Text("\(impact.sampleSize) days")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.35))
 
-            // Values comparison
-            HStack(spacing: 8) {
-                Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.white.opacity(0.4))
+                        // Lag indicator if applicable
+                        if let lagDesc = impact.lagDescription {
+                            Text("•")
+                                .foregroundColor(.white.opacity(0.2))
+                            Text(lagDesc)
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.cyan.opacity(0.8))
+                        }
+                    }
+                }
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.2))
+                Spacer()
 
-                Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(impact.isPositive ? .green : .red)
-            }
+                // Values comparison
+                HStack(spacing: 8) {
+                    Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
 
-            // Change indicator
-            Text(impact.changeDescription)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundColor(impact.isPositive ? .green : .red)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.2))
+
+                    Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(impact.isPositive ? .green : .red)
+                }
+
+                // Change indicator
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(impact.changeDescription)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(impact.isPositive ? .green : .red)
+
+                    // Show significance indicator
+                    if impact.isStatisticallySignificant {
+                        Text("p<0.05")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.green.opacity(0.7))
+                    }
+                }
                 .frame(width: 55, alignment: .trailing)
+            }
         }
         .padding(.vertical, 10)
     }
@@ -156,6 +204,45 @@ struct MetricImpactRow: View {
             if value >= 100 { return String(format: "%.0f", value) }
             else if value >= 10 { return String(format: "%.1f", value) }
             else { return String(format: "%.2f", value) }
+        }
+    }
+}
+
+// MARK: - Confidence Indicator
+struct ConfidenceIndicator: View {
+    let level: ConfidenceLevel
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(0..<3, id: \.self) { index in
+                Circle()
+                    .fill(fillColor(for: index))
+                    .frame(width: 4, height: 4)
+            }
+        }
+    }
+
+    private func fillColor(for index: Int) -> Color {
+        let threshold: Double
+        switch index {
+        case 0: threshold = 0.33
+        case 1: threshold = 0.66
+        default: threshold = 1.0
+        }
+
+        if level.iconFillAmount >= threshold {
+            return confidenceColor
+        } else {
+            return .white.opacity(0.15)
+        }
+    }
+
+    private var confidenceColor: Color {
+        switch level {
+        case .high: return .green
+        case .moderate: return .yellow
+        case .low: return .orange
+        case .insufficient: return .gray
         }
     }
 }

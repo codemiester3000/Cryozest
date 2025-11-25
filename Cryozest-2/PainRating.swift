@@ -1,25 +1,25 @@
 //
-//  WellnessRating.swift
+//  PainRating.swift
 //  Cryozest-2
 //
-//  Created by Owen Khoury on 10/9/25.
+//  Pain tracking data model extension
 //  Supports multiple entries per day with timestamps
 //
 
 import Foundation
 import CoreData
 
-extension WellnessRating {
+extension PainRating {
     // MARK: - Single Entry Queries (for backward compatibility)
 
     // Get the most recent rating for a specific date
-    static func getRating(for date: Date, context: NSManagedObjectContext) -> WellnessRating? {
+    static func getRating(for date: Date, context: NSManagedObjectContext) -> PainRating? {
         let ratings = getAllRatingsForDay(date: date, context: context)
         return ratings.first // Already sorted by timestamp descending
     }
 
     // Get today's most recent rating if it exists
-    static func getTodayRating(context: NSManagedObjectContext) -> WellnessRating? {
+    static func getTodayRating(context: NSManagedObjectContext) -> PainRating? {
         return getRating(for: Date(), context: context)
     }
 
@@ -31,14 +31,14 @@ extension WellnessRating {
     // MARK: - Multiple Entries Per Day
 
     // Get all ratings for a specific day, sorted by timestamp (newest first)
-    static func getAllRatingsForDay(date: Date, context: NSManagedObjectContext) -> [WellnessRating] {
+    static func getAllRatingsForDay(date: Date, context: NSManagedObjectContext) -> [PainRating] {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
 
-        let request: NSFetchRequest<WellnessRating> = WellnessRating.fetchRequest()
+        let request: NSFetchRequest<PainRating> = PainRating.fetchRequest()
         request.predicate = NSPredicate(format: "date >= %@ AND date < %@", startOfDay as NSDate, endOfDay as NSDate)
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \WellnessRating.timestamp, ascending: false)]
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \PainRating.timestamp, ascending: false)]
 
         return (try? context.fetch(request)) ?? []
     }
@@ -60,12 +60,14 @@ extension WellnessRating {
     // MARK: - Creating Entries
 
     // Add a new rating entry (always creates new, never updates)
-    static func addRating(rating: Int, for date: Date, context: NSManagedObjectContext) {
+    static func addRating(rating: Int, for date: Date, bodyLocation: String? = nil, notes: String? = nil, context: NSManagedObjectContext) {
         DispatchQueue.main.async {
-            let newRating = WellnessRating(context: context)
+            let newRating = PainRating(context: context)
             newRating.id = UUID()
             newRating.date = date // Store actual timestamp, not start of day
             newRating.rating = Int16(rating)
+            newRating.bodyLocation = bodyLocation
+            newRating.notes = notes
             newRating.timestamp = Date()
 
             try? context.save()
@@ -73,18 +75,18 @@ extension WellnessRating {
     }
 
     // Add a rating for right now
-    static func addCurrentRating(rating: Int, context: NSManagedObjectContext) {
-        addRating(rating: rating, for: Date(), context: context)
+    static func addCurrentRating(rating: Int, bodyLocation: String? = nil, notes: String? = nil, context: NSManagedObjectContext) {
+        addRating(rating: rating, for: Date(), bodyLocation: bodyLocation, notes: notes, context: context)
     }
 
     // Legacy method - now just adds a new entry
-    static func setRating(rating: Int, for date: Date, context: NSManagedObjectContext) {
-        addRating(rating: rating, for: date, context: context)
+    static func setRating(rating: Int, for date: Date, bodyLocation: String? = nil, notes: String? = nil, context: NSManagedObjectContext) {
+        addRating(rating: rating, for: date, bodyLocation: bodyLocation, notes: notes, context: context)
     }
 
     // Legacy method
-    static func setTodayRating(rating: Int, context: NSManagedObjectContext) {
-        addCurrentRating(rating: rating, context: context)
+    static func setTodayRating(rating: Int, bodyLocation: String? = nil, notes: String? = nil, context: NSManagedObjectContext) {
+        addCurrentRating(rating: rating, bodyLocation: bodyLocation, notes: notes, context: context)
     }
 
     // MARK: - Deleting Entries
@@ -92,7 +94,7 @@ extension WellnessRating {
     // Delete a specific rating by ID
     static func deleteRating(id: UUID, context: NSManagedObjectContext) {
         DispatchQueue.main.async {
-            let request: NSFetchRequest<WellnessRating> = WellnessRating.fetchRequest()
+            let request: NSFetchRequest<PainRating> = PainRating.fetchRequest()
             request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
             request.fetchLimit = 1
 
@@ -137,10 +139,10 @@ extension WellnessRating {
     // MARK: - Date Range Queries (for insights)
 
     // Fetch all ratings for a date range
-    static func getRatings(from startDate: Date, to endDate: Date, context: NSManagedObjectContext) -> [WellnessRating] {
-        let request: NSFetchRequest<WellnessRating> = WellnessRating.fetchRequest()
+    static func getRatings(from startDate: Date, to endDate: Date, context: NSManagedObjectContext) -> [PainRating] {
+        let request: NSFetchRequest<PainRating> = PainRating.fetchRequest()
         request.predicate = NSPredicate(format: "date >= %@ AND date < %@", startDate as NSDate, endDate as NSDate)
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \WellnessRating.date, ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \PainRating.date, ascending: true)]
 
         return (try? context.fetch(request)) ?? []
     }
@@ -163,7 +165,7 @@ extension WellnessRating {
         return results
     }
 
-    // Get average wellness rating for a set of dates (uses daily averages)
+    // Get average pain rating for a set of dates (uses daily averages)
     static func getAverageRating(for dates: [Date], context: NSManagedObjectContext) -> Double? {
         var total: Double = 0
         var count = 0
@@ -179,37 +181,40 @@ extension WellnessRating {
     }
 }
 
-// MARK: - Wellness Level Descriptions
-extension WellnessRating {
-    static func moodEmoji(for rating: Int) -> String {
+// MARK: - Pain Level Descriptions
+extension PainRating {
+    static func painLabel(for rating: Int) -> String {
         switch rating {
-        case 1: return "😫"
-        case 2: return "😔"
-        case 3: return "😐"
-        case 4: return "🙂"
-        case 5: return "😊"
-        default: return "😐"
-        }
-    }
-
-    static func moodLabel(for rating: Int) -> String {
-        switch rating {
-        case 1: return "Rough"
-        case 2: return "Low"
-        case 3: return "Okay"
-        case 4: return "Good"
-        case 5: return "Great"
+        case 0: return "None"
+        case 1: return "Minimal"
+        case 2: return "Mild"
+        case 3: return "Moderate"
+        case 4: return "Severe"
+        case 5: return "Extreme"
         default: return "Unknown"
         }
     }
 
-    static func moodColor(for rating: Int) -> String {
+    static func painEmoji(for rating: Int) -> String {
         switch rating {
-        case 1: return "red"
-        case 2: return "orange"
-        case 3: return "yellow"
-        case 4: return "mint"
-        case 5: return "green"
+        case 0: return "😌"
+        case 1: return "🙂"
+        case 2: return "😐"
+        case 3: return "😣"
+        case 4: return "😖"
+        case 5: return "😫"
+        default: return "😐"
+        }
+    }
+
+    static func painColor(for rating: Int) -> String {
+        switch rating {
+        case 0: return "green"
+        case 1: return "mint"
+        case 2: return "yellow"
+        case 3: return "orange"
+        case 4: return "red"
+        case 5: return "purple"
         default: return "gray"
         }
     }

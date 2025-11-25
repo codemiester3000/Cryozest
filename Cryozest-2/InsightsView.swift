@@ -70,7 +70,8 @@ struct InsightsView: View {
             if viewModelWrapper.viewModel == nil {
                 viewModelWrapper.viewModel = InsightsViewModel(
                     sessions: sessions,
-                    selectedTherapyTypes: selectedTherapyTypes
+                    selectedTherapyTypes: selectedTherapyTypes,
+                    viewContext: viewContext
                 )
             }
         }
@@ -185,7 +186,7 @@ struct InsightsView: View {
                 if insightsConfig.isEnabled(.topPerformers) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "Top Performers",
+                            title: "Top Associations",
                             icon: "trophy.fill",
                             color: .yellow
                         )
@@ -193,8 +194,8 @@ struct InsightsView: View {
 
                         if viewModel.topHabitImpacts.isEmpty {
                             InsightsEmptyStateCard(
-                                title: "Track Your Habits",
-                                message: "Track habits for at least 3 days to see which have the biggest positive impact.",
+                                title: "More Data Needed",
+                                message: "Track habits for at least 14 days to see statistically reliable associations.",
                                 icon: "chart.bar.fill"
                             )
                             .padding(.horizontal, 20)
@@ -220,11 +221,11 @@ struct InsightsView: View {
                         .padding(.horizontal, 20)
                 }
 
-                // Sleep Impact Section
+                // Sleep Association Section
                 if insightsConfig.isEnabled(.sleepImpact) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "Sleep Impact",
+                            title: "Sleep Associations",
                             icon: "bed.double.fill",
                             color: .purple
                         )
@@ -232,8 +233,8 @@ struct InsightsView: View {
 
                         if viewModel.sleepImpacts.isEmpty {
                             InsightsEmptyStateCard(
-                                title: "Sleep Tracking Needed",
-                                message: "Enable sleep tracking to see how habits affect your sleep.",
+                                title: "More Data Needed",
+                                message: "Track habits for 14+ days with sleep data to see associations.",
                                 icon: "bed.double.fill"
                             )
                             .padding(.horizontal, 20)
@@ -251,11 +252,11 @@ struct InsightsView: View {
                         .padding(.horizontal, 20)
                 }
 
-                // HRV Impact Section
+                // HRV Association Section
                 if insightsConfig.isEnabled(.hrvImpact) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "HRV Impact",
+                            title: "HRV Associations",
                             icon: "waveform.path.ecg",
                             color: .green
                         )
@@ -263,8 +264,8 @@ struct InsightsView: View {
 
                         if viewModel.hrvImpacts.isEmpty {
                             InsightsEmptyStateCard(
-                                title: "Apple Watch Required",
-                                message: "Wear an Apple Watch to track HRV.",
+                                title: "More Data Needed",
+                                message: "Track habits for 14+ days with HRV data (Apple Watch required).",
                                 icon: "applewatch"
                             )
                             .padding(.horizontal, 20)
@@ -282,11 +283,11 @@ struct InsightsView: View {
                         .padding(.horizontal, 20)
                 }
 
-                // RHR Impact Section
+                // RHR Association Section
                 if insightsConfig.isEnabled(.rhrImpact) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "Heart Rate Impact",
+                            title: "Heart Rate Associations",
                             icon: "heart.fill",
                             color: .red
                         )
@@ -294,8 +295,8 @@ struct InsightsView: View {
 
                         if viewModel.rhrImpacts.isEmpty {
                             InsightsEmptyStateCard(
-                                title: "Apple Watch Required",
-                                message: "Wear an Apple Watch to track resting heart rate.",
+                                title: "More Data Needed",
+                                message: "Track habits for 14+ days with RHR data (Apple Watch required).",
                                 icon: "applewatch"
                             )
                             .padding(.horizontal, 20)
