@@ -52,8 +52,16 @@ struct HorizontalHabitSelector: View {
                         }
                     }
                     .padding(.horizontal, 24)
+                    .onAppear {
+                        // Scroll to selected habit on initial load
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                proxy.scrollTo(therapyTypeSelection.selectedTherapyType, anchor: .center)
+                            }
+                        }
+                    }
                     .onChange(of: therapyTypeSelection.selectedTherapyType) { newValue in
-                        withAnimation {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             proxy.scrollTo(newValue, anchor: .center)
                         }
                     }
@@ -84,37 +92,47 @@ struct HabitPill: View {
             HStack(spacing: 10) {
                 // Icon
                 Image(systemName: therapy.icon)
-                    .font(.system(size: isSelected ? 18 : 16, weight: .semibold))
-                    .foregroundColor(isSelected ? .white : therapy.color)
-                    .frame(width: isSelected ? 36 : 32, height: isSelected ? 36 : 32)
+                    .font(.system(size: isSelected ? 20 : 16, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : therapy.color.opacity(0.6))
+                    .frame(width: isSelected ? 40 : 32, height: isSelected ? 40 : 32)
                     .background(
-                        Circle()
-                            .fill(
-                                isSelected
-                                    ? LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            therapy.color.opacity(0.8),
-                                            therapy.color.opacity(0.6)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                    : LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            therapy.color.opacity(0.15),
-                                            therapy.color.opacity(0.1)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                            )
+                        ZStack {
+                            // Outer glow ring for selected state
+                            if isSelected {
+                                Circle()
+                                    .fill(therapy.color.opacity(0.3))
+                                    .frame(width: 48, height: 48)
+                                    .blur(radius: 4)
+                            }
+
+                            Circle()
+                                .fill(
+                                    isSelected
+                                        ? LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                therapy.color,
+                                                therapy.color.opacity(0.8)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        : LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                therapy.color.opacity(0.12),
+                                                therapy.color.opacity(0.08)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                )
+                        }
                     )
 
                 // Name and badge
                 VStack(alignment: .leading, spacing: 4) {
                     Text(therapy.displayName(managedObjectContext))
-                        .font(.system(size: isSelected ? 16 : 15, weight: isSelected ? .bold : .semibold))
-                        .foregroundColor(isSelected ? .white : .white.opacity(0.7))
+                        .font(.system(size: isSelected ? 17 : 14, weight: isSelected ? .bold : .medium))
+                        .foregroundColor(isSelected ? .white : .white.opacity(0.5))
 
                     // Apple Watch badge for workout types
                     if isWorkout && isSelected {
@@ -136,46 +154,47 @@ struct HabitPill: View {
                     }
                 }
             }
-            .padding(.horizontal, isSelected ? 20 : 16)
-            .padding(.vertical, isSelected ? 14 : 12)
+            .padding(.horizontal, isSelected ? 20 : 14)
+            .padding(.vertical, isSelected ? 14 : 10)
             .background(
-                RoundedRectangle(cornerRadius: isSelected ? 20 : 18)
+                RoundedRectangle(cornerRadius: isSelected ? 22 : 16)
                     .fill(
                         isSelected
                             ? LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color.white.opacity(0.2),
-                                    Color.white.opacity(0.12)
+                                    therapy.color.opacity(0.25),
+                                    therapy.color.opacity(0.15)
                                 ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                             : LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color.white.opacity(0.08),
-                                    Color.white.opacity(0.04)
+                                    Color.white.opacity(0.06),
+                                    Color.white.opacity(0.03)
                                 ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: isSelected ? 20 : 18)
+                        RoundedRectangle(cornerRadius: isSelected ? 22 : 16)
                             .stroke(
                                 isSelected
-                                    ? therapy.color.opacity(0.6)
-                                    : Color.white.opacity(0.15),
-                                lineWidth: isSelected ? 2 : 1
+                                    ? therapy.color.opacity(0.8)
+                                    : Color.white.opacity(0.1),
+                                lineWidth: isSelected ? 2.5 : 1
                             )
                     )
             )
             .shadow(
-                color: isSelected ? therapy.color.opacity(0.3) : Color.black.opacity(0.1),
-                radius: isSelected ? 12 : 4,
+                color: isSelected ? therapy.color.opacity(0.4) : Color.clear,
+                radius: isSelected ? 16 : 0,
                 x: 0,
-                y: isSelected ? 6 : 2
+                y: isSelected ? 8 : 0
             )
-            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .scaleEffect(isSelected ? 1.05 : (isPressed ? 0.95 : 1.0))
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
         .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in

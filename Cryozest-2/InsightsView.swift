@@ -120,51 +120,37 @@ struct InsightsView: View {
     }
 
     private func mainContentView(viewModel: InsightsViewModel) -> some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header
-                HStack {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                // Header - clean, minimal
+                HStack(alignment: .center) {
                     Text("Insights")
-                        .font(.title2)
-                        .fontWeight(.semibold)
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
                     Spacer()
 
-                    // Config button
-                    Button(action: {
-                        showConfigSheet = true
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.15))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "slider.horizontal.3")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.cyan)
-                        }
+                    // Config button - subtle
+                    Button(action: { showConfigSheet = true }) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(width: 40, height: 40)
                     }
 
-                    // Info button
-                    Button(action: {
-                        showInfoSheet = true
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.15))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "info.circle.fill")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.purple)
-                        }
+                    // Info button - subtle
+                    Button(action: { showInfoSheet = true }) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                            .frame(width: 40, height: 40)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
                 .padding(.top, 16)
+                .padding(.bottom, 24)
 
-                // Wellness Trends Section
+                // Wellness Trends Section (kept as is per request)
                 if insightsConfig.isEnabled(.wellnessTrends) {
                     WellnessInsightsSection(
                         ratings: Array(wellnessRatings),
@@ -172,177 +158,181 @@ struct InsightsView: View {
                         therapyTypes: selectedTherapyTypes
                     )
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
-                // Medication Adherence Section
+                // Medication Adherence Section (kept as is per request)
                 if insightsConfig.isEnabled(.medicationAdherence) {
                     MedicationAdherenceSection()
                         .environment(\.managedObjectContext, viewContext)
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
                 // Health Trends Section
                 if insightsConfig.isEnabled(.healthTrends) && !viewModel.healthTrends.isEmpty {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "Your Health This Week",
+                            title: "Health This Week",
                             icon: "chart.line.uptrend.xyaxis",
                             color: .cyan
                         )
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: 0) {
                             ForEach(viewModel.healthTrends) { trend in
                                 HealthTrendCard(trend: trend)
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
+
+                                if trend.id != viewModel.healthTrends.last?.id {
+                                    Rectangle()
+                                        .fill(Color.white.opacity(0.04))
+                                        .frame(height: 1)
+                                        .padding(.leading, 80)
+                                        .padding(.trailing, 20)
+                                }
                             }
                         }
                     }
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
                 // Top Performers Section
                 if insightsConfig.isEnabled(.topPerformers) {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
                             title: "Top Performers",
                             icon: "trophy.fill",
                             color: .yellow
                         )
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
 
                         if viewModel.topHabitImpacts.isEmpty {
                             InsightsEmptyStateCard(
                                 title: "Track Your Habits",
-                                message: "Track your habits for at least 3 days to see which ones have the biggest positive impact on your health metrics.",
+                                message: "Track habits for at least 3 days to see which have the biggest positive impact.",
                                 icon: "chart.bar.fill"
                             )
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                         } else {
-                            VStack(spacing: 12) {
+                            VStack(spacing: 0) {
                                 ForEach(Array(viewModel.topHabitImpacts.enumerated()), id: \.element.id) { index, impact in
                                     TopImpactCard(impact: impact, rank: index + 1)
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
+
+                                    if index < viewModel.topHabitImpacts.count - 1 {
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.04))
+                                            .frame(height: 1)
+                                            .padding(.leading, 72)
+                                            .padding(.trailing, 20)
+                                    }
                                 }
                             }
                         }
                     }
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
                 // Sleep Impact Section
                 if insightsConfig.isEnabled(.sleepImpact) {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
                             title: "Sleep Impact",
                             icon: "bed.double.fill",
                             color: .purple
                         )
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
 
                         if viewModel.sleepImpacts.isEmpty {
                             InsightsEmptyStateCard(
                                 title: "Sleep Tracking Needed",
-                                message: "Sleep tracking in the Health app or an Apple Watch is needed to see how your habits affect your sleep duration.",
+                                message: "Enable sleep tracking to see how habits affect your sleep.",
                                 icon: "bed.double.fill"
                             )
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                         } else {
-                            VStack(spacing: 10) {
+                            VStack(spacing: 0) {
                                 ForEach(viewModel.sleepImpacts) { impact in
                                     MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 }
                             }
                         }
                     }
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
                 // HRV Impact Section
                 if insightsConfig.isEnabled(.hrvImpact) {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
                             title: "HRV Impact",
                             icon: "waveform.path.ecg",
                             color: .green
                         )
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
 
                         if viewModel.hrvImpacts.isEmpty {
                             InsightsEmptyStateCard(
                                 title: "Apple Watch Required",
-                                message: "Wear an Apple Watch to track Heart Rate Variability and see how your habits improve your HRV.",
+                                message: "Wear an Apple Watch to track HRV.",
                                 icon: "applewatch"
                             )
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                         } else {
-                            VStack(spacing: 10) {
+                            VStack(spacing: 0) {
                                 ForEach(viewModel.hrvImpacts) { impact in
                                     MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 }
                             }
                         }
                     }
 
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
                 }
 
                 // RHR Impact Section
                 if insightsConfig.isEnabled(.rhrImpact) {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
                             title: "Heart Rate Impact",
                             icon: "heart.fill",
                             color: .red
                         )
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
 
                         if viewModel.rhrImpacts.isEmpty {
                             InsightsEmptyStateCard(
                                 title: "Apple Watch Required",
-                                message: "Wear an Apple Watch to track heart rate and see how your habits optimize your resting heart rate.",
+                                message: "Wear an Apple Watch to track resting heart rate.",
                                 icon: "applewatch"
                             )
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                         } else {
-                            VStack(spacing: 10) {
+                            VStack(spacing: 0) {
                                 ForEach(viewModel.rhrImpacts) { impact in
                                     MetricImpactRow(impact: impact)
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 }
                             }
                         }
                     }
                 }
 
-                // Bottom spacer to prevent tab bar overlap
+                // Bottom spacer
                 Color.clear
-                    .frame(height: 100)
+                    .frame(height: 120)
             }
         }
     }

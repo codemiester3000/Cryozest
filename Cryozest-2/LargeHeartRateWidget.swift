@@ -17,6 +17,10 @@ struct LargeHeartRateWidget: View {
     @State private var animate = true
     @State private var heartPulse = false
     @State private var monitoringPulse = false
+    @State private var showGraph = false
+    @State private var lastHourAvgHR: Int? = nil
+    @State private var lastHourLabel: String = ""
+    @State private var dataLoadId: UUID = UUID()
 
     private var currentRHR: Int? {
         model.mostRecentRestingHeartRate
@@ -329,19 +333,40 @@ struct LargeHeartRateWidget: View {
                 .padding(.top, 8)
             }
 
-            // Heart rate graph
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Throughout Day")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
+            // Stats row - padded to align with heart icon above
+            HStack(spacing: 8) {
+                // Spacer to align with heart icon (40px icon + some visual offset)
+                Spacer()
+                    .frame(width: 6)
 
-                RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
-                    .frame(height: 75)
-            }
-            .padding(.bottom, 8)
+                // Last hour average
+                HStack(spacing: 5) {
+                    Image(systemName: "clock.fill")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.purple)
 
-            // Stats row
-            HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(lastHourLabel.isEmpty ? "Last Hour" : lastHourLabel)
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+
+                        if let avgHR = lastHourAvgHR {
+                            Text("\(avgHR) bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("-- bpm")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.3))
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Divider()
+                    .frame(height: 24)
+                    .background(Color.white.opacity(0.2))
+
                 // Weekly average comparison
                 HStack(spacing: 5) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
@@ -379,7 +404,7 @@ struct LargeHeartRateWidget: View {
                             .foregroundColor(diff < 0 ? .green : .orange)
 
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("vs Average")
+                            Text("vs Avg")
                                 .font(.system(size: 8, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
 
@@ -393,7 +418,7 @@ struct LargeHeartRateWidget: View {
                             .foregroundColor(.white.opacity(0.3))
 
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("vs Average")
+                            Text("vs Avg")
                                 .font(.system(size: 8, weight: .medium))
                                 .foregroundColor(.white.opacity(0.5))
 
@@ -493,6 +518,7 @@ struct LargeHeartRateWidget: View {
             }
 
             fetchTodayRHRReadings()
+            fetchLastHourAvgHR()
 
             // Listen for heart rate data refresh notifications
             NotificationCenter.default.addObserver(
@@ -644,13 +670,13 @@ struct LargeHeartRateWidget: View {
                 .padding(.top, 8)
             }
 
-            // Heart rate graph - LARGER with two-row layout
+            // Heart rate graph - LARGER with two-row layout (animated in)
             VStack(alignment: .leading, spacing: 6) {
                 Text("Throughout Day")
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
 
-                RHRReadingsGraph(readings: todayRHRReadings, color: trendColor)
+                RHRReadingsGraph(readings: todayRHRReadings, color: trendColor, animateIn: showGraph)
                     .frame(height: 200)
             }
             .padding(.bottom, 8)
@@ -784,13 +810,27 @@ struct LargeHeartRateWidget: View {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
 
+            // Reset graph animation state
+            showGraph = false
+
             withAnimation(.spring(response: 0.8, dampingFraction: 0.85)) {
                 expandedMetric = nil
             }
         }
         .onAppear {
-            // Ensure data is loaded when expanding
+            // Reset animation state and fetch data
+            showGraph = false
+
+            // Fetch data - animation will trigger when data arrives
             fetchTodayRHRReadings()
+        }
+        .onChange(of: dataLoadId) { _ in
+            // Trigger animation when data is loaded and we're expanded
+            if isExpanded && !showGraph {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    showGraph = true
+                }
+            }
         }
     }
 
@@ -918,7 +958,71 @@ struct LargeHeartRateWidget: View {
             DispatchQueue.main.async {
                 print("🫀 [DEBUG] Setting todayRHRReadings on main thread")
                 self.todayRHRReadings = readings
+                self.dataLoadId = UUID()  // Trigger animation
                 print("🫀 [DEBUG] todayRHRReadings now has \(self.todayRHRReadings.count) items")
+            }
+        }
+    }
+
+    private func fetchLastHourAvgHR() {
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Calculate the last full hour period
+        // If it's 7:30, we want 6:00-7:00
+        // lastFullHourEnd = 7:00, lastFullHourStart = 6:00
+        var components = calendar.dateComponents([.year, .month, .day, .hour], from: now)
+        components.minute = 0
+        components.second = 0
+
+        guard let lastFullHourEnd = calendar.date(from: components),
+              let lastFullHourStart = calendar.date(byAdding: .hour, value: -1, to: lastFullHourEnd) else {
+            return
+        }
+
+        // Create the label (e.g., "6-7 PM")
+        let startHour = calendar.component(.hour, from: lastFullHourStart)
+        let endHour = calendar.component(.hour, from: lastFullHourEnd)
+
+        let startDisplay = startHour == 0 ? 12 : (startHour > 12 ? startHour - 12 : startHour)
+        let endDisplay = endHour == 0 ? 12 : (endHour > 12 ? endHour - 12 : endHour)
+        let period = endHour >= 12 ? "PM" : "AM"
+
+        let label = "\(startDisplay)-\(endDisplay) \(period)"
+
+        DispatchQueue.main.async {
+            self.lastHourLabel = label
+        }
+
+        // Fetch heart rate data for that hour
+        HealthKitManager.shared.fetchHeartRateData(from: lastFullHourStart, to: lastFullHourEnd) { samples, error in
+            guard let samples = samples, !samples.isEmpty, error == nil else {
+                DispatchQueue.main.async {
+                    self.lastHourAvgHR = nil
+                }
+                return
+            }
+
+            // Filter to only include samples within the hour range
+            let filteredSamples = samples.filter { sample in
+                sample.endDate >= lastFullHourStart && sample.endDate < lastFullHourEnd
+            }
+
+            guard !filteredSamples.isEmpty else {
+                DispatchQueue.main.async {
+                    self.lastHourAvgHR = nil
+                }
+                return
+            }
+
+            // Calculate average
+            let totalHR = filteredSamples.reduce(0.0) { sum, sample in
+                sum + sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+            }
+            let avgHR = Int(totalHR / Double(filteredSamples.count))
+
+            DispatchQueue.main.async {
+                self.lastHourAvgHR = avgHR
             }
         }
     }
@@ -933,10 +1037,9 @@ enum RHRTrend: String {
 struct RHRReadingsGraph: View {
     let readings: [(String, Int)]
     let color: Color
+    var animateIn: Bool = true
 
     var body: some View {
-        let _ = print("🫀 [GRAPH] RHRReadingsGraph rendering with \(readings.count) readings: \(readings)")
-
         GeometryReader { geometry in
             ZStack {
                 // Background
@@ -944,7 +1047,6 @@ struct RHRReadingsGraph: View {
                     .fill(Color.white.opacity(0.05))
 
                 if readings.isEmpty {
-                    let _ = print("🫀 [GRAPH] Showing empty state")
                     // Empty state
                     VStack(spacing: 6) {
                         Image(systemName: "chart.bar.fill")
@@ -955,7 +1057,6 @@ struct RHRReadingsGraph: View {
                             .foregroundColor(.white.opacity(0.4))
                     }
                 } else {
-                    let _ = print("🫀 [GRAPH] Showing graph with data")
                     // Split into AM (0-11) and PM (12-23)
                     let amReadings = Array(readings[0...11])
                     let pmReadings = Array(readings[12...23])
@@ -968,10 +1069,10 @@ struct RHRReadingsGraph: View {
 
                     VStack(spacing: 8) {
                         // AM Row (12am - 11am)
-                        HourRow(hourReadings: amReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2)
+                        HourRow(hourReadings: amReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2, animateIn: animateIn, rowOffset: 0)
 
                         // PM Row (12pm - 11pm)
-                        HourRow(hourReadings: pmReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2)
+                        HourRow(hourReadings: pmReadings, minValue: minValue, maxValue: maxValue, range: range, color: color, rowHeight: (geometry.size.height - 24) / 2, animateIn: animateIn, rowOffset: 12)
                     }
                     .padding(8)
                 }
@@ -987,6 +1088,8 @@ struct HourRow: View {
     let range: Double
     let color: Color
     let rowHeight: CGFloat
+    var animateIn: Bool = true
+    var rowOffset: Int = 0
 
     // Color coding based on heart rate zones
     private func colorForHeartRate(_ bpm: Int) -> Color {
@@ -1017,37 +1120,16 @@ struct HourRow: View {
                     // Has data - show bar
                     let barColor = colorForHeartRate(reading.1)
 
-                    VStack(spacing: 2) {
-                        // Value label
-                        Text("\(reading.1)")
-                            .font(.system(size: 7, weight: .bold))
-                            .foregroundColor(barColor)
-                            .opacity(0.9)
-
-                        // Bar with height varying based on value
-                        // Use the actual BPM value directly for more variation
-                        let normalizedHeight = range > 0 ? CGFloat(Double(reading.1 - minValue) / range) : 0
-                        let minBarHeight: CGFloat = 6
-                        let maxBarHeight = rowHeight - 15
-                        // Apply exponential scaling for more dramatic height differences
-                        let scaledHeight = pow(normalizedHeight, 0.7)
-                        let height = minBarHeight + (scaledHeight * (maxBarHeight - minBarHeight))
-
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                LinearGradient(
-                                    colors: [barColor, barColor.opacity(0.6)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(height: height)
-
-                        // Time label
-                        Text(reading.0)
-                            .font(.system(size: 7, weight: .medium))
-                            .foregroundColor(.white.opacity(0.5))
-                    }
+                    AnimatedBarView(
+                        value: reading.1,
+                        timeLabel: reading.0,
+                        barColor: barColor,
+                        minValue: minValue,
+                        range: range,
+                        rowHeight: rowHeight,
+                        animateIn: animateIn,
+                        delayIndex: rowOffset + index
+                    )
                     .frame(maxWidth: .infinity)
                 } else {
                     // No data - show empty placeholder
@@ -1067,6 +1149,99 @@ struct HourRow: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
+            }
+        }
+    }
+}
+
+struct AnimatedBarView: View {
+    let value: Int
+    let timeLabel: String
+    let barColor: Color
+    let minValue: Int
+    let range: Double
+    let rowHeight: CGFloat
+    let animateIn: Bool
+    let delayIndex: Int
+
+    @State private var animatedHeight: CGFloat = 0
+    @State private var showLabel: Bool = false
+    @State private var pulseScale: CGFloat = 1.0
+
+    private var targetHeight: CGFloat {
+        let normalizedHeight = range > 0 ? CGFloat(Double(value - minValue) / range) : 0
+        let minBarHeight: CGFloat = 6
+        let maxBarHeight = rowHeight - 15
+        let scaledHeight = pow(normalizedHeight, 0.7)
+        return minBarHeight + (scaledHeight * (maxBarHeight - minBarHeight))
+    }
+
+    var body: some View {
+        VStack(spacing: 2) {
+            // Value label
+            Text("\(value)")
+                .font(.system(size: 7, weight: .bold))
+                .foregroundColor(barColor)
+                .opacity(showLabel ? 0.9 : 0)
+                .scaleEffect(showLabel ? 1.0 : 0.5)
+
+            // Animated bar
+            RoundedRectangle(cornerRadius: 3)
+                .fill(
+                    LinearGradient(
+                        colors: [barColor, barColor.opacity(0.6)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(height: animatedHeight)
+                .scaleEffect(x: pulseScale, y: 1.0, anchor: .bottom)
+                .shadow(color: barColor.opacity(animatedHeight > 0 ? 0.4 : 0), radius: 4, x: 0, y: 0)
+
+            // Time label
+            Text(timeLabel)
+                .font(.system(size: 7, weight: .medium))
+                .foregroundColor(.white.opacity(0.5))
+        }
+        .onChange(of: animateIn) { shouldAnimate in
+            if shouldAnimate {
+                triggerAnimation()
+            } else {
+                // Reset for next animation
+                animatedHeight = 0
+                showLabel = false
+                pulseScale = 1.0
+            }
+        }
+        .onAppear {
+            // Always trigger animation on appear if animateIn is true
+            if animateIn {
+                triggerAnimation()
+            }
+        }
+    }
+
+    private func triggerAnimation() {
+        // Staggered delay based on index - creates wave effect
+        let delay = Double(delayIndex) * 0.02
+
+        // Grow the bar up with a smooth easeOut animation (less bouncy)
+        withAnimation(.easeOut(duration: 0.25).delay(delay)) {
+            animatedHeight = targetHeight
+        }
+
+        // Show the label slightly after
+        withAnimation(.easeOut(duration: 0.15).delay(delay + 0.15)) {
+            showLabel = true
+        }
+
+        // Subtle pulse effect when bar reaches full height
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay + 0.2) {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                pulseScale = 1.08
+            }
+            withAnimation(.easeInOut(duration: 0.1).delay(0.1)) {
+                pulseScale = 1.0
             }
         }
     }

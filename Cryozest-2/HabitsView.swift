@@ -65,10 +65,10 @@ struct HabitsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
-                    // Header
+                    // Header with integrated habit selector
                     HStack {
                         Text("Habits")
-                            .font(.system(size: 34, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
 
                         Spacer()
@@ -78,18 +78,17 @@ struct HabitsView: View {
                             showHabitSelection = true
                         }) {
                             Image(systemName: "gear")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(Circle().fill(Color.white.opacity(0.1)))
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.7))
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(Color.white.opacity(0.08)))
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 60)
+                    .padding(.top, 16)
 
-                    // Therapy type selector - compact pills
-                    TherapyTypePills(therapyTypeSelection: therapyTypeSelection)
-                        .padding(.horizontal, 20)
+                    // Habit carousel - reimagined as icon-focused cards
+                    HabitCarousel(therapyTypeSelection: therapyTypeSelection)
 
                     // 1. Calendar Heatmap
                     ModernCalendarHeatmap(
@@ -249,54 +248,149 @@ struct HabitsView: View {
     }
 }
 
-// MARK: - Therapy Type Pills (Compact Selector)
+// MARK: - Habit Carousel (Reimagined Icon-Focused Design)
 
-struct TherapyTypePills: View {
+struct HabitCarousel: View {
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     @Environment(\.managedObjectContext) private var viewContext
 
-    private let allTypes: [TherapyType] = [.running, .weightTraining, .cycling, .meditation, .walking]
+    @FetchRequest(
+        entity: SelectedTherapy.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \SelectedTherapy.therapyType, ascending: true)]
+    )
+    private var selectedTherapyTypes: FetchedResults<SelectedTherapy>
+
+    private var availableTypes: [TherapyType] {
+        selectedTherapyTypes.compactMap { selectedTherapy in
+            if let typeString = selectedTherapy.therapyType {
+                return TherapyType(rawValue: typeString)
+            }
+            return nil
+        }
+    }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-                ForEach(allTypes, id: \.self) { type in
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            therapyTypeSelection.selectedTherapyType = type
-                        }
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: type.icon)
-                                .font(.system(size: 14, weight: .semibold))
+            ScrollViewReader { proxy in
+                HStack(spacing: 16) {
+                    ForEach(availableTypes, id: \.self) { type in
+                        HabitCarouselCard(
+                            type: type,
+                            isSelected: therapyTypeSelection.selectedTherapyType == type,
+                            viewContext: viewContext
+                        ) {
+                            // Haptic feedback
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
 
-                            Text(type.displayName(viewContext))
-                                .font(.system(size: 15, weight: .semibold))
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                therapyTypeSelection.selectedTherapyType = type
+                            }
                         }
-                        .foregroundColor(therapyTypeSelection.selectedTherapyType == type ? .white : .white.opacity(0.6))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(
-                            Capsule()
-                                .fill(therapyTypeSelection.selectedTherapyType == type ?
-                                     type.color.opacity(0.3) :
-                                     Color.white.opacity(0.08))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(
-                                            therapyTypeSelection.selectedTherapyType == type ?
-                                            type.color.opacity(0.6) :
-                                            Color.white.opacity(0.15),
-                                            lineWidth: 1
-                                        )
-                                )
-                        )
+                        .id(type)
                     }
-                    .buttonStyle(ScaleButtonStyle())
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            proxy.scrollTo(therapyTypeSelection.selectedTherapyType, anchor: .center)
+                        }
+                    }
+                }
+                .onChange(of: therapyTypeSelection.selectedTherapyType) { newValue in
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        proxy.scrollTo(newValue, anchor: .center)
+                    }
                 }
             }
-            .padding(.horizontal, 4)
         }
+    }
+}
+
+struct HabitCarouselCard: View {
+    let type: TherapyType
+    let isSelected: Bool
+    let viewContext: NSManagedObjectContext
+    let onTap: () -> Void
+
+    @State private var isPressed = false
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 8) {
+                // Icon container with layered effects
+                ZStack {
+                    // Outer glow ring (selected only)
+                    if isSelected {
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [type.color, type.color.opacity(0.3)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 3
+                            )
+                            .frame(width: 72, height: 72)
+                            .blur(radius: 2)
+
+                        // Animated pulse ring
+                        Circle()
+                            .stroke(type.color.opacity(0.4), lineWidth: 2)
+                            .frame(width: 80, height: 80)
+                    }
+
+                    // Main icon circle
+                    Circle()
+                        .fill(
+                            isSelected
+                                ? LinearGradient(
+                                    colors: [type.color, type.color.opacity(0.8)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                : LinearGradient(
+                                    colors: [Color.white.opacity(0.12), Color.white.opacity(0.06)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
+                        .frame(width: isSelected ? 64 : 56, height: isSelected ? 64 : 56)
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    isSelected
+                                        ? Color.white.opacity(0.3)
+                                        : Color.white.opacity(0.1),
+                                    lineWidth: 1
+                                )
+                        )
+
+                    // Icon
+                    Image(systemName: type.icon)
+                        .font(.system(size: isSelected ? 28 : 24, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : type.color.opacity(0.7))
+                }
+                .frame(width: 80, height: 80)
+
+                // Label (always visible but styled differently)
+                Text(type.displayName(viewContext))
+                    .font(.system(size: isSelected ? 13 : 11, weight: isSelected ? .bold : .medium))
+                    .foregroundColor(isSelected ? .white : .white.opacity(0.5))
+                    .lineLimit(1)
+                    .frame(width: 80)
+            }
+            .scaleEffect(isPressed ? 0.92 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: isPressed)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in isPressed = true }
+                .onEnded { _ in isPressed = false }
+        )
     }
 }
 

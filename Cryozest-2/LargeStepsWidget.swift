@@ -208,20 +208,20 @@ struct LargeStepsWidget: View {
                 // Goal badge
                 VStack(alignment: .trailing, spacing: 6) {
                     HStack(spacing: 4) {
-                        Image(systemName: goalProgress >= 1.0 ? "trophy.fill" : "target")
+                        Image(systemName: actualProgress >= 1.0 ? "trophy.fill" : "target")
                             .font(.system(size: 10, weight: .semibold))
-                        Text("\(Int(min(goalProgress, 1.0) * 100))%")
+                        Text("\(Int(actualProgress * 100))%")
                             .font(.system(size: 12, weight: .bold))
                     }
-                    .foregroundColor(goalProgress >= 1.0 ? .yellow : .green)
+                    .foregroundColor(actualProgress >= 1.0 ? .yellow : .green)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .fill(goalProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
+                            .fill(actualProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
                             .overlay(
                                 Capsule()
-                                    .stroke(goalProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
+                                    .stroke(actualProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
                             )
                     )
 
@@ -324,54 +324,6 @@ struct LargeStepsWidget: View {
             }
         )
         .modernWidgetCard(style: .activity)
-        .overlay(
-            // Corner achievement badge for major milestones
-            VStack {
-                HStack {
-                    Spacer()
-                    if actualProgress >= 2.0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "medal.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("Champion")
-                                .font(.system(size: 9, weight: .bold))
-                        }
-                        .foregroundColor(.yellow)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.yellow.opacity(0.25))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.yellow.opacity(0.5), lineWidth: 1)
-                                )
-                        )
-                        .offset(x: -12, y: 12)
-                    } else if goalProgress >= 1.0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("Goal Met")
-                                .font(.system(size: 9, weight: .bold))
-                        }
-                        .foregroundColor(.green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.green.opacity(0.25))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.green.opacity(0.5), lineWidth: 1)
-                                )
-                        )
-                        .offset(x: -12, y: 12)
-                    }
-                }
-                Spacer()
-            }
-        )
         .overlay(
             // Delta animation overlay
             Group {
@@ -589,20 +541,20 @@ struct LargeStepsWidget: View {
                 // Goal badge
                 VStack(alignment: .trailing, spacing: 6) {
                     HStack(spacing: 4) {
-                        Image(systemName: goalProgress >= 1.0 ? "trophy.fill" : "target")
+                        Image(systemName: actualProgress >= 1.0 ? "trophy.fill" : "target")
                             .font(.system(size: 10, weight: .semibold))
-                        Text("\(Int(min(goalProgress, 1.0) * 100))%")
+                        Text("\(Int(actualProgress * 100))%")
                             .font(.system(size: 12, weight: .bold))
                     }
-                    .foregroundColor(goalProgress >= 1.0 ? .yellow : .green)
+                    .foregroundColor(actualProgress >= 1.0 ? .yellow : .green)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .fill(goalProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
+                            .fill(actualProgress >= 1.0 ? Color.yellow.opacity(0.2) : Color.green.opacity(0.15))
                             .overlay(
                                 Capsule()
-                                    .stroke(goalProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
+                                    .stroke(actualProgress >= 1.0 ? Color.yellow.opacity(0.4) : Color.green.opacity(0.3), lineWidth: 1)
                             )
                     )
 
@@ -857,73 +809,93 @@ struct Last7DaysStepsChart: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white.opacity(0.6))
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                GeometryReader { geometry in
-                    ZStack(alignment: .bottom) {
-                        // Goal line (dotted)
-                        let goalY = geometry.size.height * (1.0 - CGFloat(goal) / CGFloat(maxSteps))
-                        Path { path in
-                            path.move(to: CGPoint(x: 0, y: goalY + 14))
-                            path.addLine(to: CGPoint(x: geometry.size.width, y: goalY + 14))
-                        }
-                        .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                        .foregroundColor(.green.opacity(0.5))
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .bottom) {
+                            // Goal line (dotted)
+                            let goalY = geometry.size.height * (1.0 - CGFloat(goal) / CGFloat(maxSteps))
+                            Path { path in
+                                path.move(to: CGPoint(x: 0, y: goalY + 14))
+                                path.addLine(to: CGPoint(x: geometry.size.width, y: goalY + 14))
+                            }
+                            .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                            .foregroundColor(.green.opacity(0.5))
 
-                        // Bars
-                        HStack(alignment: .bottom, spacing: 8) {
-                            ForEach(0..<7, id: \.self) { index in
-                                let steps = last7DaysSteps[index]
-                                let height = (geometry.size.height - 14) * CGFloat(steps) / CGFloat(maxSteps)
-                                let isFocused = index == focusedDayIndex
-                                let metGoal = steps >= goal
+                            // Bars
+                            HStack(alignment: .bottom, spacing: 8) {
+                                ForEach(0..<7, id: \.self) { index in
+                                    let steps = last7DaysSteps[index]
+                                    let height = (geometry.size.height - 14) * CGFloat(steps) / CGFloat(maxSteps)
+                                    let isFocused = index == focusedDayIndex
+                                    let metGoal = steps >= goal
 
-                                VStack(spacing: 4) {
-                                    // Step count on top
-                                    Text(formatSteps(steps))
-                                        .font(.system(size: isFocused ? 10 : 8, weight: isFocused ? .bold : .medium))
-                                        .foregroundColor(isFocused ? .white : .white.opacity(0.5))
+                                    VStack(spacing: 4) {
+                                        // Step count on top
+                                        Text(formatSteps(steps))
+                                            .font(.system(size: isFocused ? 10 : 8, weight: isFocused ? .bold : .medium))
+                                            .foregroundColor(isFocused ? .white : .white.opacity(0.5))
 
-                                    // Bar
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [
-                                                    metGoal ? Color.green : Color.cyan,
-                                                    metGoal ? Color.green.opacity(0.7) : Color.cyan.opacity(0.7)
-                                                ],
-                                                startPoint: .top,
-                                                endPoint: .bottom
+                                        // Bar
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(
+                                                LinearGradient(
+                                                    colors: [
+                                                        metGoal ? Color.green : Color.cyan,
+                                                        metGoal ? Color.green.opacity(0.7) : Color.cyan.opacity(0.7)
+                                                    ],
+                                                    startPoint: .top,
+                                                    endPoint: .bottom
+                                                )
                                             )
-                                        )
-                                        .frame(width: isFocused ? 44 : 36, height: max(height, 4))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 4)
-                                                .stroke(isFocused ? Color.white.opacity(0.8) : Color.clear, lineWidth: isFocused ? 2 : 0)
-                                        )
-                                        .scaleEffect(isFocused ? 1.05 : 1.0)
-                                        .shadow(color: isFocused ? Color.white.opacity(0.3) : Color.clear, radius: isFocused ? 8 : 0)
+                                            .frame(width: isFocused ? 56 : 36, height: max(height, 4))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 4)
+                                                    .stroke(isFocused ? Color.white.opacity(0.8) : Color.clear, lineWidth: isFocused ? 2 : 0)
+                                            )
+                                            .scaleEffect(isFocused ? 1.05 : 1.0)
+                                            .shadow(color: isFocused ? Color.white.opacity(0.3) : Color.clear, radius: isFocused ? 8 : 0)
 
-                                    // Day label
-                                    Text(dayLabel(for: index))
-                                        .font(.system(size: isFocused ? 9 : 8, weight: isFocused ? .bold : .medium))
-                                        .foregroundColor(isFocused ? .white : .white.opacity(0.5))
-                                }
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.impactOccurred()
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        focusedDayIndex = index
+                                        // Day label and date
+                                        VStack(spacing: 2) {
+                                            Text(dayLabel(for: index))
+                                                .font(.system(size: isFocused ? 9 : 8, weight: isFocused ? .bold : .medium))
+                                                .foregroundColor(isFocused ? .white : .white.opacity(0.5))
+
+                                            Text(dateLabel(for: index))
+                                                .font(.system(size: isFocused ? 8 : 7, weight: isFocused ? .semibold : .regular))
+                                                .foregroundColor(isFocused ? .white.opacity(0.8) : .white.opacity(0.4))
+                                        }
+                                    }
+                                    .id(index)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            focusedDayIndex = index
+                                        }
                                     }
                                 }
                             }
+                            .padding(.horizontal, 8)
                         }
-                        .padding(.horizontal, 8)
+                    }
+                    .frame(height: 130)
+                }
+                .frame(height: 130)
+                .onChange(of: focusedDayIndex) { newIndex in
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        proxy.scrollTo(newIndex, anchor: .center)
                     }
                 }
-                .frame(height: 110)
+                .onAppear {
+                    // Scroll to focused day (today) on appear
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        proxy.scrollTo(focusedDayIndex, anchor: .center)
+                    }
+                }
             }
-            .frame(height: 110)
         }
         .padding(.bottom, 12)
     }
@@ -938,5 +910,15 @@ struct Last7DaysStepsChart: View {
         let dayName = formatter.string(from: targetDate)
 
         return String(dayName.prefix(1)) // First letter of day name
+    }
+
+    private func dateLabel(for index: Int) -> String {
+        let calendar = Calendar.current
+        let today = Date()
+        let targetDate = calendar.date(byAdding: .day, value: index - 6, to: today) ?? today
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M/d"
+        return formatter.string(from: targetDate)
     }
 }
