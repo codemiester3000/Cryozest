@@ -887,18 +887,8 @@ struct DailyGridMetrics: View {
 
             // Expanded single tile view
             if let metric = expandedMetric {
-                if metric == .steps {
-                    ExpandedStepsWidget(
-                        model: model,
-                        expandedMetric: $expandedMetric,
-                        namespace: animation
-                    )
-                    .transition(.asymmetric(
-                        insertion: .identity,
-                        removal: .identity
-                    ))
-                    .zIndex(1)
-                } else {
+                if metric != .steps && metric != .rhr && metric != .exertion {
+                    // Only show ExpandedGridItemView for metrics that don't handle expansion internally
                     ExpandedGridItemView(
                         symbolName: iconFor(metric),
                         title: titleFor(metric),
