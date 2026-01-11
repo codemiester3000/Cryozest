@@ -27,20 +27,34 @@ struct HabitsView: View {
     @State private var showUndoToast = false
     @State private var lastCompletedSession: TherapySessionEntity?
     @State private var showSessionDetail = false
+    @State private var selectedViewDate = Date()
+    @State private var showHistorySheet = false
 
     private var sortedSessions: [TherapySessionEntity] {
         sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
                .sorted(by: { $0.date! > $1.date! })
     }
 
-    private var todaySessions: [TherapySessionEntity] {
+    private var selectedDaySessions: [TherapySessionEntity] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
         return sessions.filter { session in
             guard let sessionDate = session.date else { return false }
-            return calendar.isDate(sessionDate, inSameDayAs: today) &&
+            return calendar.isDate(sessionDate, inSameDayAs: selectedViewDate) &&
                    session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
         }.sorted(by: { $0.date! > $1.date! })
+    }
+
+    private var isViewingToday: Bool {
+        Calendar.current.isDateInToday(selectedViewDate)
+    }
+
+    private var recentSessions: [TherapySessionEntity] {
+        let calendar = Calendar.current
+        let threeDaysAgo = calendar.date(byAdding: .day, value: -3, to: Date()) ?? Date()
+        return sortedSessions.filter { session in
+            guard let date = session.date else { return false }
+            return date >= threeDaysAgo && date <= Date()
+        }.prefix(15).map { $0 }
     }
 
     // Calculate current streak
@@ -53,7 +67,13 @@ struct HabitsView: View {
         var checkDate = calendar.startOfDay(for: Date())
 
         // If not completed today, start checking from yesterday
-        if todaySessions.isEmpty {
+        let todayCount = sessions.filter { session in
+            guard let sessionDate = session.date else { return false }
+            return calendar.isDate(sessionDate, inSameDayAs: Date()) &&
+                   session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
+        }.count
+
+        if todayCount == 0 {
             checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
         }
 
@@ -126,13 +146,28 @@ struct HabitsView: View {
 
                     // Main content
                     VStack(spacing: 20) {
-                        // Prominent Log Entry Button
-                        logEntryButton
+                        // Date Selector
+                        dateSelector
                             .padding(.horizontal, 20)
 
-                        // Today's Sessions List
-                        if !todaySessions.isEmpty {
-                            todaySessionsList
+                        // Prominent Log Entry Button (only for today)
+                        if isViewingToday {
+                            logEntryButton
+                                .padding(.horizontal, 20)
+                        }
+
+                        // Selected Day Sessions List
+                        if !selectedDaySessions.isEmpty {
+                            selectedDaySessionsList
+                                .padding(.horizontal, 20)
+                        } else if !isViewingToday {
+                            emptyDayView
+                                .padding(.horizontal, 20)
+                        }
+
+                        // Recent Sessions History
+                        if isViewingToday && !recentSessions.isEmpty {
+                            recentSessionsSection
                                 .padding(.horizontal, 20)
                         }
 
@@ -198,6 +233,67 @@ struct HabitsView: View {
         }
     }
 
+    // MARK: - Date Selector
+
+    private var dateSelector: some View {
+        HStack(spacing: 12) {
+            Button(action: { changeDay(-1) }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Color.white.opacity(0.08)))
+            }
+
+            VStack(spacing: 2) {
+                Text(selectedViewDate, style: .date)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+
+                if isViewingToday {
+                    Text("Today")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                } else {
+                    Text(dayOfWeek)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+            }
+            .frame(maxWidth: .infinity)
+
+            Button(action: { changeDay(1) }) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(isViewingToday ? .white.opacity(0.2) : .white.opacity(0.6))
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Color.white.opacity(0.08)))
+            }
+            .disabled(isViewingToday)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.06))
+        )
+    }
+
+    private var dayOfWeek: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: selectedViewDate)
+    }
+
+    private func changeDay(_ delta: Int) {
+        let newDate = Calendar.current.date(byAdding: .day, value: delta, to: selectedViewDate) ?? selectedViewDate
+        if newDate <= Date() {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                selectedViewDate = newDate
+            }
+        }
+    }
+
     // MARK: - Log Entry Button (REDESIGNED - Prominent CTA)
 
     private var logEntryButton: some View {
@@ -238,10 +334,10 @@ struct HabitsView: View {
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white.opacity(0.7))
 
-                        if todaySessions.count > 0 {
+                        if selectedDaySessions.count > 0 {
                             Text("•")
                                 .foregroundColor(.white.opacity(0.3))
-                            Text("\(todaySessions.count) today")
+                            Text("\(selectedDaySessions.count) today")
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                         }
@@ -287,19 +383,19 @@ struct HabitsView: View {
         .buttonStyle(PressableButtonStyle())
     }
 
-    // MARK: - Today's Sessions List
+    // MARK: - Selected Day Sessions List
 
-    private var todaySessionsList: some View {
+    private var selectedDaySessionsList: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("TODAY'S SESSIONS")
+                Text(isViewingToday ? "TODAY'S SESSIONS" : "SESSIONS")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.white.opacity(0.5))
                     .tracking(0.5)
 
                 Spacer()
 
-                Text("\(todaySessions.count)")
+                Text("\(selectedDaySessions.count)")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
                     .padding(.horizontal, 10)
@@ -311,8 +407,62 @@ struct HabitsView: View {
             }
 
             VStack(spacing: 8) {
-                ForEach(Array(todaySessions.enumerated()), id: \.element.id) { index, session in
-                    HabitSessionRow(session: session, index: index + 1, color: therapyTypeSelection.selectedTherapyType.color)
+                ForEach(Array(selectedDaySessions.enumerated()), id: \.element.id) { index, session in
+                    HabitSessionRow(
+                        session: session,
+                        index: index + 1,
+                        color: therapyTypeSelection.selectedTherapyType.color,
+                        onDelete: { deleteSession(session) }
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Empty Day View
+
+    private var emptyDayView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "calendar.badge.minus")
+                .font(.system(size: 40, weight: .light))
+                .foregroundColor(.white.opacity(0.3))
+
+            Text("No sessions logged")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.white.opacity(0.5))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 40)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+
+    // MARK: - Recent Sessions Section
+
+    private var recentSessionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("RECENT HISTORY")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white.opacity(0.5))
+                    .tracking(0.5)
+
+                Spacer()
+
+                Text("Last 3 days")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.white.opacity(0.4))
+            }
+
+            VStack(spacing: 6) {
+                ForEach(recentSessions, id: \.id) { session in
+                    RecentSessionRow(
+                        session: session,
+                        color: therapyTypeSelection.selectedTherapyType.color,
+                        onDelete: { deleteSession(session) }
+                    )
                 }
             }
         }
@@ -595,6 +745,21 @@ struct HabitsView: View {
         }
     }
 
+    private func deleteSession(_ session: TherapySessionEntity) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            viewContext.delete(session)
+            do {
+                try viewContext.save()
+                updateSessionDates()
+
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+            } catch {
+                print("Error deleting session: \(error)")
+            }
+        }
+    }
+
     private func triggerCompletionAnimation() {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
@@ -626,6 +791,10 @@ struct HabitSessionRow: View {
     let session: TherapySessionEntity
     let index: Int
     let color: Color
+    let onDelete: () -> Void
+
+    @State private var offset: CGFloat = 0
+    @State private var showDeleteButton = false
 
     private var timeString: String {
         guard let date = session.date else { return "" }
@@ -635,45 +804,178 @@ struct HabitSessionRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
-            Text("#\(index)")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(color)
-                .frame(width: 32)
+        ZStack(alignment: .trailing) {
+            // Delete button revealed on swipe
+            HStack {
+                Spacer()
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 50)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.red.opacity(0.9))
+                        .cornerRadius(10)
+                }
+                .frame(height: 54)
+            }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(timeString)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
+            // Main content
+            HStack(spacing: 12) {
+                Text("#\(index)")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(color)
+                    .frame(width: 32)
 
-                if session.duration > 0 {
-                    Text("\(Int(session.duration / 60)) min")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(timeString)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    if session.duration > 0 {
+                        Text("\(Int(session.duration / 60)) min")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
+
+                Spacer()
+
+                if session.isAppleWatch {
+                    Image(systemName: "applewatch")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(.green)
                 }
             }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(color.opacity(0.2), lineWidth: 1)
+                    )
+            )
+            .offset(x: offset)
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        let translation = gesture.translation.width
+                        if translation < 0 {
+                            offset = max(translation, -60)
+                        }
+                    }
+                    .onEnded { _ in
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if offset < -25 {
+                                offset = -60
+                                showDeleteButton = true
+                            } else {
+                                offset = 0
+                                showDeleteButton = false
+                            }
+                        }
+                    }
+            )
+        }
+    }
+}
 
-            Spacer()
+// MARK: - Recent Session Row
 
-            if session.isAppleWatch {
-                Image(systemName: "applewatch")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.green)
+struct RecentSessionRow: View {
+    let session: TherapySessionEntity
+    let color: Color
+    let onDelete: () -> Void
+
+    @State private var offset: CGFloat = 0
+
+    private var dateTimeString: String {
+        guard let date = session.date else { return "" }
+        let formatter = DateFormatter()
+
+        if Calendar.current.isDateInToday(date) {
+            formatter.timeStyle = .short
+            return "Today at " + formatter.string(from: date)
+        } else if Calendar.current.isDateInYesterday(date) {
+            formatter.timeStyle = .short
+            return "Yesterday at " + formatter.string(from: date)
+        } else {
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            return formatter.string(from: date)
+        }
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            // Delete button
+            HStack {
+                Spacer()
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 45)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.red.opacity(0.9))
+                        .cornerRadius(8)
+                }
+                .frame(height: 44)
             }
 
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(color)
+            // Main content
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(color.opacity(0.3))
+                    .frame(width: 8, height: 8)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(dateTimeString)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
+
+                    if session.duration > 0 {
+                        Text("\(Int(session.duration / 60)) min")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                }
+
+                Spacer()
+
+                if session.isAppleWatch {
+                    Image(systemName: "applewatch")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.green)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.03))
+            )
+            .offset(x: offset)
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        let translation = gesture.translation.width
+                        if translation < 0 {
+                            offset = max(translation, -55)
+                        }
+                    }
+                    .onEnded { _ in
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            if offset < -22 {
+                                offset = -55
+                            } else {
+                                offset = 0
+                            }
+                        }
+                    }
+            )
         }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.04))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(color.opacity(0.2), lineWidth: 1)
-                )
-        )
     }
 }
 

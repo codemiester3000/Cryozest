@@ -12,7 +12,7 @@ struct LargeStepsWidget: View {
     @ObservedObject var goalManager = StepGoalManager.shared
     @Binding var expandedMetric: MetricType?
     var namespace: Namespace.ID
-    var selectedDate: Date = Date()
+    var selectedDate: Date
 
     @State private var showGoalConfig = false
     @State private var animateProgress = false
@@ -354,12 +354,15 @@ struct LargeStepsWidget: View {
             loadWeeklyData()
         }
         .onChange(of: selectedDate) { _ in
+            currentSteps = 0
+            weeklyStepsData = []
             fetchStepsForDate()
             loadWeeklyData()
         }
         .sheet(isPresented: $showGoalConfig) {
             StepGoalConfigView()
         }
+        .id("\(Calendar.current.startOfDay(for: selectedDate).timeIntervalSince1970)-steps-expanded")
     }
 
     // MARK: - Components
@@ -506,12 +509,19 @@ struct LargeStepsWidget: View {
         let startOfDay = calendar.startOfDay(for: selectedDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? selectedDate
 
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        print("👣 [STEPS] Fetching steps for: \(formatter.string(from: selectedDate))")
+        print("👣 [STEPS] Date range: \(startOfDay) to \(endOfDay)")
+
         HealthKitManager.shared.fetchStepCount(from: startOfDay, to: endOfDay) { steps, error in
             DispatchQueue.main.async {
                 self.isLoadingSteps = false
                 if let steps = steps {
+                    print("👣 [STEPS] Fetched \(Int(steps)) steps for \(formatter.string(from: self.selectedDate))")
                     self.currentSteps = Int(steps)
                 } else {
+                    print("👣 [STEPS] No steps data for \(formatter.string(from: self.selectedDate)), error: \(String(describing: error))")
                     self.currentSteps = 0
                 }
             }
