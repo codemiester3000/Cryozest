@@ -42,6 +42,7 @@ enum DailyWidget: String, CaseIterable, Identifiable {
     case wellnessCheckIn = "Wellness Check-In"
     case painTracking = "Pain Tracking"
     case waterIntake = "Hydration"
+    case workouts = "Workouts"
     case medications = "Medications"
     case heartRate = "Heart Rate"
 
@@ -52,6 +53,7 @@ enum DailyWidget: String, CaseIterable, Identifiable {
         case .wellnessCheckIn: return "star.fill"
         case .painTracking: return "bolt.heart.fill"
         case .waterIntake: return "drop.fill"
+        case .workouts: return "figure.run"
         case .medications: return "pills.fill"
         case .heartRate: return "heart.fill"
         }
@@ -62,6 +64,7 @@ enum DailyWidget: String, CaseIterable, Identifiable {
         case .wellnessCheckIn: return .pink
         case .painTracking: return .orange
         case .waterIntake: return .cyan
+        case .workouts: return .green
         case .medications: return .green
         case .heartRate: return .red
         }
@@ -72,6 +75,7 @@ enum DailyWidget: String, CaseIterable, Identifiable {
         case .wellnessCheckIn: return "Rate your daily mood"
         case .painTracking: return "Track your pain levels"
         case .waterIntake: return "Track water intake"
+        case .workouts: return "View Apple Watch workouts"
         case .medications: return "Manage medications"
         case .heartRate: return "View heart rate trends"
         }
