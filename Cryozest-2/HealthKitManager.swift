@@ -523,6 +523,38 @@ class HealthKitManager {
         healthStore.execute(vo2MaxQuery)
     }
 
+    func fetchStepCount(from startDate: Date, to endDate: Date, completion: @escaping (Double?, Error?) -> Void) {
+        // Check if step count data is available on the device
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion(nil, NSError(domain: "com.yourapp.HealthKitManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Health data is not available on this device."]))
+            return
+        }
+
+        // Define the type for step count
+        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+
+        // Create a predicate to fetch step count data for the specified date range
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
+
+        // Create a query to fetch step count samples
+        let query = HKStatisticsQuery(quantityType: stepType, quantitySamplePredicate: predicate, options: .cumulativeSum) { (_, result, error) in
+            if let error = error {
+                completion(nil, error)
+                return
+            }
+
+            guard let result = result, let sum = result.sumQuantity() else {
+                completion(0, nil)
+                return
+            }
+
+            let stepCount = sum.doubleValue(for: HKUnit.count())
+            completion(stepCount, nil)
+        }
+
+        self.healthStore.execute(query)
+    }
+
     func fetchSteps(for date: Date, completion: @escaping (Double?, Error?) -> Void) {
         // Check if step count data is available on the device
         guard HKHealthStore.isHealthDataAvailable() else {
