@@ -85,31 +85,25 @@ class HealthKitManager {
     func fetchWorkoutsLast90Days(completion: @escaping ([HKWorkout]?, Error?) -> Void) {
             let ninetyDaysAgo = Calendar.current.date(byAdding: .day, value: -90, to: Date())!
             let endDate = Date() // Today
-            let predicate = HKQuery.predicateForSamples(withStart: ninetyDaysAgo, end: endDate, options: .strictStartDate)
-            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-            
-            let query = HKSampleQuery(sampleType: .workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
-                DispatchQueue.main.async {
-                    guard let workouts = samples as? [HKWorkout], error == nil else {
-                        completion(nil, error)
-                        return
-                    }
-                    
-                    // Iterate through and print details of each workout
-                    for workout in workouts {
-                        let durationInMinutes = workout.duration / 60
-                        let totalDistance = workout.totalDistance?.description ?? "N/A"
-                        let totalEnergyBurned = workout.totalEnergyBurned?.description ?? "N/A"
-                        
-                        print("Workout Type: \(workout.workoutActivityType), Start Date: \(workout.startDate), End Date: \(workout.endDate), Duration: \(durationInMinutes) minutes, Total Distance: \(totalDistance), Total Energy Burned: \(totalEnergyBurned)")
-                    }
-                    
-                    completion(workouts, nil)
-                }
-            }
-            
-            healthStore.execute(query)
+            fetchWorkouts(from: ninetyDaysAgo, to: endDate, completion: completion)
         }
+
+    func fetchWorkouts(from startDate: Date, to endDate: Date, completion: @escaping ([HKWorkout]?, Error?) -> Void) {
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+
+        let query = HKSampleQuery(sampleType: .workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, samples, error) in
+            DispatchQueue.main.async {
+                guard let workouts = samples as? [HKWorkout], error == nil else {
+                    completion(nil, error)
+                    return
+                }
+                completion(workouts, nil)
+            }
+        }
+
+        healthStore.execute(query)
+    }
     
     func fetchMostRecentBodyMass(completion: @escaping (Double?) -> Void) {
         // Don't limit by start date.
