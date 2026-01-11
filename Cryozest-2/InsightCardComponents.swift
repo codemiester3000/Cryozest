@@ -15,82 +15,124 @@ struct TopImpactCard: View {
     @Environment(\.managedObjectContext) private var managedObjectContext
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Rank indicator - minimal
-            Text("\(rank)")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(rankColor)
-                .frame(width: 32)
+        ZStack(alignment: .topLeading) {
+            // Main content card
+            HStack(spacing: 12) {
+                // Habit icon - rounded square for distinction
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(impact.habitType.color.opacity(0.15))
+                        .frame(width: 44, height: 44)
 
-            // Habit icon - clean circle
-            ZStack {
-                Circle()
-                    .fill(impact.habitType.color.opacity(0.15))
-                    .frame(width: 44, height: 44)
-
-                Image(systemName: impact.habitType.icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(impact.habitType.color)
-            }
-
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text(impact.habitType.displayName(managedObjectContext))
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.white)
-
-                    // Confidence indicator
-                    ConfidenceIndicator(level: impact.confidenceLevel)
+                    Image(systemName: impact.habitType.icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(impact.habitType.color)
                 }
 
-                HStack(spacing: 6) {
-                    Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.4))
+                // Content
+                VStack(alignment: .leading, spacing: 5) {
+                    // Habit name with confidence
+                    HStack(spacing: 6) {
+                        Text(impact.habitType.displayName(managedObjectContext))
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
 
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.3))
+                        // Confidence indicator
+                        ConfidenceIndicator(level: impact.confidenceLevel)
+                    }
 
-                    Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(impact.habitType.color)
+                    // Clear, compact association
+                    HStack(spacing: 5) {
+                        Image(systemName: impact.isPositive ? "arrow.up.right" : "arrow.down.right")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(impact.isPositive ? .green : .red)
 
-                    // Show lag if next-day effect
-                    if let lagDesc = impact.lagDescription {
-                        Text("(\(lagDesc))")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.cyan.opacity(0.7))
+                        Text(impact.isPositive ? "improves" : "worsens")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(impact.isPositive ? .green : .red)
+
+                        Text(impact.metricName)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.85))
+
+                        // Show lag if next-day effect
+                        if let lagDesc = impact.lagDescription {
+                            Text("(\(lagDesc))")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(.cyan.opacity(0.7))
+                        }
+                    }
+
+                    // Compact values comparison
+                    HStack(spacing: 5) {
+                        Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+
+                        Text("→")
+                            .font(.system(size: 10))
+                            .foregroundColor(.white.opacity(0.3))
+
+                        Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.6))
                     }
                 }
-            }
 
-            Spacer()
+                Spacer()
 
-            // Impact value - prominent
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(impact.changeDescription)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundColor(impact.isPositive ? .green : .red)
-
-                HStack(spacing: 4) {
-                    Text(impact.metricName)
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.white.opacity(0.4))
+                // Impact value - prominent
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(impact.changeDescription)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(impact.isPositive ? .green : .red)
 
                     if impact.isStatisticallySignificant {
-                        Text("•")
-                            .font(.system(size: 8))
-                            .foregroundColor(.white.opacity(0.3))
-                        Text("sig")
+                        Text("significant")
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundColor(.green.opacity(0.8))
                     }
                 }
             }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.04))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                rankColor.opacity(rank <= 3 ? 0.2 : 0.05),
+                                Color.white.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+
+            // Rank badge - small corner badge
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [rankColor.opacity(0.9), rankColor.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 24, height: 24)
+                    .shadow(color: rankColor.opacity(0.3), radius: 4, x: 0, y: 2)
+
+                Text("\(rank)")
+                    .font(.system(size: 12, weight: .black, design: .rounded))
+                    .foregroundColor(.white)
+            }
+            .offset(x: -6, y: -6)
         }
-        .padding(.vertical, 12)
     }
 
     private var rankColor: Color {
@@ -303,46 +345,48 @@ struct HealthTrendCard: View {
     let trend: HealthTrend
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Metric icon
-            ZStack {
-                Circle()
-                    .fill(trend.color.opacity(0.12))
-                    .frame(width: 44, height: 44)
+        HStack(spacing: 0) {
+            // Accent bar on left
+            Rectangle()
+                .fill(trend.color)
+                .frame(width: 3)
+                .padding(.trailing, 14)
 
+            HStack(spacing: 14) {
+                // Metric icon - smaller, more subtle
                 Image(systemName: trend.icon)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundColor(trend.color)
-            }
+                    .frame(width: 32)
 
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                Text(trend.title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
+                // Content
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(trend.title)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
 
-                HStack(spacing: 6) {
-                    Text(formatValueWithUnit(trend.previousValue, metric: trend.metric))
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.4))
+                    HStack(spacing: 6) {
+                        Text(formatValueWithUnit(trend.previousValue, metric: trend.metric))
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
 
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.3))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.3))
 
-                    Text(formatValueWithUnit(trend.currentValue, metric: trend.metric))
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(trend.color)
+                        Text(formatValueWithUnit(trend.currentValue, metric: trend.metric))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(trend.color)
+                    }
                 }
-            }
 
-            Spacer()
+                Spacer()
 
-            // Change display
-            VStack(alignment: .trailing, spacing: 2) {
-                HStack(spacing: 3) {
-                    Image(systemName: trend.isPositive ? "arrow.up" : "arrow.down")
-                        .font(.system(size: 11, weight: .bold))
+                // Change display
+                VStack(alignment: .trailing, spacing: 2) {
+                    HStack(spacing: 3) {
+                        Image(systemName: trend.isPositive ? "arrow.up" : "arrow.down")
+                            .font(.system(size: 11, weight: .bold))
 
                     Text(trend.changeDescription)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -355,6 +399,7 @@ struct HealthTrendCard: View {
             }
         }
         .padding(.vertical, 12)
+        }
     }
 
     private func formatValueWithUnit(_ value: Double, metric: String) -> String {
