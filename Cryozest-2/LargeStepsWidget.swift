@@ -207,7 +207,10 @@ struct LargeStepsWidget: View {
                 animateProgress = true
             }
         }
-        .onChange(of: selectedDate) { _ in
+        .onChange(of: selectedDate) { newDate in
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            print("👣 [STEPS] Date changed to: \(formatter.string(from: newDate))")
             animateProgress = false
             currentSteps = 0
             fetchStepsForDate()
