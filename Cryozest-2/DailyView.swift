@@ -761,7 +761,7 @@ struct DailyGridMetrics: View {
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var configManager: MetricConfigurationManager
     @Binding var expandedMetric: MetricType?
-    var selectedDate: Date
+    @Binding var selectedDate: Date
     @Namespace private var animation
 
     var body: some View {
