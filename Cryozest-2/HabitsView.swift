@@ -810,13 +810,10 @@ struct HabitSessionRow: View {
                 Spacer()
                 Button(action: onDelete) {
                     Image(systemName: "trash")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 36, height: 36)
-                        .background(Color.red.opacity(0.85))
-                        .cornerRadius(8)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.red.opacity(0.8))
                 }
-                .padding(.trailing, 8)
+                .padding(.trailing, 12)
             }
 
             // Main content
@@ -861,13 +858,13 @@ struct HabitSessionRow: View {
                     .onChanged { gesture in
                         let translation = gesture.translation.width
                         if translation < 0 {
-                            offset = max(translation, -44)
+                            offset = max(translation, -35)
                         }
                     }
                     .onEnded { _ in
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if offset < -20 {
-                                offset = -44
+                            if offset < -18 {
+                                offset = -35
                                 showDeleteButton = true
                             } else {
                                 offset = 0
@@ -913,13 +910,10 @@ struct RecentSessionRow: View {
                 Spacer()
                 Button(action: onDelete) {
                     Image(systemName: "trash")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(width: 32, height: 32)
-                        .background(Color.red.opacity(0.85))
-                        .cornerRadius(8)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.red.opacity(0.7))
                 }
-                .padding(.trailing, 8)
+                .padding(.trailing, 12)
             }
 
             // Main content
@@ -960,13 +954,13 @@ struct RecentSessionRow: View {
                     .onChanged { gesture in
                         let translation = gesture.translation.width
                         if translation < 0 {
-                            offset = max(translation, -40)
+                            offset = max(translation, -32)
                         }
                     }
                     .onEnded { _ in
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            if offset < -18 {
-                                offset = -40
+                            if offset < -16 {
+                                offset = -32
                             } else {
                                 offset = 0
                             }
