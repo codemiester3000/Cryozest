@@ -9,7 +9,7 @@ import Foundation
 
 struct MockDataHelper {
     // SET THIS TO false TO DISABLE MOCK DATA
-    static let useMockData = true
+    static let useMockData = false
 
     // Heart Rate Mock Data
     static let mockHeartRate = 62
