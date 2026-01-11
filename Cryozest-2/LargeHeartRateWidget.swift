@@ -7,6 +7,8 @@
 
 import SwiftUI
 import HealthKit
+import UIKit
+import CoreData
 
 struct LargeHeartRateWidget: View {
     @ObservedObject var model: RecoveryGraphModel
@@ -229,7 +231,10 @@ struct LargeHeartRateWidget: View {
             }
         }
         .onChange(of: selectedDate) { _ in
+            todayRHRReadings = []
+            lastHourAvgHR = nil
             fetchTodayRHRReadings()
+            fetchLastHourAvgHR()
         }
         .id(Calendar.current.startOfDay(for: selectedDate))
     }
@@ -1102,9 +1107,17 @@ struct HeartRateExpandedChart: View {
             }
         }
         .onChange(of: selectedDate) { _ in
-            // Refresh data when date changes (e.g., swiping to previous day)
+            // Clear data immediately and refresh when date changes
+            heartRateData = []
+            healthEvents = []
+            showGraph = false
             fetchHeartRateData()
             fetchHealthEvents()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    showGraph = true
+                }
+            }
         }
         .onChange(of: selectedTimeRange) { _ in
             // Refresh when time range changes

@@ -57,148 +57,129 @@ struct LargeStepsWidget: View {
         }
     }
 
-    // MARK: - Collapsed View
+    // MARK: - Collapsed View (Whoop-inspired circular gauge)
 
     private var collapsedView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header row
-            HStack(alignment: .center) {
-                // Icon with subtle glow when near goal
-                ZStack {
-                    if goalProgress >= 0.8 {
-                        Circle()
-                            .fill(progressColor.opacity(0.2))
-                            .frame(width: 44, height: 44)
-                            .blur(radius: 4)
-                    }
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack {
+                Text("Steps")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.6))
 
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [progressColor, progressColor.opacity(0.7)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 40, height: 40)
+                Spacer()
 
-                    Image(systemName: "figure.walk")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                // Goal config button
+                Button(action: { showGoalConfig = true }) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.4))
                 }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.bottom, 20)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Steps")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
+            // Main content with circular gauge
+            HStack(spacing: 24) {
+                // Circular progress gauge - true Whoop style
+                ZStack {
+                    // Background ring
+                    Circle()
+                        .stroke(
+                            Color.white.opacity(0.08),
+                            style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        )
+                        .frame(width: 120, height: 120)
 
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(formatSteps(displaySteps))
+                    // Progress ring with gradient
+                    Circle()
+                        .trim(from: 0, to: animateProgress ? min(goalProgress, 1.0) : 0)
+                        .stroke(
+                            AngularGradient(
+                                gradient: Gradient(colors: [
+                                    progressColor.opacity(0.7),
+                                    progressColor,
+                                    goalProgress >= 1.0 ? Color(red: 0.2, green: 0.8, blue: 0.4) : progressColor
+                                ]),
+                                center: .center,
+                                startAngle: .degrees(-90),
+                                endAngle: .degrees(270 * min(goalProgress, 1.0) - 90)
+                            ),
+                            style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        )
+                        .frame(width: 120, height: 120)
+                        .rotationEffect(.degrees(-90))
+                        .shadow(color: progressColor.opacity(0.3), radius: 8, x: 0, y: 0)
+
+                    // Center content
+                    VStack(spacing: 4) {
+                        // Step count
+                        Text(formatStepsShort(displaySteps))
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .contentTransition(.numericText())
 
-                        Text("/ \(formatSteps(goalManager.dailyStepGoal))")
-                            .font(.system(size: 14, weight: .medium))
+                        // Percentage
+                        Text("\(Int(min(goalProgress, 1.0) * 100))%")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(progressColor.opacity(0.9))
+                    }
+                }
+
+                // Stats column
+                VStack(alignment: .leading, spacing: 16) {
+                    // Goal status
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Goal")
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundColor(.white.opacity(0.4))
+
+                        HStack(spacing: 6) {
+                            Text(formatSteps(goalManager.dailyStepGoal))
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.white.opacity(0.85))
+
+                            if goalProgress >= 1.0 {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
+                            }
+                        }
+                    }
+
+                    // Distance
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Distance")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+
+                        let distanceKm = Double(displaySteps) * 0.000762
+                        let distanceMi = distanceKm * 0.621371
+
+                        Text(String(format: "%.1f mi", distanceMi))
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundColor(.white.opacity(0.85))
+                    }
+
+                    // Remaining or completion
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(goalProgress < 1.0 ? "Remaining" : "Achieved")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+
+                        if goalProgress < 1.0 {
+                            Text(formatStepsShort(goalManager.dailyStepGoal - displaySteps))
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(progressColor.opacity(0.9))
+                        } else {
+                            Text("+\(formatStepsShort(displaySteps - goalManager.dailyStepGoal))")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
+                        }
                     }
                 }
 
                 Spacer()
-
-                // Status badge
-                goalBadge
-            }
-
-            // Horizontal progress bar with glow
-            VStack(alignment: .leading, spacing: 8) {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        // Background track
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.white.opacity(0.1))
-                            .frame(height: 10)
-
-                        // Progress fill with glow
-                        ZStack(alignment: .leading) {
-                            // Glow layer
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color(red: 0.2, green: 0.6, blue: 1.0),
-                                            goalProgress >= 1.0 ? Color(red: 0.2, green: 0.8, blue: 0.4) : Color(red: 0.3, green: 0.7, blue: 1.0)
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: animateProgress ? geometry.size.width * min(goalProgress, 1.0) : 0, height: 10)
-                                .blur(radius: 4)
-                                .opacity(0.6)
-
-                            // Main bar
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color(red: 0.2, green: 0.6, blue: 1.0),
-                                            goalProgress >= 1.0 ? Color(red: 0.2, green: 0.8, blue: 0.4) : Color(red: 0.3, green: 0.7, blue: 1.0)
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: animateProgress ? geometry.size.width * min(goalProgress, 1.0) : 0, height: 10)
-                        }
-                    }
-                }
-                .frame(height: 10)
-
-                // Stats row
-                HStack(spacing: 16) {
-                    let distanceKm = Double(displaySteps) * 0.000762
-                    let distanceMi = distanceKm * 0.621371
-
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.system(size: 10))
-                            .foregroundColor(progressColor.opacity(0.7))
-                        Text(String(format: "%.1f mi", distanceMi))
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-
-                    if goalProgress < 1.0 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.right")
-                                .font(.system(size: 10))
-                                .foregroundColor(.white.opacity(0.4))
-                            Text("\(formatStepsShort(goalManager.dailyStepGoal - displaySteps)) to go")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white.opacity(0.6))
-                        }
-                    } else {
-                        HStack(spacing: 4) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
-                            Text("Goal reached!")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
-                        }
-                    }
-
-                    Spacer()
-
-                    // Goal edit tap target
-                    Button(action: { showGoalConfig = true }) {
-                        Image(systemName: "slider.horizontal.3")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white.opacity(0.4))
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
             }
         }
         .padding(20)
@@ -222,23 +203,29 @@ struct LargeStepsWidget: View {
         .onAppear {
             fetchStepsForDate()
             loadWeeklyData()
-            withAnimation(.easeOut(duration: 1.0).delay(0.2)) {
+            withAnimation(.easeOut(duration: 1.2).delay(0.3)) {
                 animateProgress = true
             }
         }
         .onChange(of: selectedDate) { _ in
+            animateProgress = false
+            currentSteps = 0
             fetchStepsForDate()
             loadWeeklyData()
+            withAnimation(.easeOut(duration: 0.8).delay(0.1)) {
+                animateProgress = true
+            }
         }
         .onChange(of: displaySteps) { _ in
             animateProgress = false
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.75).delay(0.1)) {
                 animateProgress = true
             }
         }
         .sheet(isPresented: $showGoalConfig) {
             StepGoalConfigView()
         }
+        .id("\(Calendar.current.startOfDay(for: selectedDate).timeIntervalSince1970)-\(displaySteps)")
     }
 
     // MARK: - Expanded View
