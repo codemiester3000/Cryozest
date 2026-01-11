@@ -18,8 +18,6 @@ struct PainTrackingCard: View {
     @State private var selectedRating: Int?
     @State private var showFeedback = false
     @State private var isExpanded = false
-    @State private var iconPulse: CGFloat = 0
-
     var body: some View {
         Group {
             if todayRatings.isEmpty || isAddingNew {
@@ -47,40 +45,17 @@ struct PainTrackingCard: View {
     // MARK: - Full Picker View (for adding new entry)
 
     private var fullPickerView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // Header with icon
             HStack(spacing: 12) {
-                ZStack {
-                    // Subtle pulse ring
-                    Circle()
-                        .fill(Color.orange.opacity(0.15))
-                        .frame(width: 40 + iconPulse * 6, height: 40 + iconPulse * 6)
-                        .opacity(Double(1.0 - iconPulse * 0.5))
-                        .blur(radius: 3)
-
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.red.opacity(0.3),
-                                    Color.orange.opacity(0.2)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 40, height: 40)
-
-                    Image(systemName: "bolt.heart.fill")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.orange)
-                        .scaleEffect(1 + iconPulse * 0.05)
-                }
-                .onAppear {
-                    withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                        iconPulse = 1.0
-                    }
-                }
+                Image(systemName: "bolt.heart.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.orange)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        Circle()
+                            .fill(Color.orange.opacity(0.15))
+                    )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Pain Level")
@@ -111,53 +86,26 @@ struct PainTrackingCard: View {
             }
 
             // Pain rating buttons (0-5 scale)
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 ForEach(0...5, id: \.self) { rating in
                     Button(action: {
                         selectRating(rating)
                     }) {
-                        VStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             Text(painEmoji(for: rating))
-                                .font(.system(size: 24))
+                                .font(.system(size: 18))
 
                             Text("\(rating)")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
                                 .foregroundColor(selectedRating == rating ? .white : painColor(for: rating))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 6)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(
-                                    selectedRating == rating
-                                        ? LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                painColor(for: rating),
-                                                painColor(for: rating).opacity(0.8)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                        : LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                painColor(for: rating).opacity(0.15),
-                                                painColor(for: rating).opacity(0.08)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(
-                                            selectedRating == rating
-                                                ? painColor(for: rating).opacity(0.6)
-                                                : painColor(for: rating).opacity(0.3),
-                                            lineWidth: selectedRating == rating ? 2 : 1
-                                        )
-                                )
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(selectedRating == rating ? painColor(for: rating) : Color.white.opacity(0.06))
                         )
-                        .scaleEffect(selectedRating == rating ? 1.05 : 1.0)
+                        .scaleEffect(selectedRating == rating ? 1.02 : 1.0)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -192,8 +140,8 @@ struct PainTrackingCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(20)
-        .modernWidgetCard(style: .medical)
+        .padding(16)
+        .feedWidgetStyle(style: .medical)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showFeedback)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedRating)
     }
@@ -304,7 +252,7 @@ struct PainTrackingCard: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .modernWidgetCard(style: .medical)
+        .feedWidgetStyle(style: .medical)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
     }
 
@@ -402,6 +350,18 @@ struct PainTrackingCard: View {
         case 4: return "Severe"
         case 5: return "Extreme"
         default: return "Unknown"
+        }
+    }
+
+    private func painIcon(for rating: Int) -> String {
+        switch rating {
+        case 0: return "face.smiling"
+        case 1: return "circle"
+        case 2: return "face.dashed"
+        case 3: return "circle.fill"
+        case 4: return "exclamationmark.triangle.fill"
+        case 5: return "exclamationmark.octagon.fill"
+        default: return "face.dashed"
         }
     }
 

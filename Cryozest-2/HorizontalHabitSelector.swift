@@ -90,49 +90,52 @@ struct HabitPill: View {
             onTap()
         }) {
             HStack(spacing: 10) {
-                // Icon
-                Image(systemName: therapy.icon)
-                    .font(.system(size: isSelected ? 20 : 16, weight: .semibold))
-                    .foregroundColor(isSelected ? .white : therapy.color.opacity(0.6))
-                    .frame(width: isSelected ? 40 : 32, height: isSelected ? 40 : 32)
-                    .background(
-                        ZStack {
-                            // Outer glow ring for selected state
-                            if isSelected {
-                                Circle()
-                                    .fill(therapy.color.opacity(0.3))
-                                    .frame(width: 48, height: 48)
-                                    .blur(radius: 4)
-                            }
+                // Icon with glow when selected
+                ZStack {
+                    if isSelected {
+                        Circle()
+                            .fill(therapy.color.opacity(0.3))
+                            .frame(width: 44, height: 44)
+                            .blur(radius: 6)
+                    }
 
-                            Circle()
-                                .fill(
-                                    isSelected
-                                        ? LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                therapy.color,
-                                                therapy.color.opacity(0.8)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                        : LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                therapy.color.opacity(0.12),
-                                                therapy.color.opacity(0.08)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                    Circle()
+                        .fill(
+                            isSelected
+                                ? LinearGradient(
+                                    colors: [therapy.color, therapy.color.opacity(0.8)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
                                 )
-                        }
-                    )
+                                : LinearGradient(
+                                    colors: [therapy.color.opacity(0.2), therapy.color.opacity(0.1)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [Color.white.opacity(isSelected ? 0.4 : 0.15), Color.clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
+
+                    Image(systemName: therapy.icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : therapy.color)
+                }
 
                 // Name and badge
                 VStack(alignment: .leading, spacing: 4) {
                     Text(therapy.displayName(managedObjectContext))
-                        .font(.system(size: isSelected ? 17 : 14, weight: isSelected ? .bold : .medium))
-                        .foregroundColor(isSelected ? .white : .white.opacity(0.5))
+                        .font(.system(size: 14, weight: isSelected ? .semibold : .medium))
+                        .foregroundColor(isSelected ? .white : .white.opacity(0.6))
 
                     // Apple Watch badge for workout types
                     if isWorkout && isSelected {
@@ -149,58 +152,74 @@ struct HabitPill: View {
                         .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(Color.green.opacity(0.15))
+                                .fill(Color.green.opacity(0.2))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.green.opacity(0.3), lineWidth: 0.5)
+                                )
                         )
                     }
                 }
             }
-            .padding(.horizontal, isSelected ? 20 : 14)
-            .padding(.vertical, isSelected ? 14 : 10)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: isSelected ? 22 : 16)
-                    .fill(
-                        isSelected
-                            ? LinearGradient(
-                                gradient: Gradient(colors: [
-                                    therapy.color.opacity(0.25),
-                                    therapy.color.opacity(0.15)
-                                ]),
+                ZStack {
+                    // Base background
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(
+                            isSelected
+                                ? LinearGradient(
+                                    colors: [therapy.color.opacity(0.25), therapy.color.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                : LinearGradient(
+                                    colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
+
+                    // Glass highlight
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.15), Color.clear],
+                                    startPoint: .top,
+                                    endPoint: .center
+                                )
+                            )
+                    }
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(
+                            LinearGradient(
+                                colors: isSelected
+                                    ? [therapy.color.opacity(0.5), therapy.color.opacity(0.2)]
+                                    : [Color.white.opacity(0.15), Color.white.opacity(0.05)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
-                            )
-                            : LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.white.opacity(0.06),
-                                    Color.white.opacity(0.03)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: isSelected ? 22 : 16)
-                            .stroke(
-                                isSelected
-                                    ? therapy.color.opacity(0.8)
-                                    : Color.white.opacity(0.1),
-                                lineWidth: isSelected ? 2.5 : 1
-                            )
-                    )
+                            ),
+                            lineWidth: 1
+                        )
+                )
             )
             .shadow(
-                color: isSelected ? therapy.color.opacity(0.4) : Color.clear,
-                radius: isSelected ? 16 : 0,
+                color: isSelected ? therapy.color.opacity(0.3) : Color.clear,
+                radius: 8,
                 x: 0,
-                y: isSelected ? 8 : 0
+                y: 4
             )
-            .scaleEffect(isSelected ? 1.05 : (isPressed ? 0.95 : 1.0))
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: 0.0, maximumDistance: .infinity, pressing: { pressing in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = pressing
-            }
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isSelected)
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
         }, perform: {})
     }
 }

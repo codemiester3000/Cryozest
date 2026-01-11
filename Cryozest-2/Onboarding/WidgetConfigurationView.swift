@@ -274,6 +274,8 @@ struct WidgetSelectionCard: View {
             return "Track your daily pain levels"
         case .waterIntake:
             return "Track your daily water intake"
+        case .workouts:
+            return "View Apple Watch workouts"
         case .completedHabits:
             return "Track today's habits"
         case .medications:

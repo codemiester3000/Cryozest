@@ -19,11 +19,17 @@ struct ExertionWidget: View {
 
     // Total active minutes (sum of all zone times)
     private var totalActiveMinutes: Int {
-        Int(exertionModel.zoneTimes.reduce(0, +))
+        if MockDataHelper.useMockData {
+            return MockDataHelper.mockActiveMinutes
+        }
+        return Int(exertionModel.zoneTimes.reduce(0, +))
     }
 
     // Moderate + Vigorous minutes (zones 3-5)
     private var moderateVigorousMinutes: Int {
+        if MockDataHelper.useMockData {
+            return MockDataHelper.mockActiveMinutes
+        }
         let zones = exertionModel.zoneTimes
         guard zones.count >= 5 else { return 0 }
         return Int(zones[2] + zones[3] + zones[4])
@@ -264,17 +270,17 @@ struct ExertionWidget: View {
                 HStack(spacing: 16) {
                     activityStat(
                         label: "Light",
-                        minutes: exertionModel.zoneTimes.count >= 2 ? exertionModel.zoneTimes[0] + exertionModel.zoneTimes[1] : 0,
+                        minutes: MockDataHelper.useMockData ? MockDataHelper.mockLightMinutes : (exertionModel.zoneTimes.count >= 2 ? exertionModel.zoneTimes[0] + exertionModel.zoneTimes[1] : 0),
                         color: .cyan
                     )
                     activityStat(
                         label: "Moderate",
-                        minutes: exertionModel.zoneTimes.count >= 4 ? exertionModel.zoneTimes[2] + exertionModel.zoneTimes[3] : 0,
+                        minutes: MockDataHelper.useMockData ? MockDataHelper.mockModerateMinutes : (exertionModel.zoneTimes.count >= 4 ? exertionModel.zoneTimes[2] + exertionModel.zoneTimes[3] : 0),
                         color: .green
                     )
                     activityStat(
                         label: "Vigorous",
-                        minutes: exertionModel.zoneTimes.count >= 5 ? exertionModel.zoneTimes[4] : 0,
+                        minutes: MockDataHelper.useMockData ? MockDataHelper.mockVigorousMinutes : (exertionModel.zoneTimes.count >= 5 ? exertionModel.zoneTimes[4] : 0),
                         color: .orange
                     )
                 }
@@ -282,7 +288,7 @@ struct ExertionWidget: View {
 
         }
         .padding(16)
-        .modernWidgetCard(style: .hero)
+        .feedWidgetStyle(style: .hero)
         .contentShape(Rectangle())
         .onTapGesture {
             let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -471,7 +477,7 @@ struct ExertionWidget: View {
             }
             .padding(16)
         }
-        .modernWidgetCard(style: .hero)
+        .feedWidgetStyle(style: .hero)
         .onTapGesture {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
@@ -680,7 +686,7 @@ struct ExpandedExertionWidget: View {
             }
             .padding(16)
         }
-        .modernWidgetCard(style: .hero)
+        .feedWidgetStyle(style: .hero)
         .matchedGeometryEffect(id: "exertion-widget", in: namespace)
     }
 }

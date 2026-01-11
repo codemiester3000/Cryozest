@@ -2,8 +2,8 @@
 //  HabitsView.swift
 //  Cryozest-2
 //
-//  Professional habit tracking interface inspired by Whoop
-//  Data-focused design with streaks, statistics, and clean visuals
+//  Redesigned with Whoop-inspired premium UX
+//  Multiple entries, card-based selector, data-rich interface
 //
 
 import SwiftUI
@@ -26,20 +26,21 @@ struct HabitsView: View {
     @State private var showHabitSelection = false
     @State private var showUndoToast = false
     @State private var lastCompletedSession: TherapySessionEntity?
+    @State private var showSessionDetail = false
 
     private var sortedSessions: [TherapySessionEntity] {
         sessions.filter { $0.therapyType == therapyTypeSelection.selectedTherapyType.rawValue }
                .sorted(by: { $0.date! > $1.date! })
     }
 
-    private var isCompletedToday: Bool {
+    private var todaySessions: [TherapySessionEntity] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        return sessions.contains { session in
+        return sessions.filter { session in
             guard let sessionDate = session.date else { return false }
             return calendar.isDate(sessionDate, inSameDayAs: today) &&
                    session.therapyType == therapyTypeSelection.selectedTherapyType.rawValue
-        }
+        }.sorted(by: { $0.date! > $1.date! })
     }
 
     // Calculate current streak
@@ -52,7 +53,7 @@ struct HabitsView: View {
         var checkDate = calendar.startOfDay(for: Date())
 
         // If not completed today, start checking from yesterday
-        if !isCompletedToday {
+        if todaySessions.isEmpty {
             checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
         }
 
@@ -119,18 +120,24 @@ struct HabitsView: View {
                         .padding(.top, 12)
                         .padding(.bottom, 20)
 
-                    // Habit selector carousel
-                    HabitSelectorStrip(therapyTypeSelection: therapyTypeSelection, sessions: sessions)
+                    // Redesigned habit selector - card based
+                    HabitCardSelector(therapyTypeSelection: therapyTypeSelection, sessions: sessions)
                         .padding(.bottom, 24)
 
                     // Main content
                     VStack(spacing: 20) {
-                        // Streak & Stats Hero
-                        streakHeroSection
+                        // Prominent Log Entry Button
+                        logEntryButton
                             .padding(.horizontal, 20)
 
-                        // Today's Action
-                        todayActionCard
+                        // Today's Sessions List
+                        if !todaySessions.isEmpty {
+                            todaySessionsList
+                                .padding(.horizontal, 20)
+                        }
+
+                        // Streak & Stats Hero
+                        streakHeroSection
                             .padding(.horizontal, 20)
 
                         // Weekly Progress Ring
@@ -191,6 +198,126 @@ struct HabitsView: View {
         }
     }
 
+    // MARK: - Log Entry Button (REDESIGNED - Prominent CTA)
+
+    private var logEntryButton: some View {
+        Button(action: { logNewSession() }) {
+            HStack(spacing: 16) {
+                // Animated icon
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    therapyTypeSelection.selectedTherapyType.color,
+                                    therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+                        .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.4), radius: 12, x: 0, y: 4)
+
+                    Image(systemName: "plus")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Log Session")
+                        .font(.system(size: 19, weight: .bold))
+                        .foregroundColor(.white)
+
+                    HStack(spacing: 6) {
+                        Image(systemName: therapyTypeSelection.selectedTherapyType.icon)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+
+                        Text(therapyTypeSelection.selectedTherapyType.displayName(viewContext))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+
+                        if todaySessions.count > 0 {
+                            Text("•")
+                                .foregroundColor(.white.opacity(0.3))
+                            Text("\(todaySessions.count) today")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white.opacity(0.4))
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.12),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        therapyTypeSelection.selectedTherapyType.color.opacity(0.4),
+                                        Color.clear
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
+        }
+        .buttonStyle(PressableButtonStyle())
+    }
+
+    // MARK: - Today's Sessions List
+
+    private var todaySessionsList: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("TODAY'S SESSIONS")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white.opacity(0.5))
+                    .tracking(0.5)
+
+                Spacer()
+
+                Text("\(todaySessions.count)")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule()
+                            .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.15))
+                    )
+            }
+
+            VStack(spacing: 8) {
+                ForEach(Array(todaySessions.enumerated()), id: \.element.id) { index, session in
+                    HabitSessionRow(session: session, index: index + 1, color: therapyTypeSelection.selectedTherapyType.color)
+                }
+            }
+        }
+    }
+
     // MARK: - Streak Hero Section
 
     private var streakHeroSection: some View {
@@ -236,7 +363,7 @@ struct HabitsView: View {
             // Quick Stats
             VStack(spacing: 12) {
                 StatPill(value: "\(longestStreak)", label: "Best", icon: "trophy.fill", color: .yellow)
-                StatPill(value: "\(weekCompletions)/7", label: "Week", icon: "calendar", color: .cyan)
+                StatPill(value: "\(weekCompletions)", label: "Week", icon: "calendar", color: .cyan)
                 StatPill(value: "\(sortedSessions.count)", label: "Total", icon: "checkmark.circle.fill", color: .green)
             }
             .frame(width: 100)
@@ -254,80 +381,6 @@ struct HabitsView: View {
         }
     }
 
-    // MARK: - Today's Action Card
-
-    private var todayActionCard: some View {
-        Button(action: { if !isCompletedToday { logTodaySession() } }) {
-            HStack(spacing: 16) {
-                // Status indicator
-                ZStack {
-                    Circle()
-                        .stroke(
-                            isCompletedToday ? therapyTypeSelection.selectedTherapyType.color : Color.white.opacity(0.2),
-                            lineWidth: 3
-                        )
-                        .frame(width: 52, height: 52)
-
-                    if isCompletedToday {
-                        Circle()
-                            .fill(therapyTypeSelection.selectedTherapyType.color)
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                    } else {
-                        Circle()
-                            .fill(Color.white.opacity(0.06))
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: therapyTypeSelection.selectedTherapyType.icon)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(isCompletedToday ? "Completed" : "Mark Complete")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-
-                    Text(isCompletedToday ? "Great work today!" : "Tap to log today's session")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
-                }
-
-                Spacer()
-
-                if !isCompletedToday {
-                    Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                        .frame(width: 36, height: 36)
-                        .background(
-                            Circle()
-                                .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.15))
-                        )
-                }
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(isCompletedToday ?
-                          therapyTypeSelection.selectedTherapyType.color.opacity(0.12) :
-                          Color.white.opacity(0.04))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(isCompletedToday ?
-                                    therapyTypeSelection.selectedTherapyType.color.opacity(0.3) :
-                                    Color.clear, lineWidth: 1)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(isCompletedToday)
-    }
-
     // MARK: - Weekly Progress Section
 
     private var weeklyProgressSection: some View {
@@ -340,7 +393,7 @@ struct HabitsView: View {
             HStack(spacing: 8) {
                 ForEach(0..<7, id: \.self) { dayOffset in
                     let date = Calendar.current.date(byAdding: .day, value: dayOffset - (Calendar.current.component(.weekday, from: Date()) - 1), to: Date())!
-                    let isCompleted = sessionDates.contains { Calendar.current.isDate($0, inSameDayAs: date) }
+                    let daySessionCount = sessionDates.filter { Calendar.current.isDate($0, inSameDayAs: date) }.count
                     let isToday = Calendar.current.isDateInToday(date)
                     let isFuture = date > Date()
                     let dayLetter = dayLetter(for: date)
@@ -352,18 +405,18 @@ struct HabitsView: View {
 
                         ZStack {
                             Circle()
-                                .fill(isCompleted ?
+                                .fill(daySessionCount > 0 ?
                                       therapyTypeSelection.selectedTherapyType.color :
                                       (isFuture ? Color.white.opacity(0.04) : Color.white.opacity(0.08)))
                                 .frame(width: 36, height: 36)
 
-                            if isCompleted {
-                                Image(systemName: "checkmark")
+                            if daySessionCount > 0 {
+                                Text("\(daySessionCount)")
                                     .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.white)
                             }
 
-                            if isToday && !isCompleted {
+                            if isToday && daySessionCount == 0 {
                                 Circle()
                                     .stroke(therapyTypeSelection.selectedTherapyType.color, lineWidth: 2)
                                     .frame(width: 36, height: 36)
@@ -419,7 +472,7 @@ struct HabitsView: View {
                 Divider().background(Color.white.opacity(0.06))
                 StatRow(label: "Longest Streak", value: "\(longestStreak) days", icon: "trophy.fill")
                 Divider().background(Color.white.opacity(0.06))
-                StatRow(label: "This Week", value: "\(weekCompletions) of 7", icon: "calendar")
+                StatRow(label: "This Week", value: "\(weekCompletions)", icon: "calendar")
                 Divider().background(Color.white.opacity(0.06))
                 StatRow(label: "Completion Rate", value: completionRateString, icon: "percent")
             }
@@ -459,12 +512,18 @@ struct HabitsView: View {
                 }
                 .scaleEffect(animationScale)
 
-                if currentStreak > 0 {
-                    Text("\(currentStreak) day streak!")
+                VStack(spacing: 4) {
+                    Text("Session Logged!")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.white)
-                        .opacity(animationOpacity)
+
+                    if currentStreak > 0 {
+                        Text("\(currentStreak) day streak")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+                    }
                 }
+                .opacity(animationOpacity)
             }
         }
         .allowsHitTesting(false)
@@ -499,9 +558,7 @@ struct HabitsView: View {
 
     // MARK: - Actions
 
-    private func logTodaySession() {
-        guard !isCompletedToday else { return }
-
+    private func logNewSession() {
         let newSession = TherapySessionEntity(context: viewContext)
         newSession.date = Date()
         newSession.therapyType = therapyTypeSelection.selectedTherapyType.rawValue
@@ -563,9 +620,66 @@ struct HabitsView: View {
     }
 }
 
-// MARK: - Habit Selector Strip
+// MARK: - Habit Session Row
 
-struct HabitSelectorStrip: View {
+struct HabitSessionRow: View {
+    let session: TherapySessionEntity
+    let index: Int
+    let color: Color
+
+    private var timeString: String {
+        guard let date = session.date else { return "" }
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text("#\(index)")
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundColor(color)
+                .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(timeString)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+
+                if session.duration > 0 {
+                    Text("\(Int(session.duration / 60)) min")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.5))
+                }
+            }
+
+            Spacer()
+
+            if session.isAppleWatch {
+                Image(systemName: "applewatch")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.green)
+            }
+
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(color)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Card-Based Habit Selector (REDESIGNED)
+
+struct HabitCardSelector: View {
     @ObservedObject var therapyTypeSelection: TherapyTypeSelection
     @Environment(\.managedObjectContext) private var viewContext
     var sessions: FetchedResults<TherapySessionEntity>
@@ -580,13 +694,22 @@ struct HabitSelectorStrip: View {
         selectedTherapyTypes.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
     }
 
-    private func isCompletedToday(_ type: TherapyType) -> Bool {
+    private func todayCount(_ type: TherapyType) -> Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        return sessions.contains { session in
+        return sessions.filter { session in
             guard let sessionDate = session.date else { return false }
             return calendar.isDate(sessionDate, inSameDayAs: today) && session.therapyType == type.rawValue
-        }
+        }.count
+    }
+
+    private func weekCount(_ type: TherapyType) -> Int {
+        let calendar = Calendar.current
+        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))!
+        return sessions.filter { session in
+            guard let sessionDate = session.date else { return false }
+            return sessionDate >= startOfWeek && session.therapyType == type.rawValue
+        }.count
     }
 
     var body: some View {
@@ -595,47 +718,91 @@ struct HabitSelectorStrip: View {
                 HStack(spacing: 12) {
                     ForEach(availableTypes, id: \.self) { type in
                         let isSelected = therapyTypeSelection.selectedTherapyType == type
-                        let completed = isCompletedToday(type)
+                        let todayCount = todayCount(type)
+                        let weekCount = weekCount(type)
 
                         Button(action: {
-                            let generator = UIImpactFeedbackGenerator(style: .light)
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
                             generator.impactOccurred()
-                            withAnimation(.easeOut(duration: 0.2)) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 therapyTypeSelection.selectedTherapyType = type
                             }
                         }) {
-                            VStack(spacing: 6) {
-                                ZStack {
-                                    // Background circle
-                                    Circle()
-                                        .fill(isSelected ? type.color : Color.white.opacity(0.06))
-                                        .frame(width: 56, height: 56)
-
-                                    // Icon
-                                    Image(systemName: type.icon)
-                                        .font(.system(size: 22, weight: .semibold))
-                                        .foregroundColor(isSelected ? .white : .white.opacity(0.4))
-
-                                    // Completion badge
-                                    if completed {
+                            VStack(alignment: .leading, spacing: 8) {
+                                // Icon and name
+                                HStack(spacing: 8) {
+                                    ZStack {
                                         Circle()
-                                            .fill(Color.green)
-                                            .frame(width: 18, height: 18)
-                                            .overlay(
-                                                Image(systemName: "checkmark")
-                                                    .font(.system(size: 10, weight: .bold))
-                                                    .foregroundColor(.white)
-                                            )
-                                            .offset(x: 18, y: -18)
+                                            .fill(isSelected ? type.color : type.color.opacity(0.15))
+                                            .frame(width: 40, height: 40)
+
+                                        Image(systemName: type.icon)
+                                            .font(.system(size: 18, weight: .semibold))
+                                            .foregroundColor(isSelected ? .white : type.color)
                                     }
+
+                                    Text(type.displayName(viewContext))
+                                        .font(.system(size: 15, weight: .bold))
+                                        .foregroundColor(isSelected ? .white : .white.opacity(0.7))
+                                        .lineLimit(1)
                                 }
 
-                                Text(type.displayName(viewContext))
-                                    .font(.system(size: 11, weight: isSelected ? .semibold : .medium))
-                                    .foregroundColor(isSelected ? .white : .white.opacity(0.4))
-                                    .lineLimit(1)
+                                // Mini stats
+                                HStack(spacing: 12) {
+                                    HStack(spacing: 4) {
+                                        Text("\(todayCount)")
+                                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                                            .foregroundColor(todayCount > 0 ? type.color : .white.opacity(0.3))
+
+                                        Text("today")
+                                            .font(.system(size: 11, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.4))
+                                    }
+
+                                    Text("•")
+                                        .foregroundColor(.white.opacity(0.2))
+
+                                    HStack(spacing: 4) {
+                                        Text("\(weekCount)")
+                                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                            .foregroundColor(.white.opacity(0.6))
+
+                                        Text("week")
+                                            .font(.system(size: 11, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.4))
+                                    }
+                                }
                             }
-                            .frame(width: 72)
+                            .frame(width: 180)
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(isSelected ?
+                                          LinearGradient(
+                                            colors: [type.color.opacity(0.2), type.color.opacity(0.1)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                          ) :
+                                          LinearGradient(
+                                            colors: [Color.white.opacity(0.08), Color.white.opacity(0.04)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                          )
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .stroke(
+                                                isSelected ? type.color.opacity(0.5) : Color.clear,
+                                                lineWidth: 2
+                                            )
+                                    )
+                            )
+                            .shadow(
+                                color: isSelected ? type.color.opacity(0.3) : Color.clear,
+                                radius: isSelected ? 12 : 0,
+                                x: 0,
+                                y: isSelected ? 4 : 0
+                            )
                         }
                         .buttonStyle(PlainButtonStyle())
                         .id(type)
@@ -652,6 +819,17 @@ struct HabitSelectorStrip: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Pressable Button Style
+
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
 }
 
@@ -717,21 +895,21 @@ struct CompactCalendarView: View {
 
                 // Days
                 ForEach(days, id: \.self) { date in
-                    let completed = sessionDates.contains { Calendar.current.isDate($0, inSameDayAs: date) }
+                    let sessionCount = sessionDates.filter { Calendar.current.isDate($0, inSameDayAs: date) }.count
                     let isToday = Calendar.current.isDateInToday(date)
 
                     ZStack {
-                        if completed {
+                        if sessionCount > 0 {
                             Circle()
                                 .fill(therapyType.color)
                                 .frame(width: 28, height: 28)
                         }
 
-                        Text("\(Calendar.current.component(.day, from: date))")
-                            .font(.system(size: 12, weight: completed ? .bold : .medium))
-                            .foregroundColor(completed ? .white : .white.opacity(0.4))
+                        Text(sessionCount > 1 ? "\(sessionCount)" : "\(Calendar.current.component(.day, from: date))")
+                            .font(.system(size: 12, weight: sessionCount > 0 ? .bold : .medium))
+                            .foregroundColor(sessionCount > 0 ? .white : .white.opacity(0.4))
 
-                        if isToday && !completed {
+                        if isToday && sessionCount == 0 {
                             Circle()
                                 .stroke(therapyType.color, lineWidth: 1.5)
                                 .frame(width: 28, height: 28)

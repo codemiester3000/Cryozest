@@ -173,7 +173,7 @@ struct MedicationsCard: View {
             }  // Close expanded state else
         }
         .padding(16)
-        .modernWidgetCard(style: .medical)
+        .feedWidgetStyle(style: .medical)
         .sheet(isPresented: $showAddMedication) {
             AddMedicationSheet()
                 .environment(\.managedObjectContext, viewContext)

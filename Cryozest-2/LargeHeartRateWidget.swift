@@ -246,6 +246,7 @@ struct LargeHeartRateWidget: View {
             trendColor: trendColor,
             accentColor: accentColor
         )
+        .id("\(Calendar.current.startOfDay(for: selectedDate).timeIntervalSince1970)")
     }
 
     private func fetchTodayRHRReadings() {

@@ -51,7 +51,7 @@ class AppleWorkoutsService {
     private func createOrUpdateTherapySessionEntity(from workout: HKWorkout) {
         let fetchRequest: NSFetchRequest<TherapySessionEntity> = TherapySessionEntity.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "date == %@ AND therapyType == %@", workout.startDate as NSDate, therapyTypeForWorkout(workout).rawValue)
-        
+
         do {
             let matches = try viewContext.fetch(fetchRequest)
             if matches.isEmpty {
@@ -61,15 +61,55 @@ class AppleWorkoutsService {
                 newSession.duration = workout.duration
                 newSession.isAppleWatch = true
                 newSession.therapyType = therapyTypeForWorkout(workout).rawValue
-                // Assuming you have a way to fetch average heart rate
-                // newSession.averageHeartRate = fetchAverageHeartRate(for: workout)
+
+                // Fetch and store average heart rate
+                fetchAverageHeartRate(for: workout) { avgHR in
+                    if let avgHR = avgHR {
+                        newSession.averageHeartRate = avgHR
+                        try? self.viewContext.save()
+                    }
+                }
             } else if let existingSession = matches.first {
                 // Update existing session if needed
+                existingSession.duration = workout.duration
+
+                // Update heart rate if not already set
+                if existingSession.averageHeartRate == 0 {
+                    fetchAverageHeartRate(for: workout) { avgHR in
+                        if let avgHR = avgHR {
+                            existingSession.averageHeartRate = avgHR
+                            try? self.viewContext.save()
+                        }
+                    }
+                }
             }
             try viewContext.save()
         } catch {
             print("Error fetching or saving: \(error)")
         }
+    }
+
+    private func fetchAverageHeartRate(for workout: HKWorkout, completion: @escaping (Double?) -> Void) {
+        guard let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: workout.startDate, end: workout.endDate, options: .strictStartDate)
+
+        let query = HKStatisticsQuery(quantityType: heartRateType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, error in
+            guard let result = result, let average = result.averageQuantity() else {
+                completion(nil)
+                return
+            }
+
+            let avgHeartRate = average.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+            DispatchQueue.main.async {
+                completion(avgHeartRate)
+            }
+        }
+
+        healthStore.execute(query)
     }
     
     private func therapyTypeForWorkout(_ workout: HKWorkout) -> TherapyType {

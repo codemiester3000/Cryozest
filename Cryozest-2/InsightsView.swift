@@ -165,9 +165,9 @@ struct InsightsView: View {
                 if insightsConfig.isEnabled(.topPerformers) {
                     VStack(alignment: .leading, spacing: 8) {
                         InsightsSectionHeader(
-                            title: "Top Associations",
-                            icon: "trophy.fill",
-                            color: .yellow
+                            title: "Top Correlations",
+                            icon: "chart.bar.xaxis",
+                            color: .orange
                         )
                         .padding(.horizontal, 20)
 
@@ -179,18 +179,10 @@ struct InsightsView: View {
                             )
                             .padding(.horizontal, 20)
                         } else {
-                            VStack(spacing: 0) {
+                            VStack(spacing: 10) {
                                 ForEach(Array(viewModel.topHabitImpacts.enumerated()), id: \.element.id) { index, impact in
                                     TopImpactCard(impact: impact, rank: index + 1)
                                         .padding(.horizontal, 20)
-
-                                    if index < viewModel.topHabitImpacts.count - 1 {
-                                        Rectangle()
-                                            .fill(Color.white.opacity(0.04))
-                                            .frame(height: 1)
-                                            .padding(.leading, 72)
-                                            .padding(.trailing, 20)
-                                    }
                                 }
                             }
                         }

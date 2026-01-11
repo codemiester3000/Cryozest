@@ -12,6 +12,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
     case wellnessCheckIn = "Wellness Check-In"
     case painTracking = "Pain Tracking"
     case waterIntake = "Water Intake"
+    case workouts = "Workouts"
     case completedHabits = "Completed Habits"
     case medications = "Medications"
     case heroScores = "Hero Scores"
@@ -27,6 +28,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         case .wellnessCheckIn: return "star.fill"
         case .painTracking: return "bolt.heart.fill"
         case .waterIntake: return "drop.fill"
+        case .workouts: return "figure.run"
         case .completedHabits: return "checkmark.circle.fill"
         case .medications: return "pills.fill"
         case .heroScores: return "gauge.with.dots.needle.67percent"
@@ -42,6 +44,7 @@ enum DailyWidgetSection: String, Codable, CaseIterable, Identifiable {
         case .wellnessCheckIn: return .pink
         case .painTracking: return .orange
         case .waterIntake: return .cyan
+        case .workouts: return .green
         case .completedHabits: return .cyan
         case .medications: return .green
         case .heroScores: return .purple
@@ -108,6 +111,19 @@ class WidgetOrderManager: ObservableObject {
                 needsSave = true
             }
 
+            // Migrate: add workouts if not present
+            if !updatedOrder.contains(.workouts) {
+                // Insert workouts after water intake
+                if let waterIndex = updatedOrder.firstIndex(of: .waterIntake) {
+                    updatedOrder.insert(.workouts, at: waterIndex + 1)
+                } else if let painIndex = updatedOrder.firstIndex(of: .painTracking) {
+                    updatedOrder.insert(.workouts, at: painIndex + 1)
+                } else {
+                    updatedOrder.insert(.workouts, at: min(3, updatedOrder.count))
+                }
+                needsSave = true
+            }
+
             widgetOrder = updatedOrder
             if needsSave {
                 saveOrder()
@@ -118,6 +134,7 @@ class WidgetOrderManager: ObservableObject {
                 .wellnessCheckIn,
                 .painTracking,
                 .waterIntake,
+                .workouts,
                 .largeSteps,
                 .largeHeartRate,
                 .exertion,
@@ -146,6 +163,7 @@ class WidgetOrderManager: ObservableObject {
             .wellnessCheckIn,
             .painTracking,
             .waterIntake,
+            .workouts,
             .largeSteps,
             .largeHeartRate,
             .exertion,

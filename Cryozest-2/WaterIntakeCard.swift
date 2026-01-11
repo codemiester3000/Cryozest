@@ -2,7 +2,7 @@
 //  WaterIntakeCard.swift
 //  Cryozest-2
 //
-//  Water intake tracking widget with unique glass fill visualization
+//  Clean, minimal water intake tracking widget
 //
 
 import SwiftUI
@@ -13,7 +13,8 @@ struct WaterIntakeCard: View {
 
     @State private var totalCups: Int = 0
     @State private var animateAdd = false
-    @State private var waveOffset: CGFloat = 0
+    @State private var isPressed = false
+    @State private var animateProgress = false
 
     private let dailyGoal = WaterIntake.defaultDailyGoal // 8 cups
 
@@ -21,19 +22,8 @@ struct WaterIntakeCard: View {
         Double(totalCups) / Double(dailyGoal)
     }
 
-    private var progressColor: Color {
-        if progress >= 1.0 {
-            return Color(red: 0.0, green: 0.8, blue: 0.9) // Bright cyan
-        } else if progress >= 0.75 {
-            return Color(red: 0.2, green: 0.7, blue: 0.9)
-        } else if progress >= 0.5 {
-            return Color(red: 0.3, green: 0.6, blue: 0.85)
-        } else if progress >= 0.25 {
-            return Color(red: 0.4, green: 0.5, blue: 0.8)
-        } else {
-            return Color(red: 0.5, green: 0.6, blue: 0.9)
-        }
-    }
+    // Consistent blue color
+    private let accentColor = Color(red: 0.3, green: 0.6, blue: 0.95)
 
     private var statusText: String {
         let status = WaterIntake.hydrationStatus(cups: totalCups, goal: dailyGoal)
@@ -41,147 +31,222 @@ struct WaterIntakeCard: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Water glass visualization
-            WaterGlassView(
-                progress: progress,
-                progressColor: progressColor,
-                animateAdd: animateAdd,
-                waveOffset: waveOffset
-            )
-            .frame(width: 48, height: 64)
+        VStack(alignment: .leading, spacing: 16) {
+            // Header row
+            HStack(alignment: .center) {
+                // Icon with glow
+                ZStack {
+                    if progress >= 0.5 {
+                        Circle()
+                            .fill(accentColor.opacity(0.25))
+                            .frame(width: 44, height: 44)
+                            .blur(radius: 6)
+                    }
 
-            // Content
-            VStack(alignment: .leading, spacing: 10) {
-                // Header row
-                HStack {
-                    Text("Hydration")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-
-                    Spacer()
-
-                    // Status badge
-                    if progress >= 1.0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 9, weight: .bold))
-                            Text("Done")
-                                .font(.system(size: 10, weight: .bold))
-                        }
-                        .foregroundColor(.cyan)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.cyan.opacity(0.15))
-                                .overlay(
-                                    Capsule()
-                                        .stroke(Color.cyan.opacity(0.3), lineWidth: 1)
-                                )
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [accentColor.opacity(0.25), accentColor.opacity(0.15)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                        .fixedSize()
+                        .frame(width: 40, height: 40)
+                        .overlay(
+                            Circle()
+                                .stroke(accentColor.opacity(0.3), lineWidth: 1)
+                        )
+
+                    Image(systemName: "drop.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(accentColor)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Hydration")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(totalCups)")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+
+                        Text("/ \(dailyGoal) cups")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
                     }
                 }
 
-                // Large cup count
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(totalCups)")
-                        .font(.system(size: 36, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                Spacer()
 
-                    Text("/ \(dailyGoal) cups")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white.opacity(0.5))
-                }
-
-                // Info row
-                HStack(spacing: 12) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "drop.fill")
-                            .font(.system(size: 10))
-                            .foregroundColor(progressColor.opacity(0.8))
-                        Text("\(WaterIntake.cupsToOunces(totalCups)) oz")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
+                // Action buttons
+                HStack(spacing: 8) {
+                    // Remove button
+                    if totalCups > 0 {
+                        Button(action: removeCup) {
+                            Image(systemName: "minus")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white.opacity(0.6))
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    Circle()
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                        )
+                                )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .transition(.scale.combined(with: .opacity))
                     }
 
-                    Text("•")
-                        .foregroundColor(.white.opacity(0.3))
+                    // Add button with glow
+                    Button(action: addCup) {
+                        ZStack {
+                            Circle()
+                                .fill(accentColor.opacity(0.3))
+                                .frame(width: 52, height: 52)
+                                .blur(radius: 6)
 
-                    Text(statusText)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(progressColor)
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [accentColor, accentColor.opacity(0.8)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(animateAdd ? 0.88 : 1.0)
+                    .shadow(color: accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
                 }
             }
 
-            Spacer()
+            // Progress bar with glow
+            VStack(alignment: .leading, spacing: 8) {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(height: 10)
 
-            // Action buttons
-            VStack(spacing: 10) {
-                // Add button
-                Button(action: addCup) {
-                    ZStack {
-                        Circle()
+                        // Glow layer
+                        RoundedRectangle(cornerRadius: 5)
                             .fill(
                                 LinearGradient(
-                                    colors: [
-                                        Color(red: 0.2, green: 0.6, blue: 0.9),
-                                        Color(red: 0.1, green: 0.4, blue: 0.8)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                    colors: [accentColor.opacity(0.8), accentColor],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
                                 )
                             )
-                            .frame(width: 48, height: 48)
-                            .shadow(color: Color.blue.opacity(0.4), radius: 6, y: 3)
+                            .frame(width: animateProgress ? geometry.size.width * min(progress, 1.0) : 0, height: 10)
+                            .blur(radius: 4)
+                            .opacity(0.5)
 
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-                .buttonStyle(PlainButtonStyle())
-                .scaleEffect(animateAdd ? 0.9 : 1.0)
-
-                // Remove button
-                if totalCups > 0 {
-                    Button(action: removeCup) {
-                        Image(systemName: "minus")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.white.opacity(0.6))
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(Color.white.opacity(0.08))
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        // Main bar
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(
+                                LinearGradient(
+                                    colors: [accentColor.opacity(0.9), accentColor],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: animateProgress ? geometry.size.width * min(progress, 1.0) : 0, height: 10)
+                            .overlay(
+                                // Shine effect
+                                RoundedRectangle(cornerRadius: 5)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.white.opacity(0.3), Color.clear],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                                    .frame(height: 5)
+                                    .offset(y: -2.5)
+                                    .mask(
+                                        RoundedRectangle(cornerRadius: 5)
+                                            .frame(width: animateProgress ? geometry.size.width * min(progress, 1.0) : 0, height: 10)
                                     )
                             )
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .transition(.scale.combined(with: .opacity))
+                }
+                .frame(height: 10)
+
+                // Info row
+                HStack(spacing: 16) {
+                    HStack(spacing: 4) {
+                        Text("\(WaterIntake.cupsToOunces(totalCups)) oz")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    if progress >= 1.0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 11, weight: .bold))
+                            Text("Goal reached!")
+                                .font(.system(size: 12, weight: .semibold))
+                        }
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.4))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule()
+                                .fill(Color(red: 0.2, green: 0.8, blue: 0.4).opacity(0.15))
+                        )
+                    } else {
+                        Text(statusText)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+
+                    Spacer()
                 }
             }
         }
         .padding(20)
-        .modernWidgetCard(style: .activity)
+        .feedWidgetStyle(style: .activity)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
         .onAppear {
             loadData()
-            // Start wave animation
-            withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                waveOffset = .pi * 2
+            withAnimation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.2)) {
+                animateProgress = true
             }
         }
         .onChange(of: selectedDate) { _ in
+            animateProgress = false
             loadData()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                    animateProgress = true
+                }
+            }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: totalCups)
     }
 
     private func loadData() {
-        totalCups = WaterIntake.getTotalCups(for: selectedDate, context: viewContext)
+        if MockDataHelper.useMockData {
+            totalCups = MockDataHelper.mockWaterCups
+        } else {
+            totalCups = WaterIntake.getTotalCups(for: selectedDate, context: viewContext)
+        }
     }
 
     private func addCup() {

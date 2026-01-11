@@ -13,28 +13,14 @@ struct CompletedHabitsCard: View {
     @Binding var selectedDate: Date
 
     @State private var completedHabits: [TherapySessionEntity] = []
-    @State private var checkGlow: CGFloat = 0
 
     var body: some View {
         if !completedHabits.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    ZStack {
-                        // Subtle success glow
-                        Circle()
-                            .fill(Color.green.opacity(0.2 + checkGlow * 0.15))
-                            .frame(width: 22 + checkGlow * 4, height: 22 + checkGlow * 4)
-                            .blur(radius: 4)
-
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.green)
-                    }
-                    .onAppear {
-                        withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
-                            checkGlow = 1.0
-                        }
-                    }
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.green)
 
                     Text("Completed Today")
                         .font(.system(size: 14, weight: .medium))
@@ -82,7 +68,7 @@ struct CompletedHabitsCard: View {
                 }
             }
             .padding(18)
-            .modernWidgetCard(style: .success)
+            .feedWidgetStyle(style: .success)
             .transition(.opacity.combined(with: .move(edge: .top)))
             .onAppear {
                 loadCompletedHabits()
@@ -178,10 +164,6 @@ struct CompletedHabitItem: View {
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.white.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.green.opacity(0.2), lineWidth: 1)
-                )
         )
     }
 }

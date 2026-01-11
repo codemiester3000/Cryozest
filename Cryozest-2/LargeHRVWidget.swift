@@ -14,7 +14,6 @@ struct LargeHRVWidget: View {
 
     @State private var weeklyData: [DataPoint] = []
     @State private var isLoadingChart = true
-    @State private var pulseAnimation: CGFloat = 0
 
     private var currentHRV: Int {
         model.lastKnownHRV
@@ -61,9 +60,6 @@ struct LargeHRVWidget: View {
         }
         .onAppear {
             loadWeeklyData()
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                pulseAnimation = 1.0
-            }
         }
     }
 
@@ -133,16 +129,10 @@ struct LargeHRVWidget: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.white.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(trendColor.opacity(0.2), lineWidth: 1)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
         .contentShape(Rectangle())
@@ -247,20 +237,14 @@ struct LargeHRVWidget: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.12), Color.white.opacity(0.06)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.06))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(trendColor.opacity(0.3), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
-        .shadow(color: trendColor.opacity(0.2), radius: 16, y: 8)
+        .shadow(color: Color.black.opacity(0.2), radius: 8, y: 4)
     }
 
     private func statCard(title: String, value: Int, color: Color) -> some View {

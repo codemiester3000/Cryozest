@@ -18,8 +18,6 @@ struct WellnessCheckInCard: View {
     @State private var selectedRating: Int?
     @State private var showFeedback = false
     @State private var isExpanded = false
-    @State private var iconGlow: CGFloat = 0
-
     var body: some View {
         Group {
             if todayRatings.isEmpty || isAddingNew {
@@ -47,38 +45,17 @@ struct WellnessCheckInCard: View {
     // MARK: - Full Picker View (for adding new entry)
 
     private var fullPickerView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // Header with icon
             HStack(spacing: 12) {
-                ZStack {
-                    // Subtle glow ring
-                    Circle()
-                        .fill(Color.cyan.opacity(0.15 + iconGlow * 0.1))
-                        .frame(width: 40 + iconGlow * 4, height: 40 + iconGlow * 4)
-                        .blur(radius: 4)
-
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.cyan.opacity(0.3),
-                                    Color.purple.opacity(0.2)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 40, height: 40)
-
-                    Image(systemName: "face.smiling")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.cyan)
-                }
-                .onAppear {
-                    withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
-                        iconGlow = 1.0
-                    }
-                }
+                Image(systemName: "face.smiling")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.cyan)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        Circle()
+                            .fill(Color.cyan.opacity(0.15))
+                    )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("How are you feeling?")
@@ -109,55 +86,28 @@ struct WellnessCheckInCard: View {
             }
 
             // Mood rating buttons with emojis
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 ForEach(1...5, id: \.self) { rating in
                     Button(action: {
                         selectRating(rating)
                     }) {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 4) {
                             Text(moodEmoji(for: rating))
-                                .font(.system(size: 28))
+                                .font(.system(size: 20))
 
                             Text(moodLabel(for: rating))
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.system(size: 9, weight: .semibold))
                                 .foregroundColor(selectedRating == rating ? .white : moodColor(for: rating))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 8)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(
-                                    selectedRating == rating
-                                        ? LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                moodColor(for: rating),
-                                                moodColor(for: rating).opacity(0.8)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                        : LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                moodColor(for: rating).opacity(0.15),
-                                                moodColor(for: rating).opacity(0.08)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(
-                                            selectedRating == rating
-                                                ? moodColor(for: rating).opacity(0.6)
-                                                : moodColor(for: rating).opacity(0.3),
-                                            lineWidth: selectedRating == rating ? 2 : 1
-                                        )
-                                )
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(selectedRating == rating ? moodColor(for: rating) : Color.white.opacity(0.06))
                         )
-                        .scaleEffect(selectedRating == rating ? 1.05 : 1.0)
+                        .scaleEffect(selectedRating == rating ? 1.02 : 1.0)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -177,8 +127,8 @@ struct WellnessCheckInCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(20)
-        .modernWidgetCard(style: .hero)
+        .padding(16)
+        .feedWidgetStyle(style: .hero)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: showFeedback)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedRating)
     }
@@ -289,7 +239,7 @@ struct WellnessCheckInCard: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .modernWidgetCard(style: .hero)
+        .feedWidgetStyle(style: .hero)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
     }
 

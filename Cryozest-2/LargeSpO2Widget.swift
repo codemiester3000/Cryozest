@@ -12,8 +12,6 @@ struct LargeSpO2Widget: View {
     @Binding var expandedMetric: MetricType?
     var namespace: Namespace.ID
 
-    @State private var pulseAnimation: CGFloat = 0
-
     private var spo2Decimal: Double {
         model.mostRecentSPO2 ?? 0
     }
@@ -48,11 +46,6 @@ struct LargeSpO2Widget: View {
                 expandedView
             } else {
                 collapsedView
-            }
-        }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
-                pulseAnimation = 1.0
             }
         }
     }
@@ -117,16 +110,10 @@ struct LargeSpO2Widget: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.white.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(statusColor.opacity(0.2), lineWidth: 1)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
         .contentShape(Rectangle())
@@ -211,20 +198,14 @@ struct LargeSpO2Widget: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.12), Color.white.opacity(0.06)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.06))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(statusColor.opacity(0.3), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
-        .shadow(color: statusColor.opacity(0.2), radius: 16, y: 8)
+        .shadow(color: Color.black.opacity(0.2), radius: 8, y: 4)
     }
 
     private var oxygenVisualization: some View {
