@@ -12,7 +12,7 @@ struct LargeStepsWidget: View {
     @ObservedObject var goalManager = StepGoalManager.shared
     @Binding var expandedMetric: MetricType?
     var namespace: Namespace.ID
-    var selectedDate: Date
+    @Binding var selectedDate: Date
 
     @State private var showGoalConfig = false
     @State private var animateProgress = false

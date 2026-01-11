@@ -288,7 +288,7 @@ struct DailyView: View {
                     model: recoveryModel,
                     expandedMetric: $expandedMetric,
                     namespace: metricAnimation,
-                    selectedDate: selectedDate
+                    selectedDate: $selectedDate
                 )
                 .modifier(ReorderableWidgetModifier(
                     section: section,
@@ -775,7 +775,7 @@ struct DailyGridMetrics: View {
                             model: model,
                             expandedMetric: $expandedMetric,
                             namespace: animation,
-                            selectedDate: selectedDate
+                            selectedDate: $selectedDate
                         )
                     }
 
