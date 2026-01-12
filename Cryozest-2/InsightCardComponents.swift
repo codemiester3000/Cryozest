@@ -345,19 +345,12 @@ struct HealthTrendCard: View {
     let trend: HealthTrend
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Accent bar on left
-            Rectangle()
-                .fill(trend.color)
-                .frame(width: 3)
-                .padding(.trailing, 14)
-
-            HStack(spacing: 14) {
-                // Metric icon - smaller, more subtle
-                Image(systemName: trend.icon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(trend.color)
-                    .frame(width: 32)
+        HStack(spacing: 14) {
+            // Metric icon - smaller, more subtle
+            Image(systemName: trend.icon)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(trend.color)
+                .frame(width: 32)
 
                 // Content
                 VStack(alignment: .leading, spacing: 4) {
@@ -399,7 +392,6 @@ struct HealthTrendCard: View {
             }
         }
         .padding(.vertical, 12)
-        }
     }
 
     private func formatValueWithUnit(_ value: Double, metric: String) -> String {
