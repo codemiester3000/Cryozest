@@ -170,6 +170,7 @@ struct InsightsView: View {
                             color: .orange
                         )
                         .padding(.horizontal, 20)
+                        .padding(.bottom, 4)
 
                         if viewModel.topHabitImpacts.isEmpty {
                             InsightsEmptyStateCard(
