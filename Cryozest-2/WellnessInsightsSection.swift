@@ -63,11 +63,6 @@ struct WellnessInsightsSection: View {
                 if trendData.count >= 3 {
                     wellnessTrendChart
                         .padding(.horizontal)
-
-                    // Weekly Mood Scores (underneath heatmap)
-                    WeeklyMoodScoresView(ratings: ratings)
-                        .padding(.horizontal)
-                        .padding(.top, 4)
                 }
 
                 // Habit Impact
@@ -230,10 +225,6 @@ struct WellnessInsightsSection: View {
 
     private var wellnessTrendChart: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("30-Day Mood Heatmap")
-                .font(.system(size: 15, weight: .medium))
-                .foregroundColor(.white.opacity(0.7))
-
             // Heatmap
             MoodHeatmap(ratings: ratings)
 
@@ -410,7 +401,7 @@ struct MoodHeatmap: View {
         case 4: return Color(red: 0.6, green: 0.9, blue: 0.3) // Yellow-green
         case 3: return Color.yellow                           // Neutral
         case 2: return Color.orange                           // Orange-red
-        case 1: return Color.red                              // Worst
+        case 1: return Color(red: 0.9, green: 0.4, blue: 0.4) // Softer red for worst
         default: return Color.white.opacity(0.1)
         }
     }
@@ -435,19 +426,6 @@ struct MoodHeatmap: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // Date range header
-            HStack {
-                Image(systemName: "calendar")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.6))
-
-                Text(dateRangeText)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.8))
-
-                Spacer()
-            }
-
             // Heatmap grid - organized by month
             VStack(spacing: 4) {
                 ForEach(Array(datesByMonth.enumerated()), id: \.offset) { monthIndex, monthGroup in
@@ -547,7 +525,7 @@ struct MoodLegendItem: View {
         case 4: return Color(red: 0.6, green: 0.9, blue: 0.3) // Yellow-green
         case 3: return .yellow                           // Neutral
         case 2: return .orange                           // Orange-red
-        case 1: return .red                              // Worst
+        case 1: return Color(red: 0.9, green: 0.4, blue: 0.4) // Softer red for worst
         default: return .white.opacity(0.1)
         }
     }
