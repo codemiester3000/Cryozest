@@ -141,18 +141,10 @@ struct InsightsView: View {
                         )
                         .padding(.horizontal, 20)
 
-                        VStack(spacing: 0) {
+                        VStack(spacing: 16) {
                             ForEach(viewModel.healthTrends) { trend in
                                 HealthTrendCard(trend: trend)
                                     .padding(.horizontal, 20)
-
-                                if trend.id != viewModel.healthTrends.last?.id {
-                                    Rectangle()
-                                        .fill(Color.white.opacity(0.04))
-                                        .frame(height: 1)
-                                        .padding(.leading, 80)
-                                        .padding(.trailing, 20)
-                                }
                             }
                         }
                     }
@@ -170,7 +162,7 @@ struct InsightsView: View {
                             color: .orange
                         )
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 4)
+                        .padding(.bottom, 12)
 
                         if viewModel.topHabitImpacts.isEmpty {
                             InsightsEmptyStateCard(

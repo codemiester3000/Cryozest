@@ -145,46 +145,34 @@ struct HabitsView: View {
                         .padding(.bottom, 24)
 
                     // Main content
-                    VStack(spacing: 20) {
-                        // Date Selector
-                        dateSelector
+                    VStack(spacing: 24) {
+                        // Hero Stats Section - Consolidated
+                        heroStatsSection
                             .padding(.horizontal, 20)
 
-                        // Prominent Log Entry Button (only for today)
+                        // Prominent Log Entry Button
                         if isViewingToday {
                             logEntryButton
                                 .padding(.horizontal, 20)
                         }
 
-                        // Selected Day Sessions List
+                        // Date Selector (only when viewing past days)
+                        if !isViewingToday {
+                            dateSelector
+                                .padding(.horizontal, 20)
+                        }
+
+                        // Today's Sessions
                         if !selectedDaySessions.isEmpty {
-                            selectedDaySessionsList
+                            todaySessionsSection
                                 .padding(.horizontal, 20)
                         } else if !isViewingToday {
                             emptyDayView
                                 .padding(.horizontal, 20)
                         }
 
-                        // Recent Sessions History
-                        if isViewingToday && !recentSessions.isEmpty {
-                            recentSessionsSection
-                                .padding(.horizontal, 20)
-                        }
-
-                        // Streak & Stats Hero
-                        streakHeroSection
-                            .padding(.horizontal, 20)
-
-                        // Weekly Progress Ring
-                        weeklyProgressSection
-                            .padding(.horizontal, 20)
-
-                        // Calendar
-                        calendarSection
-                            .padding(.horizontal, 20)
-
-                        // Statistics
-                        statisticsSection
+                        // Weekly Activity Overview
+                        weeklyActivitySection
                             .padding(.horizontal, 20)
                     }
                     .padding(.bottom, 120)
@@ -299,86 +287,38 @@ struct HabitsView: View {
     private var logEntryButton: some View {
         Button(action: { logNewSession() }) {
             HStack(spacing: 16) {
-                // Animated icon
+                // Clean icon
                 ZStack {
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    therapyTypeSelection.selectedTherapyType.color,
-                                    therapyTypeSelection.selectedTherapyType.color.opacity(0.7)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: therapyTypeSelection.selectedTherapyType.color.opacity(0.4), radius: 12, x: 0, y: 4)
+                        .fill(therapyTypeSelection.selectedTherapyType.color)
+                        .frame(width: 50, height: 50)
 
                     Image(systemName: "plus")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 22, weight: .bold))
                         .foregroundColor(.white)
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Log Session")
-                        .font(.system(size: 19, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
 
-                    HStack(spacing: 6) {
-                        Image(systemName: therapyTypeSelection.selectedTherapyType.icon)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-
-                        Text(therapyTypeSelection.selectedTherapyType.displayName(viewContext))
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.7))
-
-                        if selectedDaySessions.count > 0 {
-                            Text("•")
-                                .foregroundColor(.white.opacity(0.3))
-                            Text("\(selectedDaySessions.count) today")
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
-                        }
-                    }
+                    Text(therapyTypeSelection.selectedTherapyType.displayName(viewContext))
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
                 }
 
                 Spacer()
-
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
             }
-            .padding(20)
+            .padding(18)
             .background(
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.12),
-                                Color.white.opacity(0.06)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.08))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 18)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        therapyTypeSelection.selectedTherapyType.color.opacity(0.4),
-                                        Color.clear
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1.5
-                            )
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.3), lineWidth: 1)
                     )
             )
-            .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
         }
         .buttonStyle(PressableButtonStyle())
     }
@@ -466,6 +406,177 @@ struct HabitsView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Hero Stats Section (Clean & Consolidated)
+
+    private var heroStatsSection: some View {
+        HStack(spacing: 12) {
+            // Current Streak - Primary focus
+            VStack(alignment: .leading, spacing: 8) {
+                Text("CURRENT STREAK")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.white.opacity(0.5))
+                    .tracking(0.5)
+
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(currentStreak)")
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+
+                    Text("days")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.5))
+                        .padding(.bottom, 6)
+                }
+
+                if currentStreak > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.orange)
+
+                        Text(streakMessage)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.orange)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                therapyTypeSelection.selectedTherapyType.color.opacity(0.15),
+                                therapyTypeSelection.selectedTherapyType.color.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(therapyTypeSelection.selectedTherapyType.color.opacity(0.3), lineWidth: 1)
+                    )
+            )
+
+            // Quick stats column
+            VStack(spacing: 12) {
+                QuickStatCard(
+                    value: "\(selectedDaySessions.count)",
+                    label: "Today",
+                    color: therapyTypeSelection.selectedTherapyType.color
+                )
+
+                QuickStatCard(
+                    value: "\(weekCompletions)",
+                    label: "Week",
+                    color: .cyan
+                )
+
+                QuickStatCard(
+                    value: "\(longestStreak)",
+                    label: "Best",
+                    color: .yellow
+                )
+            }
+        }
+    }
+
+    // MARK: - Today Sessions Section (Cleaner)
+
+    private var todaySessionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("TODAY'S SESSIONS")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white.opacity(0.5))
+                    .tracking(0.5)
+
+                Spacer()
+
+                Text("\(selectedDaySessions.count)")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(therapyTypeSelection.selectedTherapyType.color)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(therapyTypeSelection.selectedTherapyType.color.opacity(0.15))
+                    )
+            }
+
+            VStack(spacing: 10) {
+                ForEach(Array(selectedDaySessions.enumerated()), id: \.element.id) { index, session in
+                    HabitSessionRow(
+                        session: session,
+                        index: index + 1,
+                        color: therapyTypeSelection.selectedTherapyType.color,
+                        onDelete: { deleteSession(session) }
+                    )
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.05))
+        )
+    }
+
+    // MARK: - Weekly Activity Section (Simplified)
+
+    private var weeklyActivitySection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("THIS WEEK")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.white.opacity(0.5))
+                .tracking(0.5)
+
+            HStack(spacing: 6) {
+                ForEach(0..<7, id: \.self) { dayOffset in
+                    let date = Calendar.current.date(byAdding: .day, value: dayOffset - (Calendar.current.component(.weekday, from: Date()) - 1), to: Date())!
+                    let daySessionCount = sessionDates.filter { Calendar.current.isDate($0, inSameDayAs: date) }.count
+                    let isToday = Calendar.current.isDateInToday(date)
+                    let isFuture = date > Date()
+                    let dayLetter = dayLetter(for: date)
+
+                    VStack(spacing: 8) {
+                        Text(dayLetter)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(isToday ? therapyTypeSelection.selectedTherapyType.color : .white.opacity(0.4))
+
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(daySessionCount > 0 ?
+                                      therapyTypeSelection.selectedTherapyType.color :
+                                      (isFuture ? Color.clear : Color.white.opacity(0.06)))
+                                .frame(height: 44)
+
+                            if daySessionCount > 0 {
+                                Text("\(daySessionCount)")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+
+                            if isToday {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(therapyTypeSelection.selectedTherapyType.color, lineWidth: 2)
+                                    .frame(height: 44)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.05))
+        )
     }
 
     // MARK: - Streak Hero Section
@@ -1306,5 +1417,37 @@ struct StatRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
+    }
+}
+
+// MARK: - Quick Stat Card Component
+
+struct QuickStatCard: View {
+    let value: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+
+            Text(label)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundColor(.white.opacity(0.5))
+                .textCase(.uppercase)
+                .tracking(0.5)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 68)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
 }
