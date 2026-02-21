@@ -80,6 +80,43 @@ struct HabitImpact: Identifiable {
     }
 }
 
+struct DataCollectionProgress: Identifiable {
+    let id = UUID()
+    let habitType: TherapyType
+    let therapyDayCount: Int
+    let nonTherapyDayCount: Int
+    let minimumRequired: Int
+
+    var therapyProgress: Double {
+        min(Double(therapyDayCount) / Double(minimumRequired), 1.0)
+    }
+
+    var nonTherapyProgress: Double {
+        min(Double(nonTherapyDayCount) / Double(minimumRequired), 1.0)
+    }
+
+    var overallProgress: Double {
+        min((therapyProgress + nonTherapyProgress) / 2.0, 1.0)
+    }
+
+    var hasEnoughData: Bool {
+        therapyDayCount >= minimumRequired && nonTherapyDayCount >= minimumRequired
+    }
+
+    var sessionsNeeded: Int {
+        max(0, minimumRequired - therapyDayCount)
+    }
+
+    var progressDescription: String {
+        if hasEnoughData { return "Insights available" }
+        let needed = sessionsNeeded
+        if needed > 0 {
+            return "\(therapyDayCount)/\(minimumRequired) sessions \u{2014} track \(needed) more to unlock insights"
+        }
+        return "Collecting baseline data..."
+    }
+}
+
 struct MetricCorrelation: Identifiable {
     let id = UUID()
     let habitType: TherapyType
@@ -128,6 +165,8 @@ class InsightsViewModel: ObservableObject {
     @Published var waterImpacts: [HabitImpact] = []
     @Published var healthTrends: [HealthTrend] = []
     @Published var habitAttributions: [HabitAttribution] = []
+    @Published var habitImpactsByType: [TherapyType: [HabitImpact]] = [:]
+    @Published var dataCollectionProgress: [TherapyType: DataCollectionProgress] = [:]
     @Published var isLoading: Bool = true
 
     // Statistical configuration
@@ -135,8 +174,8 @@ class InsightsViewModel: ObservableObject {
 
     private let healthKitManager = HealthKitManager.shared
     private let statsUtility = StatisticsUtility.shared
-    private var sessions: FetchedResults<TherapySessionEntity>
-    private var selectedTherapyTypes: [TherapyType]
+    private(set) var sessions: FetchedResults<TherapySessionEntity>
+    private(set) var selectedTherapyTypes: [TherapyType]
     private var viewContext: NSManagedObjectContext?
 
     init(sessions: FetchedResults<TherapySessionEntity>, selectedTherapyTypes: [TherapyType], viewContext: NSManagedObjectContext? = nil) {
@@ -172,6 +211,9 @@ class InsightsViewModel: ObservableObject {
         // Combine manually selected types with recorded workout types
         let recordedWorkouts = getRecordedWorkoutTypes()
         let allTherapyTypes = Array(Set(selectedTherapyTypes + recordedWorkouts))
+
+        // Compute data collection progress for all habits
+        computeDataCollectionProgress(for: allTherapyTypes)
 
         print("🔍 InsightsViewModel: Starting to fetch impacts for \(allTherapyTypes.count) therapy types")
         print("🔍 InsightsViewModel: Selected types: \(selectedTherapyTypes.map { $0.rawValue })")
@@ -252,9 +294,39 @@ class InsightsViewModel: ObservableObject {
             self.painImpacts = allImpacts.filter { $0.metricName == "Pain Level" }
             self.waterImpacts = allImpacts.filter { $0.metricName == "Hydration" }
 
+            // Group impacts by habit type for the My Habits tab
+            var byType: [TherapyType: [HabitImpact]] = [:]
+            for impact in allImpacts {
+                byType[impact.habitType, default: []].append(impact)
+            }
+            self.habitImpactsByType = byType
+
             print("🔍 InsightsViewModel: Setting isLoading = false")
             self.isLoading = false
         }
+    }
+
+    private func computeDataCollectionProgress(for therapyTypes: [TherapyType]) {
+        var progress: [TherapyType: DataCollectionProgress] = [:]
+        let minRequired = 5
+
+        for therapyType in therapyTypes {
+            let therapyDates = DateUtils.shared.completedSessionDates(
+                sessions: sessions, therapyType: therapyType
+            )
+            let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(
+                sessions: sessions, therapyType: therapyType, timeFrame: .allTime
+            )
+
+            progress[therapyType] = DataCollectionProgress(
+                habitType: therapyType,
+                therapyDayCount: therapyDates.count,
+                nonTherapyDayCount: nonTherapyDates.count,
+                minimumRequired: minRequired
+            )
+        }
+
+        self.dataCollectionProgress = progress
     }
 
     private func fetchHealthTrends(completion: @escaping ([HealthTrend]) -> Void) {
@@ -520,9 +592,8 @@ class InsightsViewModel: ObservableObject {
         let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
 
-        // Increased minimum sample size for statistical validity
-        let minSample = Self.minimumSampleSize
-        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+        // Lowered threshold to show more habits (confidence labeling handles quality)
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
             completion(nil)
             return
         }
@@ -609,9 +680,8 @@ class InsightsViewModel: ObservableObject {
         let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
 
-        // Increased minimum sample size for statistical validity
-        let minSample = Self.minimumSampleSize
-        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+        // Lowered threshold to show more habits (confidence labeling handles quality)
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
             completion(nil)
             return
         }
@@ -696,9 +766,8 @@ class InsightsViewModel: ObservableObject {
         let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
 
-        // Increased minimum sample size for statistical validity
-        let minSample = Self.minimumSampleSize
-        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+        // Lowered threshold to show more habits (confidence labeling handles quality)
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
             completion(nil)
             return
         }
@@ -788,9 +857,8 @@ class InsightsViewModel: ObservableObject {
         let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
 
-        // Minimum sample size for statistical validity
-        let minSample = Self.minimumSampleSize
-        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+        // Lowered threshold to show more habits (confidence labeling handles quality)
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
             completion(nil)
             return
         }
@@ -870,9 +938,8 @@ class InsightsViewModel: ObservableObject {
         let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
         let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
 
-        // Minimum sample size for statistical validity
-        let minSample = Self.minimumSampleSize
-        guard therapyDates.count >= minSample / 2 && nonTherapyDates.count >= minSample / 2 else {
+        // Lowered threshold to show more habits (confidence labeling handles quality)
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
             completion(nil)
             return
         }

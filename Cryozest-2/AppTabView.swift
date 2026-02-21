@@ -14,30 +14,21 @@ struct AppTabView: View {
     )
     private var selectedTherapies: FetchedResults<SelectedTherapy>
 
-    @State private var sessions: [TherapySession] = []
-    @StateObject private var therapyTypeSelection: TherapyTypeSelection
+    @FetchRequest(
+        entity: TherapySessionEntity.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \TherapySessionEntity.date, ascending: false)]
+    )
+    private var sessions: FetchedResults<TherapySessionEntity>
 
+    @StateObject private var insightsViewModelWrapper = InsightsViewModelWrapper()
     @State private var selectedTab: Int = 0
 
-    init() {
-        // Create a temporary fetch request to get selected therapies for initialization
-        let request = SelectedTherapy.fetchRequest()
-        request.sortDescriptors = []
-
-        let context = PersistenceController.shared.container.viewContext
-        let results = (try? context.fetch(request)) ?? []
-
-        let therapyTypes: [TherapyType]
-        if results.isEmpty {
-            // Updated for App Store compliance - removed extreme temperature therapies
-            therapyTypes = [.running, .weightTraining, .cycling, .meditation]
+    private var selectedTherapyTypes: [TherapyType] {
+        if selectedTherapies.isEmpty {
+            return [.running, .weightTraining, .cycling, .meditation]
         } else {
-            therapyTypes = results.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
+            return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }
-
-        // Updated for App Store compliance
-        let initialTherapy = therapyTypes.first ?? .running
-        _therapyTypeSelection = StateObject(wrappedValue: TherapyTypeSelection(initialTherapyType: initialTherapy))
     }
 
     var body: some View {
@@ -50,11 +41,11 @@ struct AppTabView: View {
                     context: viewContext)
                     .tag(0)
 
-                HabitsView(therapyTypeSelection: therapyTypeSelection)
+                MyHabitsView(insightsViewModel: insightsViewModelWrapper.viewModel)
                     .environment(\.managedObjectContext, viewContext)
                     .tag(1)
 
-                InsightsView()
+                InsightsView(sharedInsightsViewModel: insightsViewModelWrapper.viewModel)
                     .environment(\.managedObjectContext, viewContext)
                     .tag(2)
             }
@@ -68,6 +59,15 @@ struct AppTabView: View {
         .onAppear {
             // Hide the default tab bar
             UITabBar.appearance().isHidden = true
+
+            // Initialize the shared insights ViewModel
+            if insightsViewModelWrapper.viewModel == nil {
+                insightsViewModelWrapper.viewModel = InsightsViewModel(
+                    sessions: sessions,
+                    selectedTherapyTypes: selectedTherapyTypes,
+                    viewContext: viewContext
+                )
+            }
         }
     }
 }
@@ -78,8 +78,8 @@ struct FloatingTabBar: View {
 
     private let tabs = [
         TabItem(icon: "moon.fill", title: "Daily", tag: 0),
-        TabItem(icon: "stopwatch.fill", title: "Habits", tag: 1),
-        TabItem(icon: "lightbulb.fill", title: "Insights", tag: 2)
+        TabItem(icon: "list.bullet.rectangle.portrait", title: "Habits", tag: 1),
+        TabItem(icon: "chart.line.uptrend.xyaxis", title: "Trends", tag: 2)
     ]
 
     var body: some View {

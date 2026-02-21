@@ -214,66 +214,41 @@ class MetricConfigurationManager: ObservableObject {
 // MARK: - Insights Configuration
 
 enum InsightSection: String, CaseIterable, Identifiable {
+    case healthTrends = "Health Trends"
+    case topPerformers = "Top Correlations"
     case wellnessTrends = "Wellness Trends"
     case medicationAdherence = "Medication Adherence"
-    case healthTrends = "Health Trends"
-    case topPerformers = "Top Performers"
-    case sleepImpact = "Sleep Impact"
-    case hrvImpact = "HRV Impact"
-    case rhrImpact = "Heart Rate Impact"
-    case painImpact = "Pain Impact"
-    case waterImpact = "Hydration Impact"
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
-        case .wellnessTrends: return "heart.fill"
-        case .medicationAdherence: return "pills.fill"
         case .healthTrends: return "chart.line.uptrend.xyaxis"
         case .topPerformers: return "trophy.fill"
-        case .sleepImpact: return "bed.double.fill"
-        case .hrvImpact: return "waveform.path.ecg"
-        case .rhrImpact: return "heart.fill"
-        case .painImpact: return "bolt.fill"
-        case .waterImpact: return "drop.fill"
+        case .wellnessTrends: return "heart.fill"
+        case .medicationAdherence: return "pills.fill"
         }
     }
 
     var color: Color {
         switch self {
-        case .wellnessTrends: return .pink
-        case .medicationAdherence: return .green
         case .healthTrends: return .cyan
         case .topPerformers: return .yellow
-        case .sleepImpact: return .purple
-        case .hrvImpact: return .green
-        case .rhrImpact: return .red
-        case .painImpact: return .orange
-        case .waterImpact: return .cyan
+        case .wellnessTrends: return .pink
+        case .medicationAdherence: return .green
         }
     }
 
     var description: String {
         switch self {
-        case .wellnessTrends:
-            return "Track your daily mood ratings and see week-over-week wellness changes"
-        case .medicationAdherence:
-            return "View your medication adherence patterns and streaks"
         case .healthTrends:
             return "See how your health metrics are changing this week"
         case .topPerformers:
             return "Discover which habits have the biggest positive impact on your metrics"
-        case .sleepImpact:
-            return "Understand how your habits affect your sleep duration"
-        case .hrvImpact:
-            return "See which habits improve your heart rate variability"
-        case .rhrImpact:
-            return "Learn which habits optimize your resting heart rate"
-        case .painImpact:
-            return "Discover which habits help reduce your pain levels"
-        case .waterImpact:
-            return "See which habits correlate with better hydration"
+        case .wellnessTrends:
+            return "Track your daily mood ratings and see week-over-week wellness changes"
+        case .medicationAdherence:
+            return "View your medication adherence patterns and streaks"
         }
     }
 }

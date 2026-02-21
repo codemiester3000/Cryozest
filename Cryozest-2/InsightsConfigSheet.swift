@@ -22,12 +22,12 @@ struct InsightsConfigSheet: View {
                     VStack(spacing: 24) {
                         // Header
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Customize Insights")
+                            Text("Customize Trends")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
 
-                            Text("Choose which insights you want to see")
+                            Text("Choose which trend sections you want to see")
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.7))
                         }

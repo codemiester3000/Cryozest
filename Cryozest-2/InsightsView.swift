@@ -30,6 +30,8 @@ struct InsightsView: View {
     )
     private var wellnessRatings: FetchedResults<WellnessRating>
 
+    // Shared ViewModel (passed from AppTabView) or local fallback
+    var sharedInsightsViewModel: InsightsViewModel?
     @StateObject private var viewModelWrapper = InsightsViewModelWrapper()
     @State private var showInfoSheet = false
     @State private var showConfigSheet = false
@@ -37,11 +39,14 @@ struct InsightsView: View {
 
     private var selectedTherapyTypes: [TherapyType] {
         if selectedTherapies.isEmpty {
-            // Updated for App Store compliance - removed extreme temperature therapies
             return [.running, .weightTraining, .cycling, .meditation]
         } else {
             return selectedTherapies.compactMap { TherapyType(rawValue: $0.therapyType ?? "") }
         }
+    }
+
+    private var activeViewModel: InsightsViewModel? {
+        sharedInsightsViewModel ?? viewModelWrapper.viewModel
     }
 
     var body: some View {
@@ -51,7 +56,7 @@ struct InsightsView: View {
                 Color(red: 0.06, green: 0.10, blue: 0.18)
                     .ignoresSafeArea()
 
-                if let viewModel = viewModelWrapper.viewModel {
+                if let viewModel = activeViewModel {
                     Group {
                         if viewModel.isLoading {
                             loadingView
@@ -66,8 +71,8 @@ struct InsightsView: View {
         }
         .navigationViewStyle(.stack)
         .onAppear {
-            // Initialize viewModel on appear with actual sessions
-            if viewModelWrapper.viewModel == nil {
+            // Only initialize local viewModel if no shared one was provided
+            if sharedInsightsViewModel == nil && viewModelWrapper.viewModel == nil {
                 viewModelWrapper.viewModel = InsightsViewModel(
                     sessions: sessions,
                     selectedTherapyTypes: selectedTherapyTypes,
@@ -85,7 +90,7 @@ struct InsightsView: View {
 
     private var loadingView: some View {
         VStack(spacing: 20) {
-            Text("Insights")
+            Text("Trends")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
@@ -105,7 +110,7 @@ struct InsightsView: View {
             VStack(spacing: 0) {
                 // Header - clean, minimal
                 HStack(alignment: .center) {
-                    Text("Insights")
+                    Text("Trends")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
@@ -167,7 +172,7 @@ struct InsightsView: View {
                         if viewModel.topHabitImpacts.isEmpty {
                             InsightsEmptyStateCard(
                                 title: "More Data Needed",
-                                message: "Track habits for at least 14 days to see statistically reliable associations.",
+                                message: "Track habits for at least 5 days to see correlations. Per-habit insights are on the My Habits tab.",
                                 icon: "chart.bar.fill"
                             )
                             .padding(.horizontal, 20)
@@ -201,161 +206,6 @@ struct InsightsView: View {
                 if insightsConfig.isEnabled(.medicationAdherence) {
                     MedicationAdherenceSection()
                         .environment(\.managedObjectContext, viewContext)
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // Sleep Association Section
-                if insightsConfig.isEnabled(.sleepImpact) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InsightsSectionHeader(
-                            title: "Sleep Associations",
-                            icon: "bed.double.fill",
-                            color: .purple
-                        )
-                        .padding(.horizontal, 20)
-
-                        if viewModel.sleepImpacts.isEmpty {
-                            InsightsEmptyStateCard(
-                                title: "More Data Needed",
-                                message: "Track habits for 14+ days with sleep data to see associations.",
-                                icon: "bed.double.fill"
-                            )
-                            .padding(.horizontal, 20)
-                        } else {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.sleepImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                    }
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // HRV Association Section
-                if insightsConfig.isEnabled(.hrvImpact) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InsightsSectionHeader(
-                            title: "HRV Associations",
-                            icon: "waveform.path.ecg",
-                            color: .green
-                        )
-                        .padding(.horizontal, 20)
-
-                        if viewModel.hrvImpacts.isEmpty {
-                            InsightsEmptyStateCard(
-                                title: "More Data Needed",
-                                message: "Track habits for 14+ days with HRV data (Apple Watch required).",
-                                icon: "applewatch"
-                            )
-                            .padding(.horizontal, 20)
-                        } else {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.hrvImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                    }
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // RHR Association Section
-                if insightsConfig.isEnabled(.rhrImpact) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InsightsSectionHeader(
-                            title: "Heart Rate Associations",
-                            icon: "heart.fill",
-                            color: .red
-                        )
-                        .padding(.horizontal, 20)
-
-                        if viewModel.rhrImpacts.isEmpty {
-                            InsightsEmptyStateCard(
-                                title: "More Data Needed",
-                                message: "Track habits for 14+ days with RHR data (Apple Watch required).",
-                                icon: "applewatch"
-                            )
-                            .padding(.horizontal, 20)
-                        } else {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.rhrImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                    }
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // Pain Association Section
-                if insightsConfig.isEnabled(.painImpact) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InsightsSectionHeader(
-                            title: "Pain Level Associations",
-                            icon: "bolt.fill",
-                            color: .orange
-                        )
-                        .padding(.horizontal, 20)
-
-                        if viewModel.painImpacts.isEmpty {
-                            InsightsEmptyStateCard(
-                                title: "More Data Needed",
-                                message: "Track your pain levels and habits for 14+ days to see associations.",
-                                icon: "bolt.fill"
-                            )
-                            .padding(.horizontal, 20)
-                        } else {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.painImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                    }
-
-                    InsightsDivider()
-                        .padding(.horizontal, 20)
-                }
-
-                // Water Intake Association Section
-                if insightsConfig.isEnabled(.waterImpact) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        InsightsSectionHeader(
-                            title: "Hydration Associations",
-                            icon: "drop.fill",
-                            color: .cyan
-                        )
-                        .padding(.horizontal, 20)
-
-                        if viewModel.waterImpacts.isEmpty {
-                            InsightsEmptyStateCard(
-                                title: "More Data Needed",
-                                message: "Track your water intake and habits for 14+ days to see associations.",
-                                icon: "drop.fill"
-                            )
-                            .padding(.horizontal, 20)
-                        } else {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.waterImpacts) { impact in
-                                    MetricImpactRow(impact: impact)
-                                        .padding(.horizontal, 20)
-                                }
-                            }
-                        }
-                    }
                 }
 
                 // Bottom spacer
@@ -408,7 +258,7 @@ struct InsightsInfoSheet: View {
             VStack(spacing: 0) {
                 // Header
                 HStack {
-                    Text("About Insights")
+                    Text("About Trends")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -461,12 +311,12 @@ struct InsightsInfoSheet: View {
                             description: "See which habits consistently improve your health metrics the most. Ranked by overall positive impact."
                         )
 
-                        // Metric Impacts
+                        // Per-Habit Insights
                         InfoSection(
-                            icon: "waveform.path.ecg",
+                            icon: "list.bullet.rectangle.portrait",
                             color: .green,
-                            title: "Metric Impacts",
-                            description: "Understand how each habit affects your HRV, sleep duration, and resting heart rate. Positive changes are highlighted in green."
+                            title: "Per-Habit Insights",
+                            description: "Detailed health impacts for each habit are shown on the My Habits tab. Tap any habit card to see how it affects your sleep, HRV, heart rate, and more."
                         )
                     }
                     .padding(.horizontal, 24)
