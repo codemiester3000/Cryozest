@@ -82,10 +82,11 @@ class ChatViewModel: ObservableObject {
                     conversationHistory: messages.dropLast().map { $0 }, // exclude the just-added user msg
                     healthContext: healthContext
                 )
-                let blocks = CoachResponseParser.parse(response, snapshot: healthSnapshot)
+                let (cleaned, followUps) = CoachResponseParser.extractFollowUps(response)
+                let blocks = CoachResponseParser.parse(cleaned, snapshot: healthSnapshot)
                 // Store plain text for conversation history so Gemini doesn't see widget markup
                 let plainText = CoachResponseParser.extractPlainText(from: blocks)
-                let aiMessage = ChatMessage(role: .model, content: plainText, blocks: blocks)
+                let aiMessage = ChatMessage(role: .model, content: plainText, blocks: blocks, followUpSuggestions: followUps)
                 messages.append(aiMessage)
             } catch {
                 errorMessage = (error as? ChatServiceError)?.errorDescription ?? error.localizedDescription
@@ -146,10 +147,14 @@ class ChatViewModel: ObservableObject {
             snap.recoveryScores = r.recoveryScores
             snap.weeklyAverage = r.weeklyAverage
 
-            snap.hrv = r.avgHrvDuringSleep
+            if let hrv = r.avgHrvDuringSleep, HealthDataValidator.isValidHRV(hrv) {
+                snap.hrv = hrv
+            }
             snap.hrvBaseline = r.avgHrvDuringSleep60Days
 
-            snap.rhr = r.mostRecentRestingHeartRate
+            if let rhr = r.mostRecentRestingHeartRate, HealthDataValidator.isValidRestingHR(rhr) {
+                snap.rhr = rhr
+            }
             snap.rhrBaseline = r.avgRestingHeartRate60Days
 
             snap.spo2 = r.mostRecentSPO2
@@ -161,11 +166,11 @@ class ChatViewModel: ObservableObject {
         }
 
         if let s = sleepModel {
-            snap.sleepDuration = s.totalTimeAsleep != "--" ? s.totalTimeAsleep : nil
+            snap.sleepDuration = HealthDataValidator.isValidDisplayString(s.totalTimeAsleep) ? s.totalTimeAsleep : nil
             snap.sleepScore = s.sleepScore > 0 ? Int(s.sleepScore) : nil
-            snap.deepSleep = s.totalDeepSleep != "--" ? s.totalDeepSleep : nil
-            snap.remSleep = s.totalRemSleep != "--" ? s.totalRemSleep : nil
-            snap.coreSleep = s.totalCoreSleep != "--" ? s.totalCoreSleep : nil
+            snap.deepSleep = HealthDataValidator.isValidDisplayString(s.totalDeepSleep) ? s.totalDeepSleep : nil
+            snap.remSleep = HealthDataValidator.isValidDisplayString(s.totalRemSleep) ? s.totalRemSleep : nil
+            snap.coreSleep = HealthDataValidator.isValidDisplayString(s.totalCoreSleep) ? s.totalCoreSleep : nil
             snap.restorativePercent = s.restorativeSleepPercentage > 0 ? Int(s.restorativeSleepPercentage) : nil
             if s.averageHeartRateDuringSleep > 0 { snap.sleepHeartRate = Int(s.averageHeartRateDuringSleep) }
             if s.averageWakingHeartRate > 0 { snap.wakingHeartRate = Int(s.averageWakingHeartRate) }

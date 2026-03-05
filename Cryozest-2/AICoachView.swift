@@ -73,7 +73,7 @@ struct CoachSheetView: View {
         }
 
         // Sleep-based
-        if let sleep = recoveryModel.previousNightSleepDuration, !sleep.isEmpty {
+        if let sleep = recoveryModel.previousNightSleepDuration, HealthDataValidator.isValidDisplayString(sleep) {
             if let hours = Double(sleep), hours < 7 {
                 questions.append(SuggestedQuestion(
                     text: "Only got \(sleep) hours of sleep — what's the damage?",
@@ -329,8 +329,47 @@ struct CoachSheetView: View {
                     .padding(.top, 4)
 
                     ForEach(chatViewModel.messages) { message in
-                        CoachChatBubble(message: message)
-                            .id(message.id)
+                        VStack(alignment: .leading, spacing: 8) {
+                            CoachChatBubble(message: message)
+
+                            // Follow-up chips on the last AI message
+                            if message.role == .model,
+                               !message.followUpSuggestions.isEmpty,
+                               message.id == chatViewModel.messages.last?.id {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 8) {
+                                        ForEach(message.followUpSuggestions, id: \.self) { suggestion in
+                                            Button {
+                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                chatViewModel.sendMessage(suggestion)
+                                            } label: {
+                                                Text(suggestion)
+                                                    .font(.system(size: 13, weight: .medium))
+                                                    .foregroundColor(.cyan)
+                                                    .padding(.horizontal, 14)
+                                                    .padding(.vertical, 8)
+                                                    .background(
+                                                        Capsule()
+                                                            .fill(Color.cyan.opacity(0.1))
+                                                            .overlay(
+                                                                Capsule()
+                                                                    .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+                                                            )
+                                                    )
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
+                                        }
+                                    }
+                                    .padding(.leading, 38)
+                                }
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                            }
+                        }
+                        .id(message.id)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                            removal: .opacity
+                        ))
                     }
 
                     if chatViewModel.isLoading {
@@ -481,8 +520,9 @@ struct CoachChatBubble: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 if let blocks = message.blocks, !blocks.isEmpty {
-                    ForEach(blocks) { block in
+                    ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
                         CoachBlockView(block: block)
+                            .modifier(StaggeredAppearance(index: index))
                     }
                 } else {
                     // Fallback to plain text
@@ -1074,10 +1114,30 @@ struct HeartZonesBlockView: View {
     }
 }
 
+// MARK: - Staggered Appearance Modifier
+
+struct StaggeredAppearance: ViewModifier {
+    let index: Int
+    @State private var appeared = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared ? 0 : 12)
+            .animation(
+                .spring(response: 0.5, dampingFraction: 0.8)
+                    .delay(Double(index) * 0.08),
+                value: appeared
+            )
+            .onAppear { appeared = true }
+    }
+}
+
 // MARK: - Typing Indicator
 
 struct CoachTypingIndicator: View {
     @State private var animating = false
+    @State private var shimmerOffset: CGFloat = -200
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -1114,10 +1174,25 @@ struct CoachTypingIndicator: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(Color.white.opacity(0.08), lineWidth: 1)
                     )
+                    .overlay(
+                        LinearGradient(
+                            colors: [.clear, .white.opacity(0.06), .clear],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        .frame(width: 80)
+                        .offset(x: shimmerOffset)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    )
             )
 
             Spacer(minLength: 50)
         }
-        .onAppear { animating = true }
+        .onAppear {
+            animating = true
+            withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                shimmerOffset = 200
+            }
+        }
     }
 }

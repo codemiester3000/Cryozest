@@ -638,6 +638,34 @@ struct CoachResponseParser {
         }.joined(separator: "\n")
     }
 
+    // MARK: - Follow-Up Extraction
+
+    static func extractFollowUps(_ response: String) -> (cleaned: String, followUps: [String]) {
+        var followUps: [String] = []
+        let pattern = #"\[FOLLOWUP:\s*(.+?)\]"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return (response, [])
+        }
+
+        let matches = regex.matches(in: response, range: NSRange(response.startIndex..., in: response))
+        for match in matches {
+            if let range = Range(match.range(at: 1), in: response) {
+                let text = String(response[range]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !text.isEmpty {
+                    followUps.append(text)
+                }
+            }
+        }
+
+        let cleaned = regex.stringByReplacingMatches(
+            in: response,
+            range: NSRange(response.startIndex..., in: response),
+            withTemplate: ""
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return (cleaned, Array(followUps.prefix(3)))
+    }
+
     // MARK: - Tip Extraction
 
     /// Splits a paragraph into (remaining text, extracted tips).

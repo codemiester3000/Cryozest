@@ -6,18 +6,20 @@ struct ChatMessage: Identifiable {
     let content: String
     let timestamp: Date
     let blocks: [CoachResponseBlock]?
+    let followUpSuggestions: [String]
 
     enum ChatRole: String {
         case user
         case model
     }
 
-    init(role: ChatRole, content: String, blocks: [CoachResponseBlock]? = nil) {
+    init(role: ChatRole, content: String, blocks: [CoachResponseBlock]? = nil, followUpSuggestions: [String] = []) {
         self.id = UUID()
         self.role = role
         self.content = content
         self.timestamp = Date()
         self.blocks = blocks
+        self.followUpSuggestions = followUpSuggestions
     }
 }
 

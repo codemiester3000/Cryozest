@@ -58,7 +58,8 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentSteps: Double? = nil
     @Published var mostRecentVO2Max: Double? = nil
     @Published var averageDailyRHR: Int?
-    
+    @Published var dailyRHR: [(day: String, bpm: Int)] = []
+
     private var dailySleepViewModel: DailySleepViewModel
     
     var hrvReadings: [Date: Int] = [:]
@@ -204,7 +205,12 @@ class RecoveryGraphModel: ObservableObject {
         HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
             DispatchQueue.main.async {
                 if let sleepDuration = sleepDuration {
-                    self.previousNightSleepDuration = self.formatSleepDuration(sleepDuration)
+                    let hours = sleepDuration / 3600
+                    if HealthDataValidator.isValidSleepDuration(hours) {
+                        self.previousNightSleepDuration = self.formatSleepDuration(sleepDuration)
+                    } else {
+                        self.previousNightSleepDuration = nil
+                    }
                 } else {
                     self.previousNightSleepDuration = nil
                 }
@@ -269,6 +275,19 @@ class RecoveryGraphModel: ObservableObject {
             DispatchQueue.main.async {
                 // Assuming you have a property in your DailyView to store the average RHR
                 self.averageDailyRHR = averageRHR // Update your property with the fetched value
+            }
+        }
+
+        // Fetch daily RHR for the last 7 days
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: date)) ?? date
+        let endOfToday = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: date)) ?? date
+        HealthKitManager.shared.fetchRestingHeartRateReadings(from: sevenDaysAgo, to: endOfToday) { readings in
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEE"
+            let mapped = readings.map { (day: formatter.string(from: $0.0), bpm: $0.1) }
+            DispatchQueue.main.async {
+                self.dailyRHR = mapped
             }
         }
     }

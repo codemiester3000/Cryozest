@@ -38,6 +38,7 @@ class DemoDataManager: ObservableObject {
             model.mostRecentSteps = 9247
             model.mostRecentVO2Max = 42.5
             model.averageDailyRHR = 59
+            model.dailyRHR = [("Mon", 59), ("Tue", 57), ("Wed", 58), ("Thu", 55), ("Fri", 56), ("Sat", 58), ("Sun", 56)]
         }
     }
 
@@ -166,7 +167,11 @@ class DemoDataManager: ObservableObject {
             CoachResponseBlock(content: .text("Your recovery is looking solid today. Your HRV was 48ms during sleep, which is 14% above your 60-day average \u{2014} that's the main driver. Your resting heart rate also came in at 56 bpm, nicely below your baseline of 61.")),
             CoachResponseBlock(content: .tip(TipData(text: "Today is a great day for a harder workout. Your body is primed for it.", icon: "flame.fill")))
         ]
-        let aiMsg1 = ChatMessage(role: .model, content: "Your recovery is looking solid today.", blocks: aiBlocks1)
+        let aiMsg1 = ChatMessage(role: .model, content: "Your recovery is looking solid today.", blocks: aiBlocks1, followUpSuggestions: [
+            "What drove my HRV up?",
+            "Should I do a hard workout?",
+            "How's my sleep trending?"
+        ])
 
         let userMsg2 = ChatMessage(role: .user, content: "What about my sleep last night?")
 
@@ -178,7 +183,11 @@ class DemoDataManager: ObservableObject {
             ])),
             CoachResponseBlock(content: .text("You got 7.3 hours of sleep with a solid 49% restorative sleep (deep + REM). Your deep sleep of 1h 24m is particularly good \u{2014} that's when your body does most of its physical repair. Your heart rate dropped to 54 bpm during sleep, a healthy 27% dip from your waking rate.")),
         ]
-        let aiMsg2 = ChatMessage(role: .model, content: "You got 7.3 hours of sleep with solid restorative sleep.", blocks: aiBlocks2)
+        let aiMsg2 = ChatMessage(role: .model, content: "You got 7.3 hours of sleep with solid restorative sleep.", blocks: aiBlocks2, followUpSuggestions: [
+            "How can I get more deep sleep?",
+            "What's my sleep trend?",
+            "Does meditation help sleep?"
+        ])
 
         let userMsg3 = ChatMessage(role: .user, content: "How does running affect my health?")
 
@@ -190,9 +199,23 @@ class DemoDataManager: ObservableObject {
             CoachResponseBlock(content: .heartZones(HeartZoneData(recovery: 28, conditioning: 32, overload: 8))),
             CoachResponseBlock(content: .text("On days after you run, your HRV averages 48ms compared to 42ms on rest days. This is a statistically significant next-day effect (p = 0.008). Your zone distribution looks healthy too \u{2014} most of your time is in conditioning zones with a good recovery base."))
         ]
-        let aiMsg3 = ChatMessage(role: .model, content: "Running is your strongest habit for recovery.", blocks: aiBlocks3)
+        let aiMsg3 = ChatMessage(role: .model, content: "Running is your strongest habit for recovery.", blocks: aiBlocks3, followUpSuggestions: [
+            "Compare running vs cycling",
+            "What's my ideal run length?",
+            "Show my weekly volume"
+        ])
 
         vm.messages = [userMsg1, aiMsg1, userMsg2, aiMsg2, userMsg3, aiMsg3]
+    }
+
+    // MARK: - Insights Hub Demo Data
+
+    func demoWeeklyReview() -> WeeklyReview {
+        WeeklyReviewGenerator.demoReview()
+    }
+
+    func demoProjections() -> [TherapyType: [HealthProjection]] {
+        [.running: HealthProjectionEngine.demoProjections()]
     }
 
     // MARK: - CoreData Demo Records

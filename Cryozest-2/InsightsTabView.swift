@@ -31,6 +31,8 @@ struct InsightsTabView: View {
     @State private var showInfoSheet = false
     @State private var showCoachSheet = false
     @State private var coachQuestion: String? = nil
+    @State private var showInsightsHub = false
+    @State private var hubHighlightMessage: String = "Tap to see your weekly summary"
 
     // Logging state
     @State private var animatingHabit: TherapyType? = nil
@@ -110,6 +112,10 @@ struct InsightsTabView: View {
             )
             .environment(\.managedObjectContext, viewContext)
         }
+        .sheet(isPresented: $showInsightsHub) {
+            InsightsHubView(insightsViewModel: activeViewModel)
+                .environment(\.managedObjectContext, viewContext)
+        }
     }
 
     // MARK: - Main Content
@@ -141,6 +147,13 @@ struct InsightsTabView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
                 .padding(.bottom, 16)
+
+                // Insights Hub entry card
+                InsightsHubEntryCard(highlightMessage: hubHighlightMessage)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 12)
+                    .onTapGesture { showInsightsHub = true }
+                    .onAppear { loadHubHighlight() }
 
                 // 1. Data Collection Progress (only if any habit has < 100% progress)
                 if hasIncompleteProgress(viewModel: viewModel) {
@@ -498,6 +511,21 @@ struct InsightsTabView: View {
             generator.impactOccurred()
         } catch {
             print("Error undoing session: \(error)")
+        }
+    }
+
+    private func loadHubHighlight() {
+        if DemoDataManager.shared.isDemoMode {
+            hubHighlightMessage = WeeklyReviewGenerator.demoReview().highlightMessage
+            return
+        }
+        let generator = WeeklyReviewGenerator()
+        generator.generate(
+            sessions: Array(sessions),
+            recoveryScores: [],
+            context: viewContext
+        ) { review in
+            hubHighlightMessage = review.highlightMessage
         }
     }
 

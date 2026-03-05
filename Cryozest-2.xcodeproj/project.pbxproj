@@ -29,6 +29,12 @@
 		A4D5E6F708192A31C5D6E7F8 /* HabitDashboardCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C4D5E607182930B4C5D6E7 /* HabitDashboardCard.swift */; };
 		AA11BB22CC33DD44EE55FF01 /* GeminiChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF11 /* GeminiChatService.swift */; };
 		AA11BB22CC33DD44EE55FF02 /* HealthContextBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF12 /* HealthContextBuilder.swift */; };
+		AA11BB22CC33DD44EE55FF08 /* HealthDataValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF18 /* HealthDataValidator.swift */; };
+		BB11CC22DD33EE44FF55AA01 /* WeeklyReviewGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF55AA11 /* WeeklyReviewGenerator.swift */; };
+		BB11CC22DD33EE44FF55AA02 /* WeeklyReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF55AA12 /* WeeklyReviewView.swift */; };
+		BB11CC22DD33EE44FF55AA03 /* HealthProjectionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF55AA13 /* HealthProjectionEngine.swift */; };
+		BB11CC22DD33EE44FF55AA04 /* ProjectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF55AA14 /* ProjectionsView.swift */; };
+		BB11CC22DD33EE44FF55AA05 /* InsightsHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF55AA15 /* InsightsHubView.swift */; };
 		AA11BB22CC33DD44EE55FF03 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF13 /* ChatViewModel.swift */; };
 		AA11BB22CC33DD44EE55FF04 /* AICoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF14 /* AICoachView.swift */; };
 		AA11BB22CC33DD44EE55FF05 /* CoachResponseParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF15 /* CoachResponseParser.swift */; };
@@ -79,8 +85,6 @@
 		C59E385E2A48A61000FBD9D0 /* SettingsIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59E385D2A48A61000FBD9D0 /* SettingsIconView.swift */; };
 		C5A7B5882B3CA8E900FFF99C /* MetricsHighlightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A7B5872B3CA8E900FFF99C /* MetricsHighlightsView.swift */; };
 		C5B6FD7F2A53586F00933029 /* DateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B6FD7E2A53586F00933029 /* DateUtils.swift */; };
-		C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B22A42833400BCB3DF /* JTAppleCalendar */; };
-		C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = C5BD39B92A428ACC00BCB3DF /* FSCalendar */; };
 		C5BD39C42A46A1D200BCB3DF /* TherapyTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BD39C32A46A1D200BCB3DF /* TherapyTypeSelectionView.swift */; };
 		C5BF3BC32B7E7032000F4798 /* AppleWorkoutsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5BF3BC22B7E7032000F4798 /* AppleWorkoutsService.swift */; };
 		C5DC77382B54806F005CEC3C /* SleepVitalsGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DC77372B54806F005CEC3C /* SleepVitalsGraph.swift */; };
@@ -139,6 +143,12 @@
 		91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF11 /* GeminiChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiChatService.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF12 /* HealthContextBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthContextBuilder.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF18 /* HealthDataValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthDataValidator.swift; sourceTree = "<group>"; };
+		BB11CC22DD33EE44FF55AA11 /* WeeklyReviewGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReviewGenerator.swift; sourceTree = "<group>"; };
+		BB11CC22DD33EE44FF55AA12 /* WeeklyReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReviewView.swift; sourceTree = "<group>"; };
+		BB11CC22DD33EE44FF55AA13 /* HealthProjectionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthProjectionEngine.swift; sourceTree = "<group>"; };
+		BB11CC22DD33EE44FF55AA14 /* ProjectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionsView.swift; sourceTree = "<group>"; };
+		BB11CC22DD33EE44FF55AA15 /* InsightsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsHubView.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF13 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF14 /* AICoachView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICoachView.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF15 /* CoachResponseParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachResponseParser.swift; sourceTree = "<group>"; };
@@ -211,8 +221,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C5BD39B32A42833400BCB3DF /* JTAppleCalendar in Frameworks */,
-				C5BD39BA2A428ACC00BCB3DF /* FSCalendar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -344,6 +352,12 @@
 				8B9E61ED04DA4DC79E7BBEB5 /* HealthSnapshotGrid.swift */,
 				AA11BB22CC33DD44EE55FF11 /* GeminiChatService.swift */,
 				AA11BB22CC33DD44EE55FF12 /* HealthContextBuilder.swift */,
+				AA11BB22CC33DD44EE55FF18 /* HealthDataValidator.swift */,
+				BB11CC22DD33EE44FF55AA11 /* WeeklyReviewGenerator.swift */,
+				BB11CC22DD33EE44FF55AA12 /* WeeklyReviewView.swift */,
+				BB11CC22DD33EE44FF55AA13 /* HealthProjectionEngine.swift */,
+				BB11CC22DD33EE44FF55AA14 /* ProjectionsView.swift */,
+				BB11CC22DD33EE44FF55AA15 /* InsightsHubView.swift */,
 				AA11BB22CC33DD44EE55FF13 /* ChatViewModel.swift */,
 				AA11BB22CC33DD44EE55FF14 /* AICoachView.swift */,
 				AA11BB22CC33DD44EE55FF15 /* CoachResponseParser.swift */,
@@ -405,8 +419,6 @@
 			);
 			name = "Cryozest-2";
 			packageProductDependencies = (
-				C5BD39B22A42833400BCB3DF /* JTAppleCalendar */,
-				C5BD39B92A428ACC00BCB3DF /* FSCalendar */,
 			);
 			productName = "Cryozest-2";
 			productReference = C57EE32929CA8E31002A4875 /* Cryozest-2.app */;
@@ -481,8 +493,6 @@
 			);
 			mainGroup = C57EE32029CA8E31002A4875;
 			packageReferences = (
-				C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */,
-				C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */,
 			);
 			productRefGroup = C57EE32A29CA8E31002A4875 /* Products */;
 			projectDirPath = "";
@@ -573,6 +583,12 @@
 				F8022795241147A6B2540EF1 /* HealthSnapshotGrid.swift in Sources */,
 				AA11BB22CC33DD44EE55FF01 /* GeminiChatService.swift in Sources */,
 				AA11BB22CC33DD44EE55FF02 /* HealthContextBuilder.swift in Sources */,
+				AA11BB22CC33DD44EE55FF08 /* HealthDataValidator.swift in Sources */,
+				BB11CC22DD33EE44FF55AA01 /* WeeklyReviewGenerator.swift in Sources */,
+				BB11CC22DD33EE44FF55AA02 /* WeeklyReviewView.swift in Sources */,
+				BB11CC22DD33EE44FF55AA03 /* HealthProjectionEngine.swift in Sources */,
+				BB11CC22DD33EE44FF55AA04 /* ProjectionsView.swift in Sources */,
+				BB11CC22DD33EE44FF55AA05 /* InsightsHubView.swift in Sources */,
 				AA11BB22CC33DD44EE55FF03 /* ChatViewModel.swift in Sources */,
 				AA11BB22CC33DD44EE55FF04 /* AICoachView.swift in Sources */,
 				AA11BB22CC33DD44EE55FF05 /* CoachResponseParser.swift in Sources */,
@@ -788,7 +804,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.1;
+				MARKETING_VERSION = 3.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.RobOwen.CryoZest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -829,7 +845,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.1;
+				MARKETING_VERSION = 3.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.RobOwen.CryoZest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -959,38 +975,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/patchthecode/JTAppleCalendar.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.0.0;
-			};
-		};
-		C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/WenchaoD/FSCalendar";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		C5BD39B22A42833400BCB3DF /* JTAppleCalendar */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C5BD39B12A42833400BCB3DF /* XCRemoteSwiftPackageReference "JTAppleCalendar" */;
-			productName = JTAppleCalendar;
-		};
-		C5BD39B92A428ACC00BCB3DF /* FSCalendar */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C5BD39B82A428ACC00BCB3DF /* XCRemoteSwiftPackageReference "FSCalendar" */;
-			productName = FSCalendar;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		C57EE35E29CCDDF5002A4875 /* CryozestModel.xcdatamodeld */ = {

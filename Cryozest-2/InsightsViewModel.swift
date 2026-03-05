@@ -31,8 +31,8 @@ struct HabitImpact: Identifiable {
     let optimalLag: LaggedCorrelation?
 
     var changeDescription: String {
-        let sign = percentageChange >= 0 ? "+" : ""
-        return "\(sign)\(Int(percentageChange))%"
+        let pct = abs(Int(percentageChange))
+        return isPositive ? "+\(pct)%" : "-\(pct)%"
     }
 
     var impactScore: Double {
@@ -169,8 +169,8 @@ struct HealthTrend: Identifiable {
     let description: String
 
     var changeDescription: String {
-        let sign = changePercentage >= 0 ? "+" : ""
-        return "\(sign)\(Int(changePercentage))%"
+        let pct = abs(Int(changePercentage))
+        return isPositive ? "+\(pct)%" : "-\(pct)%"
     }
 }
 
@@ -190,7 +190,13 @@ class InsightsViewModel: ObservableObject {
     // Statistical configuration
     static let minimumSampleSize = StatisticsUtility.minimumSampleSize // 5 days for early signals
     /// Only analyze data from the last N days — older data is stale
-    static let analysisWindowDays = 30
+    @Published var analysisWindowDays: Int = 30
+
+    func refetch() {
+        DispatchQueue.main.async {
+            self.fetchAllImpacts()
+        }
+    }
 
     /// Exercise types that naturally suppress same-day HRV (acute stress response).
     /// For these, we compare next-day HRV instead of same-day.
@@ -269,7 +275,7 @@ class InsightsViewModel: ObservableObject {
 
         // Only analyze habits with sessions in the analysis window (last 60 days)
         let calendar = Calendar.current
-        let windowStart = calendar.date(byAdding: .day, value: -Self.analysisWindowDays, to: Date()) ?? Date()
+        let windowStart = calendar.date(byAdding: .day, value: -self.analysisWindowDays, to: Date()) ?? Date()
         let recentHabitTypes = Set(
             sessions
                 .filter { ($0.date ?? .distantPast) >= windowStart }
@@ -391,10 +397,10 @@ class InsightsViewModel: ObservableObject {
     private func datesInWindow(for therapyType: TherapyType) -> (therapy: [Date], nonTherapy: [Date]) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let windowStart = calendar.date(byAdding: .day, value: -Self.analysisWindowDays, to: today) ?? today
+        let windowStart = calendar.date(byAdding: .day, value: -self.analysisWindowDays, to: today) ?? today
 
         // All dates in the window
-        let allWindowDates = (0..<Self.analysisWindowDays).compactMap {
+        let allWindowDates = (0..<self.analysisWindowDays).compactMap {
             calendar.date(byAdding: .day, value: -$0, to: today)
         }
 

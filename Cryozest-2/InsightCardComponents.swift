@@ -357,6 +357,82 @@ struct HealthTrendCard: View {
     }
 }
 
+// MARK: - Health Trend Tile (Dashboard grid)
+struct HealthTrendTile: View {
+    let trend: HealthTrend
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Header
+            HStack(spacing: 6) {
+                Image(systemName: trend.icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(trend.color)
+                Text(trend.title)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white.opacity(0.6))
+                    .lineLimit(1)
+            }
+
+            // Big value
+            Text(tileFormatValue(trend.currentValue, metric: trend.metric))
+                .font(.system(size: 26, weight: .black, design: .rounded))
+                .foregroundColor(.white)
+
+            // Comparison bar
+            GeometryReader { geo in
+                let maxVal = max(trend.currentValue, trend.previousValue) * 1.3
+                let currentW = maxVal > 0 ? (trend.currentValue / maxVal) * geo.size.width : 0
+                let previousW = maxVal > 0 ? (trend.previousValue / maxVal) * geo.size.width : 0
+
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.white.opacity(0.06))
+                        .frame(height: 6)
+
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(trend.color.opacity(0.2))
+                        .frame(width: max(0, previousW), height: 6)
+
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(trend.color)
+                        .frame(width: max(0, currentW), height: 6)
+                }
+            }
+            .frame(height: 6)
+
+            // Change badge
+            HStack(spacing: 4) {
+                Image(systemName: trend.isPositive ? "arrow.up" : "arrow.down")
+                    .font(.system(size: 9, weight: .bold))
+                Text(trend.changeDescription)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+            }
+            .foregroundColor(trend.isPositive ? .green : .red)
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
+        )
+    }
+
+    private func tileFormatValue(_ value: Double, metric: String) -> String {
+        switch metric {
+        case "RHR": return "\(Int(value)) bpm"
+        case "HRV": return "\(Int(value)) ms"
+        case "Sleep": return String(format: "%.1fh", value)
+        case "Steps": return "\(Int(value))"
+        case "Calories": return "\(Int(value)) cal"
+        default: return String(format: "%.1f", value)
+        }
+    }
+}
+
 // MARK: - Loading Skeleton (Minimal)
 struct InsightsLoadingSkeleton: View {
     @State private var isAnimating = false
