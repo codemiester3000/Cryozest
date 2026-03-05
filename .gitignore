@@ -1,0 +1,14 @@
+# API Keys
+Cryozest-2/Secrets.plist
+
+# Xcode
+*.xcuserstate
+*.xcuserdatad/
+DerivedData/
+build/
+
+# CocoaPods
+Pods/
+
+# Swift Package Manager
+.build/

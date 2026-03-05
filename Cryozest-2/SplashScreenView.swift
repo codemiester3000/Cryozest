@@ -1,69 +1,113 @@
-//
-//  SplashScreenView.swift
-//  Cryozest-2
-//
-//  Created by Owen Khoury on 10/8/25.
-//
-
 import SwiftUI
 
 struct SplashScreenView: View {
-    @State private var logoScale: CGFloat = 0.5
-    @State private var logoOpacity: Double = 0.0
-    @State private var pulseAnimation = false
+    @State private var logoScale: CGFloat = 0.6
+    @State private var logoOpacity: Double = 0
+    @State private var ringScale: CGFloat = 0.8
+    @State private var ringOpacity: Double = 0
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var pulseOpacity: Double = 0.6
+    @State private var innerGlow: CGFloat = 0
+    @State private var snowflakeRotation: Double = 0
 
     var body: some View {
         ZStack {
-            // Deep navy background
             Color(red: 0.06, green: 0.10, blue: 0.18)
                 .ignoresSafeArea()
 
-            // Logo icon
+            // Subtle radial ambient light
+            RadialGradient(
+                colors: [Color.cyan.opacity(0.08), Color.clear],
+                center: .center,
+                startRadius: 40,
+                endRadius: 200
+            )
+            .scaleEffect(ringScale)
+            .opacity(ringOpacity)
+
             ZStack {
-                // Outer pulsing circle
+                // Outer pulse ring — expands and fades
                 Circle()
-                    .stroke(Color.cyan.opacity(0.3), lineWidth: 2)
-                    .frame(width: 140, height: 140)
-                    .scaleEffect(pulseAnimation ? 1.1 : 1.0)
-                    .opacity(pulseAnimation ? 0.0 : 0.8)
+                    .stroke(Color.cyan.opacity(0.25), lineWidth: 1.5)
+                    .frame(width: 150, height: 150)
+                    .scaleEffect(pulseScale)
+                    .opacity(pulseOpacity)
 
-                // Icon container
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.cyan.opacity(0.3),
-                                    Color.cyan.opacity(0.1)
-                                ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 120, height: 120)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.cyan.opacity(0.5), lineWidth: 2)
-                        )
+                // Static ring
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.cyan.opacity(0.5), Color.cyan.opacity(0.15)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 2
+                    )
+                    .frame(width: 130, height: 130)
+                    .opacity(ringOpacity)
 
-                    Image(systemName: "snowflake")
-                        .font(.system(size: 60, weight: .light))
-                        .foregroundColor(.cyan)
-                }
+                // Inner glow disc
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.cyan.opacity(0.25),
+                                Color.cyan.opacity(0.08),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 65
+                        )
+                    )
+                    .frame(width: 130, height: 130)
+                    .opacity(innerGlow)
+
+                // Snowflake
+                Image(systemName: "snowflake")
+                    .font(.system(size: 56, weight: .ultraLight))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.white, .cyan.opacity(0.85)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .rotationEffect(.degrees(snowflakeRotation))
             }
             .scaleEffect(logoScale)
             .opacity(logoOpacity)
         }
         .onAppear {
-            // Logo animation
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
+            // Icon springs in
+            withAnimation(.spring(response: 0.7, dampingFraction: 0.65)) {
                 logoScale = 1.0
                 logoOpacity = 1.0
             }
 
-            // Pulse animation
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: false)) {
-                pulseAnimation = true
+            // Ring fades in slightly delayed
+            withAnimation(.easeOut(duration: 0.6).delay(0.15)) {
+                ringScale = 1.0
+                ringOpacity = 1.0
+            }
+
+            // Inner glow breathes up
+            withAnimation(.easeInOut(duration: 1.0).delay(0.3)) {
+                innerGlow = 1.0
+            }
+
+            // Slow snowflake rotation
+            withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
+                snowflakeRotation = 360
+            }
+
+            // Continuous pulse ring
+            withAnimation(
+                .easeOut(duration: 2.0)
+                .repeatForever(autoreverses: false)
+            ) {
+                pulseScale = 1.4
+                pulseOpacity = 0
             }
         }
     }

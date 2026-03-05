@@ -26,6 +26,8 @@ struct CorrelationResult {
             return .high
         } else if pValue < 0.05 && sampleSize >= 14 {
             return .moderate
+        } else if pValue < 0.10 && sampleSize >= 5 {
+            return .earlySignal
         } else if pValue < 0.10 {
             return .low
         } else {
@@ -45,6 +47,7 @@ struct CorrelationResult {
 enum ConfidenceLevel: String, CaseIterable {
     case high = "High Confidence"
     case moderate = "Moderate Confidence"
+    case earlySignal = "Early Signal"
     case low = "Low Confidence"
     case insufficient = "Insufficient Data"
 
@@ -52,6 +55,7 @@ enum ConfidenceLevel: String, CaseIterable {
         switch self {
         case .high: return "green"
         case .moderate: return "yellow"
+        case .earlySignal: return "cyan"
         case .low: return "orange"
         case .insufficient: return "gray"
         }
@@ -61,9 +65,14 @@ enum ConfidenceLevel: String, CaseIterable {
         switch self {
         case .high: return 1.0
         case .moderate: return 0.66
+        case .earlySignal: return 0.5
         case .low: return 0.33
         case .insufficient: return 0.0
         }
+    }
+
+    var isEarlySignal: Bool {
+        self == .earlySignal
     }
 }
 
@@ -101,8 +110,10 @@ struct RegressionResult {
 class StatisticsUtility {
     static let shared = StatisticsUtility()
 
-    /// Minimum sample size for reliable statistics
-    static let minimumSampleSize = 14
+    /// Minimum sample size for early signal detection
+    static let minimumSampleSize = 5
+    /// Minimum sample size for full statistical confidence
+    static let fullConfidenceSampleSize = 14
 
     /// Minimum sample size for high confidence
     static let highConfidenceSampleSize = 30

@@ -24,6 +24,7 @@ struct HabitImpact: Identifiable {
     let percentageChange: Double
     let isPositive: Bool
     let sampleSize: Int
+    let lastSessionDate: Date?
 
     // Enhanced statistical properties
     let correlation: CorrelationResult?
@@ -35,16 +36,31 @@ struct HabitImpact: Identifiable {
     }
 
     var impactScore: Double {
-        // Weight by both effect size and statistical confidence
+        // Weight by effect size, statistical confidence, AND recency
         let baseScore = abs(percentageChange)
         let confidenceMultiplier: Double
         switch confidenceLevel {
         case .high: confidenceMultiplier = 1.0
         case .moderate: confidenceMultiplier = 0.8
+        case .earlySignal: confidenceMultiplier = 0.6
         case .low: confidenceMultiplier = 0.5
         case .insufficient: confidenceMultiplier = 0.2
         }
-        return baseScore * confidenceMultiplier
+
+        // Recency boost: strongly favor habits done recently
+        let recencyMultiplier: Double
+        if let lastDate = lastSessionDate {
+            let daysAgo = Calendar.current.dateComponents([.day], from: lastDate, to: Date()).day ?? 60
+            if daysAgo <= 3 { recencyMultiplier = 3.0 }
+            else if daysAgo <= 7 { recencyMultiplier = 2.5 }
+            else if daysAgo <= 14 { recencyMultiplier = 1.5 }
+            else if daysAgo <= 21 { recencyMultiplier = 0.8 }
+            else { recencyMultiplier = 0.3 }
+        } else {
+            recencyMultiplier = 0.2
+        }
+
+        return baseScore * confidenceMultiplier * recencyMultiplier
     }
 
     var confidenceLevel: ConfidenceLevel {
@@ -67,7 +83,8 @@ struct HabitImpact: Identifiable {
     // Convenience initializer for backward compatibility
     init(habitType: TherapyType, metricName: String, baselineValue: Double, habitValue: Double,
          percentageChange: Double, isPositive: Bool, sampleSize: Int,
-         correlation: CorrelationResult? = nil, optimalLag: LaggedCorrelation? = nil) {
+         correlation: CorrelationResult? = nil, optimalLag: LaggedCorrelation? = nil,
+         lastSessionDate: Date? = nil) {
         self.habitType = habitType
         self.metricName = metricName
         self.baselineValue = baselineValue
@@ -77,6 +94,7 @@ struct HabitImpact: Identifiable {
         self.sampleSize = sampleSize
         self.correlation = correlation
         self.optimalLag = optimalLag
+        self.lastSessionDate = lastSessionDate
     }
 }
 
@@ -170,7 +188,40 @@ class InsightsViewModel: ObservableObject {
     @Published var isLoading: Bool = true
 
     // Statistical configuration
-    static let minimumSampleSize = StatisticsUtility.minimumSampleSize // 14 days
+    static let minimumSampleSize = StatisticsUtility.minimumSampleSize // 5 days for early signals
+    /// Only analyze data from the last N days — older data is stale
+    static let analysisWindowDays = 30
+
+    /// Exercise types that naturally suppress same-day HRV (acute stress response).
+    /// For these, we compare next-day HRV instead of same-day.
+    private static let exerciseTypes: Set<TherapyType> = [
+        .running, .walking, .stairClimbing, .weightTraining, .cycling,
+        .swimming, .boxing, .pilates, .crossfit, .dance, .rockClimbing,
+        .hiking, .rowing, .surfing, .pickleball, .basketball, .elliptical, .barre
+    ]
+
+    /// Returns the top insight for a habit the user has actually done in the last 7 days.
+    /// Only surfaces core health metrics (Sleep, HRV, RHR) — not pain or water.
+    var recentInsight: HabitImpact? {
+        let calendar = Calendar.current
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+
+        let recentHabitTypes = Set(
+            sessions
+                .filter { session in
+                    guard let date = session.date else { return false }
+                    return date >= sevenDaysAgo
+                }
+                .compactMap { $0.therapyType }
+        )
+
+        let coreMetrics: Set<String> = ["Sleep Duration", "HRV", "RHR"]
+
+        return topHabitImpacts.first { impact in
+            recentHabitTypes.contains(impact.habitType.rawValue)
+            && coreMetrics.contains(impact.metricName)
+        }
+    }
 
     private let healthKitManager = HealthKitManager.shared
     private let statsUtility = StatisticsUtility.shared
@@ -210,14 +261,23 @@ class InsightsViewModel: ObservableObject {
 
         // Combine manually selected types with recorded workout types
         let recordedWorkouts = getRecordedWorkoutTypes()
-        let allTherapyTypes = Array(Set(selectedTherapyTypes + recordedWorkouts))
+        let candidateTypes = Array(Set(selectedTherapyTypes + recordedWorkouts))
+
+        // Only analyze habits with sessions in the analysis window (last 60 days)
+        let calendar = Calendar.current
+        let windowStart = calendar.date(byAdding: .day, value: -Self.analysisWindowDays, to: Date()) ?? Date()
+        let recentHabitTypes = Set(
+            sessions
+                .filter { ($0.date ?? .distantPast) >= windowStart }
+                .compactMap { $0.therapyType }
+        )
+        let allTherapyTypes = candidateTypes.filter { recentHabitTypes.contains($0.rawValue) }
 
         // Compute data collection progress for all habits
         computeDataCollectionProgress(for: allTherapyTypes)
 
-        print("🔍 InsightsViewModel: Starting to fetch impacts for \(allTherapyTypes.count) therapy types")
-        print("🔍 InsightsViewModel: Selected types: \(selectedTherapyTypes.map { $0.rawValue })")
-        print("🔍 InsightsViewModel: Recorded workouts: \(recordedWorkouts.map { $0.rawValue })")
+        print("🔍 InsightsViewModel: Starting to fetch impacts for \(allTherapyTypes.count) therapy types (filtered from \(candidateTypes.count) candidates)")
+        print("🔍 InsightsViewModel: Excluded stale habits: \(candidateTypes.filter { !recentHabitTypes.contains($0.rawValue) }.map { $0.rawValue })")
 
         let group = DispatchGroup()
         var allImpacts: [HabitImpact] = []
@@ -287,7 +347,6 @@ class InsightsViewModel: ObservableObject {
             allImpacts.sort { $0.impactScore > $1.impactScore }
 
             self.healthTrends = trends
-            self.topHabitImpacts = Array(allImpacts.prefix(5))
             self.sleepImpacts = allImpacts.filter { $0.metricName == "Sleep Duration" }
             self.hrvImpacts = allImpacts.filter { $0.metricName == "HRV" }
             self.rhrImpacts = allImpacts.filter { $0.metricName == "RHR" }
@@ -301,9 +360,54 @@ class InsightsViewModel: ObservableObject {
             }
             self.habitImpactsByType = byType
 
-            print("🔍 InsightsViewModel: Setting isLoading = false")
-            self.isLoading = false
+            // Use Gemini to validate and rank top correlations
+            let candidateImpacts = Array(allImpacts.prefix(10))
+            if InsightsSynthesizer.shared.isConfigured && !candidateImpacts.isEmpty {
+                Task {
+                    let validIndices = await InsightsSynthesizer.shared.validateCorrelations(candidateImpacts)
+                    let validated = validIndices.prefix(5).compactMap { idx -> HabitImpact? in
+                        guard idx < candidateImpacts.count else { return nil }
+                        return candidateImpacts[idx]
+                    }
+                    await MainActor.run {
+                        self.topHabitImpacts = validated.isEmpty ? Array(candidateImpacts.prefix(5)) : validated
+                        self.isLoading = false
+                        print("🔍 InsightsViewModel: Gemini validated \(validated.count) correlations")
+                    }
+                }
+            } else {
+                self.topHabitImpacts = Array(candidateImpacts.prefix(5))
+                self.isLoading = false
+            }
         }
+    }
+
+    /// Returns (therapyDates, nonTherapyDates) both within the analysis window.
+    /// Both are sets of startOfDay dates, using the SAME window for fair comparison.
+    private func datesInWindow(for therapyType: TherapyType) -> (therapy: [Date], nonTherapy: [Date]) {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let windowStart = calendar.date(byAdding: .day, value: -Self.analysisWindowDays, to: today) ?? today
+
+        // All dates in the window
+        let allWindowDates = (0..<Self.analysisWindowDays).compactMap {
+            calendar.date(byAdding: .day, value: -$0, to: today)
+        }
+
+        // Therapy dates within window (deduplicated to unique days)
+        let therapyDaySet = Set(
+            sessions
+                .filter { $0.therapyType == therapyType.rawValue && ($0.date ?? .distantPast) >= windowStart }
+                .compactMap { session -> Date? in
+                    guard let d = session.date else { return nil }
+                    return calendar.startOfDay(for: d)
+                }
+        )
+
+        let therapyDates = Array(therapyDaySet).sorted()
+        let nonTherapyDates = allWindowDates.filter { !therapyDaySet.contains($0) }
+
+        return (therapyDates, nonTherapyDates)
     }
 
     private func computeDataCollectionProgress(for therapyTypes: [TherapyType]) {
@@ -311,12 +415,7 @@ class InsightsViewModel: ObservableObject {
         let minRequired = 5
 
         for therapyType in therapyTypes {
-            let therapyDates = DateUtils.shared.completedSessionDates(
-                sessions: sessions, therapyType: therapyType
-            )
-            let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(
-                sessions: sessions, therapyType: therapyType, timeFrame: .allTime
-            )
+            let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
 
             progress[therapyType] = DataCollectionProgress(
                 habitType: therapyType,
@@ -589,11 +688,11 @@ class InsightsViewModel: ObservableObject {
     }
 
     private func fetchSleepImpact(for therapyType: TherapyType, completion: @escaping (HabitImpact?) -> Void) {
-        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+        let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
 
-        // Lowered threshold to show more habits (confidence labeling handles quality)
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
+        let totalDays = therapyDates.count + nonTherapyDates.count
+        let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -603,7 +702,6 @@ class InsightsViewModel: ObservableObject {
         var habitValues: [Double] = []
         var allMetricData: [(date: Date, value: Double)] = []
 
-        // Fetch sleep for each non-therapy day (for correlation analysis)
         for date in nonTherapyDates {
             group.enter()
             healthKitManager.fetchSleepDurationForDay(date: date) { duration in
@@ -616,7 +714,6 @@ class InsightsViewModel: ObservableObject {
             }
         }
 
-        // Fetch sleep for each therapy day
         for date in therapyDates {
             group.enter()
             healthKitManager.fetchSleepDurationForDay(date: date) { duration in
@@ -630,7 +727,6 @@ class InsightsViewModel: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            // Remove outliers
             let cleanBaseline = self.statsUtility.removeOutliers(baselineValues)
             let cleanHabit = self.statsUtility.removeOutliers(habitValues)
 
@@ -647,16 +743,14 @@ class InsightsViewModel: ObservableObject {
                 return
             }
 
-            // Calculate correlation
             let x = therapyDates.map { _ in 1.0 } + nonTherapyDates.map { _ in 0.0 }
             let y = habitValues + baselineValues
             let correlation = self.statsUtility.pearsonCorrelation(x, y)
 
-            // Calculate lagged correlations (does habit today affect sleep tonight/tomorrow?)
             let laggedResults = self.statsUtility.laggedCorrelations(
                 habitDates: therapyDates,
                 metricData: allMetricData,
-                maxLag: 1  // Check same night and next night
+                maxLag: 1
             )
             let optimalLag = self.statsUtility.optimalLag(from: laggedResults)
 
@@ -670,28 +764,36 @@ class InsightsViewModel: ObservableObject {
                 isPositive: habitValue > baselineValue,
                 sampleSize: therapyDates.count,
                 correlation: correlation,
-                optimalLag: optimalLag
+                optimalLag: optimalLag,
+                lastSessionDate: therapyDates.max()
             )
             completion(impact)
         }
     }
 
     private func fetchHRVImpact(for therapyType: TherapyType, completion: @escaping (HabitImpact?) -> Void) {
-        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+        let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
+        let isExercise = Self.exerciseTypes.contains(therapyType)
+        let calendar = Calendar.current
 
-        // Lowered threshold to show more habits (confidence labeling handles quality)
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
+        let totalDays = therapyDates.count + nonTherapyDates.count
+        let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
             completion(nil)
             return
         }
+
+        // For exercise types, measure NEXT-DAY HRV (recovery effect).
+        // For non-exercise (meditation, supplements, etc.), measure same-day HRV.
+        let therapyMeasureDates: [Date] = isExercise
+            ? therapyDates.compactMap { calendar.date(byAdding: .day, value: 1, to: $0) }
+            : therapyDates
 
         let group = DispatchGroup()
         var baselineValues: [Double] = []
         var habitValues: [Double] = []
         var allMetricData: [(date: Date, value: Double)] = []
 
-        // Fetch HRV for each non-therapy day
         for date in nonTherapyDates {
             group.enter()
             healthKitManager.fetchAvgHRVForDay(date: date) { hrv in
@@ -703,8 +805,7 @@ class InsightsViewModel: ObservableObject {
             }
         }
 
-        // Fetch HRV for each therapy day
-        for date in therapyDates {
+        for date in therapyMeasureDates {
             group.enter()
             healthKitManager.fetchAvgHRVForDay(date: date) { hrv in
                 if let hrv = hrv {
@@ -716,7 +817,6 @@ class InsightsViewModel: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            // Remove outliers
             let cleanBaseline = self.statsUtility.removeOutliers(baselineValues)
             let cleanHabit = self.statsUtility.removeOutliers(habitValues)
 
@@ -733,20 +833,25 @@ class InsightsViewModel: ObservableObject {
                 return
             }
 
-            // Calculate correlation
             let x = therapyDates.map { _ in 1.0 } + nonTherapyDates.map { _ in 0.0 }
             let y = habitValues + baselineValues
             let correlation = self.statsUtility.pearsonCorrelation(x, y)
 
-            // Calculate lagged correlations (does habit today affect HRV tomorrow morning?)
             let laggedResults = self.statsUtility.laggedCorrelations(
                 habitDates: therapyDates,
                 metricData: allMetricData,
-                maxLag: 2  // Check up to 2 days later
+                maxLag: 2
             )
             let optimalLag = self.statsUtility.optimalLag(from: laggedResults)
 
             let change = self.statsUtility.percentageChange(baseline: baselineValue, new: habitValue)
+            // For exercise, always show "Next day" lag since we measured next-day HRV
+            let lagNote: LaggedCorrelation?
+            if isExercise, let corr = correlation {
+                lagNote = LaggedCorrelation(lagDays: 1, result: corr)
+            } else {
+                lagNote = optimalLag
+            }
             let impact = HabitImpact(
                 habitType: therapyType,
                 metricName: "HRV",
@@ -756,18 +861,19 @@ class InsightsViewModel: ObservableObject {
                 isPositive: habitValue > baselineValue,
                 sampleSize: therapyDates.count,
                 correlation: correlation,
-                optimalLag: optimalLag
+                optimalLag: lagNote,
+                lastSessionDate: therapyDates.max()
             )
             completion(impact)
         }
     }
 
     private func fetchRHRImpact(for therapyType: TherapyType, completion: @escaping (HabitImpact?) -> Void) {
-        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+        let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
 
-        // Lowered threshold to show more habits (confidence labeling handles quality)
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
+        let totalDays = therapyDates.count + nonTherapyDates.count
+        let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -842,7 +948,8 @@ class InsightsViewModel: ObservableObject {
                 isPositive: habitValue < baselineValue, // Lower is better for RHR
                 sampleSize: therapyDates.count,
                 correlation: correlation,
-                optimalLag: optimalLag
+                optimalLag: optimalLag,
+                lastSessionDate: therapyDates.max()
             )
             completion(impact)
         }
@@ -854,11 +961,11 @@ class InsightsViewModel: ObservableObject {
             return
         }
 
-        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+        let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
 
-        // Lowered threshold to show more habits (confidence labeling handles quality)
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
+        let totalDays = therapyDates.count + nonTherapyDates.count
+        let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -924,7 +1031,8 @@ class InsightsViewModel: ObservableObject {
             isPositive: habitValue < baselineValue, // Lower pain is better
             sampleSize: habitValues.count,
             correlation: correlation,
-            optimalLag: optimalLag
+            optimalLag: optimalLag,
+            lastSessionDate: therapyDates.max()
         )
         completion(impact)
     }
@@ -935,11 +1043,11 @@ class InsightsViewModel: ObservableObject {
             return
         }
 
-        let therapyDates = DateUtils.shared.completedSessionDates(sessions: sessions, therapyType: therapyType)
-        let nonTherapyDates = DateUtils.shared.datesWithoutTherapySessions(sessions: sessions, therapyType: therapyType, timeFrame: .allTime)
+        let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
 
-        // Lowered threshold to show more habits (confidence labeling handles quality)
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 else {
+        let totalDays = therapyDates.count + nonTherapyDates.count
+        let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
+        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -1009,7 +1117,8 @@ class InsightsViewModel: ObservableObject {
             isPositive: habitValue > baselineValue, // Higher hydration is better
             sampleSize: habitValues.count,
             correlation: correlation,
-            optimalLag: optimalLag
+            optimalLag: optimalLag,
+            lastSessionDate: therapyDates.max()
         )
         completion(impact)
     }

@@ -35,6 +35,51 @@ struct HeartRateDetailView: View {
 
                 infoCard
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+        }
+        .onAppear { loadData() }
+        .onChange(of: model.selectedDate) { _ in loadData() }
+    }
+
+    private func loadData() {
+        let date = model.selectedDate
+        let hkm = HealthKitManager.shared
+        let calendar = Calendar.current
+
+        // Current/selected day RHR
+        hkm.fetchMostRecentRestingHeartRate(for: date) { rhr, _ in
+            DispatchQueue.main.async { self.currentHR = rhr }
+        }
+
+        // Last 7 days RHR trend
+        var rhrEntries: [(Date, Int)] = []
+        let group = DispatchGroup()
+        for offset in 0..<7 {
+            guard let day = calendar.date(byAdding: .day, value: -offset, to: date) else { continue }
+            group.enter()
+            hkm.fetchMostRecentRestingHeartRate(for: day) { rhr, _ in
+                if let rhr = rhr {
+                    DispatchQueue.main.async {
+                        rhrEntries.append((day, rhr))
+                    }
+                }
+                group.leave()
+            }
+        }
+        group.notify(queue: .main) {
+            self.last7DaysRHR = rhrEntries.sorted { $0.0 < $1.0 }
+
+            // Compute weekly stats from what we have
+            let values = rhrEntries.map { $0.1 }
+            if !values.isEmpty {
+                self.weekStats = WeeklyHRStats(
+                    averageRHR: values.reduce(0, +) / values.count,
+                    lowestHR: values.min() ?? 0,
+                    highestHR: values.max() ?? 0,
+                    timeInZones: [:]
+                )
+            }
         }
     }
 

@@ -18,6 +18,8 @@ struct HabitDashboardCard: View {
     let onTap: () -> Void
     let onLog: () -> Void
     let onDelete: (TherapySessionEntity) -> Void
+    var showCheckmark: Bool = false
+    var logButtonScale: CGFloat = 1.0
 
     @Environment(\.managedObjectContext) private var viewContext
 
@@ -120,9 +122,10 @@ struct HabitDashboardCard: View {
                     .padding(.horizontal, 14)
 
                 expandedContent
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .transition(.opacity)
             }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(isExpanded ?
@@ -142,7 +145,7 @@ struct HabitDashboardCard: View {
             x: 0,
             y: isExpanded ? 4 : 0
         )
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isExpanded)
+        .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isExpanded)
     }
 
     // MARK: - Compact Content
@@ -199,6 +202,12 @@ struct HabitDashboardCard: View {
 
                 Spacer()
 
+                // Expand chevron
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.3))
+                    .rotationEffect(.degrees(isExpanded ? -180 : 0))
+
                 // Log button
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -217,12 +226,13 @@ struct HabitDashboardCard: View {
                             .frame(width: 38, height: 38)
                             .shadow(color: habitType.color.opacity(0.3), radius: 6, x: 0, y: 2)
 
-                        Image(systemName: "plus")
-                            .font(.system(size: 15, weight: .bold))
+                        Image(systemName: showCheckmark ? "checkmark" : "plus")
+                            .font(.system(size: showCheckmark ? 17 : 15, weight: .bold))
                             .foregroundColor(.white)
                     }
+                    .scaleEffect(logButtonScale)
                 }
-                .buttonStyle(PressableButtonStyle())
+                .buttonStyle(HabitScaleButtonStyle())
             }
 
             // Mini week dots (always visible - fills space and shows activity at a glance)

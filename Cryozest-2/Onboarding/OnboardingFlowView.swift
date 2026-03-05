@@ -136,13 +136,14 @@ struct ValueDemoStep: View {
 
                 // Value proposition
                 VStack(spacing: 14) {
-                    Text("Discover what works")
+                    Text("See what actually works")
                         .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("Track habits. We find the patterns.")
+                    Text("Which habits change your health?\nData, not guesswork.")
                         .font(.system(size: 17))
                         .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
                 }
                 .opacity(showText ? 1 : 0)
                 .offset(y: showText ? 0 : 20)
@@ -297,7 +298,7 @@ struct HabitsStep: View {
     @Binding var selectedHabits: [TherapyType]
     let onContinue: () -> Void
 
-    @State private var category: Category = .category0
+    @State private var category: SimplifiedCategory = .exercise
     @State private var showContent = false
     @State private var showButton = false
     @Environment(\.managedObjectContext) var managedObjectContext
@@ -331,8 +332,8 @@ struct HabitsStep: View {
             // Categories
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
-                    ForEach(Array(Category.allCases.enumerated()), id: \.element) { index, cat in
-                        CategoryPill(
+                    ForEach(Array(SimplifiedCategory.allCases.enumerated()), id: \.element) { index, cat in
+                        SimplifiedCategoryPill(
                             category: cat,
                             isSelected: category == cat,
                             showContent: showContent,
@@ -351,12 +352,12 @@ struct HabitsStep: View {
             // Grid
             ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(Array(TherapyType.therapies(forCategory: category).enumerated()), id: \.element) { index, type in
+                    ForEach(Array(category.therapyTypes.enumerated()), id: \.element) { index, type in
                         HabitTile(
                             type: type,
                             name: type.displayName(managedObjectContext),
                             isSelected: selectedHabits.contains(type),
-                            syncs: category == .category0,
+                            syncs: category == .exercise,
                             showContent: showContent,
                             delay: Double(index) * 0.03
                         ) {
@@ -434,8 +435,8 @@ struct HabitsStep: View {
     }
 }
 
-struct CategoryPill: View {
-    let category: Category
+struct SimplifiedCategoryPill: View {
+    let category: SimplifiedCategory
     let isSelected: Bool
     let showContent: Bool
     let delay: Double
@@ -444,11 +445,9 @@ struct CategoryPill: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                if category == .category0 {
-                    Image(systemName: "applewatch")
-                        .font(.system(size: 10))
-                        .foregroundColor(.green)
-                }
+                Image(systemName: category.icon)
+                    .font(.system(size: 10))
+                    .foregroundColor(category.color)
                 Text(category.rawValue)
                     .font(.system(size: 13, weight: .medium))
             }
@@ -457,11 +456,11 @@ struct CategoryPill: View {
             .padding(.vertical, 10)
             .background(
                 Capsule()
-                    .fill(isSelected ? Color.cyan.opacity(0.25) : Color.white.opacity(0.08))
+                    .fill(isSelected ? category.color.opacity(0.25) : Color.white.opacity(0.08))
             )
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.cyan.opacity(0.5) : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? category.color.opacity(0.5) : Color.clear, lineWidth: 1)
             )
         }
         .scaleEffect(showContent ? 1 : 0.8)
@@ -785,35 +784,42 @@ struct PromiseStep: View {
                         .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("Start tracking and we'll show you\ninsights in about 2 weeks")
+                    Text("Here's what to expect")
                         .font(.system(size: 16))
                         .foregroundColor(.white.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
                 }
                 .opacity(showContent ? 1 : 0)
                 .offset(y: showContent ? 0 : 20)
                 .padding(.top, 32)
                 .padding(.horizontal, 32)
 
-                // Example insights
+                // Timeline
                 VStack(spacing: 10) {
                     InsightPreviewRow(
-                        icon: "moon.zzz.fill",
-                        color: .indigo,
-                        text: "Sleep improved 23% on meditation days"
+                        icon: "3.circle.fill",
+                        color: .cyan,
+                        text: "Day 3: Early signals appear"
                     )
                     .opacity(showInsights ? 1 : 0)
                     .offset(x: showInsights ? 0 : -30)
 
                     InsightPreviewRow(
-                        icon: "bolt.fill",
-                        color: .yellow,
-                        text: "Morning runs boost your energy"
+                        icon: "7.circle.fill",
+                        color: .green,
+                        text: "Day 7: First trends unlock"
                     )
                     .opacity(showInsights ? 1 : 0)
                     .offset(x: showInsights ? 0 : -30)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.15), value: showInsights)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showInsights)
+
+                    InsightPreviewRow(
+                        icon: "14.circle.fill",
+                        color: .orange,
+                        text: "Day 14: Full insights with confidence"
+                    )
+                    .opacity(showInsights ? 1 : 0)
+                    .offset(x: showInsights ? 0 : -30)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: showInsights)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 32)

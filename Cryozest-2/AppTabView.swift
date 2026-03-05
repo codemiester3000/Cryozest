@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 extension Color {
     static let customOrange = Color(red: 255 / 255, green: 140 / 255, blue: 0 / 255)
@@ -38,16 +39,14 @@ struct AppTabView: View {
                     recoveryModel: RecoveryGraphModel(selectedDate: Calendar.current.startOfDay(for: Date())),
                     exertionModel: ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date())),
                     sleepModel: DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date())),
-                    context: viewContext)
+                    context: viewContext,
+                    insightsViewModel: insightsViewModelWrapper.viewModel
+                )
                     .tag(0)
 
-                MyHabitsView(insightsViewModel: insightsViewModelWrapper.viewModel)
+                InsightsTabView(insightsViewModel: insightsViewModelWrapper.viewModel)
                     .environment(\.managedObjectContext, viewContext)
                     .tag(1)
-
-                InsightsView(sharedInsightsViewModel: insightsViewModelWrapper.viewModel)
-                    .environment(\.managedObjectContext, viewContext)
-                    .tag(2)
             }
             .accentColor(.cyan)
 
@@ -72,97 +71,69 @@ struct AppTabView: View {
     }
 }
 
+// Wrapper class to hold the optional viewModel as @Published
+class InsightsViewModelWrapper: ObservableObject {
+    @Published var viewModel: InsightsViewModel? {
+        didSet {
+            cancellable?.cancel()
+            cancellable = viewModel?.objectWillChange.sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+        }
+    }
+
+    private var cancellable: AnyCancellable?
+}
+
 struct FloatingTabBar: View {
     @Binding var selectedTab: Int
-    @Environment(\.sizeCategory) var sizeCategory
 
     private let tabs = [
-        TabItem(icon: "moon.fill", title: "Daily", tag: 0),
-        TabItem(icon: "list.bullet.rectangle.portrait", title: "Habits", tag: 1),
-        TabItem(icon: "chart.line.uptrend.xyaxis", title: "Trends", tag: 2)
+        TabItem(icon: "sun.max.fill", title: "Today", tag: 0),
+        TabItem(icon: "chart.bar.fill", title: "Insights", tag: 1)
     ]
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             ForEach(tabs, id: \.tag) { tab in
                 Button(action: {
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.impactOccurred()
-
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    withAnimation(.easeInOut(duration: 0.2)) {
                         selectedTab = tab.tag
                     }
                 }) {
-                    VStack(spacing: 5) {
-                        // Icon with glow effect when selected
-                        ZStack {
-                            if selectedTab == tab.tag {
-                                // Glow behind icon
-                                Image(systemName: tab.icon)
-                                    .font(.system(size: 22, weight: .semibold))
-                                    .foregroundColor(.cyan)
-                                    .blur(radius: 8)
-                                    .opacity(0.6)
-                            }
+                    HStack(spacing: 6) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 15, weight: .medium))
 
-                            Image(systemName: tab.icon)
-                                .font(.system(size: 22, weight: selectedTab == tab.tag ? .semibold : .regular))
-                                .foregroundColor(selectedTab == tab.tag ? .cyan : .white.opacity(0.4))
-                        }
-
-                        // Label
                         Text(tab.title)
-                            .font(.system(size: 11, weight: selectedTab == tab.tag ? .bold : .medium))
-                            .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.4))
+                            .font(.system(size: 14, weight: .semibold))
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .foregroundColor(selectedTab == tab.tag ? .white : .white.opacity(0.35))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 11)
                     .background(
-                        // Selected tab highlight
-                        Group {
-                            if selectedTab == tab.tag {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.cyan.opacity(0.15))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                            }
-                        }
+                        Capsule()
+                            .fill(selectedTab == tab.tag
+                                  ? Color.white.opacity(0.12)
+                                  : Color.clear)
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel(tab.title)
-                .accessibilityHint("Tab \(tab.tag + 1) of \(tabs.count)")
-                .accessibilityAddTraits(selectedTab == tab.tag ? [.isSelected, .isButton] : .isButton)
+                .accessibilityAddTraits(selectedTab == tab.tag ? [.isSelected] : [])
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 10)
+        .padding(4)
         .background(
-            // Solid darker background for maximum contrast
-            RoundedRectangle(cornerRadius: 28)
-                .fill(Color(red: 0.08, green: 0.10, blue: 0.14))
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
         )
         .overlay(
-            // Prominent cyan accent border
-            RoundedRectangle(cornerRadius: 28)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color.cyan.opacity(0.5),
-                            Color.cyan.opacity(0.2),
-                            Color.cyan.opacity(0.1)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 1.5
-                )
+            Capsule()
+                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
         )
-        .shadow(color: Color.cyan.opacity(0.15), radius: 20, x: 0, y: 0)
-        .shadow(color: Color.black.opacity(0.5), radius: 16, x: 0, y: 8)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Navigation tabs")
     }
 }
 

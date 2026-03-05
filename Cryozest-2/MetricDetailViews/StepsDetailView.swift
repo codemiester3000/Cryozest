@@ -9,34 +9,37 @@ import SwiftUI
 
 struct StepsDetailView: View {
     @ObservedObject var model: RecoveryGraphModel
-    @ObservedObject var goalManager = StepGoalManager.shared
 
     @State private var stepsHistory: [Date: Double] = [:]
     @State private var isLoadingHistory = true
+
+    private let dailyStepGoal = 10_000
 
     private var steps: Int {
         Int(model.mostRecentSteps ?? 0)
     }
 
     private var goalProgress: Double {
-        min(Double(steps) / Double(goalManager.dailyStepGoal), 1.0)
+        min(Double(steps) / Double(dailyStepGoal), 1.0)
     }
 
     private var last7Days: [Date] {
         let calendar = Calendar.current
+        let ref = calendar.startOfDay(for: model.selectedDate)
         return (0..<7).compactMap { daysAgo in
-            calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date()))
+            calendar.date(byAdding: .day, value: -daysAgo, to: ref)
         }
     }
 
     private var daysGoalMet: Int {
-        stepsHistory.filter { $0.value >= Double(goalManager.dailyStepGoal) }.count
+        stepsHistory.filter { $0.value >= Double(dailyStepGoal) }.count
     }
 
     private var averageStepsLast7Days: Int {
         let calendar = Calendar.current
+        let ref = calendar.startOfDay(for: model.selectedDate)
         let last7Days = (0..<7).compactMap { daysAgo in
-            calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date()))
+            calendar.date(byAdding: .day, value: -daysAgo, to: ref)
         }
 
         let stepsInLast7Days = last7Days.compactMap { stepsHistory[$0] }
@@ -76,7 +79,7 @@ struct StepsDetailView: View {
             // Goal progress
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("Daily Goal (\(goalManager.dailyStepGoal.formatted()) steps)")
+                    Text("Daily Goal (\(dailyStepGoal.formatted()) steps)")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
 
@@ -153,7 +156,7 @@ struct StepsDetailView: View {
                             DayStepRow(
                                 date: date,
                                 steps: Int(stepsHistory[date] ?? 0),
-                                goal: goalManager.dailyStepGoal
+                                goal: dailyStepGoal
                             )
                         }
                     }
@@ -221,11 +224,14 @@ struct StepsDetailView: View {
         .onAppear {
             loadStepsHistory()
         }
+        .onChange(of: model.selectedDate) { _ in
+            loadStepsHistory()
+        }
     }
 
     private func loadStepsHistory() {
         isLoadingHistory = true
-        HealthKitManager.shared.fetchStepsForLastNDays(numberOfDays: 7) { history in
+        HealthKitManager.shared.fetchStepsForLastNDays(numberOfDays: 7, referenceDate: model.selectedDate) { history in
             stepsHistory = history
             isLoadingHistory = false
         }

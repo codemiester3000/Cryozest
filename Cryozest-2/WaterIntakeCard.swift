@@ -242,11 +242,7 @@ struct WaterIntakeCard: View {
     }
 
     private func loadData() {
-        if MockDataHelper.useMockData {
-            totalCups = MockDataHelper.mockWaterCups
-        } else {
-            totalCups = WaterIntake.getTotalCups(for: selectedDate, context: viewContext)
-        }
+        totalCups = WaterIntake.getTotalCups(for: selectedDate, context: viewContext)
     }
 
     private func addCup() {

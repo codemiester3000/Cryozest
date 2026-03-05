@@ -228,24 +228,14 @@ struct WellnessInsightsSection: View {
             // Heatmap
             MoodHeatmap(ratings: ratings)
 
-            // Legend
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 12) {
+            // Legend - compact single row
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
                     MoodLegendItem(rating: 5, label: "Excellent")
                     MoodLegendItem(rating: 4, label: "Good")
                     MoodLegendItem(rating: 3, label: "Okay")
-                }
-                HStack(spacing: 12) {
                     MoodLegendItem(rating: 2, label: "Not great")
                     MoodLegendItem(rating: 1, label: "Terrible")
-                    HStack(spacing: 6) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.white.opacity(0.1))
-                            .frame(width: 12, height: 12)
-                        Text("No rating")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
                 }
             }
         }
@@ -323,190 +313,104 @@ struct WellnessImpactCard: View {
 struct MoodHeatmap: View {
     let ratings: [WellnessRating]
 
-    private let columns = 7
+    private let weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"]
 
-    // Get last 30 days
-    private var last30Days: [Date] {
+    /// Build a proper calendar grid: 4 full weeks + current partial week, aligned to weekdays
+    private var calendarGrid: [[Date?]] {
         let calendar = Calendar.current
-        let today = Date()
-        return (0..<30).compactMap { dayOffset in
-            calendar.date(byAdding: .day, value: -dayOffset, to: today)
-        }.reversed()
-    }
+        let today = calendar.startOfDay(for: Date())
 
-    private let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "E"
-        return formatter
-    }()
+        // Go back 28 days (4 weeks) from the start of the current week
+        let todayWeekday = calendar.component(.weekday, from: today) // 1=Sun, 2=Mon...
+        let mondayOffset = todayWeekday == 1 ? -6 : (2 - todayWeekday) // Offset to Monday
+        let thisMonday = calendar.date(byAdding: .day, value: mondayOffset, to: today)!
+        let startDate = calendar.date(byAdding: .day, value: -28, to: thisMonday)!
 
-    private let monthFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM"
-        return formatter
-    }()
+        var weeks: [[Date?]] = []
+        var currentWeek: [Date?] = []
+        var date = startDate
 
-    private let monthYearFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM yyyy"
-        return formatter
-    }()
-
-    // Get the month range being displayed
-    private var dateRangeText: String {
-        guard let firstDate = last30Days.first,
-              let lastDate = last30Days.last else {
-            return ""
+        while date <= today {
+            currentWeek.append(date)
+            if currentWeek.count == 7 {
+                weeks.append(currentWeek)
+                currentWeek = []
+            }
+            date = calendar.date(byAdding: .day, value: 1, to: date)!
+        }
+        // Pad the last partial week
+        if !currentWeek.isEmpty {
+            while currentWeek.count < 7 {
+                currentWeek.append(nil)
+            }
+            weeks.append(currentWeek)
         }
 
-        let calendar = Calendar.current
-        let firstMonth = calendar.component(.month, from: firstDate)
-        let lastMonth = calendar.component(.month, from: lastDate)
-        let firstYear = calendar.component(.year, from: firstDate)
-        let lastYear = calendar.component(.year, from: lastDate)
-
-        if firstMonth == lastMonth && firstYear == lastYear {
-            // Same month
-            return monthYearFormatter.string(from: firstDate)
-        } else if firstYear == lastYear {
-            // Same year, different months
-            return "\(monthFormatter.string(from: firstDate)) - \(monthYearFormatter.string(from: lastDate))"
-        } else {
-            // Different years
-            return "\(monthYearFormatter.string(from: firstDate)) - \(monthYearFormatter.string(from: lastDate))"
-        }
+        return weeks
     }
 
-    // Get rating for a specific date
     private func getRating(for date: Date) -> Int? {
         let calendar = Calendar.current
         for rating in ratings {
-            if let ratingDate = rating.date {
-                if calendar.isDate(ratingDate, inSameDayAs: date) {
-                    return Int(rating.rating)
-                }
+            if let ratingDate = rating.date, calendar.isDate(ratingDate, inSameDayAs: date) {
+                return Int(rating.rating)
             }
         }
         return nil
     }
 
-    // Get color for rating - red to green gradient
     private func colorForRating(_ rating: Int?) -> Color {
-        guard let rating = rating else {
-            return Color.white.opacity(0.1)
-        }
-
+        guard let rating = rating else { return Color.white.opacity(0.06) }
         switch rating {
-        case 5: return Color.green                           // Best
-        case 4: return Color(red: 0.6, green: 0.9, blue: 0.3) // Yellow-green
-        case 3: return Color.yellow                           // Neutral
-        case 2: return Color.orange                           // Orange-red
-        case 1: return Color(red: 0.9, green: 0.4, blue: 0.4) // Softer red for worst
-        default: return Color.white.opacity(0.1)
+        case 5: return Color.green
+        case 4: return Color(red: 0.6, green: 0.9, blue: 0.3)
+        case 3: return Color.yellow
+        case 2: return Color.orange
+        case 1: return Color(red: 0.9, green: 0.4, blue: 0.4)
+        default: return Color.white.opacity(0.06)
         }
-    }
-
-    // Group dates by month
-    private var datesByMonth: [(monthLabel: String, dates: [Date])] {
-        let calendar = Calendar.current
-        var grouped: [(String, [Date])] = []
-
-        for date in last30Days {
-            let monthLabel = monthYearFormatter.string(from: date)
-
-            if let lastIndex = grouped.indices.last, grouped[lastIndex].0 == monthLabel {
-                grouped[lastIndex].1.append(date)
-            } else {
-                grouped.append((monthLabel, [date]))
-            }
-        }
-
-        return grouped
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Heatmap grid - organized by month
-            VStack(spacing: 4) {
-                ForEach(Array(datesByMonth.enumerated()), id: \.offset) { monthIndex, monthGroup in
-                    VStack(spacing: 6) {
-                        // Month label and divider
-                        HStack(spacing: 8) {
-                            Text(monthGroup.monthLabel)
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.white.opacity(0.7))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.white.opacity(0.1))
-                                        .overlay(
-                                            Capsule()
-                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                                        )
-                                )
+        VStack(spacing: 8) {
+            // Weekday labels
+            HStack(spacing: 4) {
+                ForEach(0..<7, id: \.self) { i in
+                    Text(weekdayLabels[i])
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.4))
+                        .frame(maxWidth: .infinity)
+                }
+            }
 
-                            Rectangle()
-                                .fill(Color.white.opacity(0.2))
-                                .frame(height: 1)
-                        }
-                        .padding(.top, monthIndex > 0 ? 12 : 0)
+            // Calendar rows
+            ForEach(Array(calendarGrid.enumerated()), id: \.offset) { _, week in
+                HStack(spacing: 4) {
+                    ForEach(0..<7, id: \.self) { dayIndex in
+                        if let date = week[dayIndex] {
+                            let rating = getRating(for: date)
+                            let isToday = Calendar.current.isDateInToday(date)
+                            let dayNum = Calendar.current.component(.day, from: date)
 
-                        // Day labels for this month (show first 7 days to get weekday labels)
-                        HStack(spacing: 4) {
-                            ForEach(0..<min(7, monthGroup.dates.count), id: \.self) { col in
-                                Text(String(dayFormatter.string(from: monthGroup.dates[col]).prefix(1)))
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.5))
-                                    .frame(maxWidth: .infinity)
-                            }
-                            // Fill remaining columns if less than 7 days
-                            if monthGroup.dates.count < 7 {
-                                ForEach(monthGroup.dates.count..<7, id: \.self) { _ in
-                                    Color.clear.frame(maxWidth: .infinity)
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(colorForRating(rating))
+                                    .frame(height: 36)
+
+                                Text("\(dayNum)")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(rating != nil ? .white : .white.opacity(0.2))
+
+                                if isToday {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.white, lineWidth: 2)
+                                        .frame(height: 36)
                                 }
                             }
-                        }
-
-                        // Grid for this month's dates
-                        let monthRows = Int(ceil(Double(monthGroup.dates.count) / Double(columns)))
-                        VStack(spacing: 4) {
-                            ForEach(0..<monthRows, id: \.self) { row in
-                                HStack(spacing: 4) {
-                                    ForEach(0..<columns, id: \.self) { col in
-                                        let index = row * columns + col
-                                        if index < monthGroup.dates.count {
-                                            let date = monthGroup.dates[index]
-                                            let rating = getRating(for: date)
-                                            let isToday = Calendar.current.isDateInToday(date)
-                                            let dayNumber = Calendar.current.component(.day, from: date)
-
-                                            ZStack {
-                                                RoundedRectangle(cornerRadius: 4)
-                                                    .fill(colorForRating(rating))
-                                                    .frame(height: 32)
-
-                                                // Day number
-                                                Text("\(dayNumber)")
-                                                    .font(.system(size: 9, weight: .semibold))
-                                                    .foregroundColor(rating != nil ? Color.white : Color.white.opacity(0.3))
-
-                                                // Today indicator ring
-                                                if isToday {
-                                                    RoundedRectangle(cornerRadius: 4)
-                                                        .stroke(Color.white, lineWidth: 2)
-                                                        .frame(height: 32)
-                                                }
-                                            }
-                                        } else {
-                                            // Empty space for incomplete rows
-                                            RoundedRectangle(cornerRadius: 4)
-                                                .fill(Color.clear)
-                                                .frame(height: 32)
-                                        }
-                                    }
-                                }
-                            }
+                        } else {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.clear)
+                                .frame(height: 36)
                         }
                     }
                 }
@@ -531,13 +435,13 @@ struct MoodLegendItem: View {
     }
 
     var body: some View {
-        HStack(spacing: 6) {
-            RoundedRectangle(cornerRadius: 2)
+        HStack(spacing: 4) {
+            Circle()
                 .fill(color)
-                .frame(width: 12, height: 12)
+                .frame(width: 8, height: 8)
 
             Text(label)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundColor(.white.opacity(0.6))
         }
     }

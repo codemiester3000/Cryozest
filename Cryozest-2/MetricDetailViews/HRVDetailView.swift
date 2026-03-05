@@ -88,9 +88,10 @@ struct HRVDetailView: View {
 
             zoneIndicator
         }
-        .onAppear {
-            loadData()
-        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .onAppear { loadData() }
+        .onChange(of: model.selectedDate) { _ in loadData() }
     }
 
     private var trendIndicator: some View {
@@ -202,13 +203,13 @@ struct HRVDetailView: View {
     private func loadData() {
         isLoading = true
 
-        // Fetch 7 days of HRV data
+        // Fetch 7 days of HRV data centered on selected date
         let calendar = Calendar.current
-        let today = Date()
+        let referenceDate = model.selectedDate
         var days: [Date] = []
 
         for i in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: -i, to: today) {
+            if let date = calendar.date(byAdding: .day, value: -i, to: referenceDate) {
                 days.append(date)
             }
         }

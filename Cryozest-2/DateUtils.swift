@@ -2,6 +2,16 @@ import Foundation
 import CoreData
 import SwiftUI
 
+enum TimeFrame: String, CaseIterable {
+    case week = "Week"
+    case month = "Month"
+    case allTime = "All Time"
+
+    func displayString() -> String {
+        return self.rawValue
+    }
+}
+
 class DateUtils {
     
     static let shared = DateUtils()

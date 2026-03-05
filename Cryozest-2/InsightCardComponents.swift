@@ -8,134 +8,87 @@
 import SwiftUI
 import CoreData
 
-// MARK: - Top Impact Card (With statistical confidence)
+// MARK: - Top Impact Card
 struct TopImpactCard: View {
     let impact: HabitImpact
     let rank: Int
     @Environment(\.managedObjectContext) private var managedObjectContext
 
+    private var accentColor: Color {
+        impact.isPositive ? .green : .red
+    }
+
+    private var metricLabel: String {
+        switch impact.metricName {
+        case "Sleep Duration": return "Sleep"
+        case "Pain Level": return "Pain"
+        default: return impact.metricName
+        }
+    }
+
+    private var insightText: String {
+        let pct = abs(Int(impact.percentageChange))
+        let verb = impact.isPositive ? "improves" : "worsens"
+        var text = "\(verb) \(metricLabel) by \(pct)%"
+        if let lag = impact.lagDescription {
+            text += " (\(lag))"
+        }
+        return text
+    }
+
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            // Main content card
-            HStack(spacing: 12) {
-                // Habit icon - rounded square for distinction
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(impact.habitType.color.opacity(0.15))
-                        .frame(width: 44, height: 44)
+        HStack(spacing: 14) {
+            // Rank number
+            Text("\(rank)")
+                .font(.system(size: 13, weight: .black, design: .rounded))
+                .foregroundColor(.white.opacity(0.25))
+                .frame(width: 18)
 
-                    Image(systemName: impact.habitType.icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(impact.habitType.color)
-                }
-
-                // Content
-                VStack(alignment: .leading, spacing: 5) {
-                    // Habit name with confidence
-                    HStack(spacing: 6) {
-                        Text(impact.habitType.displayName(managedObjectContext))
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.white)
-
-                        // Confidence indicator
-                        ConfidenceIndicator(level: impact.confidenceLevel)
-                    }
-
-                    // Clear, compact association
-                    HStack(spacing: 5) {
-                        Image(systemName: impact.isPositive ? "arrow.up.right" : "arrow.down.right")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(impact.isPositive ? .green : .red)
-
-                        Text(impact.isPositive ? "improves" : "worsens")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(impact.isPositive ? .green : .red)
-
-                        Text(impact.metricName)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.85))
-
-                        // Show lag if next-day effect
-                        if let lagDesc = impact.lagDescription {
-                            Text("(\(lagDesc))")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.cyan.opacity(0.7))
-                        }
-                    }
-
-                    // Compact values comparison
-                    HStack(spacing: 5) {
-                        Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.4))
-
-                        Text("→")
-                            .font(.system(size: 10))
-                            .foregroundColor(.white.opacity(0.3))
-
-                        Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-
-                Spacer()
-
-                // Impact value - prominent
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(impact.changeDescription)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(impact.isPositive ? .green : .red)
-
-                    if impact.isStatisticallySignificant {
-                        Text("significant")
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundColor(.green.opacity(0.8))
-                    }
-                }
-            }
-            .padding(14)
-
-            // Rank badge - small corner badge
+            // Habit icon
             ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [rankColor.opacity(0.9), rankColor.opacity(0.7)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 24, height: 24)
-                    .shadow(color: rankColor.opacity(0.3), radius: 4, x: 0, y: 2)
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(impact.habitType.color.opacity(0.15))
+                    .frame(width: 40, height: 40)
 
-                Text("\(rank)")
-                    .font(.system(size: 12, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
+                Image(systemName: impact.habitType.icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(impact.habitType.color)
             }
-            .offset(x: -6, y: -6)
-        }
-    }
 
-    private var rankColor: Color {
-        switch rank {
-        case 1: return Color(red: 1.0, green: 0.84, blue: 0.0)
-        case 2: return Color(red: 0.75, green: 0.75, blue: 0.75)
-        case 3: return Color(red: 0.8, green: 0.5, blue: 0.2)
-        default: return .white.opacity(0.4)
-        }
-    }
+            // Content
+            VStack(alignment: .leading, spacing: 3) {
+                Text(impact.habitType.displayName(managedObjectContext))
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
 
-    private func formatValueWithUnit(_ value: Double, metric: String) -> String {
-        switch metric {
-        case "Sleep Duration": return String(format: "%.1fh", value)
-        case "HRV": return "\(Int(value)) ms"
-        case "RHR": return "\(Int(value)) bpm"
-        default:
-            if value >= 100 { return String(format: "%.0f", value) }
-            else if value >= 10 { return String(format: "%.1f", value) }
-            else { return String(format: "%.2f", value) }
+                HStack(spacing: 4) {
+                    Image(systemName: impact.isPositive ? "arrow.up.right" : "arrow.down.right")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(accentColor)
+
+                    Text(insightText)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+
+            Spacer()
+
+            // Impact value
+            Text(impact.changeDescription)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundColor(accentColor)
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(accentColor.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(accentColor.opacity(0.08), lineWidth: 1)
+                )
+        )
     }
 }
 
@@ -191,20 +144,6 @@ struct MetricImpactRow: View {
                     }
                 }
 
-                // Compact values comparison
-                HStack(spacing: 5) {
-                    Text(formatValueWithUnit(impact.baselineValue, metric: impact.metricName))
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.4))
-
-                    Text("→")
-                        .font(.system(size: 10))
-                        .foregroundColor(.white.opacity(0.3))
-
-                    Text(formatValueWithUnit(impact.habitValue, metric: impact.metricName))
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.6))
-                }
             }
 
             Spacer()
@@ -224,18 +163,6 @@ struct MetricImpactRow: View {
         }
         .padding(14)
     }
-
-    private func formatValueWithUnit(_ value: Double, metric: String) -> String {
-        switch metric {
-        case "Sleep Duration": return String(format: "%.1fh", value)
-        case "HRV": return "\(Int(value)) ms"
-        case "RHR": return "\(Int(value)) bpm"
-        default:
-            if value >= 100 { return String(format: "%.0f", value) }
-            else if value >= 10 { return String(format: "%.1f", value) }
-            else { return String(format: "%.2f", value) }
-        }
-    }
 }
 
 // MARK: - Confidence Indicator
@@ -243,11 +170,30 @@ struct ConfidenceIndicator: View {
     let level: ConfidenceLevel
 
     var body: some View {
-        HStack(spacing: 2) {
-            ForEach(0..<3, id: \.self) { index in
-                Circle()
-                    .fill(fillColor(for: index))
-                    .frame(width: 4, height: 4)
+        if level.isEarlySignal {
+            // Early Signal badge
+            HStack(spacing: 3) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 7, weight: .bold))
+                Text("Early Signal")
+                    .font(.system(size: 8, weight: .bold))
+                    .textCase(.uppercase)
+                    .tracking(0.3)
+            }
+            .foregroundColor(.cyan)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                Capsule()
+                    .fill(Color.cyan.opacity(0.15))
+            )
+        } else {
+            HStack(spacing: 2) {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(fillColor(for: index))
+                        .frame(width: 4, height: 4)
+                }
             }
         }
     }
@@ -271,6 +217,7 @@ struct ConfidenceIndicator: View {
         switch level {
         case .high: return .green
         case .moderate: return .yellow
+        case .earlySignal: return .cyan
         case .low: return .orange
         case .insufficient: return .gray
         }
@@ -333,12 +280,19 @@ struct HealthTrendCard: View {
     let trend: HealthTrend
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Metric icon - smaller, more subtle
-            Image(systemName: trend.icon)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(trend.color)
-                .frame(width: 32)
+        HStack(spacing: 0) {
+            // Colored left accent bar
+            RoundedRectangle(cornerRadius: 2)
+                .fill(trend.color)
+                .frame(width: 3)
+                .padding(.vertical, 6)
+
+            HStack(spacing: 14) {
+                // Metric icon - smaller, more subtle
+                Image(systemName: trend.icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(trend.color)
+                    .frame(width: 32)
 
                 // Content
                 VStack(alignment: .leading, spacing: 4) {
@@ -369,17 +323,23 @@ struct HealthTrendCard: View {
                         Image(systemName: trend.isPositive ? "arrow.up" : "arrow.down")
                             .font(.system(size: 11, weight: .bold))
 
-                    Text(trend.changeDescription)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                }
-                .foregroundColor(trend.isPositive ? .green : .red)
+                        Text(trend.changeDescription)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                    }
+                    .foregroundColor(trend.isPositive ? .green : .red)
 
-                Text("vs last week")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.35))
+                    Text("vs last week")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.35))
+                }
             }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
         }
-        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.06))
+        )
     }
 
     private func formatValueWithUnit(_ value: Double, metric: String) -> String {
@@ -444,5 +404,33 @@ struct InsightsDivider: View {
             .fill(Color.white.opacity(0.08))
             .frame(height: 1)
             .padding(.vertical, 16)
+    }
+}
+
+// MARK: - Feed Widget Style
+
+enum FeedWidgetStyleType {
+    case hero, medical, activity
+}
+
+struct FeedWidgetStyleModifier: ViewModifier {
+    let style: FeedWidgetStyleType
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
+            )
+    }
+}
+
+extension View {
+    func feedWidgetStyle(style: FeedWidgetStyleType) -> some View {
+        modifier(FeedWidgetStyleModifier(style: style))
     }
 }

@@ -660,6 +660,60 @@ class HealthKitManager {
         self.healthStore.execute(query)
     }
 
+    func fetchStepsForLastNDays(numberOfDays: Int, referenceDate: Date, completion: @escaping ([Date: Double]) -> Void) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            completion([:])
+            return
+        }
+
+        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: referenceDate)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: endDate),
+              let startDate = calendar.date(byAdding: .day, value: -numberOfDays + 1, to: endDate) else {
+            completion([:])
+            return
+        }
+
+        var anchorComponents = calendar.dateComponents([.day, .month, .year], from: endDate)
+        anchorComponents.hour = 0
+        guard let anchorDate = calendar.date(from: anchorComponents) else {
+            completion([:])
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endOfDay, options: .strictStartDate)
+
+        let query = HKStatisticsCollectionQuery(
+            quantityType: stepType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum,
+            anchorDate: anchorDate,
+            intervalComponents: DateComponents(day: 1)
+        )
+
+        query.initialResultsHandler = { _, results, error in
+            guard let results = results else {
+                completion([:])
+                return
+            }
+
+            var stepsByDate: [Date: Double] = [:]
+            results.enumerateStatistics(from: startDate, to: endDate) { statistics, _ in
+                if let sum = statistics.sumQuantity() {
+                    let steps = sum.doubleValue(for: HKUnit.count())
+                    stepsByDate[statistics.startDate] = steps
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(stepsByDate)
+            }
+        }
+
+        self.healthStore.execute(query)
+    }
+
     func fetchAverageRestingHeartRate(for date: Date, completion: @escaping (Int?) -> Void) {
         fetchMostRecentRestingHeartRate(for: date) { value, _ in
             completion(value)

@@ -178,7 +178,7 @@ struct ExpandedMetricView: View {
         case .recovery:
             RecoveryDetailView(model: model)
         case .sleep:
-            SleepDetailView(model: model)
+            EmptyView()
         }
     }
 }
@@ -220,20 +220,3 @@ struct RecoveryDetailView: View {
     }
 }
 
-struct SleepDetailView: View {
-    let model: RecoveryGraphModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Sleep Score Details")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white.opacity(0.9))
-
-            Text("Your sleep score is based on total sleep duration, sleep stages, and sleep consistency. Visit the Sleep tab for more detailed analysis.")
-                .font(.system(size: 14, weight: .regular))
-                .foregroundColor(.white.opacity(0.7))
-                .lineSpacing(4)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}

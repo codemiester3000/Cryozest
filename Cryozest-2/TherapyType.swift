@@ -393,14 +393,74 @@ enum TherapyType: String, Codable, Identifiable, CaseIterable {
 }
 
 
+// Simplified 4-category system for the new focused UI
+enum SimplifiedCategory: String, CaseIterable, Identifiable {
+    var id: String { self.rawValue }
+
+    case exercise = "Exercise"
+    case recovery = "Recovery"
+    case substances = "Substances"
+    case lifestyle = "Lifestyle"
+    case custom = "Custom"
+
+    var icon: String {
+        switch self {
+        case .exercise: return "figure.run"
+        case .recovery: return "leaf.fill"
+        case .substances: return "capsule"
+        case .lifestyle: return "sun.max.fill"
+        case .custom: return "star.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .exercise: return .green
+        case .recovery: return .blue
+        case .substances: return .teal
+        case .lifestyle: return .orange
+        case .custom: return .purple
+        }
+    }
+
+    var therapyTypes: [TherapyType] {
+        switch self {
+        case .exercise:
+            return [.running, .walking, .weightTraining, .cycling, .swimming, .hiking,
+                    .rowing, .pilates, .boxing, .crossfit, .dance, .rockClimbing,
+                    .surfing, .pickleball, .basketball, .elliptical, .barre, .stairClimbing]
+        case .recovery:
+            return [.meditation, .coldYoga, .stretching, .deepBreathing, .nap, .massage]
+        case .substances:
+            return [.magnesium, .creatine, .fishOil, .d3, .melatonin, .cbd,
+                    .electrolytes, .multivitamin, .ashwagandha, .lTheanine, .Fasting,
+                    .noCaffeine]
+        case .lifestyle:
+            return [.sunlight, .reading, .jobStress, .lifeStress, .menstruation,
+                    .sickness, .travel, .shiftWork]
+        case .custom:
+            return [.custom1, .custom2, .custom3, .custom4]
+        }
+    }
+
+    /// Popular habits shown first during onboarding
+    var popularTypes: [TherapyType] {
+        switch self {
+        case .exercise: return [.running, .weightTraining, .walking, .cycling]
+        case .recovery: return [.meditation, .coldYoga, .stretching]
+        case .substances: return [.magnesium, .creatine, .fishOil, .d3]
+        case .lifestyle: return [.sunlight, .reading, .jobStress]
+        case .custom: return [.custom1, .custom2]
+        }
+    }
+}
+
+// Legacy category system - kept for backward compatibility
 enum Category: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 
     case category0 = "Workouts"
     case category1 = "All"
-    // COMMENTED OUT FOR APP STORE COMPLIANCE - DO NOT SUGGEST EXTREME TEMPERATURE ACTIVITIES
-    // case category2 = "Heat-Based"
-    // case category3 = "Cold-Based"
     case category4 = "Recovery"
     case category5 = "Supplements"
     case category6 = "Diet"

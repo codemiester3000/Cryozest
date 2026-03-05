@@ -9,7 +9,7 @@ struct TherapyTypeSelectionView: View {
     @State var showAlert = false
     @State var alertTitle = ""
     @State var alertMessage = ""
-    @State var selectedCategory: Category = Category.category0
+    @State var selectedCategory: SimplifiedCategory = .exercise
     @State private var showExtremeTempAlert = false
     @State private var pendingExtremeTempTherapy: TherapyType?
 
@@ -69,11 +69,11 @@ struct TherapyTypeSelectionView: View {
                 // Category tabs
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
-                        ForEach(Category.allCases, id: \.self) { category in
+                        ForEach(SimplifiedCategory.allCases, id: \.self) { category in
                             CategoryChip(
                                 title: category.rawValue,
                                 isSelected: selectedCategory == category,
-                                hasWatch: category == .category0
+                                hasWatch: category == .exercise
                             ) {
                                 withAnimation(.easeOut(duration: 0.15)) {
                                     selectedCategory = category
@@ -88,8 +88,8 @@ struct TherapyTypeSelectionView: View {
                 // Grid
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 14) {
-                        ForEach(TherapyType.therapies(forCategory: selectedCategory), id: \.self) { therapyType in
-                            let isWorkout = selectedCategory == .category0 || (selectedCategory == .category1 && Category.category0.therapies().contains(therapyType))
+                        ForEach(selectedCategory.therapyTypes, id: \.self) { therapyType in
+                            let isWorkout = selectedCategory == .exercise
 
                             HabitSelectionCard(
                                 therapyType: therapyType,
