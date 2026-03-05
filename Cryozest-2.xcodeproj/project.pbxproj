@@ -12,6 +12,7 @@
 		14F8A97F12514AD19322F88C /* OnboardingHookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFEA24024954B2A92C6C131 /* OnboardingHookView.swift */; };
 		212E4E42A5A1AEDF015BCE34 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
 		21C8CA05880D4E07B0121D0F /* WaterIntake.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA67D199941D4A729437DFF8 /* WaterIntake.swift */; };
+		3E554D6E2CA6F4AFF00E6B12 /* DemoDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */; };
 		4209CC3782C78894459E0351 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70692E7C1194CD666D13C664 /* SettingsView.swift */; };
 		5BB24695940CDE9994B0D2F2 /* HeartRateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45914F459441A47CB5A96342 /* HeartRateDetailView.swift */; };
 		5FDAFBFADBA44040A8251FE7 /* WaterIntakeCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C066F60381334407BD631143 /* WaterIntakeCard.swift */; };
@@ -125,6 +126,7 @@
 		184C913819EA5A59B7031390 /* RecoveryScoreCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecoveryScoreCard.swift; sourceTree = "<group>"; };
 		236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationAdherenceSection.swift; path = "Cryozest-2/MedicationAdherenceSection.swift"; sourceTree = SOURCE_ROOT; };
 		27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
+		3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DemoDataManager.swift; sourceTree = "<group>"; };
 		45914F459441A47CB5A96342 /* HeartRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HeartRateDetailView.swift; path = "Cryozest-2/MetricDetailViews/HeartRateDetailView.swift"; sourceTree = SOURCE_ROOT; };
 		49B046738978308F7AEF51A8 /* MedicationsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationsCard.swift; path = "Cryozest-2/MedicationsCard.swift"; sourceTree = SOURCE_ROOT; };
 		4D1374A61B5D49BC99C72575 /* StatisticsUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatisticsUtility.swift; path = "Cryozest-2/StatisticsUtility.swift"; sourceTree = SOURCE_ROOT; };
@@ -346,6 +348,7 @@
 				AA11BB22CC33DD44EE55FF14 /* AICoachView.swift */,
 				AA11BB22CC33DD44EE55FF15 /* CoachResponseParser.swift */,
 				184C913819EA5A59B7031390 /* RecoveryScoreCard.swift */,
+				3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -597,6 +600,7 @@
 				C6F708192A304B53E7F80910 /* HabitImpactChips.swift in Sources */,
 				E8192A30B4C15D75091A2B3C /* DataCollectionProgressView.swift in Sources */,
 				DB172100BA9ED1CBD37614FA /* RecoveryScoreCard.swift in Sources */,
+				3E554D6E2CA6F4AFF00E6B12 /* DemoDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

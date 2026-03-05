@@ -95,6 +95,10 @@ class ChatViewModel: ObservableObject {
     }
 
     func sendInitialQuestionIfNeeded(_ question: String?) {
+        if DemoDataManager.shared.isDemoMode && messages.isEmpty {
+            DemoDataManager.shared.populateChatViewModel(self)
+            return
+        }
         guard let question = question,
               !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               messages.isEmpty else { return }

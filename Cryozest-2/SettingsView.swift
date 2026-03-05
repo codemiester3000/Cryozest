@@ -6,6 +6,7 @@ struct SettingsView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     @StateObject private var notificationManager = NotificationManager.shared
+    @ObservedObject private var demoManager = DemoDataManager.shared
     @State private var showHabitSelection = false
 
     @FetchRequest(
@@ -45,6 +46,9 @@ struct SettingsView: View {
 
                         // Habits Section
                         habitsSection
+
+                        // Developer Section
+                        developerSection
 
                         // About Section
                         aboutSection
@@ -213,6 +217,19 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - Developer Section
+
+    private var developerSection: some View {
+        SettingsSection(title: "Developer", icon: "hammer.fill", color: .purple) {
+            SettingsToggle(
+                title: "Demo Mode",
+                subtitle: "Show sample data for screenshots",
+                isOn: $demoManager.isDemoMode,
+                onChange: { _ in }
+            )
         }
     }
 

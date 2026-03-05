@@ -257,6 +257,10 @@ class InsightsViewModel: ObservableObject {
     }
 
     func fetchAllImpacts() {
+        if DemoDataManager.shared.isDemoMode {
+            DemoDataManager.shared.populateInsightsViewModel(self)
+            return
+        }
         isLoading = true
 
         // Combine manually selected types with recorded workout types

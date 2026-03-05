@@ -477,6 +477,13 @@ struct DailyView: View {
     }
 
     private func loadHealthData() {
+        if DemoDataManager.shared.isDemoMode {
+            DemoDataManager.shared.populateRecoveryModel(recoveryModel)
+            DemoDataManager.shared.populateExertionModel(exertionModel)
+            DemoDataManager.shared.populateSleepModel(sleepModel)
+            DemoDataManager.shared.populateCoreDataIfNeeded(context: viewContext)
+            return
+        }
         recoveryModel.pullAllRecoveryData(forDate: selectedDate)
         exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
         sleepModel.fetchSleepData(forDate: selectedDate)
