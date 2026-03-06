@@ -252,7 +252,7 @@ struct StressScoreCard: View {
                         .foregroundColor(.white.opacity(0.3))
                         .lineLimit(3)
                 } else {
-                    Text("Wear your Apple Watch to sleep to generate a score")
+                    Text("Wear your Apple Watch to generate a score")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.3))
                         .lineLimit(2)
@@ -346,7 +346,7 @@ private struct StressDetailSheet: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.white.opacity(0.7))
 
-                Text(model.insufficientDataReason ?? "Wear your Apple Watch to sleep to generate a stress score.")
+                Text(model.insufficientDataReason ?? "Wear your Apple Watch to generate a stress score.")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.45))
                     .lineSpacing(3)
@@ -739,7 +739,9 @@ private struct StressDetailSheet: View {
                 if model.hasTemperatureData {
                     howItWorksRow(weight: w?.label(for: "temp") ?? "10%", label: "Wrist temperature deviation", color: .orange)
                 }
-                howItWorksRow(weight: w?.label(for: "sleep") ?? "15%", label: "Sleep deficit penalty", color: .indigo)
+                if model.sleepDeficit != nil {
+                    howItWorksRow(weight: w?.label(for: "sleep") ?? "15%", label: "Sleep deficit penalty", color: .indigo)
+                }
             }
 
             Text("Each metric is compared to your personal 14-day rolling average using Z-scores. Higher stress means your body is deviating from its norm in ways associated with fatigue, illness, or overtraining.")

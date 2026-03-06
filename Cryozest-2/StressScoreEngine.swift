@@ -17,33 +17,44 @@ struct NightlyMetrics {
     /// We use 2 hours as a conservative lower bound.
     static let minimumSleepForScore: Double = 7200.0
 
-    /// Returns true if this night has enough data to produce a reliable score.
-    /// Requirements (modeled after WHOOP/Oura):
+    /// Returns true if this night has enough data for a **recovery** score.
+    /// Recovery is specifically about recovering from sleep, so it requires:
     ///   1. Sleep must be detected AND >= 2 hours
     ///   2. HRV during sleep must exist (primary recovery signal)
-    ///   3. RHR must exist (secondary signal, but always present if watch was worn during sleep)
-    var hasSufficientData: Bool {
+    ///   3. RHR must exist (always present if watch was worn during sleep)
+    var hasSufficientDataForRecovery: Bool {
         guard let sleep = sleepDuration, sleep >= NightlyMetrics.minimumSleepForScore else {
             return false
         }
         guard hrv != nil else {
             return false
         }
-        // RHR is also required — if the watch recorded sleep + HRV, RHR should always exist.
-        // If it doesn't, something is wrong with the data.
         guard rhr != nil else {
             return false
         }
         return true
     }
 
-    /// Returns the count of available optional metrics (resp rate, wrist temp)
-    /// beyond the mandatory trio (HRV, RHR, sleep).
-    var availableOptionalMetricCount: Int {
-        var count = 0
-        if respRate != nil { count += 1 }
-        if wristTemp != nil { count += 1 }
-        return count
+    /// Returns true if this night/day has enough data for a **stress** score.
+    /// Stress only requires the two core physiological signals (HRV + RHR).
+    /// Sleep, resp rate, and wrist temp are optional enhancers that improve accuracy
+    /// but are not required. This allows stress scores even when sleep data
+    /// hasn't synced yet or wasn't recorded.
+    var hasSufficientDataForStress: Bool {
+        guard hrv != nil else { return false }
+        guard rhr != nil else { return false }
+        return true
+    }
+
+    /// Legacy alias — recovery-level sufficiency (strictest gate).
+    var hasSufficientData: Bool { hasSufficientDataForRecovery }
+
+    /// Returns true if sleep data is present and meets the minimum threshold.
+    var hasSleepData: Bool {
+        guard let sleep = sleepDuration, sleep >= NightlyMetrics.minimumSleepForScore else {
+            return false
+        }
+        return true
     }
 }
 
@@ -170,18 +181,19 @@ class StressScoreEngine {
         "sleep": 0.15
     ]
 
-    /// Computes weights dynamically based on which optional metrics are actually present.
-    /// HRV, RHR, and sleep are always required (guaranteed by hasSufficientData).
-    /// Only resp and temp are optional — their weight is redistributed proportionally.
-    private func weights(hasResp: Bool, hasTemp: Bool) -> MetricWeights {
+    /// Computes weights dynamically based on which metrics are actually present.
+    /// HRV and RHR are always required (guaranteed by hasSufficientDataForStress).
+    /// Sleep, resp, and temp are optional — their weight is redistributed proportionally
+    /// among present metrics when missing.
+    private func weights(hasResp: Bool, hasTemp: Bool, hasSleep: Bool = true) -> MetricWeights {
         // Start with base weights for mandatory metrics
         var pool: [String: Double] = [
             "hrv": Self.baseWeights["hrv"]!,
             "rhr": Self.baseWeights["rhr"]!,
-            "sleep": Self.baseWeights["sleep"]!
         ]
 
         // Add optional metrics that are present
+        if hasSleep { pool["sleep"] = Self.baseWeights["sleep"]! }
         if hasResp { pool["resp"] = Self.baseWeights["resp"]! }
         if hasTemp { pool["temp"] = Self.baseWeights["temp"]! }
 
@@ -201,16 +213,24 @@ class StressScoreEngine {
     // MARK: - Score Computation
 
     /// Computes stress and recovery scores from nightly metrics.
-    /// Returns nil if metrics don't meet minimum data quality requirements.
-    func computeScore(metrics: NightlyMetrics, baseline: BaselineData) -> StressRecoveryScore? {
-        // GATE: Require sufficient data (sleep >= 2h + HRV + RHR)
-        // This matches WHOOP (no score without detected sleep) and Oura (min 3h sleep stages)
-        guard metrics.hasSufficientData else {
-            return nil
+    ///
+    /// - Parameter requireSleep: When `true` (default), requires sleep ≥ 2h + HRV + RHR
+    ///   (full recovery-level gating). When `false`, only HRV + RHR are required and sleep
+    ///   is treated as an optional enhancer — use this for stress-only scoring.
+    /// - Returns: nil if metrics don't meet the minimum requirements for the requested mode.
+    func computeScore(metrics: NightlyMetrics, baseline: BaselineData, requireSleep: Bool = true) -> StressRecoveryScore? {
+        // GATE: Check data sufficiency based on mode
+        if requireSleep {
+            // Recovery mode: need sleep + HRV + RHR (matches WHOOP/Oura)
+            guard metrics.hasSufficientDataForRecovery else { return nil }
+        } else {
+            // Stress-only mode: just need HRV + RHR
+            guard metrics.hasSufficientDataForStress else { return nil }
         }
 
         let hasTemp = metrics.wristTemp != nil
         let hasResp = metrics.respRate != nil
+        let hasSleep = metrics.hasSleepData
 
         // Use per-metric array count for cold-start blending (not baseline.dates.count).
         // Each metric array can differ in length — e.g., wrist temp is only available on
@@ -243,7 +263,7 @@ class StressScoreEngine {
             dayCount: baseline.wristTempValues.count
         ) : nil
 
-        // Sleep deficit
+        // Sleep deficit (returns 0 when sleep data is absent)
         let sleepDeficit = computeSleepDeficit(
             sleepTonight: metrics.sleepDuration,
             personalSleepValues: baseline.sleepDurations,
@@ -251,8 +271,8 @@ class StressScoreEngine {
             dayCount: baseline.sleepDurations.count
         )
 
-        // Get dynamically computed weights based on available optional metrics
-        let w = weights(hasResp: hasResp, hasTemp: hasTemp)
+        // Get dynamically computed weights based on available metrics
+        let w = weights(hasResp: hasResp, hasTemp: hasTemp, hasSleep: hasSleep)
 
         // Combine into raw stress score.
         // SIGN CONVENTION (explicit):
@@ -266,7 +286,7 @@ class StressScoreEngine {
         stressRaw += w.rhr * (zRHR ?? 0.0)     // RHR is mandatory, zRHR should never be nil here
         if let zR = zResp { stressRaw += w.resp * zR }
         if let zT = zTemp { stressRaw += w.temp * zT }
-        stressRaw += w.sleep * sleepDeficit
+        if hasSleep { stressRaw += w.sleep * sleepDeficit }
 
         // Scale to 0-100
         let recoveryRaw = 50.0 - (stressRaw * scalingFactor)
@@ -277,9 +297,9 @@ class StressScoreEngine {
 
         // Determine data quality
         let quality: StressRecoveryScore.DataQuality
-        if hasTemp && hasResp {
+        if hasTemp && hasResp && hasSleep {
             quality = .full
-        } else if !hasTemp && hasResp {
+        } else if !hasTemp && hasResp && hasSleep {
             quality = .noTemp
         } else {
             quality = .partial
@@ -362,11 +382,12 @@ class StressScoreEngine {
     // MARK: - Baseline Management
 
     /// Updates the rolling 14-day baseline with new nightly data.
-    /// IMPORTANT: Only call this when metrics.hasSufficientData is true.
-    /// Nights where the watch wasn't worn or sleep < 2h should NEVER enter the baseline.
+    /// IMPORTANT: Only call this when metrics.hasSufficientDataForRecovery is true.
+    /// Nights where the watch wasn't worn or sleep < 2h should NEVER enter the baseline
+    /// because baseline quality requires full overnight data for all core metrics.
     func updateBaseline(_ baseline: inout BaselineData, with metrics: NightlyMetrics) {
         // Double-check: never pollute baseline with insufficient data
-        guard metrics.hasSufficientData else { return }
+        guard metrics.hasSufficientDataForRecovery else { return }
 
         // Don't add duplicate dates
         let calendar = Calendar.current
@@ -400,7 +421,7 @@ class StressScoreEngine {
 
         let dayCount = baseline.dates.count
 
-        // HRV, RHR, and sleep are guaranteed non-nil because hasSufficientData is true
+        // HRV and RHR are guaranteed non-nil; sleep may be nil in stress-only mode
         addIfValid(metrics.hrv, to: &baseline.hrvValues, prior: hrvPrior, dayCount: dayCount)
         addIfValid(metrics.rhr, to: &baseline.rhrValues, prior: rhrPrior, dayCount: dayCount)
         addIfValid(metrics.respRate, to: &baseline.respRateValues, prior: respRatePrior, dayCount: dayCount)
