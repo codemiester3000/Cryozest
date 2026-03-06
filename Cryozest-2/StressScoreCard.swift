@@ -5,15 +5,33 @@ struct StressScoreCard: View {
 
     @State private var showDetail = false
 
-    private var score: Int? {
-        return stressModel.todayStressScore
+    private var mostRecentScore: (score: Int, daysAgo: Int)? {
+        if let today = stressModel.todayStressScore {
+            return (today, 0)
+        }
+        let scores = stressModel.last7DaysStress
+        for i in stride(from: scores.count - 1, through: 0, by: -1) {
+            if let value = scores[i] {
+                return (value, scores.count - 1 - i)
+            }
+        }
+        return nil
+    }
+
+    static func scoreDateText(daysAgo: Int) -> String {
+        if daysAgo == 0 { return "" }
+        let calendar = Calendar.current
+        let date = calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date()))!
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d"
+        return "Updated \(formatter.string(from: date))"
     }
 
     var body: some View {
         Button(action: { showDetail = true }) {
             Group {
-                if let score = score {
-                    filledCard(score: score)
+                if let result = mostRecentScore {
+                    filledCard(score: result.score, daysAgo: result.daysAgo)
                 } else {
                     emptyState
                 }
@@ -36,7 +54,7 @@ struct StressScoreCard: View {
 
     // MARK: - Filled Card
 
-    private func filledCard(score: Int) -> some View {
+    private func filledCard(score: Int, daysAgo: Int = 0) -> some View {
         let color = StressScoreModel.stressColorForScore(score)
 
         return VStack(spacing: 16) {
@@ -63,6 +81,12 @@ struct StressScoreCard: View {
                         .foregroundColor(.white.opacity(0.4))
                         .textCase(.uppercase)
                         .tracking(0.8)
+
+                    if daysAgo > 0 {
+                        Text(Self.scoreDateText(daysAgo: daysAgo))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.orange.opacity(0.8))
+                    }
 
                     Text(StressScoreModel.stressStatusLabel(score))
                         .font(.system(size: 22, weight: .bold))
@@ -270,8 +294,21 @@ private struct StressDetailSheet: View {
     @ObservedObject var model: StressScoreModel
     let dismiss: () -> Void
 
-    private var hasScore: Bool { model.todayStressScore != nil }
-    private var score: Int { model.todayStressScore ?? 0 }
+    private var mostRecentResult: (score: Int, daysAgo: Int)? {
+        if let today = model.todayStressScore {
+            return (today, 0)
+        }
+        let scores = model.last7DaysStress
+        for i in stride(from: scores.count - 1, through: 0, by: -1) {
+            if let value = scores[i] {
+                return (value, scores.count - 1 - i)
+            }
+        }
+        return nil
+    }
+    private var hasScore: Bool { mostRecentResult != nil }
+    private var score: Int { mostRecentResult?.score ?? 0 }
+    private var scoreDaysAgo: Int { mostRecentResult?.daysAgo ?? 0 }
     private var scoreColor: Color { hasScore ? StressScoreModel.stressColorForScore(score) : .white.opacity(0.2) }
 
     var body: some View {
@@ -394,6 +431,12 @@ private struct StressDetailSheet: View {
                     .tracking(0.8)
 
                 if hasScore {
+                    if scoreDaysAgo > 0 {
+                        Text(StressScoreCard.scoreDateText(daysAgo: scoreDaysAgo))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.orange.opacity(0.8))
+                    }
+
                     Text(StressScoreModel.stressStatusLabel(score))
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(scoreColor)

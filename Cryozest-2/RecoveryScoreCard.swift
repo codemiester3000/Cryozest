@@ -5,17 +5,30 @@ struct RecoveryScoreCard: View {
 
     @State private var showDetail = false
 
-    private var score: Int? {
-        // Get the last entry; it's Int? so unwrap both the array access and the optional value
-        guard let last = recoveryModel.recoveryScores.last, let value = last else { return nil }
-        return value
+    private var mostRecentScore: (score: Int, daysAgo: Int)? {
+        let scores = recoveryModel.recoveryScores
+        for i in stride(from: scores.count - 1, through: 0, by: -1) {
+            if let value = scores[i] {
+                return (value, scores.count - 1 - i)
+            }
+        }
+        return nil
+    }
+
+    static func scoreDateText(daysAgo: Int) -> String {
+        if daysAgo == 0 { return "Last night" }
+        let calendar = Calendar.current
+        let date = calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: Date()))!
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d"
+        return formatter.string(from: date)
     }
 
     var body: some View {
         Button(action: { showDetail = true }) {
             Group {
-                if let score = score {
-                    filledCard(score: score)
+                if let result = mostRecentScore {
+                    filledCard(score: result.score, daysAgo: result.daysAgo)
                 } else {
                     emptyState
                 }
@@ -38,7 +51,7 @@ struct RecoveryScoreCard: View {
 
     // MARK: - Filled Card
 
-    private func filledCard(score: Int) -> some View {
+    private func filledCard(score: Int, daysAgo: Int = 0) -> some View {
         let color = Self.colorForScore(score)
 
         return VStack(spacing: 16) {
@@ -66,6 +79,10 @@ struct RecoveryScoreCard: View {
                         .foregroundColor(.white.opacity(0.4))
                         .textCase(.uppercase)
                         .tracking(0.8)
+
+                    Text(Self.scoreDateText(daysAgo: daysAgo))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(daysAgo == 0 ? .white.opacity(0.35) : .orange.opacity(0.8))
 
                     Text(Self.statusLabel(score))
                         .font(.system(size: 22, weight: .bold))
@@ -273,8 +290,18 @@ private struct RecoveryDetailSheet: View {
     @ObservedObject var model: RecoveryGraphModel
     let dismiss: () -> Void
 
-    private var hasScore: Bool { (model.recoveryScores.last ?? nil) != nil }
-    private var score: Int { (model.recoveryScores.last ?? nil) ?? 0 }
+    private var mostRecentResult: (score: Int, daysAgo: Int)? {
+        let scores = model.recoveryScores
+        for i in stride(from: scores.count - 1, through: 0, by: -1) {
+            if let value = scores[i] {
+                return (value, scores.count - 1 - i)
+            }
+        }
+        return nil
+    }
+    private var hasScore: Bool { mostRecentResult != nil }
+    private var score: Int { mostRecentResult?.score ?? 0 }
+    private var scoreDaysAgo: Int { mostRecentResult?.daysAgo ?? 0 }
     private var scoreColor: Color { hasScore ? RecoveryScoreCard.colorForScore(score) : .white.opacity(0.2) }
 
     var body: some View {
@@ -397,6 +424,10 @@ private struct RecoveryDetailSheet: View {
                     .tracking(0.8)
 
                 if hasScore {
+                    Text(RecoveryScoreCard.scoreDateText(daysAgo: scoreDaysAgo))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(scoreDaysAgo == 0 ? .white.opacity(0.35) : .orange.opacity(0.8))
+
                     Text(RecoveryScoreCard.statusLabel(score))
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(scoreColor)
