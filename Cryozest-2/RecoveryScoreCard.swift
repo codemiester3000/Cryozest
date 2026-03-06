@@ -98,7 +98,7 @@ struct RecoveryScoreCard: View {
                     )
                 }
 
-                if let rhr = recoveryModel.mostRecentRestingHeartRate {
+                if let rhr = recoveryModel.dailyAvgRestingHeartRate ?? recoveryModel.mostRecentRestingHeartRate {
                     driverStat(
                         label: "Resting HR",
                         current: "\(rhr)",
@@ -240,9 +240,9 @@ struct RecoveryScoreCard: View {
     static func colorForScore(_ value: Int) -> Color {
         switch value {
         case 85...100: return .green
-        case 67..<85: return .yellow
-        case 34..<67: return .orange
-        default: return .red
+        case 67..<85:  return .yellow
+        case 50..<67:  return .orange
+        default:       return .red      // 0-49: Low / Rest
         }
     }
 
@@ -467,11 +467,11 @@ private struct RecoveryDetailSheet: View {
 
     private var rhrSection: some View {
         Group {
-            if let rhr = model.mostRecentRestingHeartRate,
+            if let rhr = model.dailyAvgRestingHeartRate ?? model.mostRecentRestingHeartRate,
                let baseline = model.avgRestingHeartRate60Days, baseline > 0 {
                 metricComparisonCard(
                     title: "Resting Heart Rate",
-                    subtitle: "Most recent",
+                    subtitle: "Daily average",
                     current: rhr,
                     baseline: baseline,
                     unit: "bpm",
@@ -681,30 +681,40 @@ private struct RecoveryDetailSheet: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
+                // Use the most recent score's actual weights if available
+                let latestScore: StressRecoveryScore? = {
+                    let engine = StressScoreEngine.shared
+                    let history = engine.loadScoreHistory()
+                    return history.last
+                }()
+                let w = latestScore?.computedWeights
+
                 howItWorksRow(
-                    weight: model.hasTemperatureData ? "35%" : "39%",
+                    weight: w?.label(for: "hrv") ?? "35%",
                     label: "HRV vs your 14-day baseline",
                     color: .purple
                 )
                 howItWorksRow(
-                    weight: model.hasTemperatureData ? "25%" : "28%",
+                    weight: w?.label(for: "rhr") ?? "25%",
                     label: "Resting HR vs baseline",
                     color: .red
                 )
-                howItWorksRow(
-                    weight: model.hasTemperatureData ? "15%" : "17%",
-                    label: "Respiratory rate vs baseline",
-                    color: .cyan
-                )
+                if latestScore?.zScores.respRate != nil {
+                    howItWorksRow(
+                        weight: w?.label(for: "resp") ?? "15%",
+                        label: "Respiratory rate vs baseline",
+                        color: .cyan
+                    )
+                }
                 if model.hasTemperatureData {
                     howItWorksRow(
-                        weight: "10%",
+                        weight: w?.label(for: "temp") ?? "10%",
                         label: "Wrist temperature deviation",
                         color: .orange
                     )
                 }
                 howItWorksRow(
-                    weight: model.hasTemperatureData ? "15%" : "17%",
+                    weight: w?.label(for: "sleep") ?? "15%",
                     label: "Sleep deficit penalty",
                     color: .indigo
                 )

@@ -11,6 +11,7 @@ class StressScoreModel: ObservableObject {
     @Published var zScores: MetricZScores?
     @Published var sleepDeficit: Double?
     @Published var hasTemperatureData: Bool = false
+    @Published var computedWeights: ComputedWeights?
     @Published var baselineDayCount: Int = 0
     @Published var isLoading: Bool = false
     @Published var dataQuality: StressRecoveryScore.DataQuality?
@@ -96,6 +97,7 @@ class StressScoreModel: ObservableObject {
                 self.zScores = score.zScores
                 self.sleepDeficit = score.sleepDeficit
                 self.hasTemperatureData = score.hasTemperatureData
+                self.computedWeights = score.computedWeights
                 self.baselineDayCount = baseline.dates.count
                 self.dataQuality = score.dataQuality
                 self.insufficientDataReason = nil
@@ -291,15 +293,6 @@ class StressScoreModel: ObservableObject {
         case 0...33:   return .green
         case 34...50:  return .yellow
         case 51...66:  return .orange
-        default:       return .red
-        }
-    }
-
-    static func recoveryColorForScore(_ value: Int) -> Color {
-        switch value {
-        case 85...100: return .green
-        case 67...84:  return .yellow
-        case 50...66:  return .orange
         default:       return .red
         }
     }

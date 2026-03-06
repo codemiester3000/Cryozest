@@ -449,11 +449,13 @@ private struct StressDetailSheet: View {
                 .foregroundColor(.white.opacity(0.9))
 
             if let z = model.zScores {
+                let w = model.computedWeights
+
                 if let zHRV = z.hrv {
                     metricRow(
                         name: "Heart Rate Variability",
                         zScore: zHRV,
-                        weight: model.hasTemperatureData ? "35%" : "39%",
+                        weight: w?.label(for: "hrv") ?? "35%",
                         explanation: hrvExplanation(zHRV),
                         color: .purple,
                         invertColor: true
@@ -464,7 +466,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Resting Heart Rate",
                         zScore: zRHR,
-                        weight: model.hasTemperatureData ? "25%" : "28%",
+                        weight: w?.label(for: "rhr") ?? "25%",
                         explanation: rhrExplanation(zRHR),
                         color: .red,
                         invertColor: false
@@ -475,7 +477,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Respiratory Rate",
                         zScore: zResp,
-                        weight: model.hasTemperatureData ? "15%" : "17%",
+                        weight: w?.label(for: "resp") ?? "15%",
                         explanation: respExplanation(zResp),
                         color: .cyan,
                         invertColor: false
@@ -486,7 +488,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Wrist Temperature",
                         zScore: zTemp,
-                        weight: "10%",
+                        weight: w?.label(for: "temp") ?? "10%",
                         explanation: tempExplanation(zTemp),
                         color: .orange,
                         invertColor: false
@@ -590,7 +592,7 @@ private struct StressDetailSheet: View {
                         .foregroundColor(.white.opacity(0.45))
                         .lineSpacing(2)
 
-                    Text("Weight: 15%")
+                    Text("Weight: \(model.computedWeights?.label(for: "sleep") ?? "15%")")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.white.opacity(0.3))
                 }
@@ -728,13 +730,16 @@ private struct StressDetailSheet: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                howItWorksRow(weight: model.hasTemperatureData ? "35%" : "39%", label: "HRV vs your 14-day baseline", color: .purple)
-                howItWorksRow(weight: model.hasTemperatureData ? "25%" : "28%", label: "Resting HR vs baseline", color: .red)
-                howItWorksRow(weight: model.hasTemperatureData ? "15%" : "17%", label: "Respiratory rate vs baseline", color: .cyan)
-                if model.hasTemperatureData {
-                    howItWorksRow(weight: "10%", label: "Wrist temperature deviation", color: .orange)
+                let w = model.computedWeights
+                howItWorksRow(weight: w?.label(for: "hrv") ?? "35%", label: "HRV vs your 14-day baseline", color: .purple)
+                howItWorksRow(weight: w?.label(for: "rhr") ?? "25%", label: "Resting HR vs baseline", color: .red)
+                if model.zScores?.respRate != nil {
+                    howItWorksRow(weight: w?.label(for: "resp") ?? "15%", label: "Respiratory rate vs baseline", color: .cyan)
                 }
-                howItWorksRow(weight: model.hasTemperatureData ? "15%" : "17%", label: "Sleep deficit penalty", color: .indigo)
+                if model.hasTemperatureData {
+                    howItWorksRow(weight: w?.label(for: "temp") ?? "10%", label: "Wrist temperature deviation", color: .orange)
+                }
+                howItWorksRow(weight: w?.label(for: "sleep") ?? "15%", label: "Sleep deficit penalty", color: .indigo)
             }
 
             Text("Each metric is compared to your personal 14-day rolling average using Z-scores. Higher stress means your body is deviating from its norm in ways associated with fatigue, illness, or overtraining.")

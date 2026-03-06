@@ -33,6 +33,13 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
     @Published var mostRecentRestingHeartRateTime: Date?
+    /// Daily average RHR from HealthKit — matches the value used by the Z-score engine.
+    /// Use this (not mostRecentRestingHeartRate) for recovery score driver comparisons.
+    @Published var dailyAvgRestingHeartRate: Int? {
+        didSet {
+            self.calculateRestingHeartRatePercentage()
+        }
+    }
     @Published var avgRestingHeartRate60Days: Int? {
         didSet {
             self.calculateRestingHeartRatePercentage()
@@ -192,8 +199,7 @@ class RecoveryGraphModel: ObservableObject {
             }
         }
         
-        // TODO: UPDATE THIS ONE WITH DATE
-        HealthKitManager.shared.fetchSleepDurationForPreviousNight() { sleepDuration in
+        HealthKitManager.shared.fetchTotalSleepForNight(date: date) { sleepDuration in
             DispatchQueue.main.async {
                 if let sleepDuration = sleepDuration {
                     self.previousNightSleepDuration = self.formatSleepDuration(sleepDuration)
@@ -222,8 +228,17 @@ class RecoveryGraphModel: ObservableObject {
                 }
             }
         }
-        //TODO: UPDATE THIS ONE WITH DATE
-        HealthKitManager.shared.fetchMostRecentRestingEnergy { restingCalories in
+        // Fetch daily average RHR (same source the Z-score engine uses)
+        HealthKitManager.shared.fetchRestingHeartRateForDay(date: date) { rhr in
+            DispatchQueue.main.async {
+                if let rhr = rhr {
+                    self.dailyAvgRestingHeartRate = Int(rhr.rounded())
+                } else {
+                    self.dailyAvgRestingHeartRate = nil
+                }
+            }
+        }
+        HealthKitManager.shared.fetchRestingEnergy(for: date) { restingCalories in
             DispatchQueue.main.async {
                 self.mostRecentRestingCalories = restingCalories
             }
@@ -287,8 +302,10 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     private func calculateRestingHeartRatePercentage() {
-        if let mostRecentHr = mostRecentRestingHeartRate, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
-            let percentage = Double(mostRecentHr - avg60Days) / Double(avg60Days) * 100
+        // Prefer daily average RHR (matches the Z-score engine); fall back to most recent sample
+        let rhr = dailyAvgRestingHeartRate ?? mostRecentRestingHeartRate
+        if let rhr = rhr, let avg60Days = avgRestingHeartRate60Days, avg60Days > 0 {
+            let percentage = Double(rhr - avg60Days) / Double(avg60Days) * 100
             restingHeartRatePercentage = Int(percentage.rounded())
         } else {
             restingHeartRatePercentage = nil

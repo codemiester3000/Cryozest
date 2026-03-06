@@ -55,6 +55,7 @@ struct StressRecoveryScore {
     let zScores: MetricZScores
     let sleepDeficit: Double
     let hasTemperatureData: Bool
+    let computedWeights: ComputedWeights
     let dataQuality: DataQuality
 
     enum DataQuality: String {
@@ -70,6 +71,28 @@ struct MetricZScores {
     let rhr: Double?
     let respRate: Double?
     let wristTemp: Double?
+}
+
+struct ComputedWeights {
+    let hrv: Double
+    let rhr: Double
+    let resp: Double
+    let temp: Double
+    let sleep: Double
+
+    /// Returns the weight as a percentage string (e.g. "35%")
+    func label(for metric: String) -> String {
+        let value: Double
+        switch metric {
+        case "hrv":   value = hrv
+        case "rhr":   value = rhr
+        case "resp":  value = resp
+        case "temp":  value = temp
+        case "sleep": value = sleep
+        default:      value = 0
+        }
+        return "\(Int((value * 100).rounded()))%"
+    }
 }
 
 struct BaselineData: Codable {
@@ -119,6 +142,10 @@ class StressScoreEngine {
         let resp: Double
         let temp: Double
         let sleep: Double
+
+        var asPublic: ComputedWeights {
+            ComputedWeights(hrv: hrv, rhr: rhr, resp: resp, temp: temp, sleep: sleep)
+        }
     }
 
     // Scaling factor: ±3 stdev maps to full 0-100 range
@@ -266,6 +293,7 @@ class StressScoreEngine {
             zScores: MetricZScores(hrv: zHRV, rhr: zRHR, respRate: zResp, wristTemp: zTemp),
             sleepDeficit: sleepDeficit,
             hasTemperatureData: hasTemp,
+            computedWeights: w.asPublic,
             dataQuality: quality
         )
     }
@@ -347,7 +375,12 @@ class StressScoreEngine {
             return
         }
 
-        // Helper to add value with outlier protection and 14-day cap
+        // Helper to add value with outlier protection and 14-day cap.
+        // NOTE: Each metric array is managed independently. An outlier skip for one metric
+        // does NOT prevent other metrics from being added. This means baseline arrays can
+        // have different counts (e.g. hrvValues.count != rhrValues.count). This is by design:
+        // computeZScore uses each metric's own array count for cold-start blending, so the
+        // independence is correct. Do NOT assume array indices correspond across metrics.
         func addIfValid(_ value: Double?, to array: inout [Double], prior: PopulationPrior, dayCount: Int) {
             guard let value = value else { return }
 
@@ -441,6 +474,12 @@ private struct StoredScore: Codable {
     let sleepDeficit: Double
     let hasTemperatureData: Bool
     let dataQualityRaw: String?
+    // Persisted weights so historical scores display the correct labels
+    let wHRV: Double?
+    let wRHR: Double?
+    let wResp: Double?
+    let wTemp: Double?
+    let wSleep: Double?
 
     init(from score: StressRecoveryScore) {
         self.date = score.date
@@ -454,10 +493,23 @@ private struct StoredScore: Codable {
         self.sleepDeficit = score.sleepDeficit
         self.hasTemperatureData = score.hasTemperatureData
         self.dataQualityRaw = score.dataQuality.rawValue
+        self.wHRV = score.computedWeights.hrv
+        self.wRHR = score.computedWeights.rhr
+        self.wResp = score.computedWeights.resp
+        self.wTemp = score.computedWeights.temp
+        self.wSleep = score.computedWeights.sleep
     }
 
     func toScore() -> StressRecoveryScore {
         let quality = StressRecoveryScore.DataQuality(rawValue: dataQualityRaw ?? "full") ?? .full
+        // Reconstruct weights; fall back to equal-ish defaults for scores stored before this field existed
+        let weights = ComputedWeights(
+            hrv: wHRV ?? 0.35,
+            rhr: wRHR ?? 0.25,
+            resp: wResp ?? 0.15,
+            temp: wTemp ?? 0.10,
+            sleep: wSleep ?? 0.15
+        )
         return StressRecoveryScore(
             date: date,
             stressScore: stressScore,
@@ -466,6 +518,7 @@ private struct StoredScore: Codable {
             zScores: MetricZScores(hrv: zHRV, rhr: zRHR, respRate: zResp, wristTemp: zTemp),
             sleepDeficit: sleepDeficit,
             hasTemperatureData: hasTemperatureData,
+            computedWeights: weights,
             dataQuality: quality
         )
     }

@@ -250,26 +250,34 @@ class HealthKitManager {
     
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
-        let now = Date()
-        let startOfDay = Calendar.current.startOfDay(for: now)
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
-        
+        fetchRestingEnergy(for: Date(), completion: completion)
+    }
+
+    func fetchRestingEnergy(for date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            completion(nil)
+            return
+        }
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictEndDate)
+
         guard let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned) else {
             completion(nil)
             return
         }
-        
+
         let query = HKStatisticsQuery(quantityType: restingEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
             if error != nil {
                 completion(nil)
                 return
             }
-            
+
             guard let sum = statistics?.sumQuantity() else {
                 completion(nil)
                 return
             }
-            
+
             let totalRestingEnergy = sum.doubleValue(for: HKUnit.kilocalorie())
             completion(totalRestingEnergy)
         }
@@ -2555,11 +2563,19 @@ class HealthKitManager {
                 return
             }
 
+            // Count all asleep categories including generic .asleep (used by older watches
+            // that don't report sleep stages). Without this, pre-Series 4 watches would
+            // always return nil and never generate a score.
+            let asleepValues: Set<Int> = [
+                HKCategoryValueSleepAnalysis.asleep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepREM.rawValue,
+                HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                HKCategoryValueSleepAnalysis.asleepDeep.rawValue
+            ]
+
             var totalDuration: TimeInterval = 0
             for sample in sleepSamples {
-                if sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue ||
-                   sample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
-                   sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                if asleepValues.contains(sample.value) {
                     totalDuration += sample.endDate.timeIntervalSince(sample.startDate)
                 }
             }

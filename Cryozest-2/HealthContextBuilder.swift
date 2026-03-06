@@ -51,8 +51,8 @@ struct HealthContextBuilder {
                 }
                 metricsLines.append(line)
             }
-            if let rhr = recovery.mostRecentRestingHeartRate {
-                var line = "Resting heart rate: \(rhr) bpm"
+            if let rhr = recovery.dailyAvgRestingHeartRate ?? recovery.mostRecentRestingHeartRate {
+                var line = "Resting heart rate: \(rhr) bpm (daily avg)"
                 if let rhr60 = recovery.avgRestingHeartRate60Days {
                     line += " (60-day avg: \(rhr60) bpm"
                     if let pct = recovery.restingHeartRatePercentage {
@@ -85,11 +85,21 @@ struct HealthContextBuilder {
 
             // Recovery scores — daily array for charts
             if !recovery.recoveryScores.isEmpty {
-                let latest = recovery.recoveryScores.last ?? 0
-                metricsLines.append("Recovery score today: \(latest)/100 (weekly avg: \(recovery.weeklyAverage))")
+                // recoveryScores is [Int?] — unwrap both the array .last (Int??) and the inner optional
+                if let latestOpt = recovery.recoveryScores.last, let latest = latestOpt {
+                    metricsLines.append("Recovery score today: \(latest)/100 (weekly avg: \(recovery.weeklyAverage))")
+                } else if recovery.weeklyAverage > 0 {
+                    metricsLines.append("Recovery score today: not available (weekly avg: \(recovery.weeklyAverage))")
+                }
 
                 let dayLabels = lastNDayLabels(7)
-                let scoreStrings = zip(dayLabels, recovery.recoveryScores).map { "\($0): \($1)%" }
+                let scoreStrings = zip(dayLabels, recovery.recoveryScores).map { label, score -> String in
+                    if let score = score {
+                        return "\(label): \(score)%"
+                    } else {
+                        return "\(label): no data"
+                    }
+                }
                 metricsLines.append("Recovery scores (last 7 days): \(scoreStrings.joined(separator: ", "))")
             }
 

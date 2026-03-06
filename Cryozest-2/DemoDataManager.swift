@@ -24,6 +24,7 @@ class DemoDataManager: ObservableObject {
             // hrvSleepPercentage computed by didSet
 
             model.mostRecentRestingHeartRate = 56
+            model.dailyAvgRestingHeartRate = 57 // Daily avg (used by Z-score engine)
             model.avgRestingHeartRate60Days = 61
             // restingHeartRatePercentage computed by didSet
 
@@ -92,6 +93,8 @@ class DemoDataManager: ObservableObject {
             model.zScores = MetricZScores(hrv: 0.6, rhr: -0.3, respRate: 0.1, wristTemp: nil)
             model.sleepDeficit = 0.08
             model.hasTemperatureData = false
+            // Weights with resp present but no temp: base 35/25/15/15 = 0.90, scale = 1/0.90
+            model.computedWeights = ComputedWeights(hrv: 0.389, rhr: 0.278, resp: 0.167, temp: 0.0, sleep: 0.167)
             model.baselineDayCount = 10
             model.dataQuality = .noTemp
             model.insufficientDataReason = nil
