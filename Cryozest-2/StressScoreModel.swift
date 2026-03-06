@@ -18,16 +18,28 @@ class StressScoreModel: ObservableObject {
 
     private let engine = StressScoreEngine.shared
 
+    /// Per-session cache of fetched metrics keyed by startOfDay.
+    /// Avoids redundant HealthKit queries when computeScores and computeLast7Days
+    /// both need data for the same date (especially today).
+    private var metricsCache: [Date: NightlyMetrics?] = [:]
+
     init() {
         baselineDayCount = engine.loadBaseline().dates.count
+    }
+
+    /// Clears the metrics cache — call on manual refresh so fresh HK data is fetched.
+    func invalidateCache() {
+        metricsCache.removeAll()
     }
 
     // MARK: - Compute Today's Score
 
     func computeScores(forDate date: Date) {
         isLoading = true
+        // Invalidate cache on new computation so we get fresh data
+        metricsCache.removeAll()
 
-        fetchNightlyMetrics(for: date) { [weak self] metrics in
+        fetchNightlyMetricsCached(for: date) { [weak self] metrics in
             guard let self = self else { return }
 
             guard let metrics = metrics else {
@@ -111,7 +123,7 @@ class StressScoreModel: ObservableObject {
 
         for date in dates {
             group.enter()
-            fetchNightlyMetrics(for: date) { [weak self] metrics in
+            fetchNightlyMetricsCached(for: date) { [weak self] metrics in
                 guard let self = self else {
                     group.leave()
                     return
@@ -147,6 +159,27 @@ class StressScoreModel: ObservableObject {
 
             self.weeklyAvgStress = validStress.isEmpty ? nil : validStress.reduce(0, +) / validStress.count
             self.weeklyAvgRecovery = validRecovery.isEmpty ? nil : validRecovery.reduce(0, +) / validRecovery.count
+        }
+    }
+
+    // MARK: - Cached Metrics Fetch
+
+    /// Returns cached metrics if available, otherwise fetches from HealthKit and caches the result.
+    /// This prevents duplicate HealthKit queries when computeScores() and computeLast7Days()
+    /// both need the same date's data (saves ~10 HK queries per refresh cycle).
+    private func fetchNightlyMetricsCached(for date: Date, completion: @escaping (NightlyMetrics?) -> Void) {
+        let key = Calendar.current.startOfDay(for: date)
+
+        // Check cache first
+        if let cached = metricsCache[key] {
+            completion(cached)
+            return
+        }
+
+        // Fetch from HealthKit, then cache
+        fetchNightlyMetrics(for: date) { [weak self] metrics in
+            self?.metricsCache[key] = metrics
+            completion(metrics)
         }
     }
 

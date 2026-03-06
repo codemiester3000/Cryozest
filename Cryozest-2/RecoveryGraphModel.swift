@@ -40,13 +40,13 @@ class RecoveryGraphModel: ObservableObject {
     }
     @Published var restingHeartRatePercentage: Int?
     
-    @Published var recoveryScores = [Int]() {
+    @Published var recoveryScores = [Int?]() {
         didSet {
-            let sum = self.recoveryScores.reduce(0, +) // Sums up all elements in the array
-            self.weeklyAverage = self.recoveryScores.isEmpty ? 0 : sum / self.recoveryScores.count
+            let validScores = self.recoveryScores.compactMap { $0 }
+            self.weeklyAverage = validScores.isEmpty ? 0 : validScores.reduce(0, +) / validScores.count
         }
     }
-    
+
     @Published var weeklyAverage: Int = 0
     @Published var lastKnownHRV: Int = 0  // Add a default value or make it optional
     @Published var lastKnownHRVTime: String? = nil // Add this property
@@ -58,7 +58,8 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentSteps: Double? = nil
     @Published var mostRecentVO2Max: Double? = nil
     @Published var averageDailyRHR: Int?
-    
+    @Published var hasTemperatureData: Bool = false
+
     private var dailySleepViewModel: DailySleepViewModel
     
     var hrvReadings: [Date: Int] = [:]
@@ -84,49 +85,40 @@ class RecoveryGraphModel: ObservableObject {
     }
     
     func generateUserStatement() -> String {
-        guard let recoveryScore = recoveryScores.last else {
-            return "Data not available."
+        // Get the most recent non-nil recovery score
+        guard let recoveryScore = recoveryScores.last ?? nil else {
+            return "Wear your Apple Watch to sleep for personalized insights."
         }
-        
+
         // Fetch the sleep score from DailySleepViewModel
         let sleepScore = dailySleepViewModel.sleepScore
-        
+
+        // Ranges aligned with the 5-metric Z-score engine output
         switch (recoveryScore, sleepScore) {
-        case (80...100, 80...100):
-            return "Hello! Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to tackle any challenge. Aim high for your exertion targets, but remember to stay attuned to your body's signals."
-        case (80...100, 70..<80):
-            return "Great job! Your Recovery is high, showing you're in excellent shape. Your Sleep was decent, so you might want to focus a bit more on rest tonight. Feel confident to push your limits today, but keep an eye on your body's needs."
-        case (80...100, 60..<70):
-            return "You're showing high recovery levels, which is fantastic! Your sleep was not optimal, though. Today, you can aim high but also consider some extra rest to improve your sleep quality."
-        case (80...100, ..<60):
-            return "Although your Sleep was low, your Recovery is high. You might still feel ready for challenges, but remember, consistent good sleep is key for sustained well-being. Balance is essential."
-        case (70..<80, 80...100):
-            return "Nice work! Your Recovery is decent and your Sleep was impressive. You're well-equipped for today's activities. Aim for your exertion goals while ensuring you maintain this great sleep pattern."
-        case (70..<80, 70..<80):
-            return "Good going! You're showing decent levels in both Recovery and Sleep. You're on the right track. Today is a good day to work towards your goals at a steady pace, keeping a balance between activity and rest."
-        case (70..<80, 60..<70):
-            return "Your recovery is decent, but your sleep wasn't quite optimal. While you can still be active, try to prioritize improving your sleep tonight for a better balance."
-        case (70..<80, ..<60):
-            return "You have a decent recovery score, but your sleep is low. Be mindful of your energy levels today and focus on getting more restful sleep tonight."
-        case (60..<70, 80...100):
-            return "Your sleep quality is high, which is great, but your recovery isn't optimal. You can be moderately active today, but don't forget to listen to your body and take it easy if needed."
-        case (60..<70, 70..<80):
-            return "With not optimal recovery and decent sleep, today might be a day for moderate activities. Focus on maintaining your good sleep habits and giving your body time to recover."
-        case (60..<70, 60..<70):
-            return "Both your recovery and sleep are not optimal. It's a signal to take things slow today. Focus on self-care and try to improve both your sleep and recovery."
-        case (60..<70, ..<60),
-            (50..<60, 60..<70):
-            return "Your Sleep wasn't optimal and Recovery is a bit low. It might be a sign to take it easier today. Focus on activities that are less strenuous and prioritize rest to bounce back stronger."
-        case (50..<60, 80...100):
-            return "Your sleep is excellent, but your recovery is low. This contrast suggests you might want to take a lighter approach to activities today, despite the good sleep."
-        case (50..<60, 70..<80):
-            return "Your Recovery is on the lower side, but your Sleep was decent. Consider lighter activities today and continue focusing on good sleep habits. Your body will thank you for the balanced approach."
-        case (50..<60, 60..<70):
-            return "With low recovery and not optimal sleep, it's crucial to prioritize rest and recovery today. Engage in light, restorative activities and focus on improving your sleep tonight."
-        case (50..<60, ..<60):
-            return "Both your recovery and sleep are low, indicating a need for rest and recuperation. Today should be about restful activities and aiming for better sleep."
+        case (85...100, 80...100):
+            return "Your Recovery and Sleep are both at peak levels today. You're well-rested and ready to push hard. Aim high for your exertion targets."
+        case (85...100, 60..<80):
+            return "Your Recovery is excellent, but sleep could be better. You can train hard today, but prioritize better sleep tonight."
+        case (85...100, ..<60):
+            return "Peak recovery despite low sleep. You can perform well today, but sustained low sleep will catch up. Make tonight count."
+        case (67..<85, 80...100):
+            return "Good recovery and great sleep. You're well-equipped for a solid effort today."
+        case (67..<85, 60..<80):
+            return "Decent recovery and sleep. A good day for structured training at moderate intensity."
+        case (67..<85, ..<60):
+            return "Recovery is good but sleep was low. Be mindful of energy levels and consider lighter activity."
+        case (50..<67, 80...100):
+            return "Sleep was great but recovery is only moderate. Stick to moderate activity and let your body catch up."
+        case (50..<67, 60..<80):
+            return "Both recovery and sleep are moderate. A lighter training day with focus on technique or mobility."
+        case (50..<67, ..<60):
+            return "Recovery and sleep are both suboptimal. Focus on restorative activities and prioritize rest tonight."
+        case (34..<50, _):
+            return "Your body is showing accumulated stress. A light recovery day with walking or stretching is best."
+        case (..<34, _):
+            return "Your body needs rest. Skip intense training and focus on sleep, hydration, and nutrition today."
         default:
-            return "Wear your Apple Watch for personalized insights."
+            return "Wear your Apple Watch to sleep for personalized insights."
         }
     }
     
@@ -422,6 +414,10 @@ class RecoveryGraphModel: ObservableObject {
                     if let hrv = metrics.hrv {
                         self.hrvReadings[date] = Int(hrv)
                     }
+                    // Track if the most recent day has temperature data (for weight display)
+                    if date == last7Days.last {
+                        self.hasTemperatureData = score.hasTemperatureData
+                    }
                     group.leave()
                 }
             }
@@ -429,8 +425,8 @@ class RecoveryGraphModel: ObservableObject {
 
         group.notify(queue: .main) {
             let sortedDates = self.getLastSevenDaysDates().sorted()
-            // Use 0 for days without valid scores (UI already handles 0 as "no data")
-            self.recoveryScores = sortedDates.map { temporaryScores[$0] ?? 0 }
+            // nil = no data for that day (watch not worn or insufficient sleep)
+            self.recoveryScores = sortedDates.map { temporaryScores[$0] }
         }
     }
 }

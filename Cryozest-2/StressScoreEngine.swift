@@ -131,71 +131,44 @@ class StressScoreEngine {
 
     // MARK: - Dynamic Weight Computation
 
-    /// Computes weights dynamically based on which metrics are actually present.
-    /// Only redistributes among metrics that have data — never assumes "average" for missing data.
-    private func weights(hasHRV: Bool, hasRHR: Bool, hasResp: Bool, hasTemp: Bool) -> MetricWeights {
-        // Base weights
-        var wHRV: Double = hasHRV ? 0.35 : 0.0
-        var wRHR: Double = hasRHR ? 0.25 : 0.0
-        var wResp: Double = hasResp ? 0.15 : 0.0
-        var wTemp: Double = hasTemp ? 0.10 : 0.0
-        let wSleep: Double = 0.15  // Sleep deficit is always computable if sleep exists
+    // Base weights (absolute values) — all positive.
+    // The sign convention for each metric is handled at combination time, NOT in the weight.
+    //   • HRV: higher = LESS stress, so z_hrv is NEGATED when combining
+    //   • RHR, Resp, Temp, Sleep deficit: higher = MORE stress, used as-is
+    private static let baseWeights: [String: Double] = [
+        "hrv": 0.35,
+        "rhr": 0.25,
+        "resp": 0.15,
+        "temp": 0.10,
+        "sleep": 0.15
+    ]
 
-        // Total weight assigned to present metrics
-        let assignedWeight = wHRV + wRHR + wResp + wTemp + wSleep
+    /// Computes weights dynamically based on which optional metrics are actually present.
+    /// HRV, RHR, and sleep are always required (guaranteed by hasSufficientData).
+    /// Only resp and temp are optional — their weight is redistributed proportionally.
+    private func weights(hasResp: Bool, hasTemp: Bool) -> MetricWeights {
+        // Start with base weights for mandatory metrics
+        var pool: [String: Double] = [
+            "hrv": Self.baseWeights["hrv"]!,
+            "rhr": Self.baseWeights["rhr"]!,
+            "sleep": Self.baseWeights["sleep"]!
+        ]
 
-        // Normalize so weights sum to 1.0 (redistribute missing weight proportionally)
-        if assignedWeight > 0 && assignedWeight < 1.0 {
-            let scale = 1.0 / assignedWeight
-            wHRV *= scale
-            wRHR *= scale
-            wResp *= scale
-            wTemp *= scale
-            // wSleep is handled separately since it's always present
-            // Actually, scale all together:
-        }
+        // Add optional metrics that are present
+        if hasResp { pool["resp"] = Self.baseWeights["resp"]! }
+        if hasTemp { pool["temp"] = Self.baseWeights["temp"]! }
 
-        // Simpler approach: redistribute missing optional metric weight to the core metrics
-        // HRV and RHR are mandatory, so they're always present at this point.
-        // Only resp and temp are optional.
-        if !hasTemp && !hasResp {
-            // Only HRV (35%), RHR (25%), Sleep (15%) = 75% -> scale to 100%
-            // Redistribute 25% proportionally among HRV, RHR, Sleep
-            return MetricWeights(
-                hrv: -0.467,  // 0.35/0.75
-                rhr: 0.333,   // 0.25/0.75
-                resp: 0.0,
-                temp: 0.0,
-                sleep: 0.200  // 0.15/0.75
-            )
-        } else if !hasTemp {
-            // HRV (35%), RHR (25%), Resp (15%), Sleep (15%) = 90% -> scale to 100%
-            return MetricWeights(
-                hrv: -0.389,  // 0.35/0.90
-                rhr: 0.278,   // 0.25/0.90
-                resp: 0.167,  // 0.15/0.90
-                temp: 0.0,
-                sleep: 0.167  // 0.15/0.90
-            )
-        } else if !hasResp {
-            // HRV (35%), RHR (25%), Temp (10%), Sleep (15%) = 85% -> scale to 100%
-            return MetricWeights(
-                hrv: -0.412,  // 0.35/0.85
-                rhr: 0.294,   // 0.25/0.85
-                resp: 0.0,
-                temp: 0.118,  // 0.10/0.85
-                sleep: 0.176  // 0.15/0.85
-            )
-        } else {
-            // All metrics present
-            return MetricWeights(
-                hrv: -0.35,
-                rhr: 0.25,
-                resp: 0.15,
-                temp: 0.10,
-                sleep: 0.15
-            )
-        }
+        // Normalize so weights sum to 1.0
+        let total = pool.values.reduce(0, +)
+        let scale = total > 0 ? (1.0 / total) : 1.0
+
+        return MetricWeights(
+            hrv: (pool["hrv"] ?? 0) * scale,
+            rhr: (pool["rhr"] ?? 0) * scale,
+            resp: (pool["resp"] ?? 0) * scale,
+            temp: (pool["temp"] ?? 0) * scale,
+            sleep: (pool["sleep"] ?? 0) * scale
+        )
     }
 
     // MARK: - Score Computation
@@ -209,37 +182,38 @@ class StressScoreEngine {
             return nil
         }
 
-        let dayCount = baseline.dates.count
         let hasTemp = metrics.wristTemp != nil
         let hasResp = metrics.respRate != nil
 
-        // Compute Z-scores (only for present metrics)
+        // Use per-metric array count for cold-start blending (not baseline.dates.count).
+        // Each metric array can differ in length — e.g., wrist temp is only available on
+        // newer devices, so wristTempValues may have fewer entries than hrvValues.
         let zHRV = computeZScore(
             value: metrics.hrv,
             personalValues: baseline.hrvValues,
             prior: hrvPrior,
-            dayCount: dayCount
+            dayCount: baseline.hrvValues.count
         )
 
         let zRHR = computeZScore(
             value: metrics.rhr,
             personalValues: baseline.rhrValues,
             prior: rhrPrior,
-            dayCount: dayCount
+            dayCount: baseline.rhrValues.count
         )
 
         let zResp = computeZScore(
             value: metrics.respRate,
             personalValues: baseline.respRateValues,
             prior: respRatePrior,
-            dayCount: dayCount
+            dayCount: baseline.respRateValues.count
         )
 
         let zTemp: Double? = hasTemp ? computeZScore(
             value: metrics.wristTemp,
             personalValues: baseline.wristTempValues,
             prior: wristTempPrior,
-            dayCount: dayCount
+            dayCount: baseline.wristTempValues.count
         ) : nil
 
         // Sleep deficit
@@ -247,16 +221,22 @@ class StressScoreEngine {
             sleepTonight: metrics.sleepDuration,
             personalSleepValues: baseline.sleepDurations,
             prior: sleepDurationPrior,
-            dayCount: dayCount
+            dayCount: baseline.sleepDurations.count
         )
 
-        // Get dynamically computed weights based on available metrics
-        let w = weights(hasHRV: true, hasRHR: true, hasResp: hasResp, hasTemp: hasTemp)
+        // Get dynamically computed weights based on available optional metrics
+        let w = weights(hasResp: hasResp, hasTemp: hasTemp)
 
-        // Combine into raw stress score — only use metrics that actually exist
+        // Combine into raw stress score.
+        // SIGN CONVENTION (explicit):
+        //   • HRV: higher z = better recovery = LESS stress → NEGATE the z-score
+        //   • RHR: higher z = more stressed → use as-is (positive)
+        //   • Resp: higher z = more stressed → use as-is (positive)
+        //   • Temp: higher z = more stressed → use as-is (positive)
+        //   • Sleep deficit: higher = more stressed → use as-is (positive)
         var stressRaw: Double = 0.0
-        stressRaw += w.hrv * (zHRV ?? 0.0)    // HRV is mandatory, zHRV should never be nil here
-        stressRaw += w.rhr * (zRHR ?? 0.0)    // RHR is mandatory, zRHR should never be nil here
+        stressRaw += w.hrv * (-(zHRV ?? 0.0))  // NEGATE: high HRV = low stress
+        stressRaw += w.rhr * (zRHR ?? 0.0)     // RHR is mandatory, zRHR should never be nil here
         if let zR = zResp { stressRaw += w.resp * zR }
         if let zT = zTemp { stressRaw += w.temp * zT }
         stressRaw += w.sleep * sleepDeficit

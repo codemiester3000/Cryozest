@@ -270,8 +270,9 @@ private struct StressDetailSheet: View {
     @ObservedObject var model: StressScoreModel
     let dismiss: () -> Void
 
+    private var hasScore: Bool { model.todayStressScore != nil }
     private var score: Int { model.todayStressScore ?? 0 }
-    private var scoreColor: Color { StressScoreModel.stressColorForScore(score) }
+    private var scoreColor: Color { hasScore ? StressScoreModel.stressColorForScore(score) : .white.opacity(0.2) }
 
     var body: some View {
         ZStack {
@@ -301,9 +302,15 @@ private struct StressDetailSheet: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
                         heroSection
-                        todayGuidance
-                        zScoreBreakdown
-                        sleepDeficitSection
+
+                        if hasScore {
+                            todayGuidance
+                            zScoreBreakdown
+                            sleepDeficitSection
+                        } else {
+                            // Empty state — no score available
+                            noScoreExplanation
+                        }
 
                         if model.last7DaysStress.count > 1 && model.last7DaysStress.compactMap({ $0 }).count > 0 {
                             weeklyTrend
@@ -321,6 +328,37 @@ private struct StressDetailSheet: View {
         .presentationDetents([.large])
     }
 
+    // MARK: - No Score Explanation
+
+    private var noScoreExplanation: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "applewatch.slash")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white.opacity(0.35))
+                .frame(width: 36, height: 36)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(0.06))
+                )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("No Score Available")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.7))
+
+                Text(model.insufficientDataReason ?? "Wear your Apple Watch to sleep to generate a stress score.")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+                    .lineSpacing(3)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+
     // MARK: - Hero
 
     private var heroSection: some View {
@@ -329,15 +367,21 @@ private struct StressDetailSheet: View {
                 Circle()
                     .stroke(scoreColor.opacity(0.12), lineWidth: 10)
 
-                Circle()
-                    .trim(from: 0, to: CGFloat(score) / 100.0)
-                    .stroke(scoreColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                if hasScore {
+                    Circle()
+                        .trim(from: 0, to: CGFloat(score) / 100.0)
+                        .stroke(scoreColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
 
-                VStack(spacing: 1) {
-                    Text("\(score)")
-                        .font(.system(size: 38, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
+                    VStack(spacing: 1) {
+                        Text("\(score)")
+                            .font(.system(size: 38, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                } else {
+                    Text("--")
+                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.2))
                 }
             }
             .frame(width: 100, height: 100)
@@ -349,9 +393,15 @@ private struct StressDetailSheet: View {
                     .textCase(.uppercase)
                     .tracking(0.8)
 
-                Text(StressScoreModel.stressStatusLabel(score))
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(scoreColor)
+                if hasScore {
+                    Text(StressScoreModel.stressStatusLabel(score))
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(scoreColor)
+                } else {
+                    Text("No Data")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white.opacity(0.25))
+                }
 
                 if let avg = model.weeklyAvgStress {
                     Text("7-day avg: \(avg)")
@@ -403,7 +453,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Heart Rate Variability",
                         zScore: zHRV,
-                        weight: model.hasTemperatureData ? "35%" : "35%",
+                        weight: model.hasTemperatureData ? "35%" : "39%",
                         explanation: hrvExplanation(zHRV),
                         color: .purple,
                         invertColor: true
@@ -414,7 +464,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Resting Heart Rate",
                         zScore: zRHR,
-                        weight: model.hasTemperatureData ? "25%" : "30%",
+                        weight: model.hasTemperatureData ? "25%" : "28%",
                         explanation: rhrExplanation(zRHR),
                         color: .red,
                         invertColor: false
@@ -425,7 +475,7 @@ private struct StressDetailSheet: View {
                     metricRow(
                         name: "Respiratory Rate",
                         zScore: zResp,
-                        weight: model.hasTemperatureData ? "15%" : "20%",
+                        weight: model.hasTemperatureData ? "15%" : "17%",
                         explanation: respExplanation(zResp),
                         color: .cyan,
                         invertColor: false
@@ -678,13 +728,13 @@ private struct StressDetailSheet: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                howItWorksRow(weight: "35%", label: "HRV vs your 14-day baseline", color: .purple)
-                howItWorksRow(weight: model.hasTemperatureData ? "25%" : "30%", label: "Resting HR vs baseline", color: .red)
-                howItWorksRow(weight: model.hasTemperatureData ? "15%" : "20%", label: "Respiratory rate vs baseline", color: .cyan)
+                howItWorksRow(weight: model.hasTemperatureData ? "35%" : "39%", label: "HRV vs your 14-day baseline", color: .purple)
+                howItWorksRow(weight: model.hasTemperatureData ? "25%" : "28%", label: "Resting HR vs baseline", color: .red)
+                howItWorksRow(weight: model.hasTemperatureData ? "15%" : "17%", label: "Respiratory rate vs baseline", color: .cyan)
                 if model.hasTemperatureData {
                     howItWorksRow(weight: "10%", label: "Wrist temperature deviation", color: .orange)
                 }
-                howItWorksRow(weight: "15%", label: "Sleep deficit penalty", color: .indigo)
+                howItWorksRow(weight: model.hasTemperatureData ? "15%" : "17%", label: "Sleep deficit penalty", color: .indigo)
             }
 
             Text("Each metric is compared to your personal 14-day rolling average using Z-scores. Higher stress means your body is deviating from its norm in ways associated with fatigue, illness, or overtraining.")

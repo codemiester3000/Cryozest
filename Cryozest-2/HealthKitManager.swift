@@ -1276,8 +1276,15 @@ class HealthKitManager {
                 return
             }
             
-            // Filter 'asleep' samples and ignore very short sessions
-            let asleepSamples = sleepSamples.filter { $0.value == HKCategoryValueSleepAnalysis.asleep.rawValue && $0.endDate.timeIntervalSince($0.startDate) >= 15 * 60 }
+            // Filter asleep samples (both generic .asleep and staged types from watchOS 9+)
+            // and ignore very short sessions (< 15 min)
+            let asleepValues: Set<Int> = [
+                HKCategoryValueSleepAnalysis.asleep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepREM.rawValue
+            ]
+            let asleepSamples = sleepSamples.filter { asleepValues.contains($0.value) && $0.endDate.timeIntervalSince($0.startDate) >= 15 * 60 }
             
             // Identify the primary sleep session by finding the longest session
             guard let primarySleepSession = asleepSamples.max(by: { $0.endDate.timeIntervalSince($0.startDate) < $1.endDate.timeIntervalSince($1.startDate) }) else {
@@ -1896,7 +1903,7 @@ class HealthKitManager {
         
         let previousDay = calendar.date(byAdding: .day, value: -1, to: endOfNight)!
         let startOfPreviousDay = calendar.startOfDay(for: previousDay)
-        let startOfNight = calendar.date(byAdding: .hour, value: 21, to: startOfPreviousDay)! // Assuming 9 PM is the start of the sleep period
+        let startOfNight = calendar.date(byAdding: .hour, value: 19, to: startOfPreviousDay)! // 7 PM — matches sleep/temp query windows
         
         // Create a predicate for sleep analysis in the time range
         let sleepPredicate = HKQuery.predicateForSamples(withStart: startOfNight, end: endOfNight, options: .strictStartDate)

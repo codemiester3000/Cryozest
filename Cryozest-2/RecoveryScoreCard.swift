@@ -6,8 +6,9 @@ struct RecoveryScoreCard: View {
     @State private var showDetail = false
 
     private var score: Int? {
-        guard let last = recoveryModel.recoveryScores.last, last > 0 else { return nil }
-        return last
+        // Get the last entry; it's Int? so unwrap both the array access and the optional value
+        guard let last = recoveryModel.recoveryScores.last, let value = last else { return nil }
+        return value
     }
 
     var body: some View {
@@ -79,8 +80,8 @@ struct RecoveryScoreCard: View {
                 Spacer(minLength: 0)
             }
 
-            // Row 2: 7-day trend bars
-            if recoveryModel.recoveryScores.count > 1 {
+            // Row 2: 7-day trend bars (only show if at least one valid score)
+            if recoveryModel.recoveryScores.count > 1 && recoveryModel.recoveryScores.compactMap({ $0 }).count > 0 {
                 trendBars(color: color)
             }
 
@@ -130,20 +131,28 @@ struct RecoveryScoreCard: View {
             HStack(alignment: .bottom, spacing: 4) {
                 let days = recoveryModel.getLastSevenDays()
                 let scores = recoveryModel.recoveryScores
-                let maxScore = max(scores.max() ?? 100, 1)
+                let validScores = scores.compactMap { $0 }
+                let maxScore = max(validScores.max() ?? 100, 1)
 
                 ForEach(Array(zip(days, scores).enumerated()), id: \.offset) { index, pair in
                     let (day, value) = pair
                     let isToday = index == scores.count - 1
 
                     VStack(spacing: 3) {
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                isToday
-                                    ? Self.colorForScore(value)
-                                    : Self.colorForScore(value).opacity(0.5)
-                            )
-                            .frame(height: max(CGFloat(value) / CGFloat(maxScore) * 32, 4))
+                        if let value = value {
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(
+                                    isToday
+                                        ? Self.colorForScore(value)
+                                        : Self.colorForScore(value).opacity(0.5)
+                                )
+                                .frame(height: max(CGFloat(value) / CGFloat(maxScore) * 32, 4))
+                        } else {
+                            // No data — show gap placeholder
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(Color.white.opacity(0.06))
+                                .frame(height: 4)
+                        }
 
                         Text(day.prefix(1))
                             .font(.system(size: 9, weight: isToday ? .bold : .medium))
@@ -264,8 +273,9 @@ private struct RecoveryDetailSheet: View {
     @ObservedObject var model: RecoveryGraphModel
     let dismiss: () -> Void
 
-    private var score: Int { model.recoveryScores.last ?? 0 }
-    private var scoreColor: Color { RecoveryScoreCard.colorForScore(score) }
+    private var hasScore: Bool { (model.recoveryScores.last ?? nil) != nil }
+    private var score: Int { (model.recoveryScores.last ?? nil) ?? 0 }
+    private var scoreColor: Color { hasScore ? RecoveryScoreCard.colorForScore(score) : .white.opacity(0.2) }
 
     var body: some View {
         ZStack {
@@ -295,11 +305,17 @@ private struct RecoveryDetailSheet: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
                         heroSection
-                        todayGuidance
-                        hrvSection
-                        rhrSection
 
-                        if model.recoveryScores.count > 1 {
+                        if hasScore {
+                            todayGuidance
+                            hrvSection
+                            rhrSection
+                        } else {
+                            // Empty state — no score available
+                            noScoreExplanation
+                        }
+
+                        if model.recoveryScores.count > 1 && model.recoveryScores.compactMap({ $0 }).count > 0 {
                             weeklyTrend
                         }
 
@@ -314,6 +330,37 @@ private struct RecoveryDetailSheet: View {
         .presentationDetents([.large])
     }
 
+    // MARK: - No Score Explanation
+
+    private var noScoreExplanation: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "applewatch.slash")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white.opacity(0.35))
+                .frame(width: 36, height: 36)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(0.06))
+                )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("No Score Available")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.7))
+
+                Text("Wear your Apple Watch to sleep for at least 2 hours to generate a recovery score. HRV and resting heart rate data are also required.")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+                    .lineSpacing(3)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.04))
+        )
+    }
+
     // MARK: - Hero
 
     private var heroSection: some View {
@@ -323,15 +370,21 @@ private struct RecoveryDetailSheet: View {
                 Circle()
                     .stroke(scoreColor.opacity(0.12), lineWidth: 10)
 
-                Circle()
-                    .trim(from: 0, to: CGFloat(score) / 100.0)
-                    .stroke(scoreColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
+                if hasScore {
+                    Circle()
+                        .trim(from: 0, to: CGFloat(score) / 100.0)
+                        .stroke(scoreColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
 
-                VStack(spacing: 1) {
-                    Text("\(score)")
-                        .font(.system(size: 38, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
+                    VStack(spacing: 1) {
+                        Text("\(score)")
+                            .font(.system(size: 38, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                } else {
+                    Text("--")
+                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.2))
                 }
             }
             .frame(width: 100, height: 100)
@@ -343,9 +396,15 @@ private struct RecoveryDetailSheet: View {
                     .textCase(.uppercase)
                     .tracking(0.8)
 
-                Text(RecoveryScoreCard.statusLabel(score))
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(scoreColor)
+                if hasScore {
+                    Text(RecoveryScoreCard.statusLabel(score))
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(scoreColor)
+                } else {
+                    Text("No Data")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.white.opacity(0.25))
+                }
 
                 if model.weeklyAverage > 0 {
                     Text("7-day avg: \(model.weeklyAverage)%")
@@ -560,21 +619,32 @@ private struct RecoveryDetailSheet: View {
             HStack(alignment: .bottom, spacing: 5) {
                 let days = model.getLastSevenDays()
                 let scores = model.recoveryScores
-                let maxVal = max(scores.max() ?? 100, 1)
+                let validScores = scores.compactMap { $0 }
+                let maxVal = max(validScores.max() ?? 100, 1)
 
                 ForEach(Array(zip(days, scores).enumerated()), id: \.offset) { index, pair in
                     let (day, value) = pair
                     let isLast = index == scores.count - 1
-                    let barColor = RecoveryScoreCard.colorForScore(value)
 
                     VStack(spacing: 5) {
-                        Text("\(value)")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(isLast ? .white : .white.opacity(0.4))
+                        if let value = value {
+                            Text("\(value)")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(isLast ? .white : .white.opacity(0.4))
 
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(isLast ? barColor : barColor.opacity(0.45))
-                            .frame(height: max(CGFloat(value) / CGFloat(maxVal) * 80, 6))
+                            let barColor = RecoveryScoreCard.colorForScore(value)
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(isLast ? barColor : barColor.opacity(0.45))
+                                .frame(height: max(CGFloat(value) / CGFloat(maxVal) * 80, 6))
+                        } else {
+                            Text("—")
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.2))
+
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white.opacity(0.06))
+                                .frame(height: 6)
+                        }
 
                         Text(day)
                             .font(.system(size: 10, weight: isLast ? .bold : .medium))
@@ -612,33 +682,35 @@ private struct RecoveryDetailSheet: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 howItWorksRow(
-                    weight: "35%",
+                    weight: model.hasTemperatureData ? "35%" : "39%",
                     label: "HRV vs your 14-day baseline",
                     color: .purple
                 )
                 howItWorksRow(
-                    weight: "25%",
+                    weight: model.hasTemperatureData ? "25%" : "28%",
                     label: "Resting HR vs baseline",
                     color: .red
                 )
                 howItWorksRow(
-                    weight: "15%",
+                    weight: model.hasTemperatureData ? "15%" : "17%",
                     label: "Respiratory rate vs baseline",
                     color: .cyan
                 )
+                if model.hasTemperatureData {
+                    howItWorksRow(
+                        weight: "10%",
+                        label: "Wrist temperature deviation",
+                        color: .orange
+                    )
+                }
                 howItWorksRow(
-                    weight: "10%",
-                    label: "Wrist temperature deviation",
-                    color: .orange
-                )
-                howItWorksRow(
-                    weight: "15%",
+                    weight: model.hasTemperatureData ? "15%" : "17%",
                     label: "Sleep deficit penalty",
                     color: .indigo
                 )
             }
 
-            Text("Each metric is compared to your personal 14-day rolling baseline using Z-scores. The score reflects how tonight compares to your recent norm, accounting for HRV, heart rate, breathing, temperature, and sleep duration.")
+            Text("Each metric is compared to your personal 14-day rolling baseline using Z-scores. When a metric is unavailable (e.g. wrist temperature on older devices), its weight is redistributed among the remaining metrics.")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.35))
                 .lineSpacing(3)
@@ -721,11 +793,11 @@ private struct RecoveryDetailSheet: View {
     }
 
     private var trendContextText: String? {
-        let scores = model.recoveryScores
-        guard scores.count >= 4 else { return nil }
-        let half = scores.count / 2
-        let recentAvg = Double(Array(scores.suffix(half)).reduce(0, +)) / Double(half)
-        let olderAvg = Double(Array(scores.prefix(half)).reduce(0, +)) / Double(half)
+        let validScores = model.recoveryScores.compactMap { $0 }
+        guard validScores.count >= 4 else { return nil }
+        let half = validScores.count / 2
+        let recentAvg = Double(Array(validScores.suffix(half)).reduce(0, +)) / Double(half)
+        let olderAvg = Double(Array(validScores.prefix(half)).reduce(0, +)) / Double(half)
         let diff = recentAvg - olderAvg
         if diff > 5 { return "Trending up" }
         if diff < -5 { return "Trending down" }
