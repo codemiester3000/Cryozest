@@ -35,6 +35,7 @@ struct CoachSheetView: View {
     @StateObject private var recoveryModel = RecoveryGraphModel(
         selectedDate: Calendar.current.startOfDay(for: Date())
     )
+    @StateObject private var stressModel = StressScoreModel()
 
     @FocusState private var isInputFocused: Bool
     @State private var hasConfigured = false
@@ -159,11 +160,14 @@ struct CoachSheetView: View {
             let sleepModel = DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date()))
             let exertionModel = ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date()))
 
+            stressModel.computeScores(forDate: Calendar.current.startOfDay(for: Date()))
+
             chatViewModel.configure(
                 insightsViewModel: insightsViewModel,
                 recoveryModel: recoveryModel,
                 sleepModel: sleepModel,
                 exertionModel: exertionModel,
+                stressModel: stressModel,
                 sessions: Array(sessions),
                 selectedTherapyTypes: selectedTherapyTypes,
                 viewContext: viewContext

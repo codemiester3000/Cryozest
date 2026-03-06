@@ -93,6 +93,9 @@
 		D4576053E7824F558ACE94C3 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91500729A7BC4E77B8DF5A65 /* OnboardingFlowView.swift */; };
 		D5674464A51881ED01701A91 /* MedicationsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B046738978308F7AEF51A8 /* MedicationsCard.swift */; };
 		DB172100BA9ED1CBD37614FA /* RecoveryScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184C913819EA5A59B7031390 /* RecoveryScoreCard.swift */; };
+		A1B2C3D4E5F60006 /* StressScoreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60005 /* StressScoreCard.swift */; };
+		A1B2C3D4E5F60004 /* StressScoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60003 /* StressScoreModel.swift */; };
+		A1B2C3D4E5F60002 /* StressScoreEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60001 /* StressScoreEngine.swift */; };
 		E8192A30B4C15D75091A2B3C /* DataCollectionProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7081920A3B04C64F8091A2B /* DataCollectionProgressView.swift */; };
 		ECB70628C91D53C87436B2D3 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815C36D0F4145491575AD728 /* NotificationManager.swift */; };
 		EE9FD6E5E9384F48B0A27C8E /* OnboardingHabitSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8737EE8D2D4E0BBC46D722 /* OnboardingHabitSelectionView.swift */; };
@@ -128,6 +131,9 @@
 		0543F28B29D0078200620A55 /* Cryozest-2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cryozest-2.entitlements"; sourceTree = "<group>"; };
 		066165D0B62A46A2BE1528B3 /* InsightsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsTabView.swift; sourceTree = "<group>"; };
 		184C913819EA5A59B7031390 /* RecoveryScoreCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecoveryScoreCard.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60005 /* StressScoreCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StressScoreCard.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60003 /* StressScoreModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StressScoreModel.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60001 /* StressScoreEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StressScoreEngine.swift; sourceTree = "<group>"; };
 		236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationAdherenceSection.swift; path = "Cryozest-2/MedicationAdherenceSection.swift"; sourceTree = SOURCE_ROOT; };
 		27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DemoDataManager.swift; sourceTree = "<group>"; };
@@ -362,6 +368,9 @@
 				AA11BB22CC33DD44EE55FF14 /* AICoachView.swift */,
 				AA11BB22CC33DD44EE55FF15 /* CoachResponseParser.swift */,
 				184C913819EA5A59B7031390 /* RecoveryScoreCard.swift */,
+				A1B2C3D4E5F60005 /* StressScoreCard.swift */,
+				A1B2C3D4E5F60003 /* StressScoreModel.swift */,
+				A1B2C3D4E5F60001 /* StressScoreEngine.swift */,
 				3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */,
 			);
 			path = "Cryozest-2";
@@ -616,6 +625,9 @@
 				C6F708192A304B53E7F80910 /* HabitImpactChips.swift in Sources */,
 				E8192A30B4C15D75091A2B3C /* DataCollectionProgressView.swift in Sources */,
 				DB172100BA9ED1CBD37614FA /* RecoveryScoreCard.swift in Sources */,
+				A1B2C3D4E5F60006 /* StressScoreCard.swift in Sources */,
+				A1B2C3D4E5F60004 /* StressScoreModel.swift in Sources */,
+				A1B2C3D4E5F60002 /* StressScoreEngine.swift in Sources */,
 				3E554D6E2CA6F4AFF00E6B12 /* DemoDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

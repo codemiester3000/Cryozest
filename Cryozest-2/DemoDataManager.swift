@@ -79,6 +79,23 @@ class DemoDataManager: ObservableObject {
         }
     }
 
+    // MARK: - Stress Score Model
+
+    func populateStressModel(_ model: StressScoreModel) {
+        DispatchQueue.main.async {
+            model.todayStressScore = 42
+            model.todayRecoveryScore = 72
+            model.last7DaysStress = [38, 55, 47, 61, 44, 50, 42]
+            model.last7DaysRecovery = [75, 58, 66, 52, 69, 63, 72]
+            model.weeklyAvgStress = 48
+            model.weeklyAvgRecovery = 65
+            model.zScores = MetricZScores(hrv: 0.6, rhr: -0.3, respRate: 0.1, wristTemp: nil)
+            model.sleepDeficit = 0.08
+            model.hasTemperatureData = false
+            model.baselineDayCount = 10
+        }
+    }
+
     // MARK: - Insights View Model
 
     func populateInsightsViewModel(_ vm: InsightsViewModel) {

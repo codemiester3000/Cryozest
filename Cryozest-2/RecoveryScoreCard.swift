@@ -230,29 +230,29 @@ struct RecoveryScoreCard: View {
 
     static func colorForScore(_ value: Int) -> Color {
         switch value {
-        case 75...100: return .green
-        case 50..<75: return .yellow
-        case 30..<50: return .orange
+        case 85...100: return .green
+        case 67..<85: return .yellow
+        case 34..<67: return .orange
         default: return .red
         }
     }
 
     static func statusLabel(_ score: Int) -> String {
         switch score {
-        case 80...100: return "Peak"
-        case 65..<80: return "Good"
-        case 50..<65: return "Fair"
-        case 35..<50: return "Low"
+        case 85...100: return "Peak"
+        case 67..<85: return "Good"
+        case 50..<67: return "Fair"
+        case 34..<50: return "Low"
         default: return "Rest"
         }
     }
 
     static func guidanceText(_ score: Int) -> String {
         switch score {
-        case 80...100: return "Push hard today"
-        case 65..<80: return "Ready for a solid effort"
-        case 50..<65: return "Moderate activity today"
-        case 35..<50: return "Consider lighter activity"
+        case 85...100: return "Push hard today"
+        case 67..<85: return "Ready for a solid effort"
+        case 50..<67: return "Moderate activity today"
+        case 34..<50: return "Consider lighter activity"
         default: return "Prioritize rest"
         }
     }
@@ -612,18 +612,33 @@ private struct RecoveryDetailSheet: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 howItWorksRow(
-                    weight: "80%",
-                    label: "Sleep HRV vs your 60-day average",
+                    weight: "35%",
+                    label: "HRV vs your 14-day baseline",
                     color: .purple
                 )
                 howItWorksRow(
-                    weight: "20%",
-                    label: "Resting HR vs your 60-day average",
+                    weight: "25%",
+                    label: "Resting HR vs baseline",
                     color: .red
+                )
+                howItWorksRow(
+                    weight: "15%",
+                    label: "Respiratory rate vs baseline",
+                    color: .cyan
+                )
+                howItWorksRow(
+                    weight: "10%",
+                    label: "Wrist temperature deviation",
+                    color: .orange
+                )
+                howItWorksRow(
+                    weight: "15%",
+                    label: "Sleep deficit penalty",
+                    color: .indigo
                 )
             }
 
-            Text("Both metrics are measured from your Apple Watch during sleep. Your 60-day averages are your personal baselines \u{2014} the score reflects how today compares to your norm, not to population averages.")
+            Text("Each metric is compared to your personal 14-day rolling baseline using Z-scores. The score reflects how tonight compares to your recent norm, accounting for HRV, heart rate, breathing, temperature, and sleep duration.")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.white.opacity(0.35))
                 .lineSpacing(3)

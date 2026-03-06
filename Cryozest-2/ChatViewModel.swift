@@ -19,6 +19,7 @@ class ChatViewModel: ObservableObject {
         recoveryModel: RecoveryGraphModel?,
         sleepModel: DailySleepViewModel?,
         exertionModel: ExertionModel?,
+        stressModel: StressScoreModel? = nil,
         sessions: [TherapySessionEntity],
         selectedTherapyTypes: [TherapyType],
         viewContext: NSManagedObjectContext
@@ -30,6 +31,7 @@ class ChatViewModel: ObservableObject {
             recoveryModel: recoveryModel,
             sleepModel: sleepModel,
             exertionModel: exertionModel,
+            stressModel: stressModel,
             sessions: sessions,
             selectedTherapyTypes: selectedTherapyTypes,
             viewContext: viewContext
@@ -41,6 +43,7 @@ class ChatViewModel: ObservableObject {
         recoveryModel: RecoveryGraphModel?,
         sleepModel: DailySleepViewModel?,
         exertionModel: ExertionModel?,
+        stressModel: StressScoreModel? = nil,
         sessions: [TherapySessionEntity],
         selectedTherapyTypes: [TherapyType],
         viewContext: NSManagedObjectContext
@@ -50,6 +53,7 @@ class ChatViewModel: ObservableObject {
             insightsViewModel: insightsViewModel,
             sleepModel: sleepModel,
             exertionModel: exertionModel,
+            stressModel: stressModel,
             sessions: sessions,
             selectedTherapyTypes: selectedTherapyTypes,
             viewContext: viewContext

@@ -8,6 +8,7 @@ struct HealthContextBuilder {
         insightsViewModel: InsightsViewModel?,
         sleepModel: DailySleepViewModel?,
         exertionModel: ExertionModel?,
+        stressModel: StressScoreModel? = nil,
         sessions: [TherapySessionEntity],
         selectedTherapyTypes: [TherapyType],
         viewContext: NSManagedObjectContext
@@ -102,6 +103,45 @@ struct HealthContextBuilder {
 
             if !metricsLines.isEmpty {
                 sections.append("TODAY'S HEALTH METRICS:\n" + metricsLines.joined(separator: "\n"))
+            }
+        }
+
+        // Stress & Recovery scores (5-metric Z-score system)
+        if let stress = stressModel {
+            var stressLines: [String] = []
+
+            if let stressScore = stress.todayStressScore {
+                stressLines.append("Stress score today: \(stressScore)/100 (\(StressScoreModel.stressStatusLabel(stressScore)))")
+            }
+            if let recoveryScore = stress.todayRecoveryScore {
+                stressLines.append("Recovery score (Z-score formula): \(recoveryScore)/100")
+            }
+
+            if let z = stress.zScores {
+                var drivers: [String] = []
+                if let zHRV = z.hrv { drivers.append("HRV z=\(String(format: "%.1f", zHRV))") }
+                if let zRHR = z.rhr { drivers.append("RHR z=\(String(format: "%.1f", zRHR))") }
+                if let zResp = z.respRate { drivers.append("Resp z=\(String(format: "%.1f", zResp))") }
+                if let zTemp = z.wristTemp { drivers.append("Temp z=\(String(format: "%.1f", zTemp))") }
+                if !drivers.isEmpty {
+                    stressLines.append("Z-score drivers: " + drivers.joined(separator: ", "))
+                }
+            }
+
+            if let deficit = stress.sleepDeficit, deficit > 0 {
+                stressLines.append("Sleep deficit: \(Int((deficit * 100).rounded()))%")
+            }
+
+            if stress.baselineDayCount < 14 {
+                stressLines.append("Note: baseline still building (day \(stress.baselineDayCount)/14, using blended population priors)")
+            }
+
+            if stress.weeklyAvgStress > 0 {
+                stressLines.append("Weekly avg stress: \(stress.weeklyAvgStress), weekly avg recovery: \(stress.weeklyAvgRecovery)")
+            }
+
+            if !stressLines.isEmpty {
+                sections.append("STRESS & RECOVERY ANALYSIS:\n" + stressLines.joined(separator: "\n"))
             }
         }
 

@@ -9,6 +9,7 @@ struct DailyView: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @ObservedObject var exertionModel: ExertionModel
     @ObservedObject var sleepModel: DailySleepViewModel
+    @ObservedObject var stressModel: StressScoreModel
 
     var appleWorkoutsService: AppleWorkoutsService
     var insightsViewModel: InsightsViewModel?
@@ -47,12 +48,14 @@ struct DailyView: View {
         recoveryModel: RecoveryGraphModel,
         exertionModel: ExertionModel,
         sleepModel: DailySleepViewModel,
+        stressModel: StressScoreModel,
         context: NSManagedObjectContext,
         insightsViewModel: InsightsViewModel? = nil
     ) {
         self.recoveryModel = recoveryModel
         self.exertionModel = exertionModel
         self.sleepModel = sleepModel
+        self.stressModel = stressModel
         self.appleWorkoutsService = AppleWorkoutsService(context: context)
         self.insightsViewModel = insightsViewModel
     }
@@ -126,6 +129,10 @@ struct DailyView: View {
                     RecoveryScoreCard(recoveryModel: recoveryModel)
                         .padding(.horizontal, 20)
 
+                    // 5b. Stress Score
+                    StressScoreCard(stressModel: stressModel)
+                        .padding(.horizontal, 20)
+
                     // 6. More tracking
                     PainTrackingCard(selectedDate: $selectedDate)
                         .padding(.horizontal, 20)
@@ -143,6 +150,7 @@ struct DailyView: View {
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
+                stressModel.computeScores(forDate: selectedDate)
             }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
@@ -481,12 +489,14 @@ struct DailyView: View {
             DemoDataManager.shared.populateRecoveryModel(recoveryModel)
             DemoDataManager.shared.populateExertionModel(exertionModel)
             DemoDataManager.shared.populateSleepModel(sleepModel)
+            DemoDataManager.shared.populateStressModel(stressModel)
             DemoDataManager.shared.populateCoreDataIfNeeded(context: viewContext)
             return
         }
         recoveryModel.pullAllRecoveryData(forDate: selectedDate)
         exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
         sleepModel.fetchSleepData(forDate: selectedDate)
+        stressModel.computeScores(forDate: selectedDate)
     }
 
     private func scheduleStreakProtection() {

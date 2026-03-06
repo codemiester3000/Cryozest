@@ -33,7 +33,7 @@ class HealthKitManager {
         let workoutType = HKObjectType.workoutType()
         
         // Add new types to the typesToRead set
-        let typesToRead: Set<HKObjectType> = [
+        var typesToRead: Set<HKObjectType> = [
                heartRateType,
                restingHeartRateType,
                bodyMassType,
@@ -48,6 +48,13 @@ class HealthKitManager {
                vo2MaxType,
                workoutType
            ]
+
+        // Wrist temperature (Series 8+ / watchOS 9+)
+        if #available(iOS 17.0, *) {
+            if let wristTempType = HKQuantityType.quantityType(forIdentifier: .appleSleepingWristTemperature) {
+                typesToRead.insert(wristTempType)
+            }
+        }
         
         healthStore.requestAuthorization(toShare: [], read: typesToRead) { success, error in
               completion(success, error)
@@ -2409,6 +2416,145 @@ class HealthKitManager {
             }
             DispatchQueue.main.async {
                 completion(samples, nil)
+            }
+        }
+        healthStore.execute(query)
+    }
+
+    // MARK: - Stress Score Support Methods
+
+    /// Fetch sleeping wrist temperature deviation for a given night (Series 8+ / watchOS 9+).
+    /// Returns the median deviation in °C, or nil if unavailable.
+    func fetchSleepingWristTemperature(for date: Date, completion: @escaping (Double?) -> Void) {
+        if #available(iOS 17.0, *) {
+            guard let wristTempType = HKQuantityType.quantityType(forIdentifier: .appleSleepingWristTemperature) else {
+                completion(nil)
+                return
+            }
+
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: date)
+            let sleepStart = calendar.date(byAdding: .hour, value: -5, to: startOfDay)!
+            let sleepEnd = calendar.date(byAdding: .hour, value: 14, to: startOfDay)!
+
+            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+            let query = HKSampleQuery(sampleType: wristTempType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
+                guard let samples = samples as? [HKQuantitySample], !samples.isEmpty else {
+                    DispatchQueue.main.async { completion(nil) }
+                    return
+                }
+
+                let values = samples.map { $0.quantity.doubleValue(for: .degreeCelsius()) }.sorted()
+                let median: Double
+                if values.count % 2 == 0 {
+                    median = (values[values.count / 2 - 1] + values[values.count / 2]) / 2.0
+                } else {
+                    median = values[values.count / 2]
+                }
+
+                DispatchQueue.main.async { completion(median) }
+            }
+            healthStore.execute(query)
+        } else {
+            completion(nil)
+        }
+    }
+
+    /// Fetch respiratory rate during sleep for a given night, returning the median value.
+    func fetchRespiratoryRateDuringSleep(for date: Date, completion: @escaping (Double?) -> Void) {
+        getSleepTimes(for: date) { [weak self] sleepStart, sleepEnd in
+            guard let self = self, let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+                completion(nil)
+                return
+            }
+
+            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
+
+            let query = HKSampleQuery(sampleType: self.respirationRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
+                guard let samples = samples as? [HKQuantitySample], !samples.isEmpty else {
+                    DispatchQueue.main.async { completion(nil) }
+                    return
+                }
+
+                let values = samples.map { $0.quantity.doubleValue(for: HKUnit(from: "count/min")) }.sorted()
+                let median: Double
+                if values.count % 2 == 0 {
+                    median = (values[values.count / 2 - 1] + values[values.count / 2]) / 2.0
+                } else {
+                    median = values[values.count / 2]
+                }
+
+                DispatchQueue.main.async { completion(median) }
+            }
+            self.healthStore.execute(query)
+        }
+    }
+
+    /// Fetch the native resting heart rate value for a specific date.
+    func fetchRestingHeartRateForDay(date: Date, completion: @escaping (Double?) -> Void) {
+        guard let rhrType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
+            completion(nil)
+            return
+        }
+
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictEndDate)
+
+        let query = HKStatisticsQuery(quantityType: rhrType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, error in
+            guard error == nil, let avgQuantity = statistics?.averageQuantity() else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+
+            let rhr = avgQuantity.doubleValue(for: HKUnit(from: "count/min"))
+            DispatchQueue.main.async { completion(rhr) }
+        }
+        healthStore.execute(query)
+    }
+
+    /// Fetch HRV (SDNN) during sleep for a specific date, returning the average in ms.
+    func fetchHRVDuringSleepForDate(_ date: Date, completion: @escaping (Double?) -> Void) {
+        fetchAvgHRVDuringSleepForNightEndingOn(date: date) { hrv in
+            completion(hrv)
+        }
+    }
+
+    /// Fetch total asleep time (Deep+Core+REM) for a specific night, in seconds.
+    func fetchTotalSleepForNight(date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let sleepStart = calendar.date(byAdding: .hour, value: -5, to: startOfDay)!
+        let sleepEnd = calendar.date(byAdding: .hour, value: 14, to: startOfDay)!
+
+        let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+        let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+
+        let query = HKSampleQuery(sampleType: sleepType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
+            guard let sleepSamples = samples as? [HKCategorySample], !sleepSamples.isEmpty else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+
+            var totalDuration: TimeInterval = 0
+            for sample in sleepSamples {
+                if sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue ||
+                   sample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
+                   sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                    totalDuration += sample.endDate.timeIntervalSince(sample.startDate)
+                }
+            }
+
+            DispatchQueue.main.async {
+                completion(totalDuration > 0 ? totalDuration : nil)
             }
         }
         healthStore.execute(query)

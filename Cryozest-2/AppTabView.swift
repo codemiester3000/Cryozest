@@ -22,6 +22,7 @@ struct AppTabView: View {
     private var sessions: FetchedResults<TherapySessionEntity>
 
     @StateObject private var insightsViewModelWrapper = InsightsViewModelWrapper()
+    @StateObject private var stressModel = StressScoreModel()
     @State private var selectedTab: Int = 0
 
     private var selectedTherapyTypes: [TherapyType] {
@@ -39,6 +40,7 @@ struct AppTabView: View {
                     recoveryModel: RecoveryGraphModel(selectedDate: Calendar.current.startOfDay(for: Date())),
                     exertionModel: ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date())),
                     sleepModel: DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date())),
+                    stressModel: stressModel,
                     context: viewContext,
                     insightsViewModel: insightsViewModelWrapper.viewModel
                 )
