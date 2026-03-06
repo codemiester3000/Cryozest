@@ -28,7 +28,6 @@ struct HealthContextBuilder {
         5. Be direct and conversational — like a knowledgeable friend, not a doctor.
         6. Never diagnose medical conditions. For serious symptoms, suggest a healthcare provider.
         7. Keep responses concise (3-5 sentences unless they ask for detail).
-        8. At the END of every response, include exactly 3 short follow-up questions the user might want to ask next, formatted as: [FOLLOWUP: question text]. Keep each under 45 characters. Make them contextual to what you just discussed.
 
         Respond in natural, conversational language. Use specific numbers from the data. When comparing metrics, mention both current and baseline values. End with actionable advice when relevant.
         """)
@@ -37,10 +36,10 @@ struct HealthContextBuilder {
         if let recovery = recoveryModel {
             var metricsLines: [String] = []
 
-            if let sleep = recovery.previousNightSleepDuration, HealthDataValidator.isValidDisplayString(sleep) {
+            if let sleep = recovery.previousNightSleepDuration, !sleep.isEmpty {
                 metricsLines.append("Sleep last night: \(sleep) hrs")
             }
-            if let hrv = recovery.avgHrvDuringSleep, HealthDataValidator.isValidHRV(hrv) {
+            if let hrv = recovery.avgHrvDuringSleep {
                 var line = "HRV (during sleep): \(hrv) ms"
                 if let hrv60 = recovery.avgHrvDuringSleep60Days {
                     line += " (60-day avg: \(hrv60) ms"
@@ -52,8 +51,8 @@ struct HealthContextBuilder {
                 }
                 metricsLines.append(line)
             }
-            if let rhr = recovery.mostRecentRestingHeartRate, HealthDataValidator.isValidRestingHR(rhr) {
-                var line = "Resting heart rate: \(rhr) bpm"
+            if let rhr = recovery.dailyAvgRestingHeartRate ?? recovery.mostRecentRestingHeartRate {
+                var line = "Resting heart rate: \(rhr) bpm (daily avg)"
                 if let rhr60 = recovery.avgRestingHeartRate60Days {
                     line += " (60-day avg: \(rhr60) bpm"
                     if let pct = recovery.restingHeartRatePercentage {
@@ -63,13 +62,6 @@ struct HealthContextBuilder {
                     line += ")"
                 }
                 metricsLines.append(line)
-            }
-            if !recovery.dailyRHR.isEmpty {
-                let rhrStr = recovery.dailyRHR.map { "\($0.day): \($0.bpm)" }.joined(separator: ", ")
-                metricsLines.append("Resting HR last 7 days: \(rhrStr)")
-            }
-            if let avgDailyHR = recovery.averageDailyRHR {
-                metricsLines.append("Avg daily heart rate: \(avgDailyHR) bpm")
             }
             if let spo2 = recovery.mostRecentSPO2 {
                 metricsLines.append("SpO2: \(String(format: "%.1f", spo2))%")
@@ -93,11 +85,21 @@ struct HealthContextBuilder {
 
             // Recovery scores — daily array for charts
             if !recovery.recoveryScores.isEmpty {
-                let latest = recovery.recoveryScores.last ?? 0
-                metricsLines.append("Recovery score today: \(latest)/100 (weekly avg: \(recovery.weeklyAverage))")
+                // recoveryScores is [Int?] — unwrap both the array .last (Int??) and the inner optional
+                if let latestOpt = recovery.recoveryScores.last, let latest = latestOpt {
+                    metricsLines.append("Recovery score today: \(latest)/100 (weekly avg: \(recovery.weeklyAverage))")
+                } else if recovery.weeklyAverage > 0 {
+                    metricsLines.append("Recovery score today: not available (weekly avg: \(recovery.weeklyAverage))")
+                }
 
                 let dayLabels = lastNDayLabels(7)
-                let scoreStrings = zip(dayLabels, recovery.recoveryScores).map { "\($0): \($1)%" }
+                let scoreStrings = zip(dayLabels, recovery.recoveryScores).map { label, score -> String in
+                    if let score = score {
+                        return "\(label): \(score)%"
+                    } else {
+                        return "\(label): no data"
+                    }
+                }
                 metricsLines.append("Recovery scores (last 7 days): \(scoreStrings.joined(separator: ", "))")
             }
 
@@ -106,7 +108,7 @@ struct HealthContextBuilder {
             }
         }
 
-        // Stress & Recovery scores (5-metric Z-score system)
+        // Stress & Recovery scores (new 5-metric Z-score system)
         if let stress = stressModel {
             var stressLines: [String] = []
 
@@ -136,8 +138,8 @@ struct HealthContextBuilder {
                 stressLines.append("Note: baseline still building (day \(stress.baselineDayCount)/14, using blended population priors)")
             }
 
-            if stress.weeklyAvgStress > 0 {
-                stressLines.append("Weekly avg stress: \(stress.weeklyAvgStress), weekly avg recovery: \(stress.weeklyAvgRecovery)")
+            if let avgStress = stress.weeklyAvgStress, let avgRecovery = stress.weeklyAvgRecovery {
+                stressLines.append("Weekly avg stress: \(avgStress), weekly avg recovery: \(avgRecovery)")
             }
 
             if !stressLines.isEmpty {
@@ -148,22 +150,22 @@ struct HealthContextBuilder {
         // Sleep details
         if let sleep = sleepModel {
             var sleepLines: [String] = []
-            if HealthDataValidator.isValidDisplayString(sleep.totalTimeAsleep) {
+            if sleep.totalTimeAsleep != "--" {
                 sleepLines.append("Time asleep: \(sleep.totalTimeAsleep)")
             }
-            if HealthDataValidator.isValidDisplayString(sleep.totalTimeInBed) {
+            if sleep.totalTimeInBed != "--" {
                 sleepLines.append("Time in bed: \(sleep.totalTimeInBed)")
             }
-            if HealthDataValidator.isValidDisplayString(sleep.totalTimeAwake) {
+            if sleep.totalTimeAwake != "--" {
                 sleepLines.append("Time awake (during sleep period): \(sleep.totalTimeAwake)")
             }
-            if HealthDataValidator.isValidDisplayString(sleep.totalDeepSleep) {
+            if sleep.totalDeepSleep != "--" {
                 sleepLines.append("Deep sleep: \(sleep.totalDeepSleep)")
             }
-            if HealthDataValidator.isValidDisplayString(sleep.totalRemSleep) {
+            if sleep.totalRemSleep != "--" {
                 sleepLines.append("REM sleep: \(sleep.totalRemSleep)")
             }
-            if HealthDataValidator.isValidDisplayString(sleep.totalCoreSleep) {
+            if sleep.totalCoreSleep != "--" {
                 sleepLines.append("Core sleep: \(sleep.totalCoreSleep)")
             }
             if sleep.sleepScore > 0 {
@@ -184,8 +186,6 @@ struct HealthContextBuilder {
             }
             if !sleepLines.isEmpty {
                 sections.append("SLEEP BREAKDOWN:\n" + sleepLines.joined(separator: "\n"))
-            } else {
-                sections.append("SLEEP BREAKDOWN:\nSleep data: Not available (watch may not have been worn)")
             }
         }
 

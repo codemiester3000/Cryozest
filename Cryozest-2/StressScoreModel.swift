@@ -4,106 +4,119 @@ import SwiftUI
 class StressScoreModel: ObservableObject {
     @Published var todayStressScore: Int?
     @Published var todayRecoveryScore: Int?
-    @Published var last7DaysStress: [Int] = []
-    @Published var last7DaysRecovery: [Int] = []
-    @Published var weeklyAvgStress: Int = 0
-    @Published var weeklyAvgRecovery: Int = 0
+    @Published var last7DaysStress: [Int?] = []      // nil = no data for that day (watch not worn)
+    @Published var last7DaysRecovery: [Int?] = []     // nil = no data for that day
+    @Published var weeklyAvgStress: Int?
+    @Published var weeklyAvgRecovery: Int?
     @Published var zScores: MetricZScores?
     @Published var sleepDeficit: Double?
     @Published var hasTemperatureData: Bool = false
+    @Published var computedWeights: ComputedWeights?
     @Published var baselineDayCount: Int = 0
     @Published var isLoading: Bool = false
+    @Published var dataQuality: StressRecoveryScore.DataQuality?
+    @Published var insufficientDataReason: String?    // Human-readable reason when no score
 
     private let engine = StressScoreEngine.shared
 
+    /// Per-session cache of fetched metrics keyed by startOfDay.
+    /// Avoids redundant HealthKit queries when computeScores and computeLast7Days
+    /// both need data for the same date (especially today).
+    private var metricsCache: [Date: NightlyMetrics?] = [:]
+
     init() {
         baselineDayCount = engine.loadBaseline().dates.count
+    }
+
+    /// Clears the metrics cache — call on manual refresh so fresh HK data is fetched.
+    func invalidateCache() {
+        metricsCache.removeAll()
     }
 
     // MARK: - Compute Today's Score
 
     func computeScores(forDate date: Date) {
         isLoading = true
+        // Invalidate cache on new computation so we get fresh data
+        metricsCache.removeAll()
 
-        let group = DispatchGroup()
-        let hk = HealthKitManager.shared
-
-        var hrv: Double?
-        var rhr: Double?
-        var respRate: Double?
-        var wristTemp: Double?
-        var sleepDuration: Double?
-
-        // Fan out all HealthKit queries in parallel
-        group.enter()
-        hk.fetchHRVDuringSleepForDate(date) { value in
-            hrv = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchRestingHeartRateForDay(date: date) { value in
-            rhr = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchRespiratoryRateDuringSleep(for: date) { value in
-            respRate = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchSleepingWristTemperature(for: date) { value in
-            wristTemp = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchTotalSleepForNight(date: date) { value in
-            sleepDuration = value
-            group.leave()
-        }
-
-        group.notify(queue: .main) { [weak self] in
+        fetchNightlyMetricsCached(for: date) { [weak self] metrics in
             guard let self = self else { return }
 
-            // Need at least HRV or RHR to compute a meaningful score
-            guard hrv != nil || rhr != nil else {
-                self.isLoading = false
-                self.todayStressScore = nil
-                self.todayRecoveryScore = nil
+            guard let metrics = metrics else {
+                // No data at all — watch probably wasn't worn
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to generate a score."
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
                 return
             }
 
-            let metrics = NightlyMetrics(
-                date: date,
-                hrv: hrv,
-                rhr: rhr,
-                respRate: respRate,
-                wristTemp: wristTemp,
-                sleepDuration: sleepDuration
-            )
+            // Stress only needs HRV + RHR; recovery also needs sleep
+            if !metrics.hasSufficientDataForStress {
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = self.explainInsufficientData(metrics)
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
+                return
+            }
 
             var baseline = self.engine.loadBaseline()
-            let score = self.engine.computeScore(metrics: metrics, baseline: baseline)
 
-            // Update baseline with tonight's data
-            self.engine.updateBaseline(&baseline, with: metrics)
-            self.engine.saveBaseline(baseline)
+            // Compute stress score (relaxed gate: HRV + RHR only)
+            guard let stressScore = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: false) else {
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
+                return
+            }
 
-            // Publish results
-            self.todayStressScore = score.stressScore
-            self.todayRecoveryScore = score.recoveryScore
-            self.zScores = score.zScores
-            self.sleepDeficit = score.sleepDeficit
-            self.hasTemperatureData = score.hasTemperatureData
-            self.baselineDayCount = baseline.dates.count
+            // Recovery score requires sleep — compute separately if sleep data exists
+            let recoveryScore: StressRecoveryScore?
+            if metrics.hasSufficientDataForRecovery {
+                recoveryScore = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: true)
+            } else {
+                recoveryScore = nil
+            }
 
-            self.isLoading = false
+            // Only update baseline with full-quality nights (sleep + HRV + RHR)
+            if metrics.hasSufficientDataForRecovery {
+                self.engine.updateBaseline(&baseline, with: metrics)
+                self.engine.saveBaseline(baseline)
+            }
 
-            // Compute 7-day history after today's score is ready
-            self.computeLast7Days(currentDate: date)
+            DispatchQueue.main.async {
+                self.todayStressScore = stressScore.stressScore
+                // Recovery only shows if sleep data was present
+                self.todayRecoveryScore = recoveryScore?.recoveryScore
+                self.zScores = stressScore.zScores
+                // Only show sleep deficit if sleep data exists
+                self.sleepDeficit = metrics.hasSleepData ? stressScore.sleepDeficit : nil
+                self.hasTemperatureData = stressScore.hasTemperatureData
+                self.computedWeights = stressScore.computedWeights
+                self.baselineDayCount = baseline.dates.count
+                self.dataQuality = stressScore.dataQuality
+                self.insufficientDataReason = nil
+                self.isLoading = false
+                self.computeLast7Days(currentDate: date)
+            }
         }
     }
 
@@ -112,7 +125,8 @@ class StressScoreModel: ObservableObject {
     func computeLast7Days(currentDate: Date) {
         let calendar = Calendar.current
         let group = DispatchGroup()
-        var scoresByDate: [Date: StressRecoveryScore] = [:]
+        var stressScoresByDate: [Date: Int] = [:]
+        var recoveryScoresByDate: [Date: Int] = [:]
         let baseline = engine.loadBaseline()
 
         var dates: [Date] = []
@@ -125,15 +139,32 @@ class StressScoreModel: ObservableObject {
 
         for date in dates {
             group.enter()
-            fetchNightlyMetrics(for: date) { [weak self] metrics in
-                guard let self = self, let metrics = metrics else {
+            fetchNightlyMetricsCached(for: date) { [weak self] metrics in
+                guard let self = self else {
                     group.leave()
                     return
                 }
 
-                let score = self.engine.computeScore(metrics: metrics, baseline: baseline)
+                // Need at least HRV + RHR for a stress score
+                guard let metrics = metrics, metrics.hasSufficientDataForStress else {
+                    group.leave()
+                    return
+                }
+
+                // Stress uses relaxed gate (no sleep required)
+                let stressResult = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: false)
+                // Recovery uses strict gate (sleep required)
+                let recoveryResult = metrics.hasSufficientDataForRecovery
+                    ? self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: true)
+                    : nil
+
                 DispatchQueue.main.async {
-                    scoresByDate[date] = score
+                    if let s = stressResult {
+                        stressScoresByDate[date] = s.stressScore
+                    }
+                    if let r = recoveryResult {
+                        recoveryScoresByDate[date] = r.recoveryScore
+                    }
                     group.leave()
                 }
             }
@@ -142,14 +173,37 @@ class StressScoreModel: ObservableObject {
         group.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
 
-            self.last7DaysStress = dates.map { scoresByDate[$0]?.stressScore ?? 0 }
-            self.last7DaysRecovery = dates.map { scoresByDate[$0]?.recoveryScore ?? 0 }
+            // Stress can show on days without sleep; recovery only on days with sleep
+            self.last7DaysStress = dates.map { stressScoresByDate[$0] }
+            self.last7DaysRecovery = dates.map { recoveryScoresByDate[$0] }
 
-            let validStress = self.last7DaysStress.filter { $0 > 0 }
-            let validRecovery = self.last7DaysRecovery.filter { $0 > 0 }
+            // Weekly averages only count days with real scores
+            let validStress = self.last7DaysStress.compactMap { $0 }
+            let validRecovery = self.last7DaysRecovery.compactMap { $0 }
 
-            self.weeklyAvgStress = validStress.isEmpty ? 0 : validStress.reduce(0, +) / validStress.count
-            self.weeklyAvgRecovery = validRecovery.isEmpty ? 0 : validRecovery.reduce(0, +) / validRecovery.count
+            self.weeklyAvgStress = validStress.isEmpty ? nil : validStress.reduce(0, +) / validStress.count
+            self.weeklyAvgRecovery = validRecovery.isEmpty ? nil : validRecovery.reduce(0, +) / validRecovery.count
+        }
+    }
+
+    // MARK: - Cached Metrics Fetch
+
+    /// Returns cached metrics if available, otherwise fetches from HealthKit and caches the result.
+    /// This prevents duplicate HealthKit queries when computeScores() and computeLast7Days()
+    /// both need the same date's data (saves ~10 HK queries per refresh cycle).
+    private func fetchNightlyMetricsCached(for date: Date, completion: @escaping (NightlyMetrics?) -> Void) {
+        let key = Calendar.current.startOfDay(for: date)
+
+        // Check cache first
+        if let cached = metricsCache[key] {
+            completion(cached)
+            return
+        }
+
+        // Fetch from HealthKit, then cache
+        fetchNightlyMetrics(for: date) { [weak self] metrics in
+            self?.metricsCache[key] = metrics
+            completion(metrics)
         }
     }
 
@@ -196,12 +250,13 @@ class StressScoreModel: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            // Need at least one core metric
-            guard hrv != nil || rhr != nil else {
+            // If absolutely nothing came back, return nil immediately
+            if hrv == nil && rhr == nil && sleepDuration == nil && respRate == nil && wristTemp == nil {
                 completion(nil)
                 return
             }
 
+            // Return the metrics — hasSufficientData check happens upstream
             completion(NightlyMetrics(
                 date: date,
                 hrv: hrv,
@@ -211,6 +266,26 @@ class StressScoreModel: ObservableObject {
                 sleepDuration: sleepDuration
             ))
         }
+    }
+
+    // MARK: - Insufficient Data Explanation
+
+    private func explainInsufficientData(_ metrics: NightlyMetrics) -> String {
+        var reasons: [String] = []
+
+        if metrics.hrv == nil {
+            reasons.append("No HRV data available")
+        }
+
+        if metrics.rhr == nil {
+            reasons.append("No resting heart rate data")
+        }
+
+        if reasons.isEmpty {
+            return "Insufficient data to generate a reliable score."
+        }
+
+        return reasons.joined(separator: ". ") + ". Wear your Apple Watch for accurate scoring."
     }
 
     // MARK: - Helpers

@@ -250,26 +250,34 @@ class HealthKitManager {
     
     
     func fetchMostRecentRestingEnergy(completion: @escaping (Double?) -> Void) {
-        let now = Date()
-        let startOfDay = Calendar.current.startOfDay(for: now)
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictEndDate)
-        
+        fetchRestingEnergy(for: Date(), completion: completion)
+    }
+
+    func fetchRestingEnergy(for date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            completion(nil)
+            return
+        }
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictEndDate)
+
         guard let restingEnergyType = HKObjectType.quantityType(forIdentifier: .basalEnergyBurned) else {
             completion(nil)
             return
         }
-        
+
         let query = HKStatisticsQuery(quantityType: restingEnergyType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, statistics, error in
             if error != nil {
                 completion(nil)
                 return
             }
-            
+
             guard let sum = statistics?.sumQuantity() else {
                 completion(nil)
                 return
             }
-            
+
             let totalRestingEnergy = sum.doubleValue(for: HKUnit.kilocalorie())
             completion(totalRestingEnergy)
         }
@@ -1276,8 +1284,15 @@ class HealthKitManager {
                 return
             }
             
-            // Filter 'asleep' samples and ignore very short sessions
-            let asleepSamples = sleepSamples.filter { $0.value == HKCategoryValueSleepAnalysis.asleep.rawValue && $0.endDate.timeIntervalSince($0.startDate) >= 15 * 60 }
+            // Filter asleep samples (both generic .asleep and staged types from watchOS 9+)
+            // and ignore very short sessions (< 15 min)
+            let asleepValues: Set<Int> = [
+                HKCategoryValueSleepAnalysis.asleep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                HKCategoryValueSleepAnalysis.asleepDeep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepREM.rawValue
+            ]
+            let asleepSamples = sleepSamples.filter { asleepValues.contains($0.value) && $0.endDate.timeIntervalSince($0.startDate) >= 15 * 60 }
             
             // Identify the primary sleep session by finding the longest session
             guard let primarySleepSession = asleepSamples.max(by: { $0.endDate.timeIntervalSince($0.startDate) < $1.endDate.timeIntervalSince($1.startDate) }) else {
@@ -1896,7 +1911,7 @@ class HealthKitManager {
         
         let previousDay = calendar.date(byAdding: .day, value: -1, to: endOfNight)!
         let startOfPreviousDay = calendar.startOfDay(for: previousDay)
-        let startOfNight = calendar.date(byAdding: .hour, value: 21, to: startOfPreviousDay)! // Assuming 9 PM is the start of the sleep period
+        let startOfNight = calendar.date(byAdding: .hour, value: 19, to: startOfPreviousDay)! // 7 PM — matches sleep/temp query windows
         
         // Create a predicate for sleep analysis in the time range
         let sleepPredicate = HKQuery.predicateForSamples(withStart: startOfNight, end: endOfNight, options: .strictStartDate)
@@ -2434,6 +2449,7 @@ class HealthKitManager {
 
             let calendar = Calendar.current
             let startOfDay = calendar.startOfDay(for: date)
+            // Sleep window: 7 PM previous day to 2 PM this day
             let sleepStart = calendar.date(byAdding: .hour, value: -5, to: startOfDay)!
             let sleepEnd = calendar.date(byAdding: .hour, value: 14, to: startOfDay)!
 
@@ -2446,6 +2462,7 @@ class HealthKitManager {
                     return
                 }
 
+                // Return median value (more robust than mean per spec)
                 let values = samples.map { $0.quantity.doubleValue(for: .degreeCelsius()) }.sorted()
                 let median: Double
                 if values.count % 2 == 0 {
@@ -2479,6 +2496,7 @@ class HealthKitManager {
                     return
                 }
 
+                // Median (more robust to outliers per spec)
                 let values = samples.map { $0.quantity.doubleValue(for: HKUnit(from: "count/min")) }.sorted()
                 let median: Double
                 if values.count % 2 == 0 {
@@ -2532,6 +2550,7 @@ class HealthKitManager {
     func fetchTotalSleepForNight(date: Date, completion: @escaping (Double?) -> Void) {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: date)
+        // Sleep window: 7 PM previous day to 2 PM this day
         let sleepStart = calendar.date(byAdding: .hour, value: -5, to: startOfDay)!
         let sleepEnd = calendar.date(byAdding: .hour, value: 14, to: startOfDay)!
 
@@ -2544,11 +2563,19 @@ class HealthKitManager {
                 return
             }
 
+            // Count all asleep categories including generic .asleep (used by older watches
+            // that don't report sleep stages). Without this, pre-Series 4 watches would
+            // always return nil and never generate a score.
+            let asleepValues: Set<Int> = [
+                HKCategoryValueSleepAnalysis.asleep.rawValue,
+                HKCategoryValueSleepAnalysis.asleepREM.rawValue,
+                HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+                HKCategoryValueSleepAnalysis.asleepDeep.rawValue
+            ]
+
             var totalDuration: TimeInterval = 0
             for sample in sleepSamples {
-                if sample.value == HKCategoryValueSleepAnalysis.asleepREM.rawValue ||
-                   sample.value == HKCategoryValueSleepAnalysis.asleepCore.rawValue ||
-                   sample.value == HKCategoryValueSleepAnalysis.asleepDeep.rawValue {
+                if asleepValues.contains(sample.value) {
                     totalDuration += sample.endDate.timeIntervalSince(sample.startDate)
                 }
             }

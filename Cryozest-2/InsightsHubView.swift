@@ -282,7 +282,7 @@ struct InsightsHubView: View {
         let generator = WeeklyReviewGenerator()
         generator.generate(
             sessions: Array(sessions),
-            recoveryScores: recoveryModel.recoveryScores,
+            recoveryScores: recoveryModel.recoveryScores.compactMap { $0 },
             context: viewContext
         ) { review in
             self.weeklyReview = review

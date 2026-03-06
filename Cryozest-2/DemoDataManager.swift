@@ -24,6 +24,7 @@ class DemoDataManager: ObservableObject {
             // hrvSleepPercentage computed by didSet
 
             model.mostRecentRestingHeartRate = 56
+            model.dailyAvgRestingHeartRate = 57 // Daily avg (used by Z-score engine)
             model.avgRestingHeartRate60Days = 61
             // restingHeartRatePercentage computed by didSet
 
@@ -38,7 +39,6 @@ class DemoDataManager: ObservableObject {
             model.mostRecentSteps = 9247
             model.mostRecentVO2Max = 42.5
             model.averageDailyRHR = 59
-            model.dailyRHR = [("Mon", 59), ("Tue", 57), ("Wed", 58), ("Thu", 55), ("Fri", 56), ("Sat", 58), ("Sun", 56)]
         }
     }
 
@@ -85,14 +85,19 @@ class DemoDataManager: ObservableObject {
         DispatchQueue.main.async {
             model.todayStressScore = 42
             model.todayRecoveryScore = 72
-            model.last7DaysStress = [38, 55, 47, 61, 44, 50, 42]
-            model.last7DaysRecovery = [75, 58, 66, 52, 69, 63, 72]
+            // nil entries represent days the watch wasn't worn to sleep
+            model.last7DaysStress = [38, nil, 47, 61, nil, 50, 42]
+            model.last7DaysRecovery = [75, nil, 66, 52, nil, 63, 72]
             model.weeklyAvgStress = 48
             model.weeklyAvgRecovery = 65
             model.zScores = MetricZScores(hrv: 0.6, rhr: -0.3, respRate: 0.1, wristTemp: nil)
             model.sleepDeficit = 0.08
             model.hasTemperatureData = false
+            // Weights with resp present but no temp: base 35/25/15/15 = 0.90, scale = 1/0.90
+            model.computedWeights = ComputedWeights(hrv: 0.389, rhr: 0.278, resp: 0.167, temp: 0.0, sleep: 0.167)
             model.baselineDayCount = 10
+            model.dataQuality = .noTemp
+            model.insufficientDataReason = nil
         }
     }
 
@@ -184,11 +189,7 @@ class DemoDataManager: ObservableObject {
             CoachResponseBlock(content: .text("Your recovery is looking solid today. Your HRV was 48ms during sleep, which is 14% above your 60-day average \u{2014} that's the main driver. Your resting heart rate also came in at 56 bpm, nicely below your baseline of 61.")),
             CoachResponseBlock(content: .tip(TipData(text: "Today is a great day for a harder workout. Your body is primed for it.", icon: "flame.fill")))
         ]
-        let aiMsg1 = ChatMessage(role: .model, content: "Your recovery is looking solid today.", blocks: aiBlocks1, followUpSuggestions: [
-            "What drove my HRV up?",
-            "Should I do a hard workout?",
-            "How's my sleep trending?"
-        ])
+        let aiMsg1 = ChatMessage(role: .model, content: "Your recovery is looking solid today.", blocks: aiBlocks1)
 
         let userMsg2 = ChatMessage(role: .user, content: "What about my sleep last night?")
 
@@ -200,11 +201,7 @@ class DemoDataManager: ObservableObject {
             ])),
             CoachResponseBlock(content: .text("You got 7.3 hours of sleep with a solid 49% restorative sleep (deep + REM). Your deep sleep of 1h 24m is particularly good \u{2014} that's when your body does most of its physical repair. Your heart rate dropped to 54 bpm during sleep, a healthy 27% dip from your waking rate.")),
         ]
-        let aiMsg2 = ChatMessage(role: .model, content: "You got 7.3 hours of sleep with solid restorative sleep.", blocks: aiBlocks2, followUpSuggestions: [
-            "How can I get more deep sleep?",
-            "What's my sleep trend?",
-            "Does meditation help sleep?"
-        ])
+        let aiMsg2 = ChatMessage(role: .model, content: "You got 7.3 hours of sleep with solid restorative sleep.", blocks: aiBlocks2)
 
         let userMsg3 = ChatMessage(role: .user, content: "How does running affect my health?")
 
@@ -216,23 +213,9 @@ class DemoDataManager: ObservableObject {
             CoachResponseBlock(content: .heartZones(HeartZoneData(recovery: 28, conditioning: 32, overload: 8))),
             CoachResponseBlock(content: .text("On days after you run, your HRV averages 48ms compared to 42ms on rest days. This is a statistically significant next-day effect (p = 0.008). Your zone distribution looks healthy too \u{2014} most of your time is in conditioning zones with a good recovery base."))
         ]
-        let aiMsg3 = ChatMessage(role: .model, content: "Running is your strongest habit for recovery.", blocks: aiBlocks3, followUpSuggestions: [
-            "Compare running vs cycling",
-            "What's my ideal run length?",
-            "Show my weekly volume"
-        ])
+        let aiMsg3 = ChatMessage(role: .model, content: "Running is your strongest habit for recovery.", blocks: aiBlocks3)
 
         vm.messages = [userMsg1, aiMsg1, userMsg2, aiMsg2, userMsg3, aiMsg3]
-    }
-
-    // MARK: - Insights Hub Demo Data
-
-    func demoWeeklyReview() -> WeeklyReview {
-        WeeklyReviewGenerator.demoReview()
-    }
-
-    func demoProjections() -> [TherapyType: [HealthProjection]] {
-        [.running: HealthProjectionEngine.demoProjections()]
     }
 
     // MARK: - CoreData Demo Records
