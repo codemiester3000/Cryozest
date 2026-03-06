@@ -27,7 +27,7 @@ struct RecoveryCardView: View {
                             .stroke(Color.green.opacity(0.3), lineWidth: 8)
                             .frame(width: 100, height: 100)
 
-                        let progress = Double(model.recoveryScores.last ?? 0) / 100.0
+                        let progress = Double(model.recoveryScores.last.flatMap({ $0 }) ?? 0) / 100.0
                         let progressColor = Color(red: 1.0 - progress, green: progress, blue: 0)
 
                         Circle()
@@ -37,7 +37,7 @@ struct RecoveryCardView: View {
                             .frame(width: 100, height: 100)
 
                         VStack(spacing: 2) {
-                            Text("\(model.recoveryScores.last ?? 0)%")
+                            Text("\(model.recoveryScores.last.flatMap({ $0 }) ?? 0)%")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(.white)
                             Text("Ready")
@@ -206,7 +206,7 @@ struct RecoveryGraphView: View {
             }
 
             HStack(alignment: .bottom, spacing: 8) {
-                ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores)), id: \.0) { (day, percentage) in
+                ForEach(Array(zip(model.getLastSevenDays(), model.recoveryScores.map { $0 ?? 0 })), id: \.0) { (day, percentage) in
                     VStack(spacing: 6) {
                         Text("\(percentage)")
                             .font(.system(size: 11, weight: .bold))

@@ -147,8 +147,8 @@ class ChatViewModel: ObservableObject {
         var snap = HealthSnapshot()
 
         if let r = recoveryModel {
-            snap.recoveryScore = r.recoveryScores.last
-            snap.recoveryScores = r.recoveryScores
+            snap.recoveryScore = r.recoveryScores.last.flatMap { $0 }
+            snap.recoveryScores = r.recoveryScores.compactMap { $0 }
             snap.weeklyAverage = r.weeklyAverage
 
             if let hrv = r.avgHrvDuringSleep, HealthDataValidator.isValidHRV(hrv) {

@@ -54,7 +54,7 @@ struct CoachSheetView: View {
         var questions: [SuggestedQuestion] = []
 
         // Recovery-based
-        if let score = recoveryModel.recoveryScores.last, score > 0 {
+        if let score = recoveryModel.recoveryScores.last.flatMap({ $0 }), score > 0 {
             if score >= 75 {
                 questions.append(SuggestedQuestion(
                     text: "Recovery is \(score)% — should I go all out today?",
