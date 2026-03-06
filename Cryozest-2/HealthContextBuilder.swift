@@ -128,8 +128,8 @@ struct HealthContextBuilder {
                 stressLines.append("Note: baseline still building (day \(stress.baselineDayCount)/14, using blended population priors)")
             }
 
-            if stress.weeklyAvgStress > 0 {
-                stressLines.append("Weekly avg stress: \(stress.weeklyAvgStress), weekly avg recovery: \(stress.weeklyAvgRecovery)")
+            if let avgStress = stress.weeklyAvgStress, let avgRecovery = stress.weeklyAvgRecovery {
+                stressLines.append("Weekly avg stress: \(avgStress), weekly avg recovery: \(avgRecovery)")
             }
 
             if !stressLines.isEmpty {

@@ -4,15 +4,17 @@ import SwiftUI
 class StressScoreModel: ObservableObject {
     @Published var todayStressScore: Int?
     @Published var todayRecoveryScore: Int?
-    @Published var last7DaysStress: [Int] = []
-    @Published var last7DaysRecovery: [Int] = []
-    @Published var weeklyAvgStress: Int = 0
-    @Published var weeklyAvgRecovery: Int = 0
+    @Published var last7DaysStress: [Int?] = []      // nil = no data for that day (watch not worn)
+    @Published var last7DaysRecovery: [Int?] = []     // nil = no data for that day
+    @Published var weeklyAvgStress: Int?
+    @Published var weeklyAvgRecovery: Int?
     @Published var zScores: MetricZScores?
     @Published var sleepDeficit: Double?
     @Published var hasTemperatureData: Bool = false
     @Published var baselineDayCount: Int = 0
     @Published var isLoading: Bool = false
+    @Published var dataQuality: StressRecoveryScore.DataQuality?
+    @Published var insufficientDataReason: String?    // Human-readable reason when no score
 
     private let engine = StressScoreEngine.shared
 
@@ -25,85 +27,69 @@ class StressScoreModel: ObservableObject {
     func computeScores(forDate date: Date) {
         isLoading = true
 
-        let group = DispatchGroup()
-        let hk = HealthKitManager.shared
-
-        var hrv: Double?
-        var rhr: Double?
-        var respRate: Double?
-        var wristTemp: Double?
-        var sleepDuration: Double?
-
-        // Fan out all HealthKit queries in parallel
-        group.enter()
-        hk.fetchHRVDuringSleepForDate(date) { value in
-            hrv = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchRestingHeartRateForDay(date: date) { value in
-            rhr = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchRespiratoryRateDuringSleep(for: date) { value in
-            respRate = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchSleepingWristTemperature(for: date) { value in
-            wristTemp = value
-            group.leave()
-        }
-
-        group.enter()
-        hk.fetchTotalSleepForNight(date: date) { value in
-            sleepDuration = value
-            group.leave()
-        }
-
-        group.notify(queue: .main) { [weak self] in
+        fetchNightlyMetrics(for: date) { [weak self] metrics in
             guard let self = self else { return }
 
-            // Need at least HRV or RHR to compute a meaningful score
-            guard hrv != nil || rhr != nil else {
-                self.isLoading = false
-                self.todayStressScore = nil
-                self.todayRecoveryScore = nil
+            guard let metrics = metrics else {
+                // No data at all — watch probably wasn't worn
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to sleep to generate a score."
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
                 return
             }
 
-            let metrics = NightlyMetrics(
-                date: date,
-                hrv: hrv,
-                rhr: rhr,
-                respRate: respRate,
-                wristTemp: wristTemp,
-                sleepDuration: sleepDuration
-            )
+            // Check data sufficiency and explain WHY there's no score
+            if !metrics.hasSufficientData {
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = self.explainInsufficientData(metrics)
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
+                return
+            }
 
+            // Compute score — engine will return nil if data is still insufficient (double gate)
             var baseline = self.engine.loadBaseline()
-            let score = self.engine.computeScore(metrics: metrics, baseline: baseline)
+            guard let score = self.engine.computeScore(metrics: metrics, baseline: baseline) else {
+                DispatchQueue.main.async {
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
+                    self.isLoading = false
+                    self.computeLast7Days(currentDate: date)
+                }
+                return
+            }
 
-            // Update baseline with tonight's data
+            // Only update baseline with nights that had sufficient data
             self.engine.updateBaseline(&baseline, with: metrics)
             self.engine.saveBaseline(baseline)
 
-            // Publish results
-            self.todayStressScore = score.stressScore
-            self.todayRecoveryScore = score.recoveryScore
-            self.zScores = score.zScores
-            self.sleepDeficit = score.sleepDeficit
-            self.hasTemperatureData = score.hasTemperatureData
-            self.baselineDayCount = baseline.dates.count
-
-            self.isLoading = false
-
-            // Compute 7-day history after today's score is ready
-            self.computeLast7Days(currentDate: date)
+            DispatchQueue.main.async {
+                self.todayStressScore = score.stressScore
+                self.todayRecoveryScore = score.recoveryScore
+                self.zScores = score.zScores
+                self.sleepDeficit = score.sleepDeficit
+                self.hasTemperatureData = score.hasTemperatureData
+                self.baselineDayCount = baseline.dates.count
+                self.dataQuality = score.dataQuality
+                self.insufficientDataReason = nil
+                self.isLoading = false
+                self.computeLast7Days(currentDate: date)
+            }
         }
     }
 
@@ -126,14 +112,23 @@ class StressScoreModel: ObservableObject {
         for date in dates {
             group.enter()
             fetchNightlyMetrics(for: date) { [weak self] metrics in
-                guard let self = self, let metrics = metrics else {
+                guard let self = self else {
                     group.leave()
                     return
                 }
 
-                let score = self.engine.computeScore(metrics: metrics, baseline: baseline)
-                DispatchQueue.main.async {
-                    scoresByDate[date] = score
+                // If no metrics or insufficient data, this day gets nil (gap in chart)
+                guard let metrics = metrics, metrics.hasSufficientData else {
+                    group.leave()
+                    return
+                }
+
+                if let score = self.engine.computeScore(metrics: metrics, baseline: baseline) {
+                    DispatchQueue.main.async {
+                        scoresByDate[date] = score
+                        group.leave()
+                    }
+                } else {
                     group.leave()
                 }
             }
@@ -142,14 +137,16 @@ class StressScoreModel: ObservableObject {
         group.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
 
-            self.last7DaysStress = dates.map { scoresByDate[$0]?.stressScore ?? 0 }
-            self.last7DaysRecovery = dates.map { scoresByDate[$0]?.recoveryScore ?? 0 }
+            // Use nil for days without valid scores (shows as gap in UI)
+            self.last7DaysStress = dates.map { scoresByDate[$0]?.stressScore }
+            self.last7DaysRecovery = dates.map { scoresByDate[$0]?.recoveryScore }
 
-            let validStress = self.last7DaysStress.filter { $0 > 0 }
-            let validRecovery = self.last7DaysRecovery.filter { $0 > 0 }
+            // Weekly averages only count days with real scores
+            let validStress = self.last7DaysStress.compactMap { $0 }
+            let validRecovery = self.last7DaysRecovery.compactMap { $0 }
 
-            self.weeklyAvgStress = validStress.isEmpty ? 0 : validStress.reduce(0, +) / validStress.count
-            self.weeklyAvgRecovery = validRecovery.isEmpty ? 0 : validRecovery.reduce(0, +) / validRecovery.count
+            self.weeklyAvgStress = validStress.isEmpty ? nil : validStress.reduce(0, +) / validStress.count
+            self.weeklyAvgRecovery = validRecovery.isEmpty ? nil : validRecovery.reduce(0, +) / validRecovery.count
         }
     }
 
@@ -196,12 +193,13 @@ class StressScoreModel: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            // Need at least one core metric
-            guard hrv != nil || rhr != nil else {
+            // If absolutely nothing came back, return nil immediately
+            if hrv == nil && rhr == nil && sleepDuration == nil && respRate == nil && wristTemp == nil {
                 completion(nil)
                 return
             }
 
+            // Return the metrics — hasSufficientData check happens upstream
             completion(NightlyMetrics(
                 date: date,
                 hrv: hrv,
@@ -211,6 +209,33 @@ class StressScoreModel: ObservableObject {
                 sleepDuration: sleepDuration
             ))
         }
+    }
+
+    // MARK: - Insufficient Data Explanation
+
+    private func explainInsufficientData(_ metrics: NightlyMetrics) -> String {
+        var reasons: [String] = []
+
+        if metrics.sleepDuration == nil {
+            reasons.append("No sleep detected")
+        } else if let sleep = metrics.sleepDuration, sleep < NightlyMetrics.minimumSleepForScore {
+            let hours = sleep / 3600.0
+            reasons.append(String(format: "Only %.1f hours of sleep detected (minimum 2 hours required)", hours))
+        }
+
+        if metrics.hrv == nil {
+            reasons.append("No HRV data during sleep")
+        }
+
+        if metrics.rhr == nil {
+            reasons.append("No resting heart rate data")
+        }
+
+        if reasons.isEmpty {
+            return "Insufficient data to generate a reliable score."
+        }
+
+        return reasons.joined(separator: ". ") + ". Wear your Apple Watch to sleep for accurate scoring."
     }
 
     // MARK: - Helpers
@@ -233,6 +258,15 @@ class StressScoreModel: ObservableObject {
         case 0...33:   return .green
         case 34...50:  return .yellow
         case 51...66:  return .orange
+        default:       return .red
+        }
+    }
+
+    static func recoveryColorForScore(_ value: Int) -> Color {
+        switch value {
+        case 85...100: return .green
+        case 67...84:  return .yellow
+        case 50...66:  return .orange
         default:       return .red
         }
     }

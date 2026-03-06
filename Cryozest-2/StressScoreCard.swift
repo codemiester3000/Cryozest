@@ -6,8 +6,7 @@ struct StressScoreCard: View {
     @State private var showDetail = false
 
     private var score: Int? {
-        guard let s = stressModel.todayStressScore, s > 0 else { return nil }
-        return s
+        return stressModel.todayStressScore
     }
 
     var body: some View {
@@ -79,7 +78,7 @@ struct StressScoreCard: View {
             }
 
             // Row 2: 7-day trend bars
-            if stressModel.last7DaysStress.count > 1 {
+            if stressModel.last7DaysStress.count > 1 && stressModel.last7DaysStress.compactMap({ $0 }).count > 0 {
                 trendBars(color: color)
             }
 
@@ -178,30 +177,39 @@ struct StressScoreCard: View {
 
                 Spacer()
 
-                if stressModel.weeklyAvgStress > 0 {
-                    Text("Avg \(stressModel.weeklyAvgStress)")
+                if let avg = stressModel.weeklyAvgStress {
+                    Text("Avg \(avg)")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(StressScoreModel.stressColorForScore(stressModel.weeklyAvgStress))
+                        .foregroundColor(StressScoreModel.stressColorForScore(avg))
                 }
             }
 
             HStack(alignment: .bottom, spacing: 4) {
                 let days = stressModel.getLastSevenDays()
                 let scores = stressModel.last7DaysStress
-                let maxScore = max(scores.max() ?? 100, 1)
+                let validScores = scores.compactMap { $0 }
+                let maxScore = max(validScores.max() ?? 100, 1)
 
                 ForEach(Array(zip(days, scores).enumerated()), id: \.offset) { index, pair in
                     let (day, value) = pair
                     let isToday = index == scores.count - 1
 
                     VStack(spacing: 3) {
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                isToday
-                                    ? StressScoreModel.stressColorForScore(value)
-                                    : StressScoreModel.stressColorForScore(value).opacity(0.5)
-                            )
-                            .frame(height: max(CGFloat(value) / CGFloat(maxScore) * 32, 4))
+                        if let value = value {
+                            // Has data — show colored bar
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(
+                                    isToday
+                                        ? StressScoreModel.stressColorForScore(value)
+                                        : StressScoreModel.stressColorForScore(value).opacity(0.5)
+                                )
+                                .frame(height: max(CGFloat(value) / CGFloat(maxScore) * 32, 4))
+                        } else {
+                            // No data — show dashed placeholder
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(Color.white.opacity(0.06))
+                                .frame(height: 4)
+                        }
 
                         Text(day.prefix(1))
                             .font(.system(size: 9, weight: isToday ? .bold : .medium))
@@ -238,10 +246,17 @@ struct StressScoreCard: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.white.opacity(0.5))
 
-                Text("Wear your Apple Watch to sleep to see your stress score")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.3))
-                    .lineLimit(2)
+                if let reason = stressModel.insufficientDataReason {
+                    Text(reason)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.3))
+                        .lineLimit(3)
+                } else {
+                    Text("Wear your Apple Watch to sleep to generate a score")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.3))
+                        .lineLimit(2)
+                }
             }
 
             Spacer()
@@ -290,7 +305,7 @@ private struct StressDetailSheet: View {
                         zScoreBreakdown
                         sleepDeficitSection
 
-                        if model.last7DaysStress.count > 1 {
+                        if model.last7DaysStress.count > 1 && model.last7DaysStress.compactMap({ $0 }).count > 0 {
                             weeklyTrend
                         }
 
@@ -338,8 +353,8 @@ private struct StressDetailSheet: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(scoreColor)
 
-                if model.weeklyAvgStress > 0 {
-                    Text("7-day avg: \(model.weeklyAvgStress)")
+                if let avg = model.weeklyAvgStress {
+                    Text("7-day avg: \(avg)")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.4))
                 }
@@ -567,21 +582,32 @@ private struct StressDetailSheet: View {
             HStack(alignment: .bottom, spacing: 5) {
                 let days = model.getLastSevenDays()
                 let scores = model.last7DaysStress
-                let maxVal = max(scores.max() ?? 100, 1)
+                let validScores = scores.compactMap { $0 }
+                let maxVal = max(validScores.max() ?? 100, 1)
 
                 ForEach(Array(zip(days, scores).enumerated()), id: \.offset) { index, pair in
                     let (day, value) = pair
                     let isLast = index == scores.count - 1
-                    let barColor = StressScoreModel.stressColorForScore(value)
 
                     VStack(spacing: 5) {
-                        Text("\(value)")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(isLast ? .white : .white.opacity(0.4))
+                        if let value = value {
+                            Text("\(value)")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundColor(isLast ? .white : .white.opacity(0.4))
 
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(isLast ? barColor : barColor.opacity(0.45))
-                            .frame(height: max(CGFloat(value) / CGFloat(maxVal) * 80, 6))
+                            let barColor = StressScoreModel.stressColorForScore(value)
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(isLast ? barColor : barColor.opacity(0.45))
+                                .frame(height: max(CGFloat(value) / CGFloat(maxVal) * 80, 6))
+                        } else {
+                            Text("—")
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.2))
+
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.white.opacity(0.06))
+                                .frame(height: 6)
+                        }
 
                         Text(day)
                             .font(.system(size: 10, weight: isLast ? .bold : .medium))
@@ -741,11 +767,11 @@ private struct StressDetailSheet: View {
     }
 
     private var trendContextText: String? {
-        let scores = model.last7DaysStress
-        guard scores.count >= 4 else { return nil }
-        let half = scores.count / 2
-        let recentAvg = Double(Array(scores.suffix(half)).reduce(0, +)) / Double(half)
-        let olderAvg = Double(Array(scores.prefix(half)).reduce(0, +)) / Double(half)
+        let validScores = model.last7DaysStress.compactMap { $0 }
+        guard validScores.count >= 4 else { return nil }
+        let half = validScores.count / 2
+        let recentAvg = Double(Array(validScores.suffix(half)).reduce(0, +)) / Double(half)
+        let olderAvg = Double(Array(validScores.prefix(half)).reduce(0, +)) / Double(half)
         let diff = recentAvg - olderAvg
         if diff > 5 { return "Stress rising" }
         if diff < -5 { return "Stress falling" }

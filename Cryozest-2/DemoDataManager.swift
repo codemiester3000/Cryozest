@@ -84,14 +84,17 @@ class DemoDataManager: ObservableObject {
         DispatchQueue.main.async {
             model.todayStressScore = 42
             model.todayRecoveryScore = 72
-            model.last7DaysStress = [38, 55, 47, 61, 44, 50, 42]
-            model.last7DaysRecovery = [75, 58, 66, 52, 69, 63, 72]
+            // nil entries represent days the watch wasn't worn to sleep
+            model.last7DaysStress = [38, nil, 47, 61, nil, 50, 42]
+            model.last7DaysRecovery = [75, nil, 66, 52, nil, 63, 72]
             model.weeklyAvgStress = 48
             model.weeklyAvgRecovery = 65
             model.zScores = MetricZScores(hrv: 0.6, rhr: -0.3, respRate: 0.1, wristTemp: nil)
             model.sleepDeficit = 0.08
             model.hasTemperatureData = false
             model.baselineDayCount = 10
+            model.dataQuality = .noTemp
+            model.insufficientDataReason = nil
         }
     }
 

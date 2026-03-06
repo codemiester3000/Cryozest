@@ -374,7 +374,8 @@ class RecoveryGraphModel: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            guard hrv != nil || rhr != nil else {
+            // Return nil if absolutely no data
+            if hrv == nil && rhr == nil && sleepDuration == nil && respRate == nil && wristTemp == nil {
                 completion(nil)
                 return
             }
@@ -400,15 +401,21 @@ class RecoveryGraphModel: ObservableObject {
             group.enter()
 
             fetchNightlyMetrics(for: date) { metrics in
-                guard let metrics = metrics else {
+                // No data or insufficient data = no score for this day (gap in chart)
+                guard let metrics = metrics, metrics.hasSufficientData else {
                     DispatchQueue.main.async {
-                        temporaryScores[date] = 0
+                        // Don't set a score — leave this date absent from temporaryScores
                         group.leave()
                     }
                     return
                 }
 
-                let score = engine.computeScore(metrics: metrics, baseline: baseline)
+                guard let score = engine.computeScore(metrics: metrics, baseline: baseline) else {
+                    DispatchQueue.main.async {
+                        group.leave()
+                    }
+                    return
+                }
 
                 DispatchQueue.main.async {
                     temporaryScores[date] = score.recoveryScore
@@ -422,7 +429,8 @@ class RecoveryGraphModel: ObservableObject {
 
         group.notify(queue: .main) {
             let sortedDates = self.getLastSevenDaysDates().sorted()
-            self.recoveryScores = sortedDates.compactMap { temporaryScores[$0] }
+            // Use 0 for days without valid scores (UI already handles 0 as "no data")
+            self.recoveryScores = sortedDates.map { temporaryScores[$0] ?? 0 }
         }
     }
 }

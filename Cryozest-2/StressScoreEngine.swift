@@ -9,6 +9,42 @@ struct NightlyMetrics {
     let respRate: Double?      // Respiratory rate during sleep (br/min)
     let wristTemp: Double?     // Wrist temp deviation (°C), nil if unavailable
     let sleepDuration: Double? // Total sleep in seconds
+
+    // MARK: - Data Quality Validation
+
+    /// Minimum sleep required to generate a score (2 hours in seconds).
+    /// WHOOP requires detected sleep; Oura requires 3 hours of sleep stages.
+    /// We use 2 hours as a conservative lower bound.
+    static let minimumSleepForScore: Double = 7200.0
+
+    /// Returns true if this night has enough data to produce a reliable score.
+    /// Requirements (modeled after WHOOP/Oura):
+    ///   1. Sleep must be detected AND >= 2 hours
+    ///   2. HRV during sleep must exist (primary recovery signal)
+    ///   3. RHR must exist (secondary signal, but always present if watch was worn during sleep)
+    var hasSufficientData: Bool {
+        guard let sleep = sleepDuration, sleep >= NightlyMetrics.minimumSleepForScore else {
+            return false
+        }
+        guard hrv != nil else {
+            return false
+        }
+        // RHR is also required — if the watch recorded sleep + HRV, RHR should always exist.
+        // If it doesn't, something is wrong with the data.
+        guard rhr != nil else {
+            return false
+        }
+        return true
+    }
+
+    /// Returns the count of available optional metrics (resp rate, wrist temp)
+    /// beyond the mandatory trio (HRV, RHR, sleep).
+    var availableOptionalMetricCount: Int {
+        var count = 0
+        if respRate != nil { count += 1 }
+        if wristTemp != nil { count += 1 }
+        return count
+    }
 }
 
 struct StressRecoveryScore {
@@ -19,6 +55,14 @@ struct StressRecoveryScore {
     let zScores: MetricZScores
     let sleepDeficit: Double
     let hasTemperatureData: Bool
+    let dataQuality: DataQuality
+
+    enum DataQuality: String {
+        case full           // All 5 metrics present
+        case noTemp         // Missing wrist temp (device doesn't support or not enough nights)
+        case partial        // Missing resp rate or temp
+        case insufficient   // Not enough data to produce a score
+    }
 }
 
 struct MetricZScores {
@@ -34,7 +78,7 @@ struct BaselineData: Codable {
     var respRateValues: [Double]   // last 14 nightly resp rate values
     var wristTempValues: [Double]  // last 14 nightly temp deviations
     var sleepDurations: [Double]   // last 14 nightly sleep durations (seconds)
-    var dates: [Date]              // corresponding dates
+    var dates: [Date]              // corresponding dates (only nights with sufficient data)
 
     static var empty: BaselineData {
         BaselineData(
@@ -67,16 +111,15 @@ class StressScoreEngine {
     private let wristTempPrior = PopulationPrior(mean: 0.0, stdev: 0.3)
     private let sleepDurationPrior = PopulationPrior(mean: 25200.0, stdev: 3600.0) // 7 hours in seconds
 
-    // Weights
-    private let weightHRV: Double = -0.35
-    private let weightRHR: Double = 0.25
-    private let weightResp: Double = 0.15
-    private let weightTemp: Double = 0.10
-    private let weightSleep: Double = 0.15
-
-    // Weights when temperature is unavailable (redistributed)
-    private let weightRHR_noTemp: Double = 0.30
-    private let weightResp_noTemp: Double = 0.20
+    // Base weights (when all 5 metrics are present)
+    // HRV: 35%, RHR: 25%, Resp: 15%, Temp: 10%, Sleep: 15%
+    private struct MetricWeights {
+        let hrv: Double
+        let rhr: Double
+        let resp: Double
+        let temp: Double
+        let sleep: Double
+    }
 
     // Scaling factor: ±3 stdev maps to full 0-100 range
     private let scalingFactor: Double = 16.67
@@ -86,13 +129,91 @@ class StressScoreEngine {
 
     private init() {}
 
+    // MARK: - Dynamic Weight Computation
+
+    /// Computes weights dynamically based on which metrics are actually present.
+    /// Only redistributes among metrics that have data — never assumes "average" for missing data.
+    private func weights(hasHRV: Bool, hasRHR: Bool, hasResp: Bool, hasTemp: Bool) -> MetricWeights {
+        // Base weights
+        var wHRV: Double = hasHRV ? 0.35 : 0.0
+        var wRHR: Double = hasRHR ? 0.25 : 0.0
+        var wResp: Double = hasResp ? 0.15 : 0.0
+        var wTemp: Double = hasTemp ? 0.10 : 0.0
+        let wSleep: Double = 0.15  // Sleep deficit is always computable if sleep exists
+
+        // Total weight assigned to present metrics
+        let assignedWeight = wHRV + wRHR + wResp + wTemp + wSleep
+
+        // Normalize so weights sum to 1.0 (redistribute missing weight proportionally)
+        if assignedWeight > 0 && assignedWeight < 1.0 {
+            let scale = 1.0 / assignedWeight
+            wHRV *= scale
+            wRHR *= scale
+            wResp *= scale
+            wTemp *= scale
+            // wSleep is handled separately since it's always present
+            // Actually, scale all together:
+        }
+
+        // Simpler approach: redistribute missing optional metric weight to the core metrics
+        // HRV and RHR are mandatory, so they're always present at this point.
+        // Only resp and temp are optional.
+        if !hasTemp && !hasResp {
+            // Only HRV (35%), RHR (25%), Sleep (15%) = 75% -> scale to 100%
+            // Redistribute 25% proportionally among HRV, RHR, Sleep
+            return MetricWeights(
+                hrv: -0.467,  // 0.35/0.75
+                rhr: 0.333,   // 0.25/0.75
+                resp: 0.0,
+                temp: 0.0,
+                sleep: 0.200  // 0.15/0.75
+            )
+        } else if !hasTemp {
+            // HRV (35%), RHR (25%), Resp (15%), Sleep (15%) = 90% -> scale to 100%
+            return MetricWeights(
+                hrv: -0.389,  // 0.35/0.90
+                rhr: 0.278,   // 0.25/0.90
+                resp: 0.167,  // 0.15/0.90
+                temp: 0.0,
+                sleep: 0.167  // 0.15/0.90
+            )
+        } else if !hasResp {
+            // HRV (35%), RHR (25%), Temp (10%), Sleep (15%) = 85% -> scale to 100%
+            return MetricWeights(
+                hrv: -0.412,  // 0.35/0.85
+                rhr: 0.294,   // 0.25/0.85
+                resp: 0.0,
+                temp: 0.118,  // 0.10/0.85
+                sleep: 0.176  // 0.15/0.85
+            )
+        } else {
+            // All metrics present
+            return MetricWeights(
+                hrv: -0.35,
+                rhr: 0.25,
+                resp: 0.15,
+                temp: 0.10,
+                sleep: 0.15
+            )
+        }
+    }
+
     // MARK: - Score Computation
 
-    func computeScore(metrics: NightlyMetrics, baseline: BaselineData) -> StressRecoveryScore {
+    /// Computes stress and recovery scores from nightly metrics.
+    /// Returns nil if metrics don't meet minimum data quality requirements.
+    func computeScore(metrics: NightlyMetrics, baseline: BaselineData) -> StressRecoveryScore? {
+        // GATE: Require sufficient data (sleep >= 2h + HRV + RHR)
+        // This matches WHOOP (no score without detected sleep) and Oura (min 3h sleep stages)
+        guard metrics.hasSufficientData else {
+            return nil
+        }
+
         let dayCount = baseline.dates.count
         let hasTemp = metrics.wristTemp != nil
+        let hasResp = metrics.respRate != nil
 
-        // Compute Z-scores
+        // Compute Z-scores (only for present metrics)
         let zHRV = computeZScore(
             value: metrics.hrv,
             personalValues: baseline.hrvValues,
@@ -129,23 +250,16 @@ class StressScoreEngine {
             dayCount: dayCount
         )
 
-        // Combine into raw stress score
-        var stressRaw: Double = 0.0
+        // Get dynamically computed weights based on available metrics
+        let w = weights(hasHRV: true, hasRHR: true, hasResp: hasResp, hasTemp: hasTemp)
 
-        if hasTemp, let zT = zTemp {
-            // Full formula with temperature
-            stressRaw = (weightHRV * (zHRV ?? 0.0))
-                      + (weightRHR * (zRHR ?? 0.0))
-                      + (weightResp * (zResp ?? 0.0))
-                      + (weightTemp * zT)
-                      + (weightSleep * sleepDeficit)
-        } else {
-            // Redistributed weights without temperature
-            stressRaw = (weightHRV * (zHRV ?? 0.0))
-                      + (weightRHR_noTemp * (zRHR ?? 0.0))
-                      + (weightResp_noTemp * (zResp ?? 0.0))
-                      + (weightSleep * sleepDeficit)
-        }
+        // Combine into raw stress score — only use metrics that actually exist
+        var stressRaw: Double = 0.0
+        stressRaw += w.hrv * (zHRV ?? 0.0)    // HRV is mandatory, zHRV should never be nil here
+        stressRaw += w.rhr * (zRHR ?? 0.0)    // RHR is mandatory, zRHR should never be nil here
+        if let zR = zResp { stressRaw += w.resp * zR }
+        if let zT = zTemp { stressRaw += w.temp * zT }
+        stressRaw += w.sleep * sleepDeficit
 
         // Scale to 0-100
         let recoveryRaw = 50.0 - (stressRaw * scalingFactor)
@@ -154,6 +268,16 @@ class StressScoreEngine {
         let recoveryScore = Int(min(max(recoveryRaw, 0), 100).rounded())
         let stressScore = Int(min(max(stressScaled, 0), 100).rounded())
 
+        // Determine data quality
+        let quality: StressRecoveryScore.DataQuality
+        if hasTemp && hasResp {
+            quality = .full
+        } else if !hasTemp && hasResp {
+            quality = .noTemp
+        } else {
+            quality = .partial
+        }
+
         return StressRecoveryScore(
             date: metrics.date,
             stressScore: stressScore,
@@ -161,7 +285,8 @@ class StressScoreEngine {
             stressRaw: stressRaw,
             zScores: MetricZScores(hrv: zHRV, rhr: zRHR, respRate: zResp, wristTemp: zTemp),
             sleepDeficit: sleepDeficit,
-            hasTemperatureData: hasTemp
+            hasTemperatureData: hasTemp,
+            dataQuality: quality
         )
     }
 
@@ -228,8 +353,19 @@ class StressScoreEngine {
 
     // MARK: - Baseline Management
 
-    func updateBaseline(_ baseline: inout BaselineData, with metrics: NightlyMetrics, excludeFromBaseline: Bool = false) {
-        guard !excludeFromBaseline else { return }
+    /// Updates the rolling 14-day baseline with new nightly data.
+    /// IMPORTANT: Only call this when metrics.hasSufficientData is true.
+    /// Nights where the watch wasn't worn or sleep < 2h should NEVER enter the baseline.
+    func updateBaseline(_ baseline: inout BaselineData, with metrics: NightlyMetrics) {
+        // Double-check: never pollute baseline with insufficient data
+        guard metrics.hasSufficientData else { return }
+
+        // Don't add duplicate dates
+        let calendar = Calendar.current
+        let metricsDay = calendar.startOfDay(for: metrics.date)
+        if baseline.dates.contains(where: { calendar.startOfDay(for: $0) == metricsDay }) {
+            return
+        }
 
         // Helper to add value with outlier protection and 14-day cap
         func addIfValid(_ value: Double?, to array: inout [Double], prior: PopulationPrior, dayCount: Int) {
@@ -251,6 +387,7 @@ class StressScoreEngine {
 
         let dayCount = baseline.dates.count
 
+        // HRV, RHR, and sleep are guaranteed non-nil because hasSufficientData is true
         addIfValid(metrics.hrv, to: &baseline.hrvValues, prior: hrvPrior, dayCount: dayCount)
         addIfValid(metrics.rhr, to: &baseline.rhrValues, prior: rhrPrior, dayCount: dayCount)
         addIfValid(metrics.respRate, to: &baseline.respRateValues, prior: respRatePrior, dayCount: dayCount)
@@ -294,6 +431,12 @@ class StressScoreEngine {
         }
     }
 
+    /// Clears persisted baseline — useful for debugging or reset
+    func resetBaseline() {
+        UserDefaults.standard.removeObject(forKey: baselineKey)
+        UserDefaults.standard.removeObject(forKey: scoresKey)
+    }
+
     // MARK: - Helpers
 
     private func standardDeviation(_ values: [Double]) -> Double {
@@ -317,6 +460,7 @@ private struct StoredScore: Codable {
     let zTemp: Double?
     let sleepDeficit: Double
     let hasTemperatureData: Bool
+    let dataQualityRaw: String?
 
     init(from score: StressRecoveryScore) {
         self.date = score.date
@@ -329,17 +473,20 @@ private struct StoredScore: Codable {
         self.zTemp = score.zScores.wristTemp
         self.sleepDeficit = score.sleepDeficit
         self.hasTemperatureData = score.hasTemperatureData
+        self.dataQualityRaw = score.dataQuality.rawValue
     }
 
     func toScore() -> StressRecoveryScore {
-        StressRecoveryScore(
+        let quality = StressRecoveryScore.DataQuality(rawValue: dataQualityRaw ?? "full") ?? .full
+        return StressRecoveryScore(
             date: date,
             stressScore: stressScore,
             recoveryScore: recoveryScore,
             stressRaw: stressRaw,
             zScores: MetricZScores(hrv: zHRV, rhr: zRHR, respRate: zResp, wristTemp: zTemp),
             sleepDeficit: sleepDeficit,
-            hasTemperatureData: hasTemperatureData
+            hasTemperatureData: hasTemperatureData,
+            dataQuality: quality
         )
     }
 }
