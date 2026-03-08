@@ -219,22 +219,21 @@ class RecoveryGraphModel: ObservableObject {
         }
         HealthKitManager.shared.fetchMostRecentRestingHeartRate(for: date) { restingHeartRate, timestamp in
             DispatchQueue.main.async {
-                if let restingHeartRate = restingHeartRate {
-                    self.mostRecentRestingHeartRate = restingHeartRate
+                let newRHR = restingHeartRate
+                if self.mostRecentRestingHeartRate != newRHR {
+                    self.mostRecentRestingHeartRate = newRHR
+                }
+                if self.mostRecentRestingHeartRateTime != timestamp {
                     self.mostRecentRestingHeartRateTime = timestamp
-                } else {
-                    self.mostRecentRestingHeartRate = nil
-                    self.mostRecentRestingHeartRateTime = nil
                 }
             }
         }
         // Fetch daily average RHR (same source the Z-score engine uses)
         HealthKitManager.shared.fetchRestingHeartRateForDay(date: date) { rhr in
             DispatchQueue.main.async {
-                if let rhr = rhr {
-                    self.dailyAvgRestingHeartRate = Int(rhr.rounded())
-                } else {
-                    self.dailyAvgRestingHeartRate = nil
+                let newVal = rhr.map { Int($0.rounded()) }
+                if self.dailyAvgRestingHeartRate != newVal {
+                    self.dailyAvgRestingHeartRate = newVal
                 }
             }
         }
@@ -255,11 +254,12 @@ class RecoveryGraphModel: ObservableObject {
         HealthKitManager.shared.fetchSteps(for: date) { steps, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    // Handle the error here
                     print("Error fetching steps: \(error.localizedDescription)")
                     return
                 }
-                self.mostRecentSteps = steps
+                if self.mostRecentSteps != steps {
+                    self.mostRecentSteps = steps
+                }
             }
         }
         HealthKitManager.shared.fetchMostRecentVO2Max { vo2Max, error in

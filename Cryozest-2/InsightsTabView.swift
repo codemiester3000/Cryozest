@@ -148,6 +148,14 @@ struct InsightsTabView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 16)
 
+                // What's Working section
+                WhatsWorkingSection(
+                    insightsViewModel: viewModel,
+                    sessions: sessions
+                )
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
+
                 // Insights Hub entry card
                 InsightsHubEntryCard(highlightMessage: hubHighlightMessage)
                     .padding(.horizontal, 20)

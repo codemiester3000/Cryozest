@@ -97,12 +97,10 @@ struct DailyView: View {
                                 showCoachSheet = true
                             }
                     } else if InsightsSynthesizer.shared.isConfigured && !llmInsightFailed {
-                        // Gemini is configured but still loading — show placeholder
                         LLMInsightCard(text: "Analyzing your data...")
                             .padding(.horizontal, 20)
                             .redacted(reason: .placeholder)
                     } else if let recentInsight = insightsViewModel?.recentInsight {
-                        // No API key — fall back to template
                         TodayInsightCard(
                             impact: recentInsight,
                             recentSessionCount: recentSessionCount(for: recentInsight.habitType),
@@ -548,7 +546,6 @@ struct DailyView: View {
                         llmInsight = result
                     }
                 } else {
-                    // API failed — drop the placeholder so the template card shows
                     withAnimation(.easeIn(duration: 0.3)) {
                         llmInsightFailed = true
                     }

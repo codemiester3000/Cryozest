@@ -336,7 +336,7 @@ private struct StressDetailSheet: View {
                 .padding(.top, 14)
                 .padding(.bottom, 4)
 
-                ScrollView(showsIndicators: false) {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 24) {
                         heroSection
 
@@ -360,6 +360,7 @@ private struct StressDetailSheet: View {
                     .padding(.top, 12)
                     .padding(.bottom, 40)
                 }
+                .clipped()
             }
         }
         .presentationDetents([.large])

@@ -163,15 +163,41 @@ class DemoDataManager: ObservableObject {
             lastSessionDate: Calendar.current.date(byAdding: .day, value: -3, to: Date())
         )
 
-        vm.topHabitImpacts = [runningImpact, meditationImpact, weightTrainingImpact, cyclingImpact]
-        vm.sleepImpacts = [meditationImpact, cyclingImpact]
-        vm.hrvImpacts = [runningImpact]
+        // Negative correlation for "Watch Out" section
+        let lateNightScreenImpact = HabitImpact(
+            habitType: .weightTraining,
+            metricName: "Sleep Duration",
+            baselineValue: 7.2,
+            habitValue: 6.5,
+            percentageChange: -9.7,
+            isPositive: false,
+            sampleSize: 12,
+            correlation: CorrelationResult(coefficient: -0.42, pValue: 0.04, sampleSize: 12, confidenceInterval: (lower: -0.65, upper: -0.19)),
+            lastSessionDate: Calendar.current.date(byAdding: .day, value: -1, to: Date())
+        )
+
+        // Additional positive: meditation also helps HRV
+        let meditationHRVImpact = HabitImpact(
+            habitType: .meditation,
+            metricName: "HRV",
+            baselineValue: 40,
+            habitValue: 45,
+            percentageChange: 12.5,
+            isPositive: true,
+            sampleSize: 20,
+            correlation: CorrelationResult(coefficient: 0.50, pValue: 0.015, sampleSize: 20, confidenceInterval: (lower: 0.30, upper: 0.70)),
+            lastSessionDate: Date()
+        )
+
+        vm.topHabitImpacts = [runningImpact, meditationImpact, meditationHRVImpact, weightTrainingImpact, cyclingImpact, lateNightScreenImpact]
+        vm.sleepImpacts = [meditationImpact, cyclingImpact, lateNightScreenImpact]
+        vm.hrvImpacts = [runningImpact, meditationHRVImpact]
         vm.rhrImpacts = [weightTrainingImpact]
 
         vm.habitImpactsByType = [
             .running: [runningImpact],
-            .meditation: [meditationImpact],
-            .weightTraining: [weightTrainingImpact],
+            .meditation: [meditationImpact, meditationHRVImpact],
+            .weightTraining: [weightTrainingImpact, lateNightScreenImpact],
             .cycling: [cyclingImpact]
         ]
     }

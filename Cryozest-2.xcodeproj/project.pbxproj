@@ -106,6 +106,8 @@
 		F41C66C81D7F4574BD0A2F79 /* PainTrackingCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D3B47782204ED38E77E5B6 /* PainTrackingCard.swift */; };
 		F69640ADA09AA27BECE55414 /* AddMedicationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B521457FBAB7C02BA51ED6D7 /* AddMedicationSheet.swift */; };
 		F8022795241147A6B2540EF1 /* HealthSnapshotGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B9E61ED04DA4DC79E7BBEB5 /* HealthSnapshotGrid.swift */; };
+		C56DDCF52E9871400052946A /* WhatsWorkingPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF42E9871400052946A /* WhatsWorkingPill.swift */; };
+		C56DDCF72E9871500052946A /* WhatsWorkingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +138,8 @@
 		A1B2C3D4E5F60001 /* StressScoreEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StressScoreEngine.swift; sourceTree = "<group>"; };
 		236944A38B2B1A4BFD34C9FE /* MedicationAdherenceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationAdherenceSection.swift; path = "Cryozest-2/MedicationAdherenceSection.swift"; sourceTree = SOURCE_ROOT; };
 		27FD3DFD9344444285D26FED /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
+		C56DDCF42E9871400052946A /* WhatsWorkingPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsWorkingPill.swift; sourceTree = "<group>"; };
+		C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsWorkingSection.swift; sourceTree = "<group>"; };
 		3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DemoDataManager.swift; sourceTree = "<group>"; };
 		45914F459441A47CB5A96342 /* HeartRateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HeartRateDetailView.swift; path = "Cryozest-2/MetricDetailViews/HeartRateDetailView.swift"; sourceTree = SOURCE_ROOT; };
 		49B046738978308F7AEF51A8 /* MedicationsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MedicationsCard.swift; path = "Cryozest-2/MedicationsCard.swift"; sourceTree = SOURCE_ROOT; };
@@ -372,6 +376,8 @@
 				A1B2C3D4E5F60003 /* StressScoreModel.swift */,
 				A1B2C3D4E5F60001 /* StressScoreEngine.swift */,
 				3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */,
+				C56DDCF42E9871400052946A /* WhatsWorkingPill.swift */,
+				C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */,
 			);
 			path = "Cryozest-2";
 			sourceTree = "<group>";
@@ -629,6 +635,8 @@
 				A1B2C3D4E5F60004 /* StressScoreModel.swift in Sources */,
 				A1B2C3D4E5F60002 /* StressScoreEngine.swift in Sources */,
 				3E554D6E2CA6F4AFF00E6B12 /* DemoDataManager.swift in Sources */,
+				C56DDCF52E9871400052946A /* WhatsWorkingPill.swift in Sources */,
+				C56DDCF72E9871500052946A /* WhatsWorkingSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

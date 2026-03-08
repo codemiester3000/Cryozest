@@ -154,6 +154,175 @@ class InsightsSynthesizer: ObservableObject {
         return nil
     }
 
+    // MARK: - What's Working Insight
+
+    private let whatsWorkingCacheKey = "whats_working_v1"
+    private let whatsWorkingCacheDateKey = "whats_working_v1_date"
+
+    private func cachedWhatsWorkingInsight() -> String? {
+        let today = todayKey()
+        guard UserDefaults.standard.string(forKey: whatsWorkingCacheDateKey) == today else { return nil }
+        return UserDefaults.standard.string(forKey: whatsWorkingCacheKey)
+    }
+
+    private func cacheWhatsWorkingInsight(_ text: String) {
+        UserDefaults.standard.set(text, forKey: whatsWorkingCacheKey)
+        UserDefaults.standard.set(todayKey(), forKey: whatsWorkingCacheDateKey)
+    }
+
+    /// Generate a comprehensive "what's working" summary that synthesizes across ALL metrics and habits.
+    func generateWhatsWorkingInsight(
+        impacts: [HabitImpact],
+        healthTrends: [HealthTrend],
+        recentHabits: [(name: String, count: Int, streak: Int)],
+        sleepHours: String?,
+        hrv: String?,
+        rhr: String?
+    ) async -> String? {
+        if let cached = cachedWhatsWorkingInsight() {
+            return cached
+        }
+
+        guard let apiKey = apiKey else { return nil }
+        guard !impacts.isEmpty else { return nil }
+
+        let prompt = buildWhatsWorkingPrompt(
+            impacts: impacts,
+            healthTrends: healthTrends,
+            recentHabits: recentHabits,
+            sleepHours: sleepHours,
+            hrv: hrv,
+            rhr: rhr
+        )
+
+        guard let url = URL(string: "\(baseURL)/\(modelName):generateContent?key=\(apiKey)") else {
+            return nil
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 25
+
+        let body: [String: Any] = [
+            "contents": [["parts": [["text": prompt]]]],
+            "generationConfig": [
+                "maxOutputTokens": 250,
+                "temperature": 0.7
+            ]
+        ]
+
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
+            return nil
+        }
+        request.httpBody = httpBody
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let candidates = json["candidates"] as? [[String: Any]],
+                  let content = candidates.first?["content"] as? [String: Any],
+                  let parts = content["parts"] as? [[String: Any]],
+                  let text = parts.first?["text"] as? String else {
+                print("InsightsSynthesizer: WhatsWorking API failed")
+                return nil
+            }
+
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let wordCount = trimmed.split(separator: " ").count
+            let endChars: Set<Character> = [".", "!", "?", "\"", "'", ")", "\u{201D}", "\u{2019}"]
+            let endsWithPunctuation = trimmed.last.map { endChars.contains($0) } ?? false
+            guard trimmed.count >= 30, wordCount >= 8, endsWithPunctuation else {
+                print("InsightsSynthesizer: WhatsWorking failed quality gate")
+                return nil
+            }
+
+            cacheWhatsWorkingInsight(trimmed)
+            print("InsightsSynthesizer: Generated WhatsWorking insight (\(trimmed.count) chars)")
+            return trimmed
+        } catch {
+            print("InsightsSynthesizer: WhatsWorking error: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    private func buildWhatsWorkingPrompt(
+        impacts: [HabitImpact],
+        healthTrends: [HealthTrend],
+        recentHabits: [(name: String, count: Int, streak: Int)],
+        sleepHours: String?,
+        hrv: String?,
+        rhr: String?
+    ) -> String {
+        var sections: [String] = []
+
+        sections.append("""
+        You are a health insights assistant inside a personal health tracking app. \
+        Write a brief, comprehensive summary (2-4 sentences, 40-80 words) of what's working and what to watch in this user's routine. \
+        Synthesize ACROSS metrics — don't just name one habit. Connect the dots: which habits drive which outcomes, \
+        and how do the metrics relate to each other. \
+        Use arrows (→) for cause-effect. Include specific percentages from the data. \
+        Sound like a smart coach who analyzed everything. No disclaimers. No generic advice. \
+        If there are negative correlations, briefly mention the most important one. \
+        End with one actionable takeaway.
+        """)
+
+        // All correlations (positive and negative)
+        let positiveImpacts = impacts.filter { $0.isPositive }
+        let negativeImpacts = impacts.filter { !$0.isPositive }
+
+        if !positiveImpacts.isEmpty {
+            let lines = positiveImpacts.prefix(6).map { impact in
+                let pct = abs(Int(impact.percentageChange))
+                return "- \(impact.habitType.rawValue) → \(impact.metricName) improved \(pct)% (n=\(impact.sampleSize), confidence=\(impact.confidenceLevel.rawValue))"
+            }
+            sections.append("POSITIVE CORRELATIONS:\n" + lines.joined(separator: "\n"))
+        }
+
+        if !negativeImpacts.isEmpty {
+            let lines = negativeImpacts.prefix(3).map { impact in
+                let pct = abs(Int(impact.percentageChange))
+                return "- \(impact.habitType.rawValue) → \(impact.metricName) worsened \(pct)% (n=\(impact.sampleSize))"
+            }
+            sections.append("NEGATIVE CORRELATIONS (worth mentioning):\n" + lines.joined(separator: "\n"))
+        }
+
+        // Week-over-week trends
+        if !healthTrends.isEmpty {
+            let trendLines = healthTrends.prefix(4).map { trend in
+                let dir = trend.changePercentage >= 0 ? "up" : "down"
+                return "- \(trend.metric): \(dir) \(abs(Int(trend.changePercentage)))% vs last week"
+            }
+            sections.append("THIS WEEK'S TRENDS:\n" + trendLines.joined(separator: "\n"))
+        }
+
+        // Today's vitals
+        var metricsLines: [String] = []
+        if let s = sleepHours, s != "--" { metricsLines.append("Sleep: \(s) hrs") }
+        if let h = hrv, h != "--" { metricsLines.append("HRV: \(h) ms") }
+        if let r = rhr, r != "--" { metricsLines.append("RHR: \(r) bpm") }
+        if !metricsLines.isEmpty {
+            sections.append("TODAY'S VITALS: " + metricsLines.joined(separator: " · "))
+        }
+
+        // Streaks/frequency
+        let activeHabits = recentHabits.filter { $0.count > 0 }
+        if !activeHabits.isEmpty {
+            let lines = activeHabits.map { h in
+                var line = "- \(h.name): \(h.count)x this week"
+                if h.streak > 1 { line += " (\(h.streak)-day streak)" }
+                return line
+            }
+            sections.append("RECENT ACTIVITY:\n" + lines.joined(separator: "\n"))
+        }
+
+        sections.append("Write the summary now. Synthesize across all data — don't just repeat one correlation.")
+        return sections.joined(separator: "\n\n")
+    }
+
     // MARK: - Prompt Construction
 
     private func buildPrompt(
