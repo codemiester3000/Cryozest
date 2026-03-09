@@ -285,7 +285,7 @@ class StressScoreModel: ObservableObject {
             return "Insufficient data to generate a reliable score."
         }
 
-        return reasons.joined(separator: ". ") + ". Wear your Apple Watch for accurate scoring."
+        return reasons.joined(separator: ". ") + ". Wear your Apple Watch to generate a stress score."
     }
 
     // MARK: - Helpers

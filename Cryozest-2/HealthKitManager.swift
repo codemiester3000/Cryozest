@@ -2482,12 +2482,19 @@ class HealthKitManager {
     /// Fetch respiratory rate during sleep for a given night, returning the median value.
     func fetchRespiratoryRateDuringSleep(for date: Date, completion: @escaping (Double?) -> Void) {
         getSleepTimes(for: date) { [weak self] sleepStart, sleepEnd in
-            guard let self = self, let sleepStart = sleepStart, let sleepEnd = sleepEnd else {
+            guard let self = self else {
                 completion(nil)
                 return
             }
 
-            let predicate = HKQuery.predicateForSamples(withStart: sleepStart, end: sleepEnd, options: .strictEndDate)
+            // Determine query window: use detected sleep times, or fall back
+            // to the overnight window (10 PM – 10 AM) when sleep isn't detected.
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: date)
+            let queryStart = sleepStart ?? calendar.date(byAdding: .hour, value: -2, to: startOfDay)! // 10 PM
+            let queryEnd   = sleepEnd   ?? calendar.date(byAdding: .hour, value: 10, to: startOfDay)! // 10 AM
+
+            let predicate = HKQuery.predicateForSamples(withStart: queryStart, end: queryEnd, options: .strictEndDate)
             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: true)
 
             let query = HKSampleQuery(sampleType: self.respirationRateType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { _, samples, error in
@@ -2541,9 +2548,72 @@ class HealthKitManager {
 
     /// Fetch HRV (SDNN) during sleep for a specific date, returning the average in ms.
     func fetchHRVDuringSleepForDate(_ date: Date, completion: @escaping (Double?) -> Void) {
-        fetchAvgHRVDuringSleepForNightEndingOn(date: date) { hrv in
-            completion(hrv)
+        fetchAvgHRVDuringSleepForNightEndingOn(date: date) { [weak self] hrv in
+            if let hrv = hrv {
+                completion(hrv)
+                return
+            }
+
+            // Fallback 1: sleep detection failed — try the overnight window directly.
+            self?.fetchHRVForOvernightWindow(date: date) { [weak self] overnightHRV in
+                if let overnightHRV = overnightHRV {
+                    completion(overnightHRV)
+                    return
+                }
+
+                // Fallback 2: no overnight data (watch not worn to sleep).
+                // Use the full-day average HRV so a stress score can still generate.
+                self?.fetchDaytimeHRV(for: date, completion: completion)
+            }
         }
+    }
+
+    /// Fallback HRV query: averages all HRV samples recorded between 10 PM the
+    /// prior evening and 10 AM on `date`, bypassing sleep detection entirely.
+    private func fetchHRVForOvernightWindow(date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+
+        // 10 PM previous night → 10 AM this morning
+        let windowStart = calendar.date(byAdding: .hour, value: -2, to: startOfDay)! // 10 PM prev day
+        let windowEnd   = calendar.date(byAdding: .hour, value: 10, to: startOfDay)! // 10 AM
+
+        let predicate = HKQuery.predicateForSamples(withStart: windowStart, end: windowEnd, options: .strictStartDate)
+
+        let query = HKSampleQuery(sampleType: self.hrvType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+            guard let hrvSamples = samples as? [HKQuantitySample], !hrvSamples.isEmpty else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+
+            let total = hrvSamples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli)) }
+            let average = total / Double(hrvSamples.count)
+            DispatchQueue.main.async { completion(average) }
+        }
+        healthStore.execute(query)
+    }
+
+    /// Last-resort HRV fallback: averages all HRV samples for the calendar day of `date`.
+    /// Covers users who wear their watch during the day but not to sleep.
+    private func fetchDaytimeHRV(for date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            completion(nil)
+            return
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
+
+        let query = HKStatisticsQuery(quantityType: self.hrvType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, statistics, _ in
+            guard let avg = statistics?.averageQuantity() else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+            let value = avg.doubleValue(for: HKUnit.secondUnit(with: .milli))
+            DispatchQueue.main.async { completion(value) }
+        }
+        healthStore.execute(query)
     }
 
     /// Fetch total asleep time (Deep+Core+REM) for a specific night, in seconds.

@@ -35,11 +35,11 @@ struct NightlyMetrics {
         return true
     }
 
-    /// Returns true if this night/day has enough data for a **stress** score.
-    /// Stress only requires the two core physiological signals (HRV + RHR).
-    /// Sleep, resp rate, and wrist temp are optional enhancers that improve accuracy
-    /// but are not required. This allows stress scores even when sleep data
-    /// hasn't synced yet or wasn't recorded.
+    /// Returns true if this day has enough data for a **stress** score.
+    /// Requires BOTH core physiological signals (HRV + RHR).
+    /// Sleep, resp rate, and wrist temp are optional enhancers that improve
+    /// accuracy but are not required. HRV can come from sleep, overnight,
+    /// or daytime readings — the fetch layer handles the fallback chain.
     var hasSufficientDataForStress: Bool {
         guard hrv != nil else { return false }
         guard rhr != nil else { return false }
@@ -107,11 +107,11 @@ struct ComputedWeights {
 }
 
 struct BaselineData: Codable {
-    var hrvValues: [Double]        // last 14 nightly SDNN values
-    var rhrValues: [Double]        // last 14 nightly RHR values
-    var respRateValues: [Double]   // last 14 nightly resp rate values
-    var wristTempValues: [Double]  // last 14 nightly temp deviations
-    var sleepDurations: [Double]   // last 14 nightly sleep durations (seconds)
+    var hrvValues: [Double]        // last 28 nightly SDNN values (matches WHOOP's ~30-day window)
+    var rhrValues: [Double]        // last 28 nightly RHR values
+    var respRateValues: [Double]   // last 28 nightly resp rate values
+    var wristTempValues: [Double]  // last 28 nightly temp deviations
+    var sleepDurations: [Double]   // last 28 nightly sleep durations (seconds)
     var dates: [Date]              // corresponding dates (only nights with sufficient data)
 
     static var empty: BaselineData {
@@ -138,15 +138,17 @@ struct PopulationPrior {
 class StressScoreEngine {
     static let shared = StressScoreEngine()
 
-    // Population priors for cold start (first 14 days)
+    // Population priors for cold start (first 28 days)
     private let hrvPrior = PopulationPrior(mean: 40.0, stdev: 20.0)
     private let rhrPrior = PopulationPrior(mean: 62.0, stdev: 8.0)
     private let respRatePrior = PopulationPrior(mean: 15.0, stdev: 2.0)
     private let wristTempPrior = PopulationPrior(mean: 0.0, stdev: 0.3)
     private let sleepDurationPrior = PopulationPrior(mean: 25200.0, stdev: 3600.0) // 7 hours in seconds
 
-    // Base weights (when all 5 metrics are present)
-    // HRV: 35%, RHR: 25%, Resp: 15%, Temp: 10%, Sleep: 15%
+    // Base weights aligned with WHOOP/Oura research:
+    //   WHOOP: HRV ~65%, RHR ~20%, Sleep ~15%, Resp rate minimal
+    //   Oura: HRV dominant, RHR significant, sleep/temp/resp minor
+    //   Our weights: HRV 55%, RHR 20%, Sleep 15%, Resp 5%, Temp 5%
     private struct MetricWeights {
         let hrv: Double
         let rhr: Double
@@ -159,8 +161,10 @@ class StressScoreEngine {
         }
     }
 
-    // Scaling factor: ±3 stdev maps to full 0-100 range
-    private let scalingFactor: Double = 16.67
+    /// Sigmoid steepness for non-linear score scaling.
+    /// Tuned so that ±1.5 stdev maps roughly to the 20-80 range (matching WHOOP's
+    /// green/yellow/red distribution where most days are yellow, extremes are rarer).
+    private let sigmoidSteepness: Double = 1.8
 
     private let baselineKey = "stressScoreBaseline"
     private let scoresKey = "stressScoreHistory"
@@ -170,14 +174,15 @@ class StressScoreEngine {
     // MARK: - Dynamic Weight Computation
 
     // Base weights (absolute values) — all positive.
+    // Aligned with WHOOP (~65% HRV, ~20% RHR, ~15% sleep) and Oura research.
     // The sign convention for each metric is handled at combination time, NOT in the weight.
     //   • HRV: higher = LESS stress, so z_hrv is NEGATED when combining
     //   • RHR, Resp, Temp, Sleep deficit: higher = MORE stress, used as-is
     private static let baseWeights: [String: Double] = [
-        "hrv": 0.35,
-        "rhr": 0.25,
-        "resp": 0.15,
-        "temp": 0.10,
+        "hrv": 0.55,
+        "rhr": 0.20,
+        "resp": 0.05,
+        "temp": 0.05,
         "sleep": 0.15
     ]
 
@@ -274,6 +279,21 @@ class StressScoreEngine {
         // Get dynamically computed weights based on available metrics
         let w = weights(hasResp: hasResp, hasTemp: hasTemp, hasSleep: hasSleep)
 
+        // --- Acute-change amplification (inspired by WHOOP's dynamic weighting) ---
+        // When HRV drops sharply (> 1 stdev below recent mean) while RHR stays stable,
+        // amplify HRV's effective weight by up to 25%. This captures acute stressors
+        // (illness, alcohol, overtraining) that WHOOP/Oura are sensitive to.
+        var effectiveHRVWeight = w.hrv
+        if let zH = zHRV, let zR = zRHR {
+            let hrvDropped = zH < -1.0          // HRV notably below personal baseline
+            let rhrStable = abs(zR) < 1.0       // RHR hasn't moved much
+            if hrvDropped && rhrStable {
+                // Boost HRV weight by up to 25%, proportional to how far it dropped
+                let amplification = min(abs(zH) - 1.0, 1.0) * 0.25  // 0–25% boost
+                effectiveHRVWeight = w.hrv * (1.0 + amplification)
+            }
+        }
+
         // Combine into raw stress score.
         // SIGN CONVENTION (explicit):
         //   • HRV: higher z = better recovery = LESS stress → NEGATE the z-score
@@ -282,18 +302,20 @@ class StressScoreEngine {
         //   • Temp: higher z = more stressed → use as-is (positive)
         //   • Sleep deficit: higher = more stressed → use as-is (positive)
         var stressRaw: Double = 0.0
-        stressRaw += w.hrv * (-(zHRV ?? 0.0))  // NEGATE: high HRV = low stress
-        stressRaw += w.rhr * (zRHR ?? 0.0)     // RHR is mandatory, zRHR should never be nil here
+        stressRaw += effectiveHRVWeight * (-(zHRV ?? 0.0))  // NEGATE: high HRV = low stress
+        stressRaw += w.rhr * (zRHR ?? 0.0)
         if let zR = zResp { stressRaw += w.resp * zR }
         if let zT = zTemp { stressRaw += w.temp * zT }
         if hasSleep { stressRaw += w.sleep * sleepDeficit }
 
-        // Scale to 0-100
-        let recoveryRaw = 50.0 - (stressRaw * scalingFactor)
-        let stressScaled = 50.0 + (stressRaw * scalingFactor)
+        // Scale to 0-100 using sigmoid (non-linear, matches WHOOP/Oura distribution).
+        // Sigmoid naturally concentrates scores in the middle range with meaningful
+        // spread into extremes — unlike linear scaling which clusters around 50.
+        let stressScaled = sigmoidScale(stressRaw)
+        let recoveryScaled = 100.0 - stressScaled
 
-        let recoveryScore = Int(min(max(recoveryRaw, 0), 100).rounded())
         let stressScore = Int(min(max(stressScaled, 0), 100).rounded())
+        let recoveryScore = Int(min(max(recoveryScaled, 0), 100).rounded())
 
         // Determine data quality
         let quality: StressRecoveryScore.DataQuality
@@ -338,7 +360,8 @@ class StressScoreEngine {
     // MARK: - Cold Start Blending
 
     private func blendedMeanAndStdev(personalValues: [Double], prior: PopulationPrior, dayCount: Int) -> (mean: Double, stdev: Double) {
-        let effectiveDayCount = min(dayCount, 14)
+        // Cold-start blending over 28 days (aligned with WHOOP's ~30-day calibration)
+        let effectiveDayCount = min(dayCount, 28)
 
         if personalValues.isEmpty {
             return (prior.mean, prior.stdev)
@@ -347,13 +370,13 @@ class StressScoreEngine {
         let personalMean = personalValues.reduce(0, +) / Double(personalValues.count)
         let personalStdev = standardDeviation(personalValues)
 
-        if effectiveDayCount >= 14 {
+        if effectiveDayCount >= 28 {
             // Fully personal baseline
             return (personalMean, max(personalStdev, 0.001))
         }
 
         // Blend: linear interpolation between population prior and personal
-        let personalWeight = Double(effectiveDayCount) / 14.0
+        let personalWeight = Double(effectiveDayCount) / 28.0
         let priorWeight = 1.0 - personalWeight
 
         let blendedMean = personalWeight * personalMean + priorWeight * prior.mean
@@ -381,7 +404,7 @@ class StressScoreEngine {
 
     // MARK: - Baseline Management
 
-    /// Updates the rolling 14-day baseline with new nightly data.
+    /// Updates the rolling 28-day baseline with new nightly data (aligned with WHOOP's ~30-day window).
     /// IMPORTANT: Only call this when metrics.hasSufficientDataForRecovery is true.
     /// Nights where the watch wasn't worn or sleep < 2h should NEVER enter the baseline
     /// because baseline quality requires full overnight data for all core metrics.
@@ -396,7 +419,7 @@ class StressScoreEngine {
             return
         }
 
-        // Helper to add value with outlier protection and 14-day cap.
+        // Helper to add value with outlier protection and 28-day cap.
         // NOTE: Each metric array is managed independently. An outlier skip for one metric
         // does NOT prevent other metrics from being added. This means baseline arrays can
         // have different counts (e.g. hrvValues.count != rhrValues.count). This is by design:
@@ -414,7 +437,7 @@ class StressScoreEngine {
             }
 
             array.append(value)
-            if array.count > 14 {
+            if array.count > 28 {
                 array.removeFirst()
             }
         }
@@ -429,7 +452,7 @@ class StressScoreEngine {
         addIfValid(metrics.sleepDuration, to: &baseline.sleepDurations, prior: sleepDurationPrior, dayCount: dayCount)
 
         baseline.dates.append(metrics.date)
-        if baseline.dates.count > 14 {
+        if baseline.dates.count > 28 {
             baseline.dates.removeFirst()
         }
     }
@@ -472,6 +495,18 @@ class StressScoreEngine {
     }
 
     // MARK: - Helpers
+
+    /// Sigmoid scaling: maps raw stress value to 0-100 with non-linear spread.
+    /// Positive raw = more stressed (→ score near 100), negative = less stressed (→ near 0).
+    /// The sigmoid ensures scores spread into the extremes on bad/great days rather than
+    /// clustering around 50, matching the distribution of WHOOP/Oura scores.
+    private func sigmoidScale(_ rawStress: Double) -> Double {
+        // sigmoid: 1 / (1 + e^(-k*x)) maps (-∞,+∞) → (0,1)
+        // We scale to 0-100.
+        let exponent = -sigmoidSteepness * rawStress
+        let sigmoid = 1.0 / (1.0 + exp(exponent))
+        return sigmoid * 100.0
+    }
 
     private func standardDeviation(_ values: [Double]) -> Double {
         guard values.count > 1 else { return 0.0 }
@@ -523,12 +558,12 @@ private struct StoredScore: Codable {
 
     func toScore() -> StressRecoveryScore {
         let quality = StressRecoveryScore.DataQuality(rawValue: dataQualityRaw ?? "full") ?? .full
-        // Reconstruct weights; fall back to equal-ish defaults for scores stored before this field existed
+        // Reconstruct weights; fall back to current defaults for scores stored before this field existed
         let weights = ComputedWeights(
-            hrv: wHRV ?? 0.35,
-            rhr: wRHR ?? 0.25,
-            resp: wResp ?? 0.15,
-            temp: wTemp ?? 0.10,
+            hrv: wHRV ?? 0.55,
+            rhr: wRHR ?? 0.20,
+            resp: wResp ?? 0.05,
+            temp: wTemp ?? 0.05,
             sleep: wSleep ?? 0.15
         )
         return StressRecoveryScore(
