@@ -154,7 +154,20 @@ class RecoveryGraphModel: ObservableObject {
         }
     }
 
+    /// Minimum seconds between full refreshes for the same date.
+    /// Prevents repeated HealthKit blasts when scenePhase toggles rapidly.
+    private static let refreshCooldown: TimeInterval = 30
+
     func pullAllRecoveryData(forDate date: Date) {
+        let calendar = Calendar.current
+
+        // Skip if we recently refreshed for this same date
+        if let lastRefresh = lastDataRefresh,
+           calendar.isDate(selectedDate, inSameDayAs: date),
+           Date().timeIntervalSince(lastRefresh) < Self.refreshCooldown {
+            return
+        }
+
         print("pull all recovery data for: ", date)
 
         DispatchQueue.main.async {

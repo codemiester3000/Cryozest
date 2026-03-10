@@ -24,6 +24,11 @@ class StressScoreModel: ObservableObject {
     /// Avoids redundant HealthKit queries when computeScores and computeLast7Days
     /// both need data for the same date (especially today).
     private var metricsCache: [Date: NightlyMetrics?] = [:]
+    private var lastComputeDate: Date?
+    private var lastComputeTime: Date?
+
+    /// Minimum seconds between full re-computations for the same date.
+    private static let computeCooldown: TimeInterval = 30
 
     init() {
         baselineDayCount = engine.loadBaseline().dates.count
@@ -32,11 +37,25 @@ class StressScoreModel: ObservableObject {
     /// Clears the metrics cache — call on manual refresh so fresh HK data is fetched.
     func invalidateCache() {
         metricsCache.removeAll()
+        lastComputeTime = nil   // Allow next compute to proceed
     }
 
     // MARK: - Compute Today's Score
 
     func computeScores(forDate date: Date) {
+        let calendar = Calendar.current
+
+        // Skip if we recently computed for this same date
+        if let lastDate = lastComputeDate,
+           let lastTime = lastComputeTime,
+           calendar.isDate(lastDate, inSameDayAs: date),
+           Date().timeIntervalSince(lastTime) < Self.computeCooldown {
+            return
+        }
+
+        lastComputeDate = date
+        lastComputeTime = Date()
+
         // Only show loading skeleton on the very first computation
         if !hasLoadedOnce {
             isLoading = true

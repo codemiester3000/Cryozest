@@ -148,6 +148,9 @@ struct DailyView: View {
                 }
             }
             .refreshable {
+                // Force refresh — bypass cooldown
+                stressModel.invalidateCache()
+                recoveryModel.lastDataRefresh = nil
                 recoveryModel.pullAllRecoveryData(forDate: selectedDate)
                 exertionModel.fetchExertionScoreAndTimes(forDate: selectedDate)
                 sleepModel.fetchSleepData(forDate: selectedDate)
