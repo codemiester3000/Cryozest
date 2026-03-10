@@ -27,10 +27,18 @@ struct StressScoreCard: View {
         return "Updated \(formatter.string(from: date))"
     }
 
+    /// Show skeleton only on first load (no data yet), not on refreshes
+    private var showSkeleton: Bool {
+        stressModel.isLoading
+        && mostRecentScore == nil
+        && stressModel.last7DaysStress.compactMap({ $0 }).isEmpty
+    }
+
     var body: some View {
         Group {
-            if stressModel.isLoading {
+            if showSkeleton {
                 stressSkeletonCard
+                    .transition(.opacity)
             } else {
                 Button(action: { showDetail = true }) {
                     Group {
@@ -54,8 +62,10 @@ struct StressScoreCard: View {
                 .sheet(isPresented: $showDetail) {
                     StressDetailSheet(model: stressModel, dismiss: { showDetail = false })
                 }
+                .transition(.opacity)
             }
         }
+        .animation(.easeInOut(duration: 0.4), value: showSkeleton)
     }
 
     // MARK: - Skeleton Loading Card

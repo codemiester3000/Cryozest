@@ -24,10 +24,18 @@ struct RecoveryScoreCard: View {
         return formatter.string(from: date)
     }
 
+    /// Show skeleton only on first load (no data yet), not on refreshes
+    private var showSkeleton: Bool {
+        recoveryModel.isLoading
+        && mostRecentScore == nil
+        && recoveryModel.recoveryScores.compactMap({ $0 }).isEmpty
+    }
+
     var body: some View {
         Group {
-            if recoveryModel.isLoading {
+            if showSkeleton {
                 recoverySkeletonCard
+                    .transition(.opacity)
             } else {
                 Button(action: { showDetail = true }) {
                     Group {
@@ -51,8 +59,10 @@ struct RecoveryScoreCard: View {
                 .sheet(isPresented: $showDetail) {
                     RecoveryDetailSheet(model: recoveryModel, dismiss: { showDetail = false })
                 }
+                .transition(.opacity)
             }
         }
+        .animation(.easeInOut(duration: 0.4), value: showSkeleton)
     }
 
     // MARK: - Skeleton Loading Card

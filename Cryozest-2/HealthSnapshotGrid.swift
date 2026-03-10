@@ -30,31 +30,37 @@ struct HealthSnapshotGrid: View {
                 GridItem(.flexible(), spacing: 10),
                 GridItem(.flexible(), spacing: 10)
             ], spacing: 10) {
-                if recoveryModel.isLoading {
-                    ForEach(0..<4, id: \.self) { _ in
-                        SnapshotSkeletonCell()
-                    }
-                } else {
-                    SnapshotCell(icon: "bed.double.fill", title: "Sleep",
-                                 value: sleepValueText, unit: "hrs",
-                                 color: .indigo, trend: sleepTrend)
-                        .onTapGesture { selectedMetric = .sleep }
+                StreamingSnapshotCell(
+                    icon: "bed.double.fill", title: "Sleep",
+                    value: sleepValueText, unit: "hrs",
+                    color: .indigo, trend: sleepTrend,
+                    hasData: recoveryModel.previousNightSleepDuration != nil
+                )
+                .onTapGesture { selectedMetric = .sleep }
 
-                    SnapshotCell(icon: "waveform.path.ecg", title: "HRV",
-                                 value: hrvValueText, unit: "ms",
-                                 color: .purple, trend: hrvTrend)
-                        .onTapGesture { selectedMetric = .hrv }
+                StreamingSnapshotCell(
+                    icon: "waveform.path.ecg", title: "HRV",
+                    value: hrvValueText, unit: "ms",
+                    color: .purple, trend: hrvTrend,
+                    hasData: recoveryModel.avgHrvDuringSleep != nil
+                )
+                .onTapGesture { selectedMetric = .hrv }
 
-                    SnapshotCell(icon: "heart.fill", title: "Resting HR",
-                                 value: rhrValueText, unit: "bpm",
-                                 color: .red, trend: rhrTrend)
-                        .onTapGesture { selectedMetric = .rhr }
+                StreamingSnapshotCell(
+                    icon: "heart.fill", title: "Resting HR",
+                    value: rhrValueText, unit: "bpm",
+                    color: .red, trend: rhrTrend,
+                    hasData: recoveryModel.mostRecentRestingHeartRate != nil
+                )
+                .onTapGesture { selectedMetric = .rhr }
 
-                    SnapshotCell(icon: "figure.walk", title: "Steps",
-                                 value: stepsValueText, unit: "",
-                                 color: .green, trend: nil)
-                        .onTapGesture { selectedMetric = .steps }
-                }
+                StreamingSnapshotCell(
+                    icon: "figure.walk", title: "Steps",
+                    value: stepsValueText, unit: "",
+                    color: .green, trend: nil,
+                    hasData: recoveryModel.mostRecentSteps != nil
+                )
+                .onTapGesture { selectedMetric = .steps }
             }
         }
         .padding(16)
@@ -235,24 +241,49 @@ struct SnapshotCell: View {
     }
 }
 
-struct SnapshotSkeletonCell: View {
+/// A cell that shows a shimmer skeleton until data arrives, then crossfades to the real cell.
+/// Each cell transitions independently, giving a "streaming" feel as data loads.
+struct StreamingSnapshotCell: View {
+    let icon: String
+    let title: String
+    let value: String
+    let unit: String
+    let color: Color
+    let trend: TrendDirection?
+    let hasData: Bool
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 6) {
-                SkeletonCircle(size: 22)
-                SkeletonLine(width: 50, height: 11)
-                Spacer()
-            }
-            SkeletonLine(width: 60, height: 22)
-        }
-        .padding(10)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.06))
-                .overlay(
+        ZStack {
+            // Skeleton layer — visible when no data
+            if !hasData {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        SkeletonCircle(size: 22)
+                        SkeletonLine(width: 50, height: 11)
+                        Spacer()
+                    }
+                    SkeletonLine(width: 60, height: 22)
+                }
+                .padding(10)
+                .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                        .fill(Color.white.opacity(0.06))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                        )
                 )
-        )
+                .transition(.opacity)
+            }
+
+            // Real content layer — visible when data is ready
+            // SnapshotCell has its own padding + background
+            if hasData {
+                SnapshotCell(icon: icon, title: title, value: value,
+                             unit: unit, color: color, trend: trend)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.5), value: hasData)
     }
 }

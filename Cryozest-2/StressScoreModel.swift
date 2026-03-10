@@ -40,18 +40,26 @@ class StressScoreModel: ObservableObject {
         // Invalidate cache on new computation so we get fresh data
         metricsCache.removeAll()
 
+        // Remember whether we already had a score — avoids flashing
+        // from filled card to empty card when refreshing.
+        let hadExistingScore = todayStressScore != nil
+            || last7DaysStress.compactMap({ $0 }).count > 0
+
         fetchNightlyMetricsCached(for: date) { [weak self] metrics in
             guard let self = self else { return }
 
             guard let metrics = metrics else {
                 // No data at all — watch probably wasn't worn
                 DispatchQueue.main.async {
-                    self.todayStressScore = nil
-                    self.todayRecoveryScore = nil
-                    self.zScores = nil
-                    self.sleepDeficit = nil
-                    self.dataQuality = .insufficient
-                    self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to generate a score."
+                    // Only clear the card if this is the first load
+                    if !hadExistingScore {
+                        self.todayStressScore = nil
+                        self.todayRecoveryScore = nil
+                        self.zScores = nil
+                        self.sleepDeficit = nil
+                        self.dataQuality = .insufficient
+                        self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to generate a score."
+                    }
                     self.isLoading = false
                     self.computeLast7Days(currentDate: date)
                 }
@@ -61,12 +69,14 @@ class StressScoreModel: ObservableObject {
             // Stress only needs HRV + RHR; recovery also needs sleep
             if !metrics.hasSufficientDataForStress {
                 DispatchQueue.main.async {
-                    self.todayStressScore = nil
-                    self.todayRecoveryScore = nil
-                    self.zScores = nil
-                    self.sleepDeficit = nil
-                    self.dataQuality = .insufficient
-                    self.insufficientDataReason = self.explainInsufficientData(metrics)
+                    if !hadExistingScore {
+                        self.todayStressScore = nil
+                        self.todayRecoveryScore = nil
+                        self.zScores = nil
+                        self.sleepDeficit = nil
+                        self.dataQuality = .insufficient
+                        self.insufficientDataReason = self.explainInsufficientData(metrics)
+                    }
                     self.isLoading = false
                     self.computeLast7Days(currentDate: date)
                 }
@@ -78,10 +88,12 @@ class StressScoreModel: ObservableObject {
             // Compute stress score (relaxed gate: HRV + RHR only)
             guard let stressScore = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: false) else {
                 DispatchQueue.main.async {
-                    self.todayStressScore = nil
-                    self.todayRecoveryScore = nil
-                    self.dataQuality = .insufficient
-                    self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
+                    if !hadExistingScore {
+                        self.todayStressScore = nil
+                        self.todayRecoveryScore = nil
+                        self.dataQuality = .insufficient
+                        self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
+                    }
                     self.isLoading = false
                     self.computeLast7Days(currentDate: date)
                 }
