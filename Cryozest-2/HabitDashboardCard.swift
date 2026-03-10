@@ -151,102 +151,89 @@ struct HabitDashboardCard: View {
     // MARK: - Compact Content
 
     private var compactContent: some View {
-        VStack(spacing: 8) {
-            // Top row: icon + name + log button
-            HStack(spacing: 12) {
-                // Habit icon
+        HStack(spacing: 12) {
+            // Habit icon
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(habitType.color.opacity(0.15))
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: habitType.icon)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(habitType.color)
+            }
+
+            // Name + inline stats
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habitType.displayName(viewContext))
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+
+                HStack(spacing: 6) {
+                    if currentStreak > 0 {
+                        HStack(spacing: 2) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(.orange)
+                            Text("\(currentStreak)d")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.orange)
+                        }
+                    }
+
+                    if todayCount > 0 {
+                        HStack(spacing: 2) {
+                            Circle()
+                                .fill(habitType.color)
+                                .frame(width: 4, height: 4)
+                            Text("\(todayCount) today")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundColor(habitType.color)
+                        }
+                    }
+
+                    Text("\(weekCount)/wk")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.3))
+                }
+            }
+
+            Spacer()
+
+            // Expand chevron
+            Image(systemName: "chevron.down")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(.white.opacity(0.25))
+                .rotationEffect(.degrees(isExpanded ? -180 : 0))
+
+            // Log button
+            Button(action: {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+                onLog()
+            }) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(habitType.color.opacity(0.15))
-                        .frame(width: 42, height: 42)
-
-                    Image(systemName: habitType.icon)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(habitType.color)
-                }
-
-                // Name + streak + today count
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(habitType.displayName(viewContext))
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.white)
-
-                    HStack(spacing: 8) {
-                        if currentStreak > 0 {
-                            HStack(spacing: 3) {
-                                Image(systemName: "flame.fill")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.orange)
-                                Text("\(currentStreak)d")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(.orange)
-                            }
-                        }
-
-                        if todayCount > 0 {
-                            HStack(spacing: 3) {
-                                Circle()
-                                    .fill(habitType.color)
-                                    .frame(width: 5, height: 5)
-                                Text("\(todayCount) today")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(habitType.color)
-                            }
-                        }
-
-                        Text("\(habitSessions.count) total")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.35))
-                    }
-                }
-
-                Spacer()
-
-                // Expand chevron
-                Image(systemName: "chevron.down")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.3))
-                    .rotationEffect(.degrees(isExpanded ? -180 : 0))
-
-                // Log button
-                Button(action: {
-                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                    generator.impactOccurred()
-                    onLog()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [habitType.color, habitType.color.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [habitType.color, habitType.color.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                            .frame(width: 38, height: 38)
-                            .shadow(color: habitType.color.opacity(0.3), radius: 6, x: 0, y: 2)
+                        )
+                        .frame(width: 34, height: 34)
+                        .shadow(color: habitType.color.opacity(0.25), radius: 4, x: 0, y: 2)
 
-                        Image(systemName: showCheckmark ? "checkmark" : "plus")
-                            .font(.system(size: showCheckmark ? 17 : 15, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    .scaleEffect(logButtonScale)
+                    Image(systemName: showCheckmark ? "checkmark" : "plus")
+                        .font(.system(size: showCheckmark ? 15 : 13, weight: .bold))
+                        .foregroundColor(.white)
                 }
-                .buttonStyle(HabitScaleButtonStyle())
+                .scaleEffect(logButtonScale)
             }
-
-            // Mini week dots (always visible - fills space and shows activity at a glance)
-            miniWeekDots
-
-            // Impact chips or progress bar
-            if !impacts.isEmpty {
-                HabitImpactChips(impacts: impacts)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else if let progress = progress, !progress.hasEnoughData {
-                DataCollectionProgressView(progress: progress, habitColor: habitType.color)
-            }
+            .buttonStyle(HabitScaleButtonStyle())
         }
-        .padding(14)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 
     // MARK: - Mini Week Dots (Compact inline version)

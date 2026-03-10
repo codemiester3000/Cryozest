@@ -189,14 +189,40 @@ class DemoDataManager: ObservableObject {
             lastSessionDate: Date()
         )
 
-        vm.topHabitImpacts = [runningImpact, meditationImpact, meditationHRVImpact, weightTrainingImpact, cyclingImpact, lateNightScreenImpact]
+        // Mood impacts
+        let meditationMoodImpact = HabitImpact(
+            habitType: .meditation,
+            metricName: "Mood",
+            baselineValue: 3.2,
+            habitValue: 4.1,
+            percentageChange: 28.1,
+            isPositive: true,
+            sampleSize: 20,
+            correlation: CorrelationResult(coefficient: 0.58, pValue: 0.01, sampleSize: 20, confidenceInterval: (lower: 0.38, upper: 0.78)),
+            lastSessionDate: Date()
+        )
+
+        let runningMoodImpact = HabitImpact(
+            habitType: .running,
+            metricName: "Mood",
+            baselineValue: 3.4,
+            habitValue: 3.9,
+            percentageChange: 14.7,
+            isPositive: true,
+            sampleSize: 16,
+            correlation: CorrelationResult(coefficient: 0.42, pValue: 0.04, sampleSize: 16, confidenceInterval: (lower: 0.18, upper: 0.66)),
+            lastSessionDate: Calendar.current.date(byAdding: .day, value: -1, to: Date())
+        )
+
+        vm.topHabitImpacts = [runningImpact, meditationImpact, meditationHRVImpact, meditationMoodImpact, weightTrainingImpact, cyclingImpact, lateNightScreenImpact]
         vm.sleepImpacts = [meditationImpact, cyclingImpact, lateNightScreenImpact]
         vm.hrvImpacts = [runningImpact, meditationHRVImpact]
         vm.rhrImpacts = [weightTrainingImpact]
+        vm.moodImpacts = [meditationMoodImpact, runningMoodImpact]
 
         vm.habitImpactsByType = [
-            .running: [runningImpact],
-            .meditation: [meditationImpact, meditationHRVImpact],
+            .running: [runningImpact, runningMoodImpact],
+            .meditation: [meditationImpact, meditationHRVImpact, meditationMoodImpact],
             .weightTraining: [weightTrainingImpact, lateNightScreenImpact],
             .cycling: [cyclingImpact]
         ]
@@ -286,11 +312,25 @@ class DemoDataManager: ObservableObject {
             session.duration = entry.duration
         }
 
-        // Wellness ratings (last 3 days)
-        for daysAgo in 0..<3 {
-            if let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) {
-                let ratings = daysAgo == 0 ? [4] : (daysAgo == 1 ? [4, 5] : [3, 4])
-                for rating in ratings {
+        // Wellness ratings (last 14 days, varied for correlation contrast)
+        let wellnessData: [(daysAgo: Int, ratings: [Int])] = [
+            (0, [4]),
+            (1, [4, 5]),
+            (2, [3, 4]),
+            (3, [5]),
+            (4, [4]),
+            (5, [3]),
+            (6, [4, 4]),
+            (7, [3]),
+            (9, [5]),
+            (10, [4]),
+            (11, [3]),
+            (12, [4, 5]),
+            (13, [3]),
+        ]
+        for entry in wellnessData {
+            if let date = calendar.date(byAdding: .day, value: -entry.daysAgo, to: today) {
+                for rating in entry.ratings {
                     WellnessRating.addRating(rating: rating, for: date, context: context)
                 }
             }

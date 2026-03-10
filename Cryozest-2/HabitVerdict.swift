@@ -79,6 +79,7 @@ struct HabitVerdict: Identifiable {
         case "Sleep Duration": return "Sleep"
         case "Resting Heart Rate": return "RHR"
         case "Pain Level": return "Pain"
+        case "Mood": return "Mood"
         default: return name
         }
     }

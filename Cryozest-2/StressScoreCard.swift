@@ -28,28 +28,59 @@ struct StressScoreCard: View {
     }
 
     var body: some View {
-        Button(action: { showDetail = true }) {
-            Group {
-                if let result = mostRecentScore {
-                    filledCard(score: result.score, daysAgo: result.daysAgo)
-                } else {
-                    emptyState
+        Group {
+            if stressModel.isLoading {
+                stressSkeletonCard
+            } else {
+                Button(action: { showDetail = true }) {
+                    Group {
+                        if let result = mostRecentScore {
+                            filledCard(score: result.score, daysAgo: result.daysAgo)
+                        } else {
+                            emptyState
+                        }
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            )
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sheet(isPresented: $showDetail) {
+                    StressDetailSheet(model: stressModel, dismiss: { showDetail = false })
                 }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.05))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-            )
         }
-        .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showDetail) {
-            StressDetailSheet(model: stressModel, dismiss: { showDetail = false })
+    }
+
+    // MARK: - Skeleton Loading Card
+
+    private var stressSkeletonCard: some View {
+        HStack(spacing: 16) {
+            SkeletonCircle(size: 68)
+
+            VStack(alignment: .leading, spacing: 8) {
+                SkeletonLine(width: 60, height: 12)
+                SkeletonLine(width: 100, height: 22)
+                SkeletonLine(width: 140, height: 12)
+            }
+
+            Spacer(minLength: 0)
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Filled Card
@@ -336,29 +367,32 @@ private struct StressDetailSheet: View {
                 .padding(.top, 14)
                 .padding(.bottom, 4)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 24) {
-                        heroSection
+                GeometryReader { geo in
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 24) {
+                            heroSection
 
-                        if hasScore {
-                            todayGuidance
-                            zScoreBreakdown
-                            sleepDeficitSection
-                        } else {
-                            // Empty state — no score available
-                            noScoreExplanation
+                            if hasScore {
+                                todayGuidance
+                                zScoreBreakdown
+                                sleepDeficitSection
+                            } else {
+                                // Empty state — no score available
+                                noScoreExplanation
+                            }
+
+                            if model.last7DaysStress.count > 1 && model.last7DaysStress.compactMap({ $0 }).count > 0 {
+                                weeklyTrend
+                            }
+
+                            baselineInfo
+                            howItWorks
                         }
-
-                        if model.last7DaysStress.count > 1 && model.last7DaysStress.compactMap({ $0 }).count > 0 {
-                            weeklyTrend
-                        }
-
-                        baselineInfo
-                        howItWorks
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                        .padding(.bottom, 40)
+                        .frame(width: geo.size.width)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 12)
-                    .padding(.bottom, 40)
                 }
                 .clipped()
             }

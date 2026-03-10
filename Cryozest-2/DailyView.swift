@@ -114,12 +114,17 @@ struct DailyView: View {
                             coachQuestion = "Explain why \(habitName) \(direction) my \(recentInsight.metricName) by \(pct)%"
                             showCoachSheet = true
                         }
+                    } else {
+                        // Fallback — always show insight card with tip
+                        DailyTipCard(sessions: Array(sessions))
+                            .padding(.horizontal, 20)
                     }
 
                     // 4. Health Snapshot
                     HealthSnapshotGrid(
                         recoveryModel: recoveryModel,
-                        sleepModel: sleepModel
+                        sleepModel: sleepModel,
+                        rhrImpacts: insightsViewModel?.rhrImpacts ?? []
                     )
                     .padding(.horizontal, 20)
 
@@ -133,8 +138,6 @@ struct DailyView: View {
 
                     // 6. More tracking
                     PainTrackingCard(selectedDate: $selectedDate)
-                        .padding(.horizontal, 20)
-                    WaterIntakeCard(selectedDate: $selectedDate)
                         .padding(.horizontal, 20)
                     MedicationsCard(selectedDate: $selectedDate)
                         .padding(.horizontal, 20)
@@ -818,6 +821,83 @@ struct LLMInsightCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
                         .stroke(Color.cyan.opacity(0.15), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Daily Tip Fallback Card
+
+struct DailyTipCard: View {
+    let sessions: [TherapySessionEntity]
+
+    private var todayCount: Int {
+        let start = Calendar.current.startOfDay(for: Date())
+        return sessions.filter { ($0.date ?? .distantPast) >= start }.count
+    }
+
+    private var weekCount: Int {
+        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        return sessions.filter { ($0.date ?? .distantPast) >= sevenDaysAgo }.count
+    }
+
+    private var tipMessage: String {
+        if todayCount == 0 && weekCount == 0 {
+            return "Log your first habit to start seeing personalized insights about what works for your body."
+        } else if todayCount == 0 {
+            return "You logged \(weekCount) session\(weekCount == 1 ? "" : "s") this week. Log today's activity to keep your streaks alive."
+        } else {
+            return "\(todayCount) session\(todayCount == 1 ? "" : "s") logged today, \(weekCount) this week. Keep it up \u{2014} correlations unlock after 5+ sessions."
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.2))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: "lightbulb.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: "chart.bar.fill")
+                        .font(.system(size: 9, weight: .bold))
+                    Text("Daily Insight")
+                        .font(.system(size: 11, weight: .bold))
+                        .tracking(0.3)
+                }
+                .foregroundColor(.blue.opacity(0.9))
+
+                Text(tipMessage)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.blue.opacity(0.08),
+                            Color.white.opacity(0.03)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.blue.opacity(0.15), lineWidth: 1)
                 )
         )
     }

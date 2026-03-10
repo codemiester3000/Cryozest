@@ -33,6 +33,7 @@ struct InsightsTabView: View {
     @State private var coachQuestion: String? = nil
     @State private var showInsightsHub = false
     @State private var hubHighlightMessage: String = "Tap to see your weekly summary"
+    @State private var topProjections: [HealthProjection] = []
 
     // Logging state
     @State private var animatingHabit: TherapyType? = nil
@@ -73,6 +74,7 @@ struct InsightsTabView: View {
                     loadingView
                 } else {
                     mainContent(viewModel: viewModel)
+                        .onAppear { loadProjections(viewModel: viewModel) }
                 }
             } else {
                 loadingView
@@ -190,7 +192,15 @@ struct InsightsTabView: View {
                         .padding(.horizontal, 20)
                 }
 
-                // 5. Wellness Trends
+                // 5. Projections
+                if !topProjections.isEmpty {
+                    projectionsSection
+
+                    InsightsDivider()
+                        .padding(.horizontal, 20)
+                }
+
+                // 6. Wellness Trends
                 WellnessInsightsSection(
                     ratings: Array(wellnessRatings),
                     sessions: Array(sessions),
@@ -519,6 +529,160 @@ struct InsightsTabView: View {
             generator.impactOccurred()
         } catch {
             print("Error undoing session: \(error)")
+        }
+    }
+
+    private func loadProjections(viewModel: InsightsViewModel) {
+        let engine = HealthProjectionEngine()
+        var all: [HealthProjection] = []
+
+        for (habitType, impacts) in viewModel.habitImpactsByType {
+            let projections = engine.generateProjections(
+                for: habitType,
+                impacts: impacts,
+                sessions: Array(sessions)
+            )
+            all.append(contentsOf: projections)
+        }
+
+        // Sort by confidence (high first), take top 3
+        let confidenceOrder: [ConfidenceLevel: Int] = [.high: 0, .moderate: 1, .earlySignal: 2, .low: 3, .insufficient: 4]
+        all.sort { (confidenceOrder[$0.confidence] ?? 4) < (confidenceOrder[$1.confidence] ?? 4) }
+        topProjections = Array(all.prefix(3))
+    }
+
+    private var projectionsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.cyan)
+
+                Text("30-Day Projections")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.white.opacity(0.6))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+
+                Spacer()
+
+                Button(action: { showInsightsHub = true }) {
+                    HStack(spacing: 3) {
+                        Text("See all")
+                            .font(.system(size: 11, weight: .semibold))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 8, weight: .bold))
+                    }
+                    .foregroundColor(.white.opacity(0.4))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 4)
+
+            VStack(spacing: 8) {
+                ForEach(topProjections) { projection in
+                    inlineProjectionCard(projection)
+                        .padding(.horizontal, 20)
+                }
+            }
+        }
+        .padding(.bottom, 8)
+    }
+
+    private func inlineProjectionCard(_ projection: HealthProjection) -> some View {
+        HStack(spacing: 12) {
+            // Metric icon
+            VStack(spacing: 2) {
+                Image(systemName: projectionIcon(projection.metric))
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(projectionColor(projection.metric))
+            }
+            .frame(width: 32, height: 32)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(projectionColor(projection.metric).opacity(0.12))
+            )
+
+            // Metric name
+            VStack(alignment: .leading, spacing: 2) {
+                Text(projection.metric)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.9))
+
+                Text("via \(projection.basedOnHabit)")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.white.opacity(0.35))
+            }
+
+            Spacer()
+
+            // Current → Projected
+            HStack(spacing: 6) {
+                Text(formatProjectionValue(projection.currentValue, metric: projection.metric))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white.opacity(0.5))
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(.white.opacity(0.3))
+
+                Text(formatProjectionValue(projection.projectedValue, metric: projection.metric))
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(projection.isPositiveDirection ? .green : .red)
+            }
+
+            // Change badge
+            let sign = projection.projectedChange >= 0 ? "+" : ""
+            Text("\(sign)\(Int(projection.projectedChange))%")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(projection.isPositiveDirection ? .green : .red)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(
+                    Capsule()
+                        .fill((projection.isPositiveDirection ? Color.green : Color.red).opacity(0.12))
+                )
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
+        )
+    }
+
+    private func projectionIcon(_ metric: String) -> String {
+        switch metric {
+        case "HRV": return "waveform.path.ecg"
+        case "RHR", "Resting Heart Rate": return "heart.fill"
+        case "Sleep Duration": return "bed.double.fill"
+        case "Mood": return "face.smiling"
+        case "Pain Level": return "bolt.heart.fill"
+        default: return "chart.line.uptrend.xyaxis"
+        }
+    }
+
+    private func projectionColor(_ metric: String) -> Color {
+        switch metric {
+        case "HRV": return .purple
+        case "RHR", "Resting Heart Rate": return .red
+        case "Sleep Duration": return .indigo
+        case "Mood": return .pink
+        case "Pain Level": return .orange
+        default: return .cyan
+        }
+    }
+
+    private func formatProjectionValue(_ value: Double, metric: String) -> String {
+        switch metric {
+        case "HRV": return "\(Int(value))ms"
+        case "RHR", "Resting Heart Rate": return "\(Int(value))bpm"
+        case "Sleep Duration": return String(format: "%.1fh", value)
+        case "Mood": return String(format: "%.1f★", value)
+        default: return String(format: "%.1f", value)
         }
     }
 

@@ -252,6 +252,7 @@ struct HabitVerdictCard: View {
         case "Sleep Duration": return "Sleep"
         case "Resting Heart Rate": return "RHR"
         case "Pain Level": return "Pain"
+        case "Mood": return "Mood"
         default: return name
         }
     }
@@ -262,7 +263,7 @@ struct HabitVerdictCard: View {
         case "Sleep Duration": return .indigo
         case "RHR", "Resting Heart Rate": return .red
         case "Pain Level": return .orange
-        case "Hydration": return .cyan
+        case "Mood": return .pink
         default: return .white.opacity(0.6)
         }
     }

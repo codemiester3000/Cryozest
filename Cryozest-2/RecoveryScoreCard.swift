@@ -25,28 +25,59 @@ struct RecoveryScoreCard: View {
     }
 
     var body: some View {
-        Button(action: { showDetail = true }) {
-            Group {
-                if let result = mostRecentScore {
-                    filledCard(score: result.score, daysAgo: result.daysAgo)
-                } else {
-                    emptyState
+        Group {
+            if recoveryModel.isLoading {
+                recoverySkeletonCard
+            } else {
+                Button(action: { showDetail = true }) {
+                    Group {
+                        if let result = mostRecentScore {
+                            filledCard(score: result.score, daysAgo: result.daysAgo)
+                        } else {
+                            emptyState
+                        }
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                            )
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sheet(isPresented: $showDetail) {
+                    RecoveryDetailSheet(model: recoveryModel, dismiss: { showDetail = false })
                 }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.05))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-            )
         }
-        .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $showDetail) {
-            RecoveryDetailSheet(model: recoveryModel, dismiss: { showDetail = false })
+    }
+
+    // MARK: - Skeleton Loading Card
+
+    private var recoverySkeletonCard: some View {
+        HStack(spacing: 16) {
+            SkeletonCircle(size: 68)
+
+            VStack(alignment: .leading, spacing: 8) {
+                SkeletonLine(width: 70, height: 12)
+                SkeletonLine(width: 110, height: 22)
+                SkeletonLine(width: 150, height: 12)
+            }
+
+            Spacer(minLength: 0)
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Filled Card

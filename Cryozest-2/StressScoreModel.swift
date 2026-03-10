@@ -221,14 +221,34 @@ class StressScoreModel: ObservableObject {
 
         group.enter()
         hk.fetchHRVDuringSleepForDate(date) { value in
-            hrv = value
-            group.leave()
+            if let value = value {
+                hrv = value
+                group.leave()
+            } else {
+                // Fallback: sleep data may not have synced yet, try any HRV for the day
+                hk.fetchAvgHRVForDay(date: date) { fallbackValue in
+                    hrv = fallbackValue
+                    group.leave()
+                }
+            }
         }
 
         group.enter()
         hk.fetchRestingHeartRateForDay(date: date) { value in
-            rhr = value
-            group.leave()
+            if let value = value {
+                rhr = value
+                group.leave()
+            } else {
+                // Fallback: RHR sample may not have been written yet.
+                // Use the minimum heart rate for the day as a proxy.
+                let calendar = Calendar.current
+                let startOfDay = calendar.startOfDay(for: date)
+                let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? date
+                hk.fetchMinimumHeartRate(from: startOfDay, to: endOfDay) { minHR in
+                    rhr = minHR
+                    group.leave()
+                }
+            }
         }
 
         group.enter()
@@ -271,21 +291,19 @@ class StressScoreModel: ObservableObject {
     // MARK: - Insufficient Data Explanation
 
     private func explainInsufficientData(_ metrics: NightlyMetrics) -> String {
-        var reasons: [String] = []
+        var missing: [String] = []
+        var found: [String] = []
 
-        if metrics.hrv == nil {
-            reasons.append("No HRV data available")
-        }
+        if metrics.hrv == nil { missing.append("HRV") } else { found.append("HRV") }
+        if metrics.rhr == nil { missing.append("Resting HR") } else { found.append("Resting HR") }
 
-        if metrics.rhr == nil {
-            reasons.append("No resting heart rate data")
-        }
-
-        if reasons.isEmpty {
+        if missing.isEmpty {
             return "Insufficient data to generate a reliable score."
         }
 
-        return reasons.joined(separator: ". ") + ". Wear your Apple Watch to generate a stress score."
+        let missingStr = "Missing: \(missing.joined(separator: ", "))"
+        let foundStr = found.isEmpty ? "" : " (found: \(found.joined(separator: ", ")))"
+        return "\(missingStr)\(foundStr). Try opening the Health app to sync your Apple Watch data."
     }
 
     // MARK: - Helpers

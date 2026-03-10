@@ -213,6 +213,7 @@ struct ProjectionsView: View {
         case "HRV": return "\(Int(value))ms"
         case "RHR", "Resting Heart Rate": return "\(Int(value))bpm"
         case "Sleep Duration": return String(format: "%.1fh", value)
+        case "Mood": return String(format: "%.1f★", value)
         default: return String(format: "%.1f", value)
         }
     }

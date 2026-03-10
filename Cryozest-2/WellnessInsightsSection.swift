@@ -65,25 +65,6 @@ struct WellnessInsightsSection: View {
                         .padding(.horizontal)
                 }
 
-                // Habit Impact
-                if !impacts.isEmpty {
-                    Divider()
-                        .background(Color.white.opacity(0.2))
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Happiness Boosters")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal)
-
-                        ForEach(impacts.filter { $0.isPositive }) { impact in
-                            WellnessImpactCard(impact: impact, viewContext: viewContext)
-                                .padding(.horizontal)
-                        }
-                    }
-                }
             }
         }
     }

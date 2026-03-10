@@ -8,6 +8,7 @@ enum SnapshotMetric: Identifiable {
 struct HealthSnapshotGrid: View {
     @ObservedObject var recoveryModel: RecoveryGraphModel
     @ObservedObject var sleepModel: DailySleepViewModel
+    var rhrImpacts: [HabitImpact] = []
 
     @State private var selectedMetric: SnapshotMetric?
 
@@ -29,25 +30,31 @@ struct HealthSnapshotGrid: View {
                 GridItem(.flexible(), spacing: 10),
                 GridItem(.flexible(), spacing: 10)
             ], spacing: 10) {
-                SnapshotCell(icon: "bed.double.fill", title: "Sleep",
-                             value: sleepValueText, unit: "hrs",
-                             color: .indigo, trend: sleepTrend)
-                    .onTapGesture { selectedMetric = .sleep }
+                if recoveryModel.isLoading {
+                    ForEach(0..<4, id: \.self) { _ in
+                        SnapshotSkeletonCell()
+                    }
+                } else {
+                    SnapshotCell(icon: "bed.double.fill", title: "Sleep",
+                                 value: sleepValueText, unit: "hrs",
+                                 color: .indigo, trend: sleepTrend)
+                        .onTapGesture { selectedMetric = .sleep }
 
-                SnapshotCell(icon: "waveform.path.ecg", title: "HRV",
-                             value: hrvValueText, unit: "ms",
-                             color: .purple, trend: hrvTrend)
-                    .onTapGesture { selectedMetric = .hrv }
+                    SnapshotCell(icon: "waveform.path.ecg", title: "HRV",
+                                 value: hrvValueText, unit: "ms",
+                                 color: .purple, trend: hrvTrend)
+                        .onTapGesture { selectedMetric = .hrv }
 
-                SnapshotCell(icon: "heart.fill", title: "Resting HR",
-                             value: rhrValueText, unit: "bpm",
-                             color: .red, trend: rhrTrend)
-                    .onTapGesture { selectedMetric = .rhr }
+                    SnapshotCell(icon: "heart.fill", title: "Resting HR",
+                                 value: rhrValueText, unit: "bpm",
+                                 color: .red, trend: rhrTrend)
+                        .onTapGesture { selectedMetric = .rhr }
 
-                SnapshotCell(icon: "figure.walk", title: "Steps",
-                             value: stepsValueText, unit: "",
-                             color: .green, trend: nil)
-                    .onTapGesture { selectedMetric = .steps }
+                    SnapshotCell(icon: "figure.walk", title: "Steps",
+                                 value: stepsValueText, unit: "",
+                                 color: .green, trend: nil)
+                        .onTapGesture { selectedMetric = .steps }
+                }
             }
         }
         .padding(16)
@@ -99,14 +106,14 @@ struct HealthSnapshotGrid: View {
                     case .hrv:
                         HRVDetailView(model: recoveryModel)
                     case .rhr:
-                        HeartRateDetailView(model: recoveryModel)
+                        HeartRateDetailView(model: recoveryModel, rhrImpacts: rhrImpacts)
                     case .steps:
                         StepsDetailView(model: recoveryModel)
                     }
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.large])
     }
 
     // MARK: - Values
@@ -215,6 +222,28 @@ struct SnapshotCell: View {
                         .foregroundColor(.white.opacity(0.4))
                 }
             }
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
+        )
+    }
+}
+
+struct SnapshotSkeletonCell: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                SkeletonCircle(size: 22)
+                SkeletonLine(width: 50, height: 11)
+                Spacer()
+            }
+            SkeletonLine(width: 60, height: 22)
         }
         .padding(10)
         .background(

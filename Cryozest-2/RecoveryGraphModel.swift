@@ -66,6 +66,7 @@ class RecoveryGraphModel: ObservableObject {
     @Published var mostRecentVO2Max: Double? = nil
     @Published var averageDailyRHR: Int?
     @Published var hasTemperatureData: Bool = false
+    @Published var isLoading: Bool = false
 
     private var dailySleepViewModel: DailySleepViewModel
     
@@ -156,6 +157,7 @@ class RecoveryGraphModel: ObservableObject {
         print("pull all recovery data for: ", date)
 
         DispatchQueue.main.async {
+            self.isLoading = true
             self.selectedDate = date
             self.lastDataRefresh = Date()
         }
@@ -444,6 +446,7 @@ class RecoveryGraphModel: ObservableObject {
             let sortedDates = self.getLastSevenDaysDates().sorted()
             // nil = no data for that day (watch not worn or insufficient sleep)
             self.recoveryScores = sortedDates.map { temporaryScores[$0] }
+            self.isLoading = false
         }
     }
 }
