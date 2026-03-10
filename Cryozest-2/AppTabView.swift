@@ -23,6 +23,9 @@ struct AppTabView: View {
 
     @StateObject private var insightsViewModelWrapper = InsightsViewModelWrapper()
     @StateObject private var stressModel = StressScoreModel()
+    @StateObject private var recoveryModel = RecoveryGraphModel(selectedDate: Calendar.current.startOfDay(for: Date()))
+    @StateObject private var exertionModel = ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date()))
+    @StateObject private var sleepModel = DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date()))
     @State private var selectedTab: Int = 0
 
     private var selectedTherapyTypes: [TherapyType] {
@@ -37,9 +40,9 @@ struct AppTabView: View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
                 DailyView(
-                    recoveryModel: RecoveryGraphModel(selectedDate: Calendar.current.startOfDay(for: Date())),
-                    exertionModel: ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date())),
-                    sleepModel: DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date())),
+                    recoveryModel: recoveryModel,
+                    exertionModel: exertionModel,
+                    sleepModel: sleepModel,
                     stressModel: stressModel,
                     context: viewContext,
                     insightsViewModel: insightsViewModelWrapper.viewModel

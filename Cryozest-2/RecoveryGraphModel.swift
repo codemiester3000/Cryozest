@@ -76,8 +76,9 @@ class RecoveryGraphModel: ObservableObject {
     init(selectedDate: Date) {
         self.selectedDate = selectedDate
         self.dailySleepViewModel = DailySleepViewModel(selectedDate: selectedDate)
-
-        pullAllRecoveryData(forDate: selectedDate)
+        // Data loading is triggered by DailyView.onAppear — not here.
+        // Loading in init caused duplicate fetches since the model was
+        // previously recreated on every SwiftUI body evaluation.
     }
     
     
