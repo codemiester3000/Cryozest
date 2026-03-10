@@ -14,6 +14,7 @@ class StressScoreModel: ObservableObject {
     @Published var computedWeights: ComputedWeights?
     @Published var baselineDayCount: Int = 0
     @Published var isLoading: Bool = false
+    @Published var hasLoadedOnce: Bool = false
     @Published var dataQuality: StressRecoveryScore.DataQuality?
     @Published var insufficientDataReason: String?    // Human-readable reason when no score
 
@@ -36,48 +37,41 @@ class StressScoreModel: ObservableObject {
     // MARK: - Compute Today's Score
 
     func computeScores(forDate date: Date) {
-        isLoading = true
+        // Only show loading skeleton on the very first computation
+        if !hasLoadedOnce {
+            isLoading = true
+        }
         // Invalidate cache on new computation so we get fresh data
         metricsCache.removeAll()
-
-        // Remember whether we already had a score — avoids flashing
-        // from filled card to empty card when refreshing.
-        let hadExistingScore = todayStressScore != nil
-            || last7DaysStress.compactMap({ $0 }).count > 0
 
         fetchNightlyMetricsCached(for: date) { [weak self] metrics in
             guard let self = self else { return }
 
             guard let metrics = metrics else {
-                // No data at all — watch probably wasn't worn
                 DispatchQueue.main.async {
-                    // Only clear the card if this is the first load
-                    if !hadExistingScore {
-                        self.todayStressScore = nil
-                        self.todayRecoveryScore = nil
-                        self.zScores = nil
-                        self.sleepDeficit = nil
-                        self.dataQuality = .insufficient
-                        self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to generate a score."
-                    }
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "No health data available for this date. Wear your Apple Watch to generate a score."
                     self.isLoading = false
+                    self.hasLoadedOnce = true
                     self.computeLast7Days(currentDate: date)
                 }
                 return
             }
 
-            // Stress only needs HRV + RHR; recovery also needs sleep
             if !metrics.hasSufficientDataForStress {
                 DispatchQueue.main.async {
-                    if !hadExistingScore {
-                        self.todayStressScore = nil
-                        self.todayRecoveryScore = nil
-                        self.zScores = nil
-                        self.sleepDeficit = nil
-                        self.dataQuality = .insufficient
-                        self.insufficientDataReason = self.explainInsufficientData(metrics)
-                    }
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.zScores = nil
+                    self.sleepDeficit = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = self.explainInsufficientData(metrics)
                     self.isLoading = false
+                    self.hasLoadedOnce = true
                     self.computeLast7Days(currentDate: date)
                 }
                 return
@@ -85,22 +79,19 @@ class StressScoreModel: ObservableObject {
 
             var baseline = self.engine.loadBaseline()
 
-            // Compute stress score (relaxed gate: HRV + RHR only)
             guard let stressScore = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: false) else {
                 DispatchQueue.main.async {
-                    if !hadExistingScore {
-                        self.todayStressScore = nil
-                        self.todayRecoveryScore = nil
-                        self.dataQuality = .insufficient
-                        self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
-                    }
+                    self.todayStressScore = nil
+                    self.todayRecoveryScore = nil
+                    self.dataQuality = .insufficient
+                    self.insufficientDataReason = "Insufficient data quality to compute a reliable score."
                     self.isLoading = false
+                    self.hasLoadedOnce = true
                     self.computeLast7Days(currentDate: date)
                 }
                 return
             }
 
-            // Recovery score requires sleep — compute separately if sleep data exists
             let recoveryScore: StressRecoveryScore?
             if metrics.hasSufficientDataForRecovery {
                 recoveryScore = self.engine.computeScore(metrics: metrics, baseline: baseline, requireSleep: true)
@@ -108,7 +99,6 @@ class StressScoreModel: ObservableObject {
                 recoveryScore = nil
             }
 
-            // Only update baseline with full-quality nights (sleep + HRV + RHR)
             if metrics.hasSufficientDataForRecovery {
                 self.engine.updateBaseline(&baseline, with: metrics)
                 self.engine.saveBaseline(baseline)
@@ -116,10 +106,8 @@ class StressScoreModel: ObservableObject {
 
             DispatchQueue.main.async {
                 self.todayStressScore = stressScore.stressScore
-                // Recovery only shows if sleep data was present
                 self.todayRecoveryScore = recoveryScore?.recoveryScore
                 self.zScores = stressScore.zScores
-                // Only show sleep deficit if sleep data exists
                 self.sleepDeficit = metrics.hasSleepData ? stressScore.sleepDeficit : nil
                 self.hasTemperatureData = stressScore.hasTemperatureData
                 self.computedWeights = stressScore.computedWeights
@@ -127,6 +115,7 @@ class StressScoreModel: ObservableObject {
                 self.dataQuality = stressScore.dataQuality
                 self.insufficientDataReason = nil
                 self.isLoading = false
+                self.hasLoadedOnce = true
                 self.computeLast7Days(currentDate: date)
             }
         }

@@ -34,7 +34,8 @@ struct HealthSnapshotGrid: View {
                     icon: "bed.double.fill", title: "Sleep",
                     value: sleepValueText, unit: "hrs",
                     color: .indigo, trend: sleepTrend,
-                    hasData: recoveryModel.previousNightSleepDuration != nil
+                    hasData: recoveryModel.previousNightSleepDuration != nil,
+                    isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
                 .onTapGesture { selectedMetric = .sleep }
 
@@ -42,7 +43,8 @@ struct HealthSnapshotGrid: View {
                     icon: "waveform.path.ecg", title: "HRV",
                     value: hrvValueText, unit: "ms",
                     color: .purple, trend: hrvTrend,
-                    hasData: recoveryModel.avgHrvDuringSleep != nil
+                    hasData: recoveryModel.avgHrvDuringSleep != nil,
+                    isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
                 .onTapGesture { selectedMetric = .hrv }
 
@@ -50,7 +52,8 @@ struct HealthSnapshotGrid: View {
                     icon: "heart.fill", title: "Resting HR",
                     value: rhrValueText, unit: "bpm",
                     color: .red, trend: rhrTrend,
-                    hasData: recoveryModel.mostRecentRestingHeartRate != nil
+                    hasData: recoveryModel.mostRecentRestingHeartRate != nil,
+                    isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
                 .onTapGesture { selectedMetric = .rhr }
 
@@ -58,7 +61,8 @@ struct HealthSnapshotGrid: View {
                     icon: "figure.walk", title: "Steps",
                     value: stepsValueText, unit: "",
                     color: .green, trend: nil,
-                    hasData: recoveryModel.mostRecentSteps != nil
+                    hasData: recoveryModel.mostRecentSteps != nil,
+                    isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
                 .onTapGesture { selectedMetric = .steps }
             }
@@ -243,6 +247,9 @@ struct SnapshotCell: View {
 
 /// A cell that shows a shimmer skeleton until data arrives, then crossfades to the real cell.
 /// Each cell transitions independently, giving a "streaming" feel as data loads.
+///
+/// Skeleton shows only when: first load is in progress AND this metric has no data yet.
+/// Once data arrives (or loading finishes with no data), shows the real cell with "--".
 struct StreamingSnapshotCell: View {
     let icon: String
     let title: String
@@ -251,11 +258,18 @@ struct StreamingSnapshotCell: View {
     let color: Color
     let trend: TrendDirection?
     let hasData: Bool
+    let isLoading: Bool
+
+    /// Show skeleton only during initial load when this metric has no data yet.
+    /// Once loading finishes OR data arrives, skeleton goes away permanently.
+    private var showSkeleton: Bool {
+        isLoading && !hasData
+    }
 
     var body: some View {
         ZStack {
-            // Skeleton layer — visible when no data
-            if !hasData {
+            if showSkeleton {
+                // Skeleton placeholder
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         SkeletonCircle(size: 22)
@@ -274,16 +288,13 @@ struct StreamingSnapshotCell: View {
                         )
                 )
                 .transition(.opacity)
-            }
-
-            // Real content layer — visible when data is ready
-            // SnapshotCell has its own padding + background
-            if hasData {
+            } else {
+                // Real cell (shows "--" if data is nil after loading)
                 SnapshotCell(icon: icon, title: title, value: value,
                              unit: unit, color: color, trend: trend)
                     .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: hasData)
+        .animation(.easeInOut(duration: 0.4), value: showSkeleton)
     }
 }

@@ -67,6 +67,7 @@ class RecoveryGraphModel: ObservableObject {
     @Published var averageDailyRHR: Int?
     @Published var hasTemperatureData: Bool = false
     @Published var isLoading: Bool = false
+    @Published var hasLoadedOnce: Bool = false
 
     private var dailySleepViewModel: DailySleepViewModel
     
@@ -157,7 +158,10 @@ class RecoveryGraphModel: ObservableObject {
         print("pull all recovery data for: ", date)
 
         DispatchQueue.main.async {
-            self.isLoading = true
+            // Only show loading skeleton on the very first load
+            if !self.hasLoadedOnce {
+                self.isLoading = true
+            }
             self.selectedDate = date
             self.lastDataRefresh = Date()
         }
@@ -166,10 +170,10 @@ class RecoveryGraphModel: ObservableObject {
         // HealthKitManager.shared.fetchAvgHRVDuringSleepForPreviousNight() { hrv in
         HealthKitManager.shared.fetchAvgHRVDuringSleepForNightEndingOn(date: date) { hrv in
             DispatchQueue.main.async {
-                if let hrv = hrv {
-                    self.avgHrvDuringSleep = Int(hrv)
-                } else {
-                    self.avgHrvDuringSleep = nil
+                // Only update if value changed — avoids unnecessary view redraws
+                let newVal = hrv.map { Int($0) }
+                if self.avgHrvDuringSleep != newVal {
+                    self.avgHrvDuringSleep = newVal
                 }
             }
         }
@@ -186,36 +190,34 @@ class RecoveryGraphModel: ObservableObject {
         }
         HealthKitManager.shared.fetchSPO2(for: date) { spo2 in
             DispatchQueue.main.async {
-                self.mostRecentSPO2 = spo2
+                if self.mostRecentSPO2 != spo2 { self.mostRecentSPO2 = spo2 }
             }
         }
         HealthKitManager.shared.fetchRespiratoryRate(for: date) { respRate in
             DispatchQueue.main.async {
-                self.mostRecentRespiratoryRate = respRate
+                if self.mostRecentRespiratoryRate != respRate { self.mostRecentRespiratoryRate = respRate }
             }
         }
 
         HealthKitManager.shared.fetchAverageActiveEnergy(for: date) { activeCalories in
             DispatchQueue.main.async {
-                self.mostRecentActiveCalories = activeCalories
+                if self.mostRecentActiveCalories != activeCalories { self.mostRecentActiveCalories = activeCalories }
             }
         }
-        
+
         HealthKitManager.shared.fetchTotalSleepForNight(date: date) { sleepDuration in
             DispatchQueue.main.async {
-                if let sleepDuration = sleepDuration {
-                    self.previousNightSleepDuration = self.formatSleepDuration(sleepDuration)
-                } else {
-                    self.previousNightSleepDuration = nil
+                let newVal = sleepDuration.map { self.formatSleepDuration($0) }
+                if self.previousNightSleepDuration != newVal {
+                    self.previousNightSleepDuration = newVal
                 }
             }
         }
         HealthKitManager.shared.fetchAvgHRVDuring60DaysSleep() { hrv in
             DispatchQueue.main.async {
-                if let hrv = hrv {
-                    self.avgHrvDuringSleep60Days = Int(hrv)
-                } else {
-                    self.avgHrvDuringSleep60Days = nil
+                let newVal = hrv.map { Int($0) }
+                if self.avgHrvDuringSleep60Days != newVal {
+                    self.avgHrvDuringSleep60Days = newVal
                 }
             }
         }
@@ -241,15 +243,13 @@ class RecoveryGraphModel: ObservableObject {
         }
         HealthKitManager.shared.fetchRestingEnergy(for: date) { restingCalories in
             DispatchQueue.main.async {
-                self.mostRecentRestingCalories = restingCalories
+                if self.mostRecentRestingCalories != restingCalories { self.mostRecentRestingCalories = restingCalories }
             }
         }
         HealthKitManager.shared.fetchNDayAvgRestingHeartRate(numDays: 60) { restingHeartRate60days in
             DispatchQueue.main.async {
-                if let restingHeartRate = restingHeartRate60days {
-                    self.avgRestingHeartRate60Days = restingHeartRate
-                } else {
-                    self.avgRestingHeartRate60Days = nil
+                if self.avgRestingHeartRate60Days != restingHeartRate60days {
+                    self.avgRestingHeartRate60Days = restingHeartRate60days
                 }
             }
         }
@@ -267,17 +267,15 @@ class RecoveryGraphModel: ObservableObject {
         HealthKitManager.shared.fetchMostRecentVO2Max { vo2Max, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    // Handle the error here
                     print("Error fetching VO2 Max: \(error.localizedDescription)")
                     return
                 }
-                self.mostRecentVO2Max = vo2Max
+                if self.mostRecentVO2Max != vo2Max { self.mostRecentVO2Max = vo2Max }
             }
         }
         HealthKitManager.shared.fetchAverageDailyRHR { averageRHR in
             DispatchQueue.main.async {
-                // Assuming you have a property in your DailyView to store the average RHR
-                self.averageDailyRHR = averageRHR // Update your property with the fetched value
+                if self.averageDailyRHR != averageRHR { self.averageDailyRHR = averageRHR }
             }
         }
     }
@@ -447,6 +445,7 @@ class RecoveryGraphModel: ObservableObject {
             // nil = no data for that day (watch not worn or insufficient sleep)
             self.recoveryScores = sortedDates.map { temporaryScores[$0] }
             self.isLoading = false
+            self.hasLoadedOnce = true
         }
     }
 }

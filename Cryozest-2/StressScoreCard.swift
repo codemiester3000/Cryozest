@@ -27,11 +27,9 @@ struct StressScoreCard: View {
         return "Updated \(formatter.string(from: date))"
     }
 
-    /// Show skeleton only on first load (no data yet), not on refreshes
+    /// Show skeleton only on the very first load before any data has ever arrived
     private var showSkeleton: Bool {
-        stressModel.isLoading
-        && mostRecentScore == nil
-        && stressModel.last7DaysStress.compactMap({ $0 }).isEmpty
+        stressModel.isLoading && !stressModel.hasLoadedOnce
     }
 
     var body: some View {

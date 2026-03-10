@@ -24,11 +24,9 @@ struct RecoveryScoreCard: View {
         return formatter.string(from: date)
     }
 
-    /// Show skeleton only on first load (no data yet), not on refreshes
+    /// Show skeleton only on the very first load before any data has ever arrived
     private var showSkeleton: Bool {
-        recoveryModel.isLoading
-        && mostRecentScore == nil
-        && recoveryModel.recoveryScores.compactMap({ $0 }).isEmpty
+        recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
     }
 
     var body: some View {
