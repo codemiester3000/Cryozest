@@ -30,7 +30,7 @@ struct WeeklyReviewView: View {
                     personalBestsSection
                 }
 
-                if review.sleepTrend != nil || review.hrvTrend != nil {
+                if review.sleepTrend != nil || review.hrvTrend != nil || review.rhrTrend != nil {
                     trendsSection
                 }
             }
@@ -380,6 +380,23 @@ struct WeeklyReviewView: View {
         if let sleep = review.avgSleepHours {
             items.append(HighlightItem(icon: "moon.fill", color: .indigo, title: "Avg Sleep", detail: String(format: "%.1f hrs/night", sleep)))
         }
+        if let score = review.consistencyScore, review.daysTracked > 0 {
+            let pct = Int(score * 100)
+            items.append(HighlightItem(
+                icon: "checkmark.seal.fill",
+                color: pct >= 70 ? .green : .orange,
+                title: "Consistency",
+                detail: "\(review.daysTracked)/7 days tracked (\(pct)%)"
+            ))
+        }
+        if let best = review.bestHabitImpact {
+            items.append(HighlightItem(
+                icon: "star.fill",
+                color: .cyan,
+                title: "Best Habit",
+                detail: "\(best.name) — \(best.change) \(best.metric)"
+            ))
+        }
         return items
     }
 
@@ -493,6 +510,9 @@ struct WeeklyReviewView: View {
                 }
                 if let hrvTrend = review.hrvTrend {
                     trendPill(metric: "HRV", direction: hrvTrend, icon: "waveform.path.ecg")
+                }
+                if let rhrTrend = review.rhrTrend {
+                    trendPill(metric: "RHR", direction: rhrTrend, icon: "heart.fill")
                 }
             }
         }

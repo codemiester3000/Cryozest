@@ -20,7 +20,12 @@ struct WhatsWorkingSection: View {
     }
 
     private var positiveVerdicts: [HabitVerdict] {
-        verdicts.filter { $0.verdict <= .promising }
+        verdicts.filter { v in
+            // Include habits that are promising or better,
+            // OR mixed verdicts that still have at least one positive impact
+            v.verdict <= .promising
+                || (v.verdict == .mixed && v.impacts.contains { $0.isPositive })
+        }
     }
 
     private var watchListVerdicts: [HabitVerdict] {
@@ -46,13 +51,14 @@ struct WhatsWorkingSection: View {
     /// Build a list of one benefit card per positive habit.
     /// Prefers showing a different metric per habit for variety, but never
     /// drops a habit just because its best metric was already shown.
+    /// Filters out impacts with insufficient/low confidence — those are noise.
     private var benefitCards: [BenefitCard] {
         var claimed: Set<String> = []
         var cards: [BenefitCard] = []
 
         for v in positiveVerdicts {
             let positiveImpacts = v.impacts
-                .filter { $0.isPositive }
+                .filter { $0.isPositive && ($0.confidenceLevel != .insufficient || abs($0.percentageChange) >= 3) }
                 .sorted { $0.impactScore > $1.impactScore }
 
             guard !positiveImpacts.isEmpty else { continue }
@@ -63,12 +69,14 @@ struct WhatsWorkingSection: View {
                 ?? positiveImpacts.first!
             claimed.insert(best.metricName)
 
+            let credibleCount = positiveImpacts.count - 1
+
             cards.append(BenefitCard(
                 habitType: v.habitType,
                 impact: best,
                 streak: v.currentStreak,
                 frequency: v.weeklyFrequency,
-                secondaryCount: positiveImpacts.count - 1
+                secondaryCount: credibleCount
             ))
         }
         return cards
@@ -264,8 +272,9 @@ struct WhatsWorkingSection: View {
             .buttonStyle(PlainButtonStyle())
 
             if showWatchList {
-                ForEach(watchListVerdicts) { v in
+                ForEach(Array(watchListVerdicts.enumerated()), id: \.element.id) { index, v in
                     WatchListRow(verdict: v)
+                        .modifier(StaggeredAppearance(index: index))
                 }
             }
         }
@@ -382,21 +391,50 @@ struct BenefitRow: View {
         return card.impact.isPositive ? "+\(pct)%" : "-\(pct)%"
     }
 
+    private var confidence: ConfidenceLevel {
+        card.impact.confidenceLevel
+    }
+
+    private var isEarlySignal: Bool {
+        confidence == .earlySignal || confidence == .low || confidence == .insufficient
+    }
+
     private var benefitPhrase: String {
         let metric = metricLabel.lowercased()
+        let qualifier = isEarlySignal ? "may be " : ""
         switch card.impact.metricName {
         case "Sleep Duration":
-            return "improving your sleep"
+            return "\(qualifier)improving your sleep"
         case "HRV":
-            return "boosting your HRV"
+            return "\(qualifier)boosting your HRV"
         case "Resting Heart Rate", "RHR":
-            return "lowering your RHR"
+            return "\(qualifier)lowering your RHR"
         case "Pain Level":
-            return "reducing your pain"
+            return "\(qualifier)reducing your pain"
         case "Mood":
-            return "lifting your mood"
+            return "\(qualifier)lifting your mood"
         default:
-            return "improving your \(metric)"
+            return "\(qualifier)improving your \(metric)"
+        }
+    }
+
+    private var confidenceLabel: String {
+        switch confidence {
+        case .high: return "High confidence"
+        case .moderate: return "Moderate confidence"
+        case .earlySignal: return "Early signal"
+        case .low: return "Low confidence"
+        case .insufficient: return "Preliminary"
+        }
+    }
+
+    private var confidenceColor: Color {
+        switch confidence {
+        case .high: return .green
+        case .moderate: return .cyan
+        case .earlySignal: return .cyan.opacity(0.7)
+        case .low: return .orange
+        case .insufficient: return .gray
         }
     }
 
@@ -436,6 +474,15 @@ struct BenefitRow: View {
                 Text(benefitPhrase)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.45))
+
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(confidenceColor)
+                        .frame(width: 5, height: 5)
+                    Text("\(confidenceLabel) \u{00B7} \(card.impact.sampleSize) sessions")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.3))
+                }
 
                 if card.secondaryCount > 0 {
                     Text("+ \(card.secondaryCount) more metric\(card.secondaryCount == 1 ? "" : "s")")
@@ -488,6 +535,35 @@ struct WatchListRow: View {
         verdict.impacts.filter { !$0.isPositive }.max { abs($0.percentageChange) < abs($1.percentageChange) }
     }
 
+    private func watchConfidenceColor(_ level: ConfidenceLevel) -> Color {
+        switch level {
+        case .high: return .green
+        case .moderate: return .cyan
+        case .earlySignal: return .cyan.opacity(0.7)
+        case .low: return .orange
+        case .insufficient: return .gray
+        }
+    }
+
+    private var specificExplanation: String {
+        guard let worst = worstImpact else { return verdict.headline }
+        let habitName = verdict.habitType.displayName(viewContext)
+        switch worst.metricName {
+        case "Resting Heart Rate", "RHR":
+            return "RHR tends to rise on \(habitName) days"
+        case "Sleep Duration":
+            return "Sleep duration drops after \(habitName)"
+        case "HRV":
+            return "HRV dips on \(habitName) days"
+        case "Pain Level":
+            return "Pain tends to increase after \(habitName)"
+        case "Mood":
+            return "Mood dips on \(habitName) days"
+        default:
+            return "\(worst.metricName) worsens after \(habitName)"
+        }
+    }
+
     var body: some View {
         HStack(spacing: 10) {
             ZStack {
@@ -504,9 +580,26 @@ struct WatchListRow: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.white.opacity(0.8))
 
-                Text(verdict.headline)
+                Text(specificExplanation)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.orange.opacity(0.7))
+
+                if let worst = worstImpact {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(watchConfidenceColor(worst.confidenceLevel))
+                            .frame(width: 5, height: 5)
+                        Text("\(worst.confidenceLevel.rawValue) \u{00B7} \(worst.sampleSize) sessions")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.3))
+                    }
+                }
+
+                if verdict.weeklyFrequency > 0 {
+                    Text("Done \(verdict.weeklyFrequency)x this week")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.3))
+                }
             }
 
             Spacer()

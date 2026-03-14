@@ -73,6 +73,7 @@
 		C56DDCF12E9871110052946A /* WellnessInsightsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */; };
 		C56DDCF32E98712B0052946A /* WellnessImpactAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */; };
 		C56DDCF72E9871500052946A /* WhatsWorkingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */; };
+		C56DDCFF2E9872500052946A /* StaggeredAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCFE2E9872500052946A /* StaggeredAppearance.swift */; };
 		C56DDCFA2E98720A0052946A /* HabitVerdict.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF82E98720A0052946A /* HabitVerdict.swift */; };
 		C56DDCFB2E98720A0052946A /* HabitVerdictCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DDCF92E98720A0052946A /* HabitVerdictCard.swift */; };
 		C576E6BE2A4BF62C0042C8A7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C576E6BD2A4BF62C0042C8A7 /* AppState.swift */; };
@@ -195,6 +196,7 @@
 		C56DDCF02E9871110052946A /* WellnessInsightsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessInsightsSection.swift; sourceTree = "<group>"; };
 		C56DDCF22E98712B0052946A /* WellnessImpactAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WellnessImpactAnalysis.swift; sourceTree = "<group>"; };
 		C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsWorkingSection.swift; sourceTree = "<group>"; };
+		C56DDCFE2E9872500052946A /* StaggeredAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaggeredAppearance.swift; sourceTree = "<group>"; };
 		C56DDCF82E98720A0052946A /* HabitVerdict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitVerdict.swift; sourceTree = "<group>"; };
 		C56DDCF92E98720A0052946A /* HabitVerdictCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitVerdictCard.swift; sourceTree = "<group>"; };
 		C576E6BD2A4BF62C0042C8A7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -379,6 +381,7 @@
 				A1B2C3D4E5F60001 /* StressScoreEngine.swift */,
 				3829BE5A2EDD58CA031CFF03 /* DemoDataManager.swift */,
 				C56DDCF62E9871500052946A /* WhatsWorkingSection.swift */,
+				C56DDCFE2E9872500052946A /* StaggeredAppearance.swift */,
 				C56DDCF82E98720A0052946A /* HabitVerdict.swift */,
 				C56DDCF92E98720A0052946A /* HabitVerdictCard.swift */,
 			);
@@ -639,6 +642,7 @@
 				A1B2C3D4E5F60002 /* StressScoreEngine.swift in Sources */,
 				3E554D6E2CA6F4AFF00E6B12 /* DemoDataManager.swift in Sources */,
 				C56DDCF72E9871500052946A /* WhatsWorkingSection.swift in Sources */,
+				C56DDCFF2E9872500052946A /* StaggeredAppearance.swift in Sources */,
 				C56DDCFA2E98720A0052946A /* HabitVerdict.swift in Sources */,
 				C56DDCFB2E98720A0052946A /* HabitVerdictCard.swift in Sources */,
 			);

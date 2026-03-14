@@ -32,6 +32,7 @@ struct WeeklyReview {
     let avgSleepHours: Double?
     let sleepTrend: TrendDirection?
     let hrvTrend: TrendDirection?
+    let rhrTrend: TrendDirection?
     let topHabit: (name: String, count: Int)?
     let longestStreak: (habit: String, days: Int)?
     let newPersonalBests: [PersonalBest]
@@ -44,6 +45,9 @@ struct WeeklyReview {
     var weekGrade: String = ""
     var previousWeekSessions: Int? = nil
     var previousWeekMinutes: Int? = nil
+    var daysTracked: Int = 0
+    var consistencyScore: Double? = nil
+    var bestHabitImpact: (name: String, metric: String, change: String)? = nil
 }
 
 class WeeklyReviewGenerator {
@@ -153,10 +157,15 @@ class WeeklyReviewGenerator {
         let previousSessions = prevWeekSessions.count
         let previousMinutes = Int(prevWeekSessions.reduce(0.0) { $0 + $1.duration } / 60)
 
+        // Consistency: count days with ≥1 habit
+        let daysTracked = dailyActivity.filter { !$0.habitNames.isEmpty }.count
+        let consistencyScore = Double(daysTracked) / 7.0
+
         // Fetch health data for trends
         let group = DispatchGroup()
         var sleepTrend: TrendDirection? = nil
         var hrvTrend: TrendDirection? = nil
+        var rhrTrend: TrendDirection? = nil
         var avgSleepHours: Double? = nil
         var personalBests: [PersonalBest] = []
 
@@ -198,6 +207,21 @@ class WeeklyReviewGenerator {
             }
         }
 
+        // RHR trend (lower is better, so direction is inverted)
+        group.enter()
+        healthKitManager.fetchAvgRestingHeartRate(numDays: 7) { thisWeek in
+            self.healthKitManager.fetchAvgRestingHeartRate(numDays: 14) { last14 in
+                defer { group.leave() }
+                guard let recent = thisWeek, let full = last14, recent > 0, full > 0 else { return }
+                let previous = full * 2 - recent
+                guard previous > 0 else { return }
+                let change = recent - previous // absolute bpm change
+                if change < -3 { rhrTrend = .up }       // RHR dropped → good → green
+                else if change > 3 { rhrTrend = .down }  // RHR rose → bad → red
+                else { rhrTrend = .neutral }
+            }
+        }
+
         group.notify(queue: .main) {
             let highlight = self.generateHighlight(
                 avgRecovery: avgRecovery,
@@ -218,6 +242,7 @@ class WeeklyReviewGenerator {
                 avgSleepHours: avgSleepHours,
                 sleepTrend: sleepTrend,
                 hrvTrend: hrvTrend,
+                rhrTrend: rhrTrend,
                 topHabit: topHabit,
                 longestStreak: longestStreak,
                 newPersonalBests: personalBests,
@@ -230,6 +255,8 @@ class WeeklyReviewGenerator {
             review.weekGrade = grade
             review.previousWeekSessions = previousSessions > 0 ? previousSessions : nil
             review.previousWeekMinutes = previousMinutes > 0 ? previousMinutes : nil
+            review.daysTracked = daysTracked
+            review.consistencyScore = consistencyScore
 
             completion(review)
         }
@@ -354,6 +381,7 @@ class WeeklyReviewGenerator {
             avgSleepHours: 7.3,
             sleepTrend: .up,
             hrvTrend: .up,
+            rhrTrend: .up,
             topHabit: ("Running", 3),
             longestStreak: ("Meditation", 4),
             newPersonalBests: [PersonalBest(metric: "HRV", value: "52ms", timeframe: "this month")],
@@ -366,6 +394,9 @@ class WeeklyReviewGenerator {
         review.weekGrade = "B+"
         review.previousWeekSessions = 6
         review.previousWeekMinutes = 280
+        review.daysTracked = 7
+        review.consistencyScore = 1.0
+        review.bestHabitImpact = (name: "Running", metric: "HRV", change: "+12%")
 
         return review
     }

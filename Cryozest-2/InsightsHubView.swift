@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import Combine
 
 struct InsightsHubView: View {
     @Environment(\.dismiss) private var dismiss
@@ -41,6 +42,12 @@ struct InsightsHubView: View {
             }
         }
         .onAppear { loadData() }
+        .onReceive(
+            insightsViewModel.map { $0.$isLoading.eraseToAnyPublisher() }
+                ?? Empty<Bool, Never>().eraseToAnyPublisher()
+        ) { (isLoading: Bool) in
+            if !isLoading { generateProjections() }
+        }
     }
 
     // MARK: - Header
@@ -287,22 +294,33 @@ struct InsightsHubView: View {
         ) { review in
             self.weeklyReview = review
         }
+    }
 
-        // Generate projections for each habit that has impacts
-        if let vm = insightsViewModel {
-            let engine = HealthProjectionEngine()
-            var results: [TherapyType: [HealthProjection]] = [:]
-            for (habitType, impacts) in vm.habitImpactsByType {
-                let projections = engine.generateProjections(
-                    for: habitType,
-                    impacts: impacts,
-                    sessions: Array(sessions)
-                )
-                if !projections.isEmpty {
-                    results[habitType] = projections
-                }
+    private func generateProjections() {
+        guard let vm = insightsViewModel else { return }
+
+        // Generate projections from loaded impact data
+        let engine = HealthProjectionEngine()
+        var results: [TherapyType: [HealthProjection]] = [:]
+        for (habitType, impacts) in vm.habitImpactsByType {
+            let projections = engine.generateProjections(
+                for: habitType,
+                impacts: impacts,
+                sessions: Array(sessions)
+            )
+            if !projections.isEmpty {
+                results[habitType] = projections
             }
-            projectionsByHabit = results
+        }
+        projectionsByHabit = results
+
+        // Populate best habit impact for the weekly review
+        if let topImpact = vm.topHabitImpacts.first, topImpact.isPositive {
+            weeklyReview?.bestHabitImpact = (
+                name: topImpact.habitType.displayName(viewContext),
+                metric: topImpact.metricName,
+                change: topImpact.changeDescription
+            )
         }
     }
 }
