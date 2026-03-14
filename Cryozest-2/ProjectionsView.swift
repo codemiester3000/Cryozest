@@ -18,6 +18,17 @@ struct ProjectionsView: View {
                 if availableHabits.isEmpty {
                     emptyState
                 } else {
+                    // Section intro
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Where you're headed")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white.opacity(0.9))
+                        Text("Based on your current habits, here's how your health metrics could change over the next 30 days.")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
                     habitPicker
                     if let habit = selectedHabit ?? availableHabits.first,
                        let projections = projectionsByHabit[habit], !projections.isEmpty {
@@ -75,7 +86,7 @@ struct ProjectionsView: View {
     }
 
     private func projectionCard(_ projection: HealthProjection) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             // Header: metric name + confidence
             HStack {
                 Text(projection.metric)
@@ -87,56 +98,68 @@ struct ProjectionsView: View {
                 confidenceBadge(projection.confidence)
             }
 
-            // Current → Projected
+            // Explanation — what this projection means
+            Text(projection.explanation)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.45))
+                .fixedSize(horizontal: false, vertical: true)
+
+            // Today → In 30 Days
             HStack(spacing: 0) {
                 VStack(spacing: 4) {
-                    Text("Current")
-                        .font(.system(size: 10, weight: .medium))
+                    Text("Today")
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.white.opacity(0.4))
+                        .textCase(.uppercase)
+                        .tracking(0.3)
                     Text(formatValue(projection.currentValue, metric: projection.metric))
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
 
-                // Arrow
-                VStack(spacing: 2) {
+                // Arrow with time horizon
+                VStack(spacing: 4) {
                     Image(systemName: "arrow.right")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.cyan)
-                    Text("30 days")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.white.opacity(0.3))
+                    Text("30 DAYS")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.cyan.opacity(0.7))
+                        .tracking(0.5)
                 }
-                .frame(width: 60)
+                .frame(width: 70)
 
                 VStack(spacing: 4) {
                     Text("Projected")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundColor(.white.opacity(0.4))
+                        .textCase(.uppercase)
+                        .tracking(0.3)
                     Text(formatValue(projection.projectedValue, metric: projection.metric))
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(projection.isPositiveDirection ? .green : .red)
                 }
                 .frame(maxWidth: .infinity)
             }
-            .padding(.vertical, 4)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.03))
+            )
 
-            // Change badge
+            // Change summary
+            let sign = projection.projectedChange >= 0 ? "+" : ""
+            let changeStr = "\(sign)\(Int(projection.projectedChange))%"
+            let directionWord = projection.isPositiveDirection ? "improvement" : "change"
             HStack(spacing: 6) {
                 Image(systemName: projection.isPositiveDirection ? "arrow.up.right" : "arrow.down.right")
                     .font(.system(size: 10, weight: .bold))
-
-                let sign = projection.projectedChange >= 0 ? "+" : ""
-                Text("\(sign)\(Int(projection.projectedChange))% from baseline")
+                Text("\(changeStr) \(directionWord) vs. days without \(projection.basedOnHabit)")
                     .font(.system(size: 11, weight: .semibold))
             }
             .foregroundColor(projection.isPositiveDirection ? .green : .red)
-
-            // Explanation
-            Text(projection.explanation)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.white.opacity(0.35))
         }
         .padding(16)
         .background(

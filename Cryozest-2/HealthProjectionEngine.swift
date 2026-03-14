@@ -59,7 +59,8 @@ class HealthProjectionEngine {
 
             let totalProjectedChange = ((projectedValue - impact.baselineValue) / impact.baselineValue) * 100
 
-            let explanation = "Based on \(recentSessions.count) sessions over 30 days (\(String(format: "%.1f", sessionsPerWeek))x/week)"
+            let freqStr = String(format: "%.1f", sessionsPerWeek)
+            let explanation = "If you keep doing this \(freqStr)x/week for the next 30 days"
 
             let isPositiveDirection: Bool
             if isRHR {
