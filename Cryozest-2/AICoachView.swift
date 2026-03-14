@@ -296,20 +296,20 @@ struct CoachSheetView: View {
 
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.15))
+                                .foregroundColor(.white.opacity(0.25))
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 11)
                         .background(
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white.opacity(0.04))
+                                .fill(Color.white.opacity(0.06))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
                                 )
                         )
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(ScaleButtonStyle())
                 }
             }
             .padding(.horizontal, 20)
@@ -328,7 +328,7 @@ struct CoachSheetView: View {
                             .foregroundColor(.green.opacity(0.5))
                         Text("Using your health data from today")
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.white.opacity(0.25))
+                            .foregroundColor(.white.opacity(0.35))
                     }
                     .padding(.top, 4)
 
@@ -342,7 +342,7 @@ struct CoachSheetView: View {
                                message.id == chatViewModel.messages.last?.id {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
-                                        ForEach(message.followUpSuggestions, id: \.self) { suggestion in
+                                        ForEach(Array(message.followUpSuggestions.enumerated()), id: \.element) { index, suggestion in
                                             Button {
                                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                                 chatViewModel.sendMessage(suggestion)
@@ -361,7 +361,8 @@ struct CoachSheetView: View {
                                                             )
                                                     )
                                             }
-                                            .buttonStyle(PlainButtonStyle())
+                                            .buttonStyle(ScaleButtonStyle())
+                                            .modifier(StaggeredAppearance(index: index))
                                         }
                                     }
                                     .padding(.leading, 38)
@@ -445,7 +446,7 @@ struct CoachSheetView: View {
         HStack(spacing: 10) {
             TextField("", text: $chatViewModel.inputText,
                       prompt: Text("Message your coach...")
-                          .foregroundColor(.white.opacity(0.3)))
+                          .foregroundColor(.white.opacity(0.4)))
                 .font(.system(size: 15))
                 .foregroundColor(.white)
                 .tint(.cyan)
@@ -459,9 +460,11 @@ struct CoachSheetView: View {
                         .fill(Color.white.opacity(0.07))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                                .stroke(isInputFocused ? Color.cyan.opacity(0.3) : Color.white.opacity(0.1), lineWidth: isInputFocused ? 1 : 0.5)
                         )
                 )
+                .shadow(color: isInputFocused ? Color.cyan.opacity(0.1) : .clear, radius: 8)
+                .animation(.easeInOut(duration: 0.2), value: isInputFocused)
 
             Button(action: sendCurrentMessage) {
                 Image(systemName: "arrow.up.circle.fill")
@@ -537,7 +540,7 @@ struct CoachChatBubble: View {
                             .modifier(StaggeredAppearance(index: index))
                     }
                 } else {
-                    // Fallback to plain text
+                    // Fallback to plain text (streaming)
                     Text(message.content)
                         .font(.system(size: 15))
                         .foregroundColor(.white.opacity(0.9))
@@ -553,6 +556,7 @@ struct CoachChatBubble: View {
                         )
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: message.blocks?.count ?? 0)
 
             Spacer(minLength: 16)
         }
@@ -620,11 +624,64 @@ struct TextBlockView: View {
     let text: String
 
     var body: some View {
-        Text(text)
+        Text(parseMarkdown(text))
             .font(.system(size: 15))
             .foregroundColor(.white.opacity(0.9))
             .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                HStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.cyan.opacity(0.3))
+                        .frame(width: 3)
+                    Spacer()
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                        )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            )
+    }
+
+    private func parseMarkdown(_ input: String) -> AttributedString {
+        var result = AttributedString()
+        let pattern = #"(\*\*(.+?)\*\*|\*(.+?)\*)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return AttributedString(input)
+        }
+        let nsString = input as NSString
+        var lastEnd = 0
+        let matches = regex.matches(in: input, range: NSRange(location: 0, length: nsString.length))
+        for match in matches {
+            if match.range.location > lastEnd {
+                let plain = nsString.substring(with: NSRange(location: lastEnd, length: match.range.location - lastEnd))
+                result.append(AttributedString(plain))
+            }
+            if match.range(at: 2).location != NSNotFound {
+                let boldText = nsString.substring(with: match.range(at: 2))
+                var attr = AttributedString(boldText)
+                attr.font = .system(size: 15, weight: .bold)
+                result.append(attr)
+            } else if match.range(at: 3).location != NSNotFound {
+                let italicText = nsString.substring(with: match.range(at: 3))
+                var attr = AttributedString(italicText)
+                attr.font = .system(size: 15).italic()
+                result.append(attr)
+            }
+            lastEnd = match.range.location + match.range.length
+        }
+        if lastEnd < nsString.length {
+            let remaining = nsString.substring(from: lastEnd)
+            result.append(AttributedString(remaining))
+        }
+        return result
     }
 }
 
@@ -638,7 +695,7 @@ struct MetricBlockView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(metric.label.uppercased())
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.white.opacity(0.35))
+                    .foregroundColor(.white.opacity(0.45))
                     .tracking(0.5)
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -648,7 +705,7 @@ struct MetricBlockView: View {
 
                     Text(metric.unit)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.5))
                 }
             }
 
@@ -672,7 +729,7 @@ struct MetricBlockView: View {
                 .fill(Color.white.opacity(0.05))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(metric.trend.color.opacity(0.15), lineWidth: 1)
                 )
         )
     }
@@ -698,12 +755,12 @@ struct MetricsRowBlockView: View {
 
                         Text(metric.unit)
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.35))
+                            .foregroundColor(.white.opacity(0.45))
                     }
 
                     Text(metric.label)
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.white.opacity(0.35))
+                        .foregroundColor(.white.opacity(0.45))
                         .textCase(.uppercase)
                         .tracking(0.3)
                         .lineLimit(1)
@@ -751,7 +808,7 @@ struct ChartBlockView: View {
 
                 Text(data.unit)
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.25))
+                    .foregroundColor(.white.opacity(0.35))
             }
 
             HStack(alignment: .bottom, spacing: 4) {
@@ -770,7 +827,7 @@ struct ChartBlockView: View {
                         // Label
                         Text(point.label)
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.white.opacity(0.3))
+                            .foregroundColor(.white.opacity(0.4))
                             .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity)
@@ -835,6 +892,7 @@ struct ComparisonBlockView: View {
                         Image(systemName: "arrow.right")
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(.white.opacity(0.2))
+                            .modifier(SubtlePulse())
 
                         Text(item.current)
                             .font(.system(size: 14, weight: .bold))
@@ -889,8 +947,8 @@ struct TipBlockView: View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.cyan.opacity(0.12))
-                    .frame(width: 32, height: 32)
+                    .fill(Color.cyan.opacity(0.15))
+                    .frame(width: 34, height: 34)
 
                 Image(systemName: sfIcon)
                     .font(.system(size: 14, weight: .semibold))
@@ -904,19 +962,29 @@ struct TipBlockView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.cyan.opacity(0.08), Color.cyan.opacity(0.03)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color.cyan.opacity(0.5))
+                    .frame(width: 3)
+                Spacer()
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.cyan.opacity(0.12), Color.cyan.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.cyan.opacity(0.12), lineWidth: 1)
-                )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.cyan.opacity(0.18), lineWidth: 1)
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         )
     }
 }
@@ -1005,7 +1073,7 @@ struct SessionListBlockView: View {
                 HStack {
                     Text(Self.shortDateFormatter.string(from: session.date))
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.4))
+                        .foregroundColor(.white.opacity(0.5))
                         .frame(width: 44, alignment: .leading)
 
                     Text(session.type)
@@ -1123,6 +1191,34 @@ struct HeartZonesBlockView: View {
                 .foregroundColor(.white.opacity(0.7))
                 .frame(width: 50, alignment: .trailing)
         }
+    }
+}
+
+// MARK: - Subtle Pulse Modifier
+
+struct SubtlePulse: ViewModifier {
+    @State private var pulseCount = 0
+    @State private var offsetX: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .offset(x: offsetX)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.8).repeatCount(2, autoreverses: true)) {
+                    offsetX = 2
+                }
+            }
+    }
+}
+
+// MARK: - Scale Button Style
+
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 

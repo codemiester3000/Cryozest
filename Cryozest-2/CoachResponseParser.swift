@@ -62,7 +62,7 @@ enum CoachTrend: String {
         switch self {
         case .up: return .green
         case .down: return .orange
-        case .stable: return .white.opacity(0.5)
+        case .stable: return .white.opacity(0.65)
         }
     }
 }
@@ -662,12 +662,8 @@ struct CoachResponseParser {
     // MARK: - Helpers
 
     private static func cleanMarkdown(_ text: String) -> String {
-        var result = text
-        // Remove bold markers **text** → text
-        result = result.replacingOccurrences(of: "\\*\\*(.+?)\\*\\*", with: "$1", options: .regularExpression)
-        // Remove italic markers *text* → text
-        result = result.replacingOccurrences(of: "\\*(.+?)\\*", with: "$1", options: .regularExpression)
-        return result
+        // Preserve **bold** and *italic* markers for AttributedString rendering in TextBlockView
+        return text
     }
 
     private static func trendForRecovery(_ score: Int, average: Int?) -> CoachTrend {
