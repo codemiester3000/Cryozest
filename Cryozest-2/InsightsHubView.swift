@@ -17,6 +17,7 @@ struct InsightsHubView: View {
     @State private var selectedSection: HubSection = .weekReview
     @State private var weeklyReview: WeeklyReview?
     @State private var projectionsByHabit: [TherapyType: [HealthProjection]] = [:]
+    @State private var projectionsGenerated = false
     @State private var lookbackDays: Int = 30
 
     @StateObject private var recoveryModel = RecoveryGraphModel(
@@ -46,7 +47,10 @@ struct InsightsHubView: View {
             insightsViewModel.map { $0.$isLoading.eraseToAnyPublisher() }
                 ?? Empty<Bool, Never>().eraseToAnyPublisher()
         ) { (isLoading: Bool) in
-            if !isLoading { generateProjections() }
+            if !isLoading && !projectionsGenerated {
+                projectionsGenerated = true
+                generateProjections()
+            }
         }
     }
 
