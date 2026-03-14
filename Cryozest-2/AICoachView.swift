@@ -376,7 +376,8 @@ struct CoachSheetView: View {
                         ))
                     }
 
-                    if chatViewModel.isLoading {
+                    // Show typing indicator only while waiting for first chunk (not during streaming)
+                    if chatViewModel.isLoading && !chatViewModel.isStreaming {
                         CoachTypingIndicator()
                             .id("typing")
                     }
@@ -392,6 +393,12 @@ struct CoachSheetView: View {
             }
             .onChange(of: chatViewModel.isLoading) { loading in
                 if loading { scrollToBottom(proxy) }
+            }
+            // Auto-scroll during streaming as new text appears
+            .onChange(of: chatViewModel.messages.last?.content ?? "") { _ in
+                if chatViewModel.isStreaming {
+                    scrollToBottom(proxy)
+                }
             }
         }
     }
@@ -472,6 +479,7 @@ struct CoachSheetView: View {
     private var canSend: Bool {
         !chatViewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         && !chatViewModel.isLoading
+        && !chatViewModel.isStreaming
     }
 
     private func sendCurrentMessage() {

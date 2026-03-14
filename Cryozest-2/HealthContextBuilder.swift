@@ -21,13 +21,32 @@ struct HealthContextBuilder {
         The user wears an Apple Watch and tracks daily habits.
 
         CRITICAL RULES:
-        1. ONLY reference data explicitly provided below. NEVER invent, assume, or extrapolate data that is not listed.
+        1. ONLY reference data explicitly provided below. NEVER invent or fabricate numbers.
         2. If a habit shows "0x this week" it means the user has NOT done that activity this week. Do not say they did it.
-        3. If a metric is not listed below, say you don't have that data — do not guess.
+        3. If asked about a metric that is not listed at all, say you don't have that data.
         4. Be specific with the exact numbers from the data below.
         5. Be direct and conversational — like a knowledgeable friend, not a doctor.
         6. Never diagnose medical conditions. For serious symptoms, suggest a healthcare provider.
         7. Keep responses concise (3-5 sentences unless they ask for detail).
+
+        ANALYZING CORRELATIONS:
+        When the user asks how an activity impacts a metric (e.g. "how does swimming affect my mood"), \
+        you SHOULD analyze the data below to find patterns. You have session dates/times AND metric history — \
+        use them together. Compare metrics on days with that activity vs days without. \
+        If you have both activity data and metric data, provide your best analysis with specific numbers. \
+        If data is limited (fewer than 3 sessions), say so and suggest they keep tracking. \
+        If the STATISTICAL CORRELATIONS section has a relevant entry, cite it. \
+        Never say "I don't have that data" when you actually have sessions AND metrics — analyze what you have.
+
+        WIDGET DISPLAY:
+        When your response would benefit from a visual widget, include a tag on its own line: \
+        [SHOW:widget_type]. Only include widgets directly relevant to the user's question. \
+        Do NOT include widgets for topics you merely mention in passing. \
+        Available widgets: sessions, sessions:type (e.g. sessions:running), mood, pain, water, \
+        zones, recovery, hrv, rhr, heart_rate, sleep, steps, calories, spo2, vo2, respiratory, \
+        exertion, trends, overview. \
+        Example: If asked "how is running affecting my HRV", use [SHOW:sessions:running] and [SHOW:hrv]. \
+        If asked about mood trends, use [SHOW:mood]. Do NOT show a recovery chart if the question is about sleep.
 
         Respond in natural, conversational language. Use specific numbers from the data. When comparing metrics, mention both current and baseline values. End with actionable advice when relevant.
         """)
@@ -298,13 +317,24 @@ struct HealthContextBuilder {
         if !monthlySessions.isEmpty {
             var monthLines: [String] = []
             for type in selectedTherapyTypes {
-                let count = monthlySessions.filter { $0.therapyType == type.rawValue }.count
+                let typeSessions = monthlySessions.filter { $0.therapyType == type.rawValue }
+                let count = typeSessions.count
                 if count > 0 {
-                    monthLines.append("- \(type.displayName(viewContext)): \(count)x in last 30 days")
+                    let name = type.displayName(viewContext)
+                    monthLines.append("- \(name): \(count)x in last 30 days")
+
+                    // Include dates for correlation analysis
+                    let dates = typeSessions
+                        .compactMap { $0.date }
+                        .sorted()
+                        .map { dateFormatter.string(from: $0) }
+                    if !dates.isEmpty {
+                        monthLines.append("  Dates: \(dates.joined(separator: ", "))")
+                    }
                 }
             }
             if !monthLines.isEmpty {
-                sections.append("LAST 30 DAYS ACTIVITY:\n" + monthLines.joined(separator: "\n"))
+                sections.append("LAST 30 DAYS ACTIVITY (with dates for correlation analysis):\n" + monthLines.joined(separator: "\n"))
             }
         }
 
@@ -330,13 +360,17 @@ struct HealthContextBuilder {
         // Wellness data
         let today = Date()
         let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: today) ?? today
+        let thirtyDaysAgoWellness = calendar.date(byAdding: .day, value: -30, to: today) ?? today
         var wellnessLines: [String] = []
+
+        let wellnessDateFormatter = DateFormatter()
+        wellnessDateFormatter.dateFormat = "MMM d"
 
         // Mood
         if let moodAvg = WellnessRating.getAverageRatingForDay(date: today, context: viewContext) {
             let moodInt = Int(moodAvg.rounded())
             let label = WellnessRating.moodLabel(for: moodInt)
-            var line = "Mood: \(label) (\(moodInt)/5)"
+            var line = "Mood today: \(label) (\(moodInt)/5)"
             let dailyAvgs = WellnessRating.getDailyAverages(from: sevenDaysAgo, to: today, context: viewContext)
             if dailyAvgs.count >= 2 {
                 let avg7d = dailyAvgs.reduce(0.0) { $0 + $1.average } / Double(dailyAvgs.count)
@@ -345,11 +379,20 @@ struct HealthContextBuilder {
             wellnessLines.append(line)
         }
 
+        // Mood history (30 days) for correlation analysis
+        let moodDailyAvgs30 = WellnessRating.getDailyAverages(from: thirtyDaysAgoWellness, to: today, context: viewContext)
+        if moodDailyAvgs30.count >= 3 {
+            let moodHistoryEntries = moodDailyAvgs30.map { entry in
+                "\(wellnessDateFormatter.string(from: entry.date)): \(String(format: "%.1f", entry.average))"
+            }
+            wellnessLines.append("Mood history (last 30 days, daily avg): " + moodHistoryEntries.joined(separator: ", "))
+        }
+
         // Pain
         if let painAvg = PainRating.getAverageRatingForDay(date: today, context: viewContext) {
             let painInt = Int(painAvg.rounded())
             let label = PainRating.painLabel(for: painInt)
-            var line = "Pain: \(label) (\(painInt)/5)"
+            var line = "Pain today: \(label) (\(painInt)/5)"
             let todayPainRatings = PainRating.getAllRatingsForDay(date: today, context: viewContext)
             if let latestLocation = todayPainRatings.first?.bodyLocation, !latestLocation.isEmpty {
                 line += ", location: \(latestLocation)"
@@ -360,6 +403,15 @@ struct HealthContextBuilder {
                 line += " — 7-day avg: \(String(format: "%.1f", avg7d))/5"
             }
             wellnessLines.append(line)
+        }
+
+        // Pain history (30 days) for correlation analysis
+        let painDailyAvgs30 = PainRating.getDailyAverages(from: thirtyDaysAgoWellness, to: today, context: viewContext)
+        if painDailyAvgs30.count >= 3 {
+            let painHistoryEntries = painDailyAvgs30.map { entry in
+                "\(wellnessDateFormatter.string(from: entry.date)): \(String(format: "%.1f", entry.average))"
+            }
+            wellnessLines.append("Pain history (last 30 days, daily avg): " + painHistoryEntries.joined(separator: ", "))
         }
 
         // Water

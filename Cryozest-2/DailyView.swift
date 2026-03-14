@@ -118,6 +118,10 @@ struct DailyView: View {
                         // Fallback — always show insight card with tip
                         DailyTipCard(sessions: Array(sessions))
                             .padding(.horizontal, 20)
+                            .onTapGesture {
+                                coachQuestion = "Give me a full health breakdown"
+                                showCoachSheet = true
+                            }
                     }
 
                     // 4. Health Snapshot
@@ -295,26 +299,62 @@ struct DailyView: View {
 
     // MARK: - Quick-Log Habit Grid
 
+    private var completedCount: Int {
+        selectedTherapyTypes.filter { isCompletedToday($0) }.count
+    }
+
+    private var completionFraction: Double {
+        guard !selectedTherapyTypes.isEmpty else { return 0 }
+        return Double(completedCount) / Double(selectedTherapyTypes.count)
+    }
+
     private var quickLogGrid: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 10) {
+            // Header with progress ring
+            HStack(spacing: 8) {
+                // Mini completion ring
+                if !selectedTherapyTypes.isEmpty {
+                    ZStack {
+                        Circle()
+                            .stroke(Color.white.opacity(0.08), lineWidth: 2.5)
+                            .frame(width: 26, height: 26)
+                        Circle()
+                            .trim(from: 0, to: completionFraction)
+                            .stroke(
+                                completedCount == selectedTherapyTypes.count ? Color.green : Color.cyan,
+                                style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                            )
+                            .rotationEffect(.degrees(-90))
+                            .frame(width: 26, height: 26)
+                            .animation(.easeInOut(duration: 0.4), value: completionFraction)
+
+                        Text("\(completedCount)")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .foregroundColor(completedCount == selectedTherapyTypes.count ? .green : .white)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 1) {
                     Text("Today's Habits")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white.opacity(0.9))
 
-                    Text("Tap to mark done · tap again to undo")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.3))
+                    if !selectedTherapyTypes.isEmpty {
+                        Text(completedCount == selectedTherapyTypes.count
+                             ? "All done — great work!"
+                             : "\(selectedTherapyTypes.count - completedCount) remaining")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(completedCount == selectedTherapyTypes.count ? .green.opacity(0.7) : .white.opacity(0.3))
+                    }
                 }
 
                 Spacer()
 
                 Button(action: { showHabitSelection = true }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.white.opacity(0.5))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 24, height: 24)
                         .background(
                             Circle()
                                 .fill(Color.white.opacity(0.1))
@@ -327,13 +367,13 @@ struct DailyView: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.white.opacity(0.4))
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 20)
+                    .padding(.vertical, 16)
             } else {
                 LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: 8),
-                    GridItem(.flexible(), spacing: 8),
-                    GridItem(.flexible(), spacing: 8)
-                ], spacing: 8) {
+                    GridItem(.flexible(), spacing: 6),
+                    GridItem(.flexible(), spacing: 6),
+                    GridItem(.flexible(), spacing: 6)
+                ], spacing: 6) {
                     ForEach(selectedTherapyTypes, id: \.self) { habit in
                         QuickLogButton(
                             habitType: habit,
@@ -347,12 +387,12 @@ struct DailyView: View {
                 }
             }
         }
-        .padding(16)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 14)
                 .fill(Color.white.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 14)
                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
@@ -575,57 +615,78 @@ struct QuickLogButton: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 ZStack {
+                    // Outer glow when completed
+                    if isCompleted && !confirmingUndo {
+                        Circle()
+                            .fill(habitType.color.opacity(0.1))
+                            .frame(width: 40, height: 40)
+                    }
+
                     Circle()
                         .fill(circleColor)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 34, height: 34)
+
+                    // Completed ring
+                    if isCompleted && !confirmingUndo && !showCheckmark {
+                        Circle()
+                            .stroke(habitType.color.opacity(0.4), lineWidth: 1.5)
+                            .frame(width: 34, height: 34)
+                    }
 
                     if confirmingUndo {
                         Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.system(size: 13, weight: .bold))
                             .foregroundColor(.red.opacity(0.9))
                     } else if showCheckmark {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 16, weight: .bold))
+                            .font(.system(size: 15, weight: .bold))
                             .foregroundColor(.green)
                     } else if isCompleted {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 16, weight: .bold))
+                        Image(systemName: habitType.icon)
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(habitType.color)
                     } else {
                         Image(systemName: habitType.icon)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.5))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.35))
                     }
                 }
+                .frame(height: 40)
 
                 if confirmingUndo {
                     Text("Tap to undo")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(size: 9, weight: .semibold))
                         .foregroundColor(.red.opacity(0.7))
                         .lineLimit(1)
                 } else {
                     Text(habitType.displayName(viewContext))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
+                        .font(.system(size: 9, weight: isCompleted ? .bold : .medium))
+                        .foregroundColor(isCompleted ? .white.opacity(0.9) : .white.opacity(0.5))
                         .lineLimit(1)
                 }
 
                 if confirmingUndo {
-                    Text(" ")
-                        .font(.system(size: 9))
+                    Spacer().frame(height: 0)
                 } else if streak > 1 {
-                    Text("\(streak)-day streak")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.orange)
+                    HStack(spacing: 2) {
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 6, weight: .bold))
+                            .foregroundColor(.orange)
+                        Text("\(streak)d")
+                            .font(.system(size: 8, weight: .bold, design: .rounded))
+                            .foregroundColor(.orange)
+                    }
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1.5)
+                    .background(Capsule().fill(Color.orange.opacity(0.12)))
                 } else {
-                    Text(" ")
-                        .font(.system(size: 9))
+                    Spacer().frame(height: 10)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
+            .padding(.vertical, 6)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(backgroundFill)
@@ -637,24 +698,25 @@ struct QuickLogButton: View {
         }
         .buttonStyle(PlainButtonStyle())
         .animation(.easeInOut(duration: 0.2), value: confirmingUndo)
+        .animation(.easeInOut(duration: 0.3), value: isCompleted)
     }
 
     private var circleColor: Color {
         if confirmingUndo { return Color.red.opacity(0.2) }
-        if isCompleted { return habitType.color.opacity(0.25) }
-        return Color.white.opacity(0.08)
+        if isCompleted { return habitType.color.opacity(0.2) }
+        return Color.white.opacity(0.06)
     }
 
     private var backgroundFill: Color {
         if confirmingUndo { return Color.red.opacity(0.06) }
-        if isCompleted { return habitType.color.opacity(0.08) }
-        return Color.clear
+        if isCompleted { return habitType.color.opacity(0.06) }
+        return Color.white.opacity(0.02)
     }
 
     private var borderColor: Color {
-        if confirmingUndo { return Color.red.opacity(0.2) }
+        if confirmingUndo { return Color.red.opacity(0.25) }
         if isCompleted { return habitType.color.opacity(0.2) }
-        return Color.white.opacity(0.06)
+        return Color.white.opacity(0.05)
     }
 }
 
@@ -884,6 +946,10 @@ struct DailyTipCard: View {
             }
 
             Spacer(minLength: 0)
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white.opacity(0.2))
         }
         .padding(14)
         .background(

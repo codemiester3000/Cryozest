@@ -263,6 +263,14 @@ class InsightsViewModel: ObservableObject {
     }
 
     func fetchAllImpacts() {
+        // Ensure main thread — @Published mutations and FetchedResults access require it.
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.fetchAllImpacts()
+            }
+            return
+        }
+
         if DemoDataManager.shared.isDemoMode {
             DemoDataManager.shared.populateInsightsViewModel(self)
             return
@@ -422,7 +430,7 @@ class InsightsViewModel: ObservableObject {
 
     private func computeDataCollectionProgress(for therapyTypes: [TherapyType]) {
         var progress: [TherapyType: DataCollectionProgress] = [:]
-        let minRequired = 5
+        let minRequired = 3
 
         for therapyType in therapyTypes {
             let (therapyDates, nonTherapyDates) = datesInWindow(for: therapyType)
@@ -702,7 +710,7 @@ class InsightsViewModel: ObservableObject {
 
         let totalDays = therapyDates.count + nonTherapyDates.count
         let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
+        guard therapyDates.count >= 3 && nonTherapyDates.count >= 3 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -788,7 +796,7 @@ class InsightsViewModel: ObservableObject {
 
         let totalDays = therapyDates.count + nonTherapyDates.count
         let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
+        guard therapyDates.count >= 3 && nonTherapyDates.count >= 3 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -883,7 +891,7 @@ class InsightsViewModel: ObservableObject {
 
         let totalDays = therapyDates.count + nonTherapyDates.count
         let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
+        guard therapyDates.count >= 3 && nonTherapyDates.count >= 3 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -975,7 +983,7 @@ class InsightsViewModel: ObservableObject {
 
         let totalDays = therapyDates.count + nonTherapyDates.count
         let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
+        guard therapyDates.count >= 3 && nonTherapyDates.count >= 3 && frequency <= 0.85 else {
             completion(nil)
             return
         }
@@ -1057,7 +1065,7 @@ class InsightsViewModel: ObservableObject {
 
         let totalDays = therapyDates.count + nonTherapyDates.count
         let frequency = totalDays > 0 ? Double(therapyDates.count) / Double(totalDays) : 0
-        guard therapyDates.count >= 5 && nonTherapyDates.count >= 5 && frequency <= 0.85 else {
+        guard therapyDates.count >= 3 && nonTherapyDates.count >= 3 && frequency <= 0.85 else {
             completion(nil)
             return
         }

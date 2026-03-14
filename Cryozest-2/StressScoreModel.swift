@@ -43,6 +43,15 @@ class StressScoreModel: ObservableObject {
     // MARK: - Compute Today's Score
 
     func computeScores(forDate date: Date) {
+        // Ensure we're on the main thread — @Published mutations and FetchedResults
+        // access must happen on main to avoid SwiftUI crashes.
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.computeScores(forDate: date)
+            }
+            return
+        }
+
         let calendar = Calendar.current
 
         // Skip if we recently computed for this same date

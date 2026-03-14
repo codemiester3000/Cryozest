@@ -43,6 +43,37 @@ struct WhatsWorkingSection: View {
         return .full
     }
 
+    /// Build a list of one benefit card per positive habit.
+    /// Prefers showing a different metric per habit for variety, but never
+    /// drops a habit just because its best metric was already shown.
+    private var benefitCards: [BenefitCard] {
+        var claimed: Set<String> = []
+        var cards: [BenefitCard] = []
+
+        for v in positiveVerdicts {
+            let positiveImpacts = v.impacts
+                .filter { $0.isPositive }
+                .sorted { $0.impactScore > $1.impactScore }
+
+            guard !positiveImpacts.isEmpty else { continue }
+
+            // Prefer an unclaimed metric for variety, but always fall back
+            // to the best one — never skip a habit entirely
+            let best = positiveImpacts.first(where: { !claimed.contains($0.metricName) })
+                ?? positiveImpacts.first!
+            claimed.insert(best.metricName)
+
+            cards.append(BenefitCard(
+                habitType: v.habitType,
+                impact: best,
+                streak: v.currentStreak,
+                frequency: v.weeklyFrequency,
+                secondaryCount: positiveImpacts.count - 1
+            ))
+        }
+        return cards
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -114,12 +145,11 @@ struct WhatsWorkingSection: View {
         VStack(alignment: .leading, spacing: 14) {
             sectionHeader
 
-            if verdicts.isEmpty {
+            if benefitCards.isEmpty {
                 earlySignalEmptyState
             } else {
-                // Show verdict cards with "Early" badge
-                ForEach(verdicts.prefix(3)) { v in
-                    HabitVerdictCard(verdict: v, mode: .compact)
+                ForEach(benefitCards.prefix(3), id: \.habitType) { card in
+                    BenefitRow(card: card)
                 }
             }
         }
@@ -130,37 +160,28 @@ struct WhatsWorkingSection: View {
     // MARK: - Full Experience (14+ days)
 
     private var fullView: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             sectionHeader
 
             if verdicts.isEmpty {
                 noDataState
             } else if allNegative {
-                // No hero — all habits are watch-list
                 attentionHeader
 
-                ForEach(verdicts) { v in
-                    HabitVerdictCard(verdict: v, mode: .compact)
+                ForEach(verdicts.prefix(4)) { v in
+                    WatchListRow(verdict: v)
                 }
             } else {
-                // Hero card for rank #1
-                if let hero = positiveVerdicts.first {
-                    HabitVerdictCard(verdict: hero, mode: .hero)
+                // Benefit rows — one per habit, each showing its best metric
+                let visible = showAllHabits ? benefitCards : Array(benefitCards.prefix(4))
+                ForEach(visible, id: \.habitType) { card in
+                    BenefitRow(card: card)
                 }
 
-                // Compact cards for ranks #2-5
-                let remaining = Array(positiveVerdicts.dropFirst())
-                let visibleCount = showAllHabits ? remaining.count : min(remaining.count, 4)
-
-                ForEach(remaining.prefix(visibleCount)) { v in
-                    HabitVerdictCard(verdict: v, mode: .compact)
-                }
-
-                // "Show N more" button
-                if remaining.count > 4 && !showAllHabits {
+                if benefitCards.count > 4 && !showAllHabits {
                     Button(action: { withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showAllHabits = true } }) {
                         HStack(spacing: 4) {
-                            Text("Show \(remaining.count - 4) more")
+                            Text("Show \(benefitCards.count - 4) more")
                                 .font(.system(size: 12, weight: .semibold))
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 9, weight: .bold))
@@ -213,7 +234,7 @@ struct WhatsWorkingSection: View {
                 }
             }
 
-            Text("Your habits, ranked by health impact")
+            Text("How your habits are improving your health")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.35))
         }
@@ -244,7 +265,7 @@ struct WhatsWorkingSection: View {
 
             if showWatchList {
                 ForEach(watchListVerdicts) { v in
-                    HabitVerdictCard(verdict: v, mode: .compact)
+                    WatchListRow(verdict: v)
                 }
             }
         }
@@ -312,5 +333,200 @@ struct WhatsWorkingSection: View {
         case brewing
         case earlySignals
         case full
+    }
+}
+
+// MARK: - Benefit Card Model
+
+struct BenefitCard {
+    let habitType: TherapyType
+    let impact: HabitImpact
+    let streak: Int
+    let frequency: Int
+    let secondaryCount: Int
+}
+
+// MARK: - Benefit Row
+
+struct BenefitRow: View {
+    let card: BenefitCard
+
+    @Environment(\.managedObjectContext) private var viewContext
+
+    private var metricColor: Color {
+        switch card.impact.metricName {
+        case "HRV": return .purple
+        case "Sleep Duration": return .indigo
+        case "RHR", "Resting Heart Rate": return .red
+        case "Pain Level": return .orange
+        case "Mood": return .pink
+        default: return .cyan
+        }
+    }
+
+    private var metricLabel: String {
+        switch card.impact.metricName {
+        case "Sleep Duration": return "Sleep"
+        case "Resting Heart Rate": return "RHR"
+        case "Pain Level": return "Pain"
+        default: return card.impact.metricName
+        }
+    }
+
+    private var changeText: String {
+        let pct = abs(Int(card.impact.percentageChange))
+        let name = card.impact.metricName
+        if name == "RHR" || name == "Resting Heart Rate" || name == "Pain Level" {
+            return card.impact.isPositive ? "\u{2193}\(pct)%" : "\u{2191}\(pct)%"
+        }
+        return card.impact.isPositive ? "+\(pct)%" : "-\(pct)%"
+    }
+
+    private var benefitPhrase: String {
+        let metric = metricLabel.lowercased()
+        switch card.impact.metricName {
+        case "Sleep Duration":
+            return "improving your sleep"
+        case "HRV":
+            return "boosting your HRV"
+        case "Resting Heart Rate", "RHR":
+            return "lowering your RHR"
+        case "Pain Level":
+            return "reducing your pain"
+        case "Mood":
+            return "lifting your mood"
+        default:
+            return "improving your \(metric)"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Habit icon
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(card.habitType.color.opacity(0.12))
+                    .frame(width: 40, height: 40)
+                Image(systemName: card.habitType.icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(card.habitType.color)
+            }
+
+            // Center: habit name + benefit phrase
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(card.habitType.displayName(viewContext))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
+
+                    if card.streak >= 3 {
+                        HStack(spacing: 2) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 7, weight: .bold))
+                            Text("\(card.streak)d")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.orange.opacity(0.12)))
+                    }
+                }
+
+                Text(benefitPhrase)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+
+                if card.secondaryCount > 0 {
+                    Text("+ \(card.secondaryCount) more metric\(card.secondaryCount == 1 ? "" : "s")")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white.opacity(0.25))
+                }
+            }
+
+            Spacer()
+
+            // Right: metric badge with change
+            VStack(spacing: 3) {
+                Text(changeText)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(card.impact.isPositive ? .green : .orange)
+
+                Text(metricLabel)
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(metricColor)
+                    .textCase(.uppercase)
+                    .tracking(0.3)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(metricColor.opacity(0.08))
+            )
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(card.habitType.color.opacity(0.1), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Watch List Row
+
+struct WatchListRow: View {
+    let verdict: HabitVerdict
+
+    @Environment(\.managedObjectContext) private var viewContext
+
+    private var worstImpact: HabitImpact? {
+        verdict.impacts.filter { !$0.isPositive }.max { abs($0.percentageChange) < abs($1.percentageChange) }
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(verdict.habitType.color.opacity(0.1))
+                    .frame(width: 28, height: 28)
+                Image(systemName: verdict.habitType.icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(verdict.habitType.color)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verdict.habitType.displayName(viewContext))
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.white.opacity(0.8))
+
+                Text(verdict.headline)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.orange.opacity(0.7))
+            }
+
+            Spacer()
+
+            if let worst = worstImpact {
+                let pct = abs(Int(worst.percentageChange))
+                Text(worst.isPositive ? "+\(pct)%" : "-\(pct)%")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.orange)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.orange.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.orange.opacity(0.1), lineWidth: 1)
+                )
+        )
     }
 }

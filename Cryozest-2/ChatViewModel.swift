@@ -69,6 +69,9 @@ class ChatViewModel: ObservableObject {
         )
     }
 
+    /// Whether the AI is currently streaming its response (text still arriving)
+    @Published var isStreaming = false
+
     func sendMessage(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -81,21 +84,77 @@ class ChatViewModel: ObservableObject {
 
         Task {
             do {
-                let response = try await chatService.sendMessage(
+                let history = Array(messages.dropLast()) // exclude the just-added user msg
+
+                // Create a placeholder AI message for streaming
+                var streamingMessage = ChatMessage(role: .model, content: "")
+                messages.append(streamingMessage)
+                let streamingIndex = messages.count - 1
+
+                isLoading = false
+                isStreaming = true
+
+                // Accumulate streamed text and update the displayed message progressively
+                var accumulatedText = ""
+                var displayedCharCount = 0
+                // Timer for typewriter effect — reveals characters gradually
+                var typewriterTask: Task<Void, Never>?
+
+                let fullResponse = try await chatService.streamMessage(
                     userMessage: trimmed,
-                    conversationHistory: messages.dropLast().map { $0 }, // exclude the just-added user msg
-                    healthContext: healthContext
+                    conversationHistory: history,
+                    healthContext: healthContext,
+                    onChunk: { [weak self] chunk in
+                        Task { @MainActor [weak self] in
+                            guard let self = self else { return }
+                            accumulatedText += chunk
+
+                            // Cancel previous typewriter and start a new one with updated text
+                            typewriterTask?.cancel()
+                            typewriterTask = Task { @MainActor [weak self] in
+                                guard let self = self else { return }
+                                while displayedCharCount < accumulatedText.count {
+                                    guard !Task.isCancelled else { return }
+                                    // Reveal characters in small bursts for smooth typewriter feel
+                                    let charsToReveal = min(3, accumulatedText.count - displayedCharCount)
+                                    displayedCharCount += charsToReveal
+                                    let displayText = String(accumulatedText.prefix(displayedCharCount))
+
+                                    // Update the streaming message with text blocks only during streaming
+                                    self.messages[streamingIndex].content = displayText
+                                    self.messages[streamingIndex].blocks = [CoachResponseBlock(content: .text(displayText))]
+
+                                    try? await Task.sleep(nanoseconds: 12_000_000) // ~12ms per burst
+                                }
+                            }
+                        }
+                    }
                 )
-                let (cleaned, followUps) = CoachResponseParser.extractFollowUps(response)
+
+                // Wait for typewriter to finish revealing all text
+                typewriterTask?.cancel()
+                // Small delay to let any pending UI updates land
+                try? await Task.sleep(nanoseconds: 50_000_000)
+
+                // Now parse the full response into proper blocks + widgets
+                let (cleaned, followUps) = CoachResponseParser.extractFollowUps(fullResponse)
                 let blocks = CoachResponseParser.parse(cleaned, snapshot: healthSnapshot)
-                // Store plain text for conversation history so Gemini doesn't see widget markup
                 let plainText = CoachResponseParser.extractPlainText(from: blocks)
-                let aiMessage = ChatMessage(role: .model, content: plainText, blocks: blocks, followUpSuggestions: followUps)
-                messages.append(aiMessage)
+
+                messages[streamingIndex].content = plainText
+                messages[streamingIndex].blocks = blocks
+                messages[streamingIndex].followUpSuggestions = followUps
+
+                isStreaming = false
             } catch {
+                // Remove the placeholder message if streaming failed
+                if isStreaming, !messages.isEmpty, messages.last?.role == .model, messages.last?.content.isEmpty == true {
+                    messages.removeLast()
+                }
                 errorMessage = (error as? ChatServiceError)?.errorDescription ?? error.localizedDescription
+                isLoading = false
+                isStreaming = false
             }
-            isLoading = false
         }
     }
 

@@ -3,10 +3,10 @@ import Foundation
 struct ChatMessage: Identifiable {
     let id: UUID
     let role: ChatRole
-    let content: String
+    var content: String
     let timestamp: Date
-    let blocks: [CoachResponseBlock]?
-    let followUpSuggestions: [String]
+    var blocks: [CoachResponseBlock]?
+    var followUpSuggestions: [String]
 
     enum ChatRole: String {
         case user
@@ -49,7 +49,7 @@ enum ChatServiceError: LocalizedError {
     }
 }
 
-class GeminiChatService {
+class GeminiChatService: NSObject {
     private let modelName = "gemini-2.5-flash"
     private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
     private let maxHistoryMessages = 20
@@ -65,6 +65,122 @@ class GeminiChatService {
     }
 
     var isConfigured: Bool { apiKey != nil }
+
+    // MARK: - Build request body (shared between streaming and non-streaming)
+
+    private func buildRequestBody(
+        userMessage: String,
+        conversationHistory: [ChatMessage],
+        healthContext: String
+    ) -> [String: Any] {
+        var contents: [[String: Any]] = []
+
+        let recentHistory = conversationHistory.suffix(maxHistoryMessages)
+        for message in recentHistory {
+            contents.append([
+                "role": message.role.rawValue,
+                "parts": [["text": message.content]]
+            ])
+        }
+
+        contents.append([
+            "role": "user",
+            "parts": [["text": userMessage]]
+        ])
+
+        return [
+            "systemInstruction": [
+                "parts": [["text": healthContext]]
+            ],
+            "contents": contents,
+            "generationConfig": [
+                "maxOutputTokens": 2000,
+                "temperature": 0.7
+            ]
+        ]
+    }
+
+    // MARK: - Streaming API (SSE)
+
+    /// Stream a response from Gemini. Calls `onChunk` with each text delta as it arrives.
+    /// Returns the full accumulated response when complete.
+    func streamMessage(
+        userMessage: String,
+        conversationHistory: [ChatMessage],
+        healthContext: String,
+        onChunk: @escaping (String) -> Void
+    ) async throws -> String {
+        guard let apiKey = apiKey else {
+            throw ChatServiceError.noAPIKey
+        }
+
+        // Use streamGenerateContent endpoint with alt=sse for server-sent events
+        guard let url = URL(string: "\(baseURL)/\(modelName):streamGenerateContent?alt=sse&key=\(apiKey)") else {
+            throw ChatServiceError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 60
+
+        let body = buildRequestBody(
+            userMessage: userMessage,
+            conversationHistory: conversationHistory,
+            healthContext: healthContext
+        )
+
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
+            throw ChatServiceError.invalidURL
+        }
+        request.httpBody = httpBody
+
+        let (bytes, response): (URLSession.AsyncBytes, URLResponse)
+        do {
+            (bytes, response) = try await URLSession.shared.bytes(for: request)
+        } catch let error as URLError where error.code == .timedOut {
+            throw ChatServiceError.timeout
+        } catch {
+            throw ChatServiceError.networkError(error.localizedDescription)
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ChatServiceError.networkError("Invalid response")
+        }
+
+        guard httpResponse.statusCode == 200 else {
+            throw ChatServiceError.apiError(httpResponse.statusCode)
+        }
+
+        // Parse SSE stream: lines starting with "data: " contain JSON chunks
+        var fullText = ""
+
+        for try await line in bytes.lines {
+            guard line.hasPrefix("data: ") else { continue }
+            let jsonString = String(line.dropFirst(6))
+            guard !jsonString.isEmpty, jsonString != "[DONE]" else { continue }
+
+            guard let jsonData = jsonString.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+                  let candidates = json["candidates"] as? [[String: Any]],
+                  let content = candidates.first?["content"] as? [String: Any],
+                  let parts = content["parts"] as? [[String: Any]],
+                  let text = parts.first?["text"] as? String else {
+                continue
+            }
+
+            fullText += text
+            onChunk(text)
+        }
+
+        if fullText.isEmpty {
+            throw ChatServiceError.parseError
+        }
+
+        return fullText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Non-streaming fallback
 
     func sendMessage(
         userMessage: String,
@@ -84,33 +200,11 @@ class GeminiChatService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 30
 
-        // Build conversation contents (last N messages + current)
-        var contents: [[String: Any]] = []
-
-        let recentHistory = conversationHistory.suffix(maxHistoryMessages)
-        for message in recentHistory {
-            contents.append([
-                "role": message.role.rawValue,
-                "parts": [["text": message.content]]
-            ])
-        }
-
-        // Add the new user message
-        contents.append([
-            "role": "user",
-            "parts": [["text": userMessage]]
-        ])
-
-        let body: [String: Any] = [
-            "systemInstruction": [
-                "parts": [["text": healthContext]]
-            ],
-            "contents": contents,
-            "generationConfig": [
-                "maxOutputTokens": 2000,
-                "temperature": 0.7
-            ]
-        ]
+        let body = buildRequestBody(
+            userMessage: userMessage,
+            conversationHistory: conversationHistory,
+            healthContext: healthContext
+        )
 
         guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
             throw ChatServiceError.invalidURL

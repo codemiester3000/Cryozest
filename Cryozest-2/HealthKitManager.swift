@@ -1266,7 +1266,7 @@ class HealthKitManager {
         }
     }
     
-    private func getSleepTimes(for date: Date, completion: @escaping (Date?, Date?) -> Void) {
+    func getSleepTimes(for date: Date, completion: @escaping (Date?, Date?) -> Void) {
         let calendar = Calendar.current
         
         // Set search window from 7 PM the day before to 2 PM on the date
@@ -1374,11 +1374,54 @@ class HealthKitManager {
 //                    completion(averageHeartRate)
 //                }
 //            }
-//            
+//
 //            HKHealthStore().execute(query)
 //        }
 //    }
 
+    /// Fetch average heart rate during waking hours for a given date.
+    /// Waking hours = everything outside the sleep window (uses getSleepTimes).
+    /// Falls back to all-day HR if no sleep data is available.
+    func fetchAvgHeartRateDuringWakingHours(for date: Date, completion: @escaping (Double?) -> Void) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            completion(nil)
+            return
+        }
+
+        getSleepTimes(for: date) { [weak self] sleepStart, sleepEnd in
+            guard let self = self else { completion(nil); return }
+
+            // Fetch all HR samples for the day
+            self.fetchHeartRateData(from: startOfDay, to: endOfDay) { samples, _ in
+                guard let samples = samples, !samples.isEmpty else {
+                    completion(nil)
+                    return
+                }
+
+                let bpmUnit = HKUnit(from: "count/min")
+
+                // Filter out sleep window samples if we have sleep times
+                let wakingSamples: [HKQuantitySample]
+                if let ss = sleepStart, let se = sleepEnd {
+                    wakingSamples = samples.filter { $0.startDate < ss || $0.startDate >= se }
+                } else {
+                    wakingSamples = Array(samples)
+                }
+
+                guard !wakingSamples.isEmpty else {
+                    completion(nil)
+                    return
+                }
+
+                let total = wakingSamples.reduce(0.0) { $0 + $1.quantity.doubleValue(for: bpmUnit) }
+                DispatchQueue.main.async {
+                    completion(total / Double(wakingSamples.count))
+                }
+            }
+        }
+    }
 
     func fetchAverageSleepVitalsForDays(days: [Date], completion: @escaping (Double, Double) -> Void) {
         let calendar = Calendar.current

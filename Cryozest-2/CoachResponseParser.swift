@@ -179,61 +179,41 @@ struct HealthSnapshot {
 
 struct CoachResponseParser {
 
-    /// Parse a natural language Gemini response into rich blocks by scanning for
-    /// metric keywords and injecting client-side widgets from the health snapshot.
+    /// Parse a Gemini response into rich blocks. The AI controls which widgets appear
+    /// via [SHOW:widget_type] tags. Text is extracted and tips are parsed as before.
     static func parse(_ response: String, snapshot: HealthSnapshot) -> [CoachResponseBlock] {
         let trimmed = response.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        // Extract [SHOW:...] widget tags from the response
+        let showPattern = #"\[SHOW:([^\]]+)\]"#
+        let showRegex = try? NSRegularExpression(pattern: showPattern)
+        var requestedWidgets: [String] = []
+        if let regex = showRegex {
+            let matches = regex.matches(in: trimmed, range: NSRange(trimmed.startIndex..., in: trimmed))
+            for match in matches {
+                if let range = Range(match.range(at: 1), in: trimmed) {
+                    requestedWidgets.append(String(trimmed[range]).trimmingCharacters(in: .whitespaces).lowercased())
+                }
+            }
+        }
+
+        // Remove [SHOW:...] tags from displayed text
+        let cleanedText = showRegex?.stringByReplacingMatches(
+            in: trimmed,
+            range: NSRange(trimmed.startIndex..., in: trimmed),
+            withTemplate: ""
+        ).trimmingCharacters(in: .whitespacesAndNewlines) ?? trimmed
+
         // Split into paragraphs
-        let paragraphs = trimmed
+        let paragraphs = cleanedText
             .components(separatedBy: "\n\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
         var blocks: [CoachResponseBlock] = []
-        var injectedWidgets: Set<String> = []
-        var widgetCount = 0
-        let maxWidgets = 5
 
-        // Build dynamic sport keywords from user's tracked habits + common aliases
-        var sportKeywords: [(keywords: [String], type: String?)] = [
-            (["workout", "session", "training", "exercise", "activity"], nil),
-        ]
-        // Static well-known aliases
-        let sportAliases: [(aliases: [String], matchType: String)] = [
-            (["swim", "swimming", "pool", "lap"], "swim"),
-            (["run", "running", "jog", "jogging"], "run"),
-            (["lift", "weight", "strength", "gym", "bench", "squat", "deadlift"], "weight"),
-            (["cycling", "bike", "biking", "ride", "spin"], "cycl"),
-            (["yoga", "stretch"], "yoga"),
-            (["meditation", "meditat", "mindful"], "meditat"),
-            (["sauna", "steam", "heat"], "sauna"),
-            (["cold plunge", "ice bath", "cryotherapy", "cold exposure", "cold water"], "cold"),
-            (["hike", "hiking", "trek"], "hik"),
-            (["walk", "walking"], "walk"),
-            (["pilates"], "pilates"),
-            (["boxing", "martial art", "mma", "kickbox"], "box"),
-            (["rowing", "row"], "row"),
-            (["surf", "surfing"], "surf"),
-        ]
-        for alias in sportAliases {
-            sportKeywords.insert((alias.aliases, alias.matchType), at: sportKeywords.count - 1)
-        }
-        // Also add each user-tracked habit name as a keyword pointing to itself
-        for name in snapshot.trackedHabitNames {
-            let lowerName = name.lowercased()
-            // Skip if already covered by static aliases
-            let alreadyCovered = sportAliases.contains { pair in
-                pair.aliases.contains { lowerName.contains($0) } ||
-                lowerName.contains(pair.matchType)
-            }
-            if !alreadyCovered {
-                sportKeywords.insert(([lowerName], lowerName), at: sportKeywords.count - 1)
-            }
-        }
-
+        // First, add all text blocks and tips
         for paragraph in paragraphs {
-            // Extract tips from the paragraph; remaining text becomes a text block
             let (textPart, tips) = extractTips(from: paragraph)
 
             if !textPart.isEmpty {
@@ -241,181 +221,174 @@ struct CoachResponseParser {
                 blocks.append(CoachResponseBlock(content: .text(cleaned)))
             }
 
-            // Inject widgets based on keyword scanning (capped)
-            guard widgetCount < maxWidgets else { continue }
-            let lower = paragraph.lowercased()
+            for tip in tips {
+                blocks.append(CoachResponseBlock(content: .tip(TipData(text: tip, icon: tipIcon(for: tip)))))
+            }
+        }
 
-            // --- Priority 1: Sport/workout mentions → session list ---
-            if !injectedWidgets.contains("sessions"), widgetCount < maxWidgets {
-                let matchedSport = sportKeywords.first { pair in
-                    pair.keywords.contains { lower.contains($0) }
+        // Then, inject widgets the AI explicitly requested (max 5)
+        var widgetCount = 0
+        let maxWidgets = 5
+        var injectedWidgets: Set<String> = []
+
+        for widgetTag in requestedWidgets where widgetCount < maxWidgets {
+            // Sessions (optionally filtered by type, e.g. "sessions:running")
+            if widgetTag.hasPrefix("sessions"), !injectedWidgets.contains("sessions") {
+                let parts = widgetTag.split(separator: ":", maxSplits: 2)
+                let filtered: [SessionSnapshot]
+                let title: String
+
+                if parts.count > 1 {
+                    let sportFilter = String(parts[1]).lowercased()
+                    filtered = snapshot.recentSessions.filter {
+                        $0.type.lowercased().contains(sportFilter)
+                    }
+                    title = filtered.first.map { "Recent \($0.type) Sessions" } ?? "Recent Sessions"
+                } else {
+                    filtered = Array(snapshot.recentSessions.prefix(5))
+                    title = "Recent Sessions"
                 }
 
-                if let match = matchedSport, !snapshot.recentSessions.isEmpty {
-                    let filtered: [SessionSnapshot]
-                    let title: String
+                if !filtered.isEmpty {
+                    injectedWidgets.insert("sessions")
+                    blocks.append(CoachResponseBlock(content: .sessionList(
+                        SessionListData(title: title, sessions: Array(filtered.prefix(5)))
+                    )))
+                    widgetCount += 1
+                }
+            }
 
-                    if let matchType = match.type {
-                        filtered = snapshot.recentSessions.filter {
-                            $0.type.lowercased().contains(matchType)
+            // Mood
+            else if widgetTag == "mood", !injectedWidgets.contains("mood") {
+                if let mood = snapshot.mood {
+                    injectedWidgets.insert("mood")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Mood", value: "\(mood)", unit: "/5", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+
+                    if widgetCount < maxWidgets, snapshot.moodHistory.count >= 3 {
+                        let dayLabels = lastNDayLabels(snapshot.moodHistory.count)
+                        let points = zip(dayLabels, snapshot.moodHistory).map {
+                            ChartPoint(label: $0, value: Double($1))
                         }
-                        title = filtered.first.map { "Recent \($0.type) Sessions" } ?? "Recent Sessions"
-                    } else {
-                        // Generic workout/session/training → show all
-                        filtered = Array(snapshot.recentSessions.prefix(5))
-                        title = "Recent Sessions"
-                    }
-
-                    if !filtered.isEmpty {
-                        injectedWidgets.insert("sessions")
-                        blocks.append(CoachResponseBlock(content: .sessionList(
-                            SessionListData(title: title, sessions: Array(filtered.prefix(5)))
+                        blocks.append(CoachResponseBlock(content: .chart(
+                            ChartBlockData(title: "Mood (7 days)", values: points, unit: "/5")
                         )))
                         widgetCount += 1
                     }
                 }
             }
 
-            // --- Priority 2: Mood ---
-            if !injectedWidgets.contains("mood"),
-               lower.containsAny(["mood", "feeling", "wellness check", "how am i doing", "mental"]),
-               let mood = snapshot.mood, widgetCount < maxWidgets {
-                injectedWidgets.insert("mood")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Mood", value: "\(mood)", unit: "/5", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
+            // Pain
+            else if widgetTag == "pain", !injectedWidgets.contains("pain") {
+                if let pain = snapshot.pain {
+                    injectedWidgets.insert("pain")
+                    let locationStr = snapshot.painLocation.map { " (\($0))" } ?? ""
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Pain\(locationStr)", value: "\(pain)", unit: "/5", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
 
-                if widgetCount < maxWidgets, snapshot.moodHistory.count >= 3 {
-                    let dayLabels = lastNDayLabels(snapshot.moodHistory.count)
-                    let points = zip(dayLabels, snapshot.moodHistory).map {
-                        ChartPoint(label: $0, value: Double($1))
+                    if widgetCount < maxWidgets, snapshot.painHistory.count >= 3 {
+                        let dayLabels = lastNDayLabels(snapshot.painHistory.count)
+                        let points = zip(dayLabels, snapshot.painHistory).map {
+                            ChartPoint(label: $0, value: Double($1))
+                        }
+                        blocks.append(CoachResponseBlock(content: .chart(
+                            ChartBlockData(title: "Pain (7 days)", values: points, unit: "/5")
+                        )))
+                        widgetCount += 1
                     }
-                    blocks.append(CoachResponseBlock(content: .chart(
-                        ChartBlockData(title: "Mood (7 days)", values: points, unit: "/5")
+                }
+            }
+
+            // Water
+            else if widgetTag == "water", !injectedWidgets.contains("water") {
+                if let cups = snapshot.waterCups {
+                    injectedWidgets.insert("water")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Water", value: "\(cups)/\(snapshot.waterGoal)", unit: "cups", trend: .stable, change: nil)
                     )))
                     widgetCount += 1
                 }
             }
 
-            // --- Priority 3: Pain ---
-            if !injectedWidgets.contains("pain"),
-               lower.containsAny(["pain", "soreness", "hurt", "ache", "sore", "injury"]),
-               let pain = snapshot.pain, widgetCount < maxWidgets {
-                injectedWidgets.insert("pain")
-                let locationStr = snapshot.painLocation.map { " (\($0))" } ?? ""
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Pain\(locationStr)", value: "\(pain)", unit: "/5", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-
-                if widgetCount < maxWidgets, snapshot.painHistory.count >= 3 {
-                    let dayLabels = lastNDayLabels(snapshot.painHistory.count)
-                    let points = zip(dayLabels, snapshot.painHistory).map {
-                        ChartPoint(label: $0, value: Double($1))
-                    }
-                    blocks.append(CoachResponseBlock(content: .chart(
-                        ChartBlockData(title: "Pain (7 days)", values: points, unit: "/5")
+            // Heart zones
+            else if widgetTag == "zones", !injectedWidgets.contains("zones") {
+                if let recMin = snapshot.recoveryMinutes,
+                   let condMin = snapshot.conditioningMinutes,
+                   let ovlMin = snapshot.overloadMinutes,
+                   (recMin + condMin + ovlMin) > 0 {
+                    injectedWidgets.insert("zones")
+                    blocks.append(CoachResponseBlock(content: .heartZones(
+                        HeartZoneData(recovery: recMin, conditioning: condMin, overload: ovlMin)
                     )))
                     widgetCount += 1
                 }
             }
 
-            // --- Priority 4: Water/Hydration ---
-            if !injectedWidgets.contains("water"),
-               lower.containsAny(["water", "hydration", "hydrate", "drink"]),
-               let cups = snapshot.waterCups, widgetCount < maxWidgets {
-                injectedWidgets.insert("water")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Water", value: "\(cups)/\(snapshot.waterGoal)", unit: "cups", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
+            // Recovery
+            else if widgetTag == "recovery", !injectedWidgets.contains("recovery") {
+                if let score = snapshot.recoveryScore {
+                    injectedWidgets.insert("recovery")
+                    let trend = trendForRecovery(score, average: snapshot.weeklyAverage)
+                    let change = snapshot.weeklyAverage.map { "avg \($0)%" }
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Recovery", value: "\(score)", unit: "%", trend: trend, change: change)
+                    )))
+                    widgetCount += 1
 
-            // --- Priority 5: Heart zones ---
-            if !injectedWidgets.contains("zones"),
-               lower.containsAny(["zones", "intensity", "exertion breakdown", "heart zone"]),
-               widgetCount < maxWidgets,
-               let recMin = snapshot.recoveryMinutes,
-               let condMin = snapshot.conditioningMinutes,
-               let ovlMin = snapshot.overloadMinutes,
-               (recMin + condMin + ovlMin) > 0 {
-                injectedWidgets.insert("zones")
-                blocks.append(CoachResponseBlock(content: .heartZones(
-                    HeartZoneData(recovery: recMin, conditioning: condMin, overload: ovlMin)
-                )))
-                widgetCount += 1
-            }
-
-            // --- Recovery (broader keyword match) ---
-            if !injectedWidgets.contains("recovery"),
-               lower.containsAny(["recovery"]),
-               let score = snapshot.recoveryScore, widgetCount < maxWidgets {
-                injectedWidgets.insert("recovery")
-
-                let trend = trendForRecovery(score, average: snapshot.weeklyAverage)
-                let change = snapshot.weeklyAverage.map { "avg \($0)%" }
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Recovery", value: "\(score)", unit: "%", trend: trend, change: change)
-                )))
-                widgetCount += 1
-
-                if widgetCount < maxWidgets, snapshot.recoveryScores.count >= 3 {
-                    let dayLabels = lastNDayLabels(snapshot.recoveryScores.count)
-                    let points = zip(dayLabels, snapshot.recoveryScores).map {
-                        ChartPoint(label: $0, value: Double($1))
+                    if widgetCount < maxWidgets, snapshot.recoveryScores.count >= 3 {
+                        let dayLabels = lastNDayLabels(snapshot.recoveryScores.count)
+                        let points = zip(dayLabels, snapshot.recoveryScores).map {
+                            ChartPoint(label: $0, value: Double($1))
+                        }
+                        blocks.append(CoachResponseBlock(content: .chart(
+                            ChartBlockData(title: "Recovery Trend", values: points, unit: "%")
+                        )))
+                        widgetCount += 1
                     }
-                    blocks.append(CoachResponseBlock(content: .chart(
-                        ChartBlockData(title: "Recovery Trend", values: points, unit: "%")
+                }
+            }
+
+            // HRV
+            else if widgetTag == "hrv", !injectedWidgets.contains("hrv") {
+                if let hrv = snapshot.hrv {
+                    injectedWidgets.insert("hrv")
+                    let trend = trendVsBaseline(current: hrv, baseline: snapshot.hrvBaseline, higherIsGood: true)
+                    let change = snapshot.hrvBaseline.map { "baseline \($0) ms" }
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "HRV", value: "\(hrv)", unit: "ms", trend: trend, change: change)
                     )))
                     widgetCount += 1
                 }
             }
 
-            // --- HRV ---
-            if !injectedWidgets.contains("hrv"),
-               lower.containsAny(["hrv", "heart rate variability"]),
-               let hrv = snapshot.hrv, widgetCount < maxWidgets {
-                injectedWidgets.insert("hrv")
-
-                let trend = trendVsBaseline(current: hrv, baseline: snapshot.hrvBaseline, higherIsGood: true)
-                let change = snapshot.hrvBaseline.map { "baseline \($0) ms" }
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "HRV", value: "\(hrv)", unit: "ms", trend: trend, change: change)
-                )))
-                widgetCount += 1
+            // Resting Heart Rate
+            else if widgetTag == "rhr", !injectedWidgets.contains("rhr") {
+                if let rhr = snapshot.rhr {
+                    injectedWidgets.insert("rhr")
+                    let trend = trendVsBaseline(current: rhr, baseline: snapshot.rhrBaseline, higherIsGood: false)
+                    let change = snapshot.rhrBaseline.map { "baseline \($0) bpm" }
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Resting HR", value: "\(rhr)", unit: "bpm", trend: trend, change: change)
+                    )))
+                    widgetCount += 1
+                }
             }
 
-            // --- Resting Heart Rate (specific "resting heart rate"/"rhr", NOT generic "heart rate") ---
-            if !injectedWidgets.contains("rhr"),
-               lower.containsAny(["resting heart rate", "rhr"]),
-               let rhr = snapshot.rhr, widgetCount < maxWidgets {
-                injectedWidgets.insert("rhr")
-
-                let trend = trendVsBaseline(current: rhr, baseline: snapshot.rhrBaseline, higherIsGood: false)
-                let change = snapshot.rhrBaseline.map { "baseline \($0) bpm" }
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Resting HR", value: "\(rhr)", unit: "bpm", trend: trend, change: change)
-                )))
-                widgetCount += 1
-            }
-
-            // --- Generic "heart rate" (not resting, not HRV) → show sleep/waking HR or sessions with HR ---
-            if !injectedWidgets.contains("rhr"),
-               !injectedWidgets.contains("sessions"),
-               lower.contains("heart rate") && !lower.containsAny(["resting", "rhr", "variability", "hrv"]),
-               widgetCount < maxWidgets {
-                // If we have workout sessions with HR data, show those
+            // Generic heart rate
+            else if widgetTag == "heart_rate", !injectedWidgets.contains("heart_rate") {
                 let sessionsWithHR = snapshot.recentSessions.filter { $0.avgHeartRate != nil }
                 if !sessionsWithHR.isEmpty {
-                    injectedWidgets.insert("sessions")
+                    injectedWidgets.insert("heart_rate")
                     blocks.append(CoachResponseBlock(content: .sessionList(
                         SessionListData(title: "Workout Heart Rates", sessions: Array(sessionsWithHR.prefix(5)))
                     )))
                     widgetCount += 1
                 } else if let sleepHR = snapshot.sleepHeartRate, let wakingHR = snapshot.wakingHeartRate {
-                    // Fall back to sleep/waking HR comparison
-                    injectedWidgets.insert("rhr")
+                    injectedWidgets.insert("heart_rate")
                     let metrics = [
                         MetricData(label: "Sleep HR", value: "\(sleepHR)", unit: "bpm", trend: .stable, change: nil),
                         MetricData(label: "Waking HR", value: "\(wakingHR)", unit: "bpm", trend: .stable, change: nil),
@@ -425,13 +398,9 @@ struct CoachResponseParser {
                 }
             }
 
-            // --- Sleep ---
-            if !injectedWidgets.contains("sleep"),
-               lower.containsAny(["sleep", "slept", "bedtime", "rest quality"]),
-               widgetCount < maxWidgets {
+            // Sleep
+            else if widgetTag == "sleep", !injectedWidgets.contains("sleep") {
                 injectedWidgets.insert("sleep")
-
-                // Primary: sleep duration + score as one metric
                 if let duration = snapshot.sleepDuration, duration != "--" {
                     let scoreStr = snapshot.sleepScore.map { " (\($0)/100)" } ?? ""
                     blocks.append(CoachResponseBlock(content: .metric(
@@ -440,7 +409,6 @@ struct CoachResponseParser {
                     widgetCount += 1
                 }
 
-                // Sleep stages as compact row
                 if widgetCount < maxWidgets {
                     var stageMetrics: [MetricData] = []
                     if let deep = snapshot.deepSleep, deep != "--" {
@@ -459,90 +427,87 @@ struct CoachResponseParser {
                 }
             }
 
-            // --- Steps ---
-            if !injectedWidgets.contains("steps"),
-               lower.containsAny(["steps", "step count", "walking"]),
-               let steps = snapshot.steps, widgetCount < maxWidgets {
-                injectedWidgets.insert("steps")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Steps", value: "\(steps)", unit: "", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
-
-            // --- Calories ---
-            if !injectedWidgets.contains("calories"),
-               lower.containsAny(["calories", "active calories", "calorie", "energy burn"]),
-               let cal = snapshot.activeCalories, widgetCount < maxWidgets {
-                injectedWidgets.insert("calories")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Active Calories", value: "\(cal)", unit: "kcal", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
-
-            // --- SpO2 ---
-            if !injectedWidgets.contains("spo2"),
-               lower.containsAny(["spo2", "oxygen saturation", "blood oxygen"]),
-               let spo2 = snapshot.spo2, widgetCount < maxWidgets {
-                injectedWidgets.insert("spo2")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "SpO2", value: String(format: "%.1f", spo2), unit: "%", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
-
-            // --- VO2 Max ---
-            if !injectedWidgets.contains("vo2"),
-               lower.containsAny(["vo2", "vo2 max", "cardio fitness"]),
-               let vo2 = snapshot.vo2Max, widgetCount < maxWidgets {
-                injectedWidgets.insert("vo2")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "VO2 Max", value: String(format: "%.1f", vo2), unit: "mL/kg/min", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
-
-            // --- Respiratory Rate ---
-            if !injectedWidgets.contains("resprate"),
-               lower.containsAny(["respiratory", "breathing rate", "breaths"]),
-               let rr = snapshot.respiratoryRate, widgetCount < maxWidgets {
-                injectedWidgets.insert("resprate")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Respiratory Rate", value: String(format: "%.1f", rr), unit: "br/min", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-            }
-
-            // --- Exertion ---
-            if !injectedWidgets.contains("exertion"),
-               lower.containsAny(["exertion", "strain"]),
-               let exertion = snapshot.exertionScore, widgetCount < maxWidgets {
-                injectedWidgets.insert("exertion")
-                blocks.append(CoachResponseBlock(content: .metric(
-                    MetricData(label: "Exertion", value: "\(exertion)", unit: "", trend: .stable, change: nil)
-                )))
-                widgetCount += 1
-
-                // Also show zone breakdown if available
-                if !injectedWidgets.contains("zones"),
-                   widgetCount < maxWidgets,
-                   let recMin = snapshot.recoveryMinutes,
-                   let condMin = snapshot.conditioningMinutes,
-                   let ovlMin = snapshot.overloadMinutes,
-                   (recMin + condMin + ovlMin) > 0 {
-                    injectedWidgets.insert("zones")
-                    blocks.append(CoachResponseBlock(content: .heartZones(
-                        HeartZoneData(recovery: recMin, conditioning: condMin, overload: ovlMin)
+            // Steps
+            else if widgetTag == "steps", !injectedWidgets.contains("steps") {
+                if let steps = snapshot.steps {
+                    injectedWidgets.insert("steps")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Steps", value: "\(steps)", unit: "", trend: .stable, change: nil)
                     )))
                     widgetCount += 1
                 }
             }
 
-            // --- Trends / comparisons ---
-            if !injectedWidgets.contains("trends"),
-               lower.containsAny(["compared to", "vs last week", "trending", "week over week", "trend"]),
-               !snapshot.healthTrends.isEmpty, widgetCount < maxWidgets {
+            // Calories
+            else if widgetTag == "calories", !injectedWidgets.contains("calories") {
+                if let cal = snapshot.activeCalories {
+                    injectedWidgets.insert("calories")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Active Calories", value: "\(cal)", unit: "kcal", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+                }
+            }
+
+            // SpO2
+            else if widgetTag == "spo2", !injectedWidgets.contains("spo2") {
+                if let spo2 = snapshot.spo2 {
+                    injectedWidgets.insert("spo2")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "SpO2", value: String(format: "%.1f", spo2), unit: "%", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+                }
+            }
+
+            // VO2 Max
+            else if widgetTag == "vo2", !injectedWidgets.contains("vo2") {
+                if let vo2 = snapshot.vo2Max {
+                    injectedWidgets.insert("vo2")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "VO2 Max", value: String(format: "%.1f", vo2), unit: "mL/kg/min", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+                }
+            }
+
+            // Respiratory Rate
+            else if widgetTag == "respiratory", !injectedWidgets.contains("respiratory") {
+                if let rr = snapshot.respiratoryRate {
+                    injectedWidgets.insert("respiratory")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Respiratory Rate", value: String(format: "%.1f", rr), unit: "br/min", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+                }
+            }
+
+            // Exertion
+            else if widgetTag == "exertion", !injectedWidgets.contains("exertion") {
+                if let exertion = snapshot.exertionScore {
+                    injectedWidgets.insert("exertion")
+                    blocks.append(CoachResponseBlock(content: .metric(
+                        MetricData(label: "Exertion", value: "\(exertion)", unit: "", trend: .stable, change: nil)
+                    )))
+                    widgetCount += 1
+
+                    if !injectedWidgets.contains("zones"),
+                       widgetCount < maxWidgets,
+                       let recMin = snapshot.recoveryMinutes,
+                       let condMin = snapshot.conditioningMinutes,
+                       let ovlMin = snapshot.overloadMinutes,
+                       (recMin + condMin + ovlMin) > 0 {
+                        injectedWidgets.insert("zones")
+                        blocks.append(CoachResponseBlock(content: .heartZones(
+                            HeartZoneData(recovery: recMin, conditioning: condMin, overload: ovlMin)
+                        )))
+                        widgetCount += 1
+                    }
+                }
+            }
+
+            // Trends
+            else if widgetTag == "trends", !injectedWidgets.contains("trends"), !snapshot.healthTrends.isEmpty {
                 injectedWidgets.insert("trends")
                 let items = snapshot.healthTrends.prefix(4).map { trend in
                     ComparisonItem(
@@ -558,10 +523,8 @@ struct CoachResponseParser {
                 widgetCount += 1
             }
 
-            // --- Health overview / full breakdown — inject a multi-metric summary ---
-            if !injectedWidgets.contains("overview"),
-               lower.containsAny(["breakdown", "overview", "full health", "summary", "how am i", "overall"]),
-               widgetCount < maxWidgets {
+            // Overview
+            else if widgetTag == "overview", !injectedWidgets.contains("overview") {
                 injectedWidgets.insert("overview")
                 var overviewMetrics: [MetricData] = []
 
@@ -586,17 +549,11 @@ struct CoachResponseParser {
                     widgetCount += 1
                 }
             }
-
-            // Tips extracted from the paragraph
-            for tip in tips where widgetCount < maxWidgets {
-                blocks.append(CoachResponseBlock(content: .tip(TipData(text: tip, icon: tipIcon(for: tip)))))
-                widgetCount += 1
-            }
         }
 
         // If we produced nothing, return the full response as text
         if blocks.isEmpty {
-            return [CoachResponseBlock(content: .text(cleanMarkdown(trimmed)))]
+            return [CoachResponseBlock(content: .text(cleanMarkdown(cleanedText)))]
         }
 
         return blocks

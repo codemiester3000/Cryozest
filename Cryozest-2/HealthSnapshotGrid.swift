@@ -37,7 +37,10 @@ struct HealthSnapshotGrid: View {
                     hasData: recoveryModel.previousNightSleepDuration != nil,
                     isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
-                .onTapGesture { selectedMetric = .sleep }
+                .onTapGesture {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    selectedMetric = .sleep
+                }
 
                 StreamingSnapshotCell(
                     icon: "waveform.path.ecg", title: "HRV",
@@ -46,7 +49,10 @@ struct HealthSnapshotGrid: View {
                     hasData: recoveryModel.avgHrvDuringSleep != nil,
                     isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
-                .onTapGesture { selectedMetric = .hrv }
+                .onTapGesture {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    selectedMetric = .hrv
+                }
 
                 StreamingSnapshotCell(
                     icon: "heart.fill", title: "Resting HR",
@@ -55,7 +61,10 @@ struct HealthSnapshotGrid: View {
                     hasData: recoveryModel.mostRecentRestingHeartRate != nil,
                     isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
-                .onTapGesture { selectedMetric = .rhr }
+                .onTapGesture {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    selectedMetric = .rhr
+                }
 
                 StreamingSnapshotCell(
                     icon: "figure.walk", title: "Steps",
@@ -64,7 +73,10 @@ struct HealthSnapshotGrid: View {
                     hasData: recoveryModel.mostRecentSteps != nil,
                     isLoading: recoveryModel.isLoading && !recoveryModel.hasLoadedOnce
                 )
-                .onTapGesture { selectedMetric = .steps }
+                .onTapGesture {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    selectedMetric = .steps
+                }
             }
         }
         .padding(16)
