@@ -33,16 +33,20 @@ class HealthProjectionEngine {
         var projections: [HealthProjection] = []
 
         for impact in impacts {
-            // Only project for impacts with at least earlySignal confidence
-            guard impact.confidenceLevel == .high ||
-                  impact.confidenceLevel == .moderate ||
-                  impact.confidenceLevel == .earlySignal else { continue }
+            // Project for impacts with statistical confidence OR meaningful observed change
+            let hasConfidence = impact.confidenceLevel == .high ||
+                                impact.confidenceLevel == .moderate ||
+                                impact.confidenceLevel == .earlySignal
+            let hasMeaningfulChange = abs(impact.percentageChange) >= 3
+            guard hasConfidence || hasMeaningfulChange else { continue }
 
             // Project: if user continues at current frequency for 30 more days
             // Use a conservative scaling factor (diminishing returns)
+            // Apply extra dampening for low/insufficient confidence
             let weeklyRate = sessionsPerWeek
             let monthProjectionFactor = min(weeklyRate / 3.0, 1.5) // Cap the multiplier
-            let projectedAdditionalChange = impact.percentageChange * 0.5 * monthProjectionFactor
+            let confidenceDampener: Double = hasConfidence ? 1.0 : 0.5
+            let projectedAdditionalChange = impact.percentageChange * 0.5 * monthProjectionFactor * confidenceDampener
 
             let projectedValue: Double
             let isRHR = impact.metricName == "RHR" || impact.metricName == "Resting Heart Rate"
