@@ -14,8 +14,9 @@ struct StepsDetailView: View {
 
     @State private var stepsHistory: [Date: Double] = [:]
     @State private var isLoadingHistory = true
+    @State private var showGoalEditor = false
 
-    private let dailyStepGoal = 10_000
+    @AppStorage("dailyStepGoal") private var dailyStepGoal: Int = 10_000
 
     private var steps: Int { Int(model.mostRecentSteps ?? 0) }
     private var goalProgress: Double { min(Double(steps) / Double(dailyStepGoal), 1.0) }
@@ -52,6 +53,7 @@ struct StepsDetailView: View {
     }
 
     private var distanceKm: Double { Double(steps) * 0.000762 }
+    private var distanceMi: Double { distanceKm * 0.621371 }
     private var caloriesEstimate: Int { Int(Double(steps) * 0.04) }
 
     var body: some View {
@@ -66,6 +68,9 @@ struct StepsDetailView: View {
         .padding(.top, 8)
         .onAppear { loadStepsHistory() }
         .onChange(of: model.selectedDate) { _ in loadStepsHistory() }
+        .sheet(isPresented: $showGoalEditor) {
+            StepGoalEditorSheet(dailyStepGoal: $dailyStepGoal)
+        }
     }
 
     // MARK: - Hero Ring
@@ -98,9 +103,15 @@ struct StepsDetailView: View {
                     Text(steps >= 1000 ? String(format: "%.1fk", Double(steps) / 1000.0) : "\(steps)")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                    Text("of \(dailyStepGoal / 1000)k goal")
-                        .font(.system(size: 11, weight: .medium))
+                    Button(action: { showGoalEditor = true }) {
+                        HStack(spacing: 3) {
+                            Text("of \(dailyStepGoal.formatted()) goal")
+                                .font(.system(size: 11, weight: .medium))
+                            Image(systemName: "pencil")
+                                .font(.system(size: 8, weight: .semibold))
+                        }
                         .foregroundColor(.white.opacity(0.4))
+                    }
                 }
             }
 
@@ -280,9 +291,12 @@ struct StepsDetailView: View {
                     Text("Distance")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.white.opacity(0.4))
-                    Text(String(format: "%.1f km", distanceKm))
+                    Text(String(format: "%.1f mi", distanceMi))
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
+                    Text(String(format: "%.1f km", distanceKm))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
                 }
                 Spacer()
             }
@@ -400,6 +414,136 @@ struct StepsDetailView: View {
         HealthKitManager.shared.fetchStepsForLastNDays(numberOfDays: 7, referenceDate: model.selectedDate) { history in
             stepsHistory = history
             isLoadingHistory = false
+        }
+    }
+}
+
+// MARK: - Step Goal Editor
+
+private struct StepGoalEditorSheet: View {
+    @Binding var dailyStepGoal: Int
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedGoal: Int = 10_000
+
+    private let presets = [5_000, 7_500, 8_000, 10_000, 12_000, 15_000, 20_000]
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color(red: 0.06, green: 0.10, blue: 0.18)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 24) {
+                    // Current value display
+                    VStack(spacing: 4) {
+                        Text(selectedGoal.formatted())
+                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                        Text("steps per day")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                    .padding(.top, 20)
+
+                    // Stepper controls
+                    HStack(spacing: 16) {
+                        stepperButton(label: "-1,000", delta: -1000)
+                        stepperButton(label: "-500", delta: -500)
+                        stepperButton(label: "+500", delta: 500)
+                        stepperButton(label: "+1,000", delta: 1000)
+                    }
+
+                    // Preset buttons
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("PRESETS")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.white.opacity(0.35))
+                            .tracking(0.5)
+
+                        LazyVGrid(columns: [
+                            GridItem(.flexible(), spacing: 8),
+                            GridItem(.flexible(), spacing: 8),
+                            GridItem(.flexible(), spacing: 8)
+                        ], spacing: 8) {
+                            ForEach(presets, id: \.self) { preset in
+                                Button(action: { selectedGoal = preset }) {
+                                    Text(preset.formatted())
+                                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                        .foregroundColor(selectedGoal == preset ? .white : .white.opacity(0.6))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .fill(selectedGoal == preset
+                                                    ? Color.green.opacity(0.25)
+                                                    : Color.white.opacity(0.06))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 10)
+                                                        .stroke(selectedGoal == preset
+                                                            ? Color.green.opacity(0.4)
+                                                            : Color.clear, lineWidth: 1)
+                                                )
+                                        )
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+
+                    Spacer()
+
+                    // Save button
+                    Button(action: {
+                        dailyStepGoal = selectedGoal
+                        dismiss()
+                    }) {
+                        Text("Set Goal")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(Color.green)
+                            )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Daily Step Goal")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+        }
+        .onAppear { selectedGoal = dailyStepGoal }
+        .presentationDetents([.medium])
+    }
+
+    private func stepperButton(label: String, delta: Int) -> some View {
+        Button(action: {
+            let newVal = selectedGoal + delta
+            if newVal >= 1000 && newVal <= 50_000 {
+                selectedGoal = newVal
+            }
+        }) {
+            Text(label)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.7))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white.opacity(0.08))
+                )
         }
     }
 }
