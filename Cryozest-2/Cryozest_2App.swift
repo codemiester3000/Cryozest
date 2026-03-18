@@ -28,7 +28,8 @@ struct Cryozest_2App: App {
                 }
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                let splashDuration: Double = UserDefaults.standard.bool(forKey: "hasLaunchedBefore") ? 0.8 : 2.5
+                DispatchQueue.main.asyncAfter(deadline: .now() + splashDuration) {
                     withAnimation(.easeInOut(duration: 0.4)) {
                         showSplash = false
                     }

@@ -16,7 +16,7 @@ struct OnboardingFlowView: View {
     @State private var selectedHabits: [TherapyType] = []
     let onComplete: () -> Void
 
-    private let totalSteps = 4
+    private let totalSteps = 5
 
     var body: some View {
         ZStack {
@@ -51,12 +51,16 @@ struct OnboardingFlowView: View {
                     HealthStep(onContinue: { withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { step = 3 } })
                         .tag(2)
 
-                    PromiseStep(onComplete: {
+                    NotificationStep(onContinue: { withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { step = 4 } })
+                        .tag(3)
+
+                    PromiseStep(selectedHabits: selectedHabits, onComplete: {
                         appState.hasLaunchedBefore = true
                         appState.hasSelectedTherapyTypes = true
+                        NotificationManager.shared.scheduleWelcomeBackNotification()
                         onComplete()
                     })
-                    .tag(3)
+                    .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(response: 0.5, dampingFraction: 0.85), value: step)
@@ -739,19 +743,197 @@ struct DataChip: View {
     }
 }
 
-// MARK: - Step 4: Promise
+// MARK: - Step 4: Notification Opt-In
+struct NotificationStep: View {
+    let onContinue: () -> Void
+
+    @State private var showContent = false
+    @State private var isRequesting = false
+    @State private var isGranted = false
+    @State private var pulseBell = false
+    @State private var rotateRing = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            // Animated bell icon
+            ZStack {
+                // Rotating ring
+                Circle()
+                    .stroke(
+                        AngularGradient(
+                            colors: [Color.yellow.opacity(0.5), Color.yellow.opacity(0.1), Color.yellow.opacity(0.5)],
+                            center: .center
+                        ),
+                        lineWidth: 2
+                    )
+                    .frame(width: 150, height: 150)
+                    .rotationEffect(.degrees(rotateRing ? 360 : 0))
+                    .opacity(isGranted ? 0 : 1)
+
+                // Pulse circles
+                Circle()
+                    .fill(Color.yellow.opacity(0.1))
+                    .frame(width: 140, height: 140)
+                    .scaleEffect(pulseBell ? 1.2 : 1.0)
+                    .opacity(pulseBell ? 0 : 0.5)
+
+                Circle()
+                    .fill(isGranted ? Color.green.opacity(0.15) : Color.yellow.opacity(0.15))
+                    .frame(width: 120, height: 120)
+
+                if isGranted {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 50, weight: .bold))
+                        .foregroundColor(.green)
+                        .transition(.scale.combined(with: .opacity))
+                } else {
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 54))
+                        .foregroundColor(.yellow)
+                        .scaleEffect(pulseBell ? 1.05 : 1.0)
+                }
+            }
+            .padding(.bottom, 40)
+            .opacity(showContent ? 1 : 0)
+            .scaleEffect(showContent ? 1 : 0.8)
+
+            // Text
+            VStack(spacing: 14) {
+                Text(isGranted ? "You're set!" : "Stay on track")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.white)
+
+                Text(isGranted
+                     ? "We'll remind you to check in daily."
+                     : "A gentle daily reminder to check in\nand log your habits.")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+            }
+            .opacity(showContent ? 1 : 0)
+            .offset(y: showContent ? 0 : 20)
+            .padding(.horizontal, 32)
+
+            Spacer()
+
+            // Button
+            VStack(spacing: 16) {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    if isGranted {
+                        OnboardingManager.shared.markNotificationPromptSeen()
+                        onContinue()
+                    } else {
+                        requestNotifications()
+                    }
+                }) {
+                    HStack(spacing: 10) {
+                        if isRequesting {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(0.9)
+                        }
+                        Text(isGranted ? "Continue" : (isRequesting ? "Requesting..." : "Enable Reminders"))
+                            .font(.system(size: 17, weight: .semibold))
+
+                        if isGranted {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14, weight: .semibold))
+                        }
+                    }
+                    .foregroundColor(isGranted ? .black : .white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(isGranted ? Color.cyan : Color.yellow)
+                            .shadow(color: (isGranted ? Color.cyan : Color.yellow).opacity(0.3), radius: 12, x: 0, y: 4)
+                    )
+                }
+                .disabled(isRequesting)
+
+                if !isGranted {
+                    Button(action: {
+                        OnboardingManager.shared.markNotificationPromptSeen()
+                        onContinue()
+                    }) {
+                        Text("Not now")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 50)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
+                showContent = true
+            }
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                pulseBell = true
+            }
+            withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
+                rotateRing = true
+            }
+        }
+    }
+
+    private func requestNotifications() {
+        isRequesting = true
+        NotificationManager.shared.requestAuthorization { granted in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isRequesting = false
+                if granted {
+                    NotificationManager.shared.enableOnboardingDefaults()
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        isGranted = true
+                    }
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                } else {
+                    // Permission denied — just move on
+                    OnboardingManager.shared.markNotificationPromptSeen()
+                    onContinue()
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Step 5: Promise (Personalized)
 struct PromiseStep: View {
+    let selectedHabits: [TherapyType]
     let onComplete: () -> Void
 
     @State private var showContent = false
-    @State private var showInsights = false
+    @State private var showMetrics = false
     @State private var showButton = false
     @State private var sparkleRotation = false
     @State private var confettiVisible = false
 
+    // Health data
+    @State private var avgSleep: Double?
+    @State private var avgHRV: Double?
+    @State private var avgRHR: Double?
+    @State private var avgSteps: Double?
+    @State private var dataLoaded = false
+
+    private var hasHealthData: Bool {
+        avgSleep != nil || avgHRV != nil || avgRHR != nil || avgSteps != nil
+    }
+
+    private var habitNames: String {
+        let names = selectedHabits.prefix(3).map { $0.rawValue.replacingOccurrences(of: "_", with: " ").capitalized }
+        if names.isEmpty { return "your habits" }
+        if names.count == 1 { return names[0] }
+        return names.dropLast().joined(separator: ", ") + " & " + (names.last ?? "")
+    }
+
     var body: some View {
         ZStack {
-            // Confetti particles
             if confettiVisible {
                 ConfettiView()
             }
@@ -761,7 +943,6 @@ struct PromiseStep: View {
 
                 // Sparkle icon
                 ZStack {
-                    // Glow
                     Circle()
                         .fill(Color.cyan.opacity(0.2))
                         .frame(width: 120, height: 120)
@@ -784,7 +965,7 @@ struct PromiseStep: View {
                         .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("Here's what to expect")
+                    Text(hasHealthData ? "Your Health Right Now" : "Here's what to expect")
                         .font(.system(size: 16))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -793,36 +974,17 @@ struct PromiseStep: View {
                 .padding(.top, 32)
                 .padding(.horizontal, 32)
 
-                // Timeline
-                VStack(spacing: 10) {
-                    InsightPreviewRow(
-                        icon: "3.circle.fill",
-                        color: .cyan,
-                        text: "Day 3: Early signals appear"
-                    )
-                    .opacity(showInsights ? 1 : 0)
-                    .offset(x: showInsights ? 0 : -30)
-
-                    InsightPreviewRow(
-                        icon: "7.circle.fill",
-                        color: .green,
-                        text: "Day 7: First trends unlock"
-                    )
-                    .opacity(showInsights ? 1 : 0)
-                    .offset(x: showInsights ? 0 : -30)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showInsights)
-
-                    InsightPreviewRow(
-                        icon: "14.circle.fill",
-                        color: .orange,
-                        text: "Day 14: Full insights with confidence"
-                    )
-                    .opacity(showInsights ? 1 : 0)
-                    .offset(x: showInsights ? 0 : -30)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: showInsights)
+                if hasHealthData {
+                    // Personalized health metrics
+                    personalizedMetrics
+                        .padding(.horizontal, 24)
+                        .padding(.top, 24)
+                } else {
+                    // Fallback: generic timeline
+                    fallbackTimeline
+                        .padding(.horizontal, 24)
+                        .padding(.top, 32)
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
 
                 Spacer()
 
@@ -835,7 +997,7 @@ struct PromiseStep: View {
                         .font(.system(size: 13))
                         .foregroundColor(.white.opacity(0.5))
                 }
-                .opacity(showInsights ? 1 : 0)
+                .opacity(showMetrics ? 1 : 0)
                 .padding(.bottom, 24)
 
                 // Button
@@ -865,25 +1027,171 @@ struct PromiseStep: View {
             }
         }
         .onAppear {
-            // Confetti burst
+            fetchHealthData()
+
             withAnimation {
                 confettiVisible = true
             }
-
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1)) {
                 showContent = true
             }
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.4)) {
-                showInsights = true
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.5)) {
+                showMetrics = true
             }
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.6)) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7).delay(0.7)) {
                 showButton = true
             }
-            // Sparkle wobble
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 sparkleRotation = true
             }
         }
+    }
+
+    // MARK: - Personalized Metrics Card
+
+    private var personalizedMetrics: some View {
+        VStack(spacing: 16) {
+            // Metric grid
+            let metrics = buildMetrics()
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                ForEach(Array(metrics.enumerated()), id: \.offset) { index, metric in
+                    HealthMetricChip(icon: metric.icon, label: metric.label, value: metric.value, color: metric.color)
+                        .opacity(showMetrics ? 1 : 0)
+                        .offset(y: showMetrics ? 0 : 15)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.7).delay(Double(index) * 0.1), value: showMetrics)
+                }
+            }
+
+            // Personalized promise
+            Text("We'll track how **\(habitNames)** affect these numbers. First signals in ~3 days.")
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .opacity(showMetrics ? 1 : 0)
+                .padding(.top, 4)
+        }
+    }
+
+    private struct MetricInfo {
+        let icon: String
+        let label: String
+        let value: String
+        let color: Color
+    }
+
+    private func buildMetrics() -> [MetricInfo] {
+        var metrics: [MetricInfo] = []
+        if let sleep = avgSleep {
+            metrics.append(MetricInfo(icon: "bed.double.fill", label: "Sleep", value: String(format: "%.1f hrs avg", sleep), color: .indigo))
+        }
+        if let hrv = avgHRV {
+            metrics.append(MetricInfo(icon: "waveform.path.ecg", label: "HRV", value: "\(Int(hrv))ms avg", color: .orange))
+        }
+        if let rhr = avgRHR {
+            metrics.append(MetricInfo(icon: "heart.fill", label: "RHR", value: "\(Int(rhr)) bpm", color: .red))
+        }
+        if let steps = avgSteps {
+            let formatted = steps >= 1000 ? String(format: "%.1fk avg", steps / 1000.0) : "\(Int(steps)) avg"
+            metrics.append(MetricInfo(icon: "figure.walk", label: "Steps", value: formatted, color: .green))
+        }
+        return metrics
+    }
+
+    // MARK: - Fallback Timeline
+
+    private var fallbackTimeline: some View {
+        VStack(spacing: 10) {
+            InsightPreviewRow(icon: "3.circle.fill", color: .cyan, text: "Day 3: Early signals appear")
+                .opacity(showMetrics ? 1 : 0)
+                .offset(x: showMetrics ? 0 : -30)
+
+            InsightPreviewRow(icon: "7.circle.fill", color: .green, text: "Day 7: First trends unlock")
+                .opacity(showMetrics ? 1 : 0)
+                .offset(x: showMetrics ? 0 : -30)
+                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showMetrics)
+
+            InsightPreviewRow(icon: "14.circle.fill", color: .orange, text: "Day 14: Full insights with confidence")
+                .opacity(showMetrics ? 1 : 0)
+                .offset(x: showMetrics ? 0 : -30)
+                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.2), value: showMetrics)
+        }
+    }
+
+    // MARK: - Fetch Health Data
+
+    private func fetchHealthData() {
+        let hk = HealthKitManager.shared
+        let group = DispatchGroup()
+
+        group.enter()
+        hk.fetchAvgSleepDurationForLastNDays(numDays: 7) { value in
+            avgSleep = value
+            group.leave()
+        }
+
+        group.enter()
+        hk.fetchAvgHRVForLastDays(numberOfDays: 7) { value in
+            avgHRV = value
+            group.leave()
+        }
+
+        group.enter()
+        hk.fetchAvgRestingHeartRate(numDays: 7) { value in
+            avgRHR = value
+            group.leave()
+        }
+
+        group.enter()
+        hk.fetchAvgStepsForLastNDays(numDays: 7) { value in
+            avgSteps = value
+            group.leave()
+        }
+
+        group.notify(queue: .main) {
+            dataLoaded = true
+        }
+    }
+}
+
+// MARK: - Health Metric Chip (for Promise step)
+struct HealthMetricChip: View {
+    let icon: String
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 36, height: 36)
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(color)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.white.opacity(0.5))
+                Text(value)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
 }
 

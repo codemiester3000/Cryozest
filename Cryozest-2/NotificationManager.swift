@@ -142,6 +142,39 @@ class NotificationManager: ObservableObject {
         center.add(request)
     }
 
+    // MARK: - Onboarding Defaults
+
+    func enableOnboardingDefaults() {
+        dailyReminderEnabled = true
+        streakProtectionEnabled = true
+        scheduleDailyReminder()
+    }
+
+    // MARK: - Welcome Back Notification
+
+    func scheduleWelcomeBackNotification() {
+        guard isAuthorized else { return }
+
+        center.removePendingNotificationRequests(withIdentifiers: ["welcome-back-day1"])
+
+        let content = UNMutableNotificationContent()
+        content.title = "Your health snapshot is ready"
+        content.body = "Log today's habits and we'll start uncovering patterns."
+        content.sound = .default
+
+        // Tomorrow at 9am
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) {
+            components = Calendar.current.dateComponents([.year, .month, .day], from: tomorrow)
+        }
+        components.hour = 9
+        components.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(identifier: "welcome-back-day1", content: content, trigger: trigger)
+        center.add(request)
+    }
+
     // MARK: - Cancel All
 
     func cancelAll() {

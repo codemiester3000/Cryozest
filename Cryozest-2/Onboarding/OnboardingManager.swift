@@ -24,6 +24,7 @@ class OnboardingManager {
     private let hasSeenSafetyWarningKey = "hasSeenSafetyWarning"
     private let hasConfiguredWidgetsKey = "hasConfiguredWidgets"
     private let hasSeenCustomizeTooltipKey = "hasSeenCustomizeTooltip"
+    private let hasSeenNotificationPromptKey = "hasSeenNotificationPrompt"
 
     private init() {}
 
@@ -127,6 +128,16 @@ class OnboardingManager {
         defaults.set(true, forKey: hasSeenCustomizeTooltipKey)
     }
 
+    // MARK: - Notification Prompt
+
+    var hasSeenNotificationPrompt: Bool {
+        defaults.bool(forKey: hasSeenNotificationPromptKey)
+    }
+
+    func markNotificationPromptSeen() {
+        defaults.set(true, forKey: hasSeenNotificationPromptKey)
+    }
+
     // MARK: - Reset (for testing)
 
     func resetOnboarding() {
@@ -141,5 +152,6 @@ class OnboardingManager {
         defaults.removeObject(forKey: hasSeenSafetyWarningKey)
         defaults.removeObject(forKey: hasConfiguredWidgetsKey)
         defaults.removeObject(forKey: hasSeenCustomizeTooltipKey)
+        defaults.removeObject(forKey: hasSeenNotificationPromptKey)
     }
 }

@@ -44,6 +44,13 @@ struct DailyView: View {
     @State private var showCoachSheet = false
     @State private var coachQuestion: String? = nil
 
+    // First-log celebration
+    @State private var showFirstLogCelebration = false
+    @State private var firstLogHabitType: TherapyType?
+
+    // Quick-log pulse for new users
+    @State private var pulseQuickLog = false
+
     init(
         recoveryModel: RecoveryGraphModel,
         exertionModel: ExertionModel,
@@ -151,6 +158,22 @@ struct DailyView: View {
                         .frame(height: 100)
                 }
             }
+            // First-log celebration overlay
+            .overlay(
+                Group {
+                    if showFirstLogCelebration {
+                        FirstLogCelebrationOverlay(habitType: firstLogHabitType)
+                            .transition(.opacity)
+                            .onAppear {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                    withAnimation(.easeOut(duration: 0.4)) {
+                                        showFirstLogCelebration = false
+                                    }
+                                }
+                            }
+                    }
+                }
+            )
             .refreshable {
                 // Force refresh — bypass cooldown
                 stressModel.invalidateCache()
@@ -185,6 +208,11 @@ struct DailyView: View {
             .environment(\.managedObjectContext, viewContext)
         }
         .onAppear {
+            // Pulse quick-log grid for new users
+            if !OnboardingManager.shared.hasCompletedFirstSession {
+                pulseQuickLog = true
+            }
+
             if OnboardingManager.shared.shouldShowDailyEmptyState {
                 showOnboarding = true
             } else {
@@ -396,6 +424,17 @@ struct DailyView: View {
                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
         )
+        .overlay(
+            Group {
+                if pulseQuickLog {
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.cyan.opacity(0.4), lineWidth: 1.5)
+                        .scaleEffect(pulseQuickLog ? 1.02 : 1.0)
+                        .opacity(pulseQuickLog ? 0.6 : 0)
+                        .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseQuickLog)
+                }
+            }
+        )
     }
 
     // MARK: - Helpers
@@ -466,6 +505,18 @@ struct DailyView: View {
 
         do {
             try viewContext.save()
+
+            // First-log celebration
+            if !OnboardingManager.shared.hasCompletedFirstSession {
+                OnboardingManager.shared.markFirstSessionCompleted()
+                firstLogHabitType = habitType
+                pulseQuickLog = false
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    showFirstLogCelebration = true
+                }
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+            }
+
             triggerAnimation(for: habitType)
         } catch {
             print("Error saving session: \(error)")
@@ -969,5 +1020,88 @@ struct DailyTipCard: View {
                         .stroke(Color.blue.opacity(0.15), lineWidth: 1)
                 )
         )
+    }
+}
+
+// MARK: - First Log Celebration Overlay
+
+struct FirstLogCelebrationOverlay: View {
+    let habitType: TherapyType?
+
+    @State private var showText = false
+    @State private var particles: [(id: Int, x: CGFloat, y: CGFloat, color: Color, opacity: Double)] = []
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+
+            // Confetti particles
+            ForEach(particles, id: \.id) { particle in
+                Circle()
+                    .fill(particle.color)
+                    .frame(width: CGFloat.random(in: 4...8), height: CGFloat.random(in: 4...8))
+                    .position(x: particle.x, y: particle.y)
+                    .opacity(particle.opacity)
+            }
+
+            // Celebration card
+            VStack(spacing: 20) {
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.2))
+                        .frame(width: 80, height: 80)
+
+                    if let habit = habitType {
+                        Image(systemName: habit.icon)
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(habit.color)
+                    } else {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.green)
+                    }
+                }
+                .scaleEffect(showText ? 1 : 0.5)
+
+                VStack(spacing: 8) {
+                    Text("First habit logged!")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.white)
+
+                    Text("Keep going — insights unlock after a few days.")
+                        .font(.system(size: 15))
+                        .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                }
+                .opacity(showText ? 1 : 0)
+                .offset(y: showText ? 0 : 10)
+            }
+            .padding(32)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                showText = true
+            }
+            createParticles()
+        }
+    }
+
+    private func createParticles() {
+        let colors: [Color] = [.cyan, .green, .yellow, .orange, .pink, .purple]
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+        let centerX = screenWidth / 2
+        let centerY = screenHeight / 2.5
+
+        for i in 0..<25 {
+            particles.append((id: i, x: centerX, y: centerY, color: colors.randomElement()!, opacity: 1.0))
+
+            withAnimation(.easeOut(duration: Double.random(in: 1.0...2.0)).delay(Double(i) * 0.02)) {
+                particles[i].x = CGFloat.random(in: 20...(screenWidth - 20))
+                particles[i].y = CGFloat.random(in: (centerY - 100)...(screenHeight - 200))
+                particles[i].opacity = 0
+            }
+        }
     }
 }
