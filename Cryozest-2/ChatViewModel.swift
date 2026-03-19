@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import UIKit
 
 @MainActor
 class ChatViewModel: ObservableObject {
@@ -10,7 +11,18 @@ class ChatViewModel: ObservableObject {
 
     private let chatService = GeminiChatService()
     private var healthContext: String = ""
-    private var healthSnapshot = HealthSnapshot()
+    private(set) var healthSnapshot: HealthSnapshot? = HealthSnapshot()
+    private var lastContextBuild: Date?
+
+    // Store the parameters needed to refresh context
+    private var lastInsightsViewModel: InsightsViewModel?
+    private var lastRecoveryModel: RecoveryGraphModel?
+    private var lastSleepModel: DailySleepViewModel?
+    private var lastExertionModel: ExertionModel?
+    private var lastStressModel: StressScoreModel?
+    private var lastSessions: [TherapySessionEntity] = []
+    private var lastSelectedTherapyTypes: [TherapyType] = []
+    private var lastViewContext: NSManagedObjectContext?
 
     var isConfigured: Bool { chatService.isConfigured }
 
@@ -67,6 +79,34 @@ class ChatViewModel: ObservableObject {
             selectedTherapyTypes: selectedTherapyTypes,
             viewContext: viewContext
         )
+        lastContextBuild = Date()
+
+        // Store refs for auto-refresh
+        lastInsightsViewModel = insightsViewModel
+        lastRecoveryModel = recoveryModel
+        lastSleepModel = sleepModel
+        lastExertionModel = exertionModel
+        lastStressModel = stressModel
+        lastSessions = sessions
+        lastSelectedTherapyTypes = selectedTherapyTypes
+        lastViewContext = viewContext
+    }
+
+    /// Re-fetch health context if more than 10 minutes have passed since last build
+    private func refreshContextIfStale() {
+        guard let lastBuild = lastContextBuild,
+              Date().timeIntervalSince(lastBuild) > 600, // 10 minutes
+              let viewContext = lastViewContext else { return }
+        refreshHealthContext(
+            insightsViewModel: lastInsightsViewModel,
+            recoveryModel: lastRecoveryModel,
+            sleepModel: lastSleepModel,
+            exertionModel: lastExertionModel,
+            stressModel: lastStressModel,
+            sessions: lastSessions,
+            selectedTherapyTypes: lastSelectedTherapyTypes,
+            viewContext: viewContext
+        )
     }
 
     /// Whether the AI is currently streaming its response (text still arriving)
@@ -75,6 +115,9 @@ class ChatViewModel: ObservableObject {
     func sendMessage(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+
+        // Refresh health context if stale (>10 min)
+        refreshContextIfStale()
 
         errorMessage = nil
         let userMessage = ChatMessage(role: .user, content: trimmed)
@@ -138,14 +181,21 @@ class ChatViewModel: ObservableObject {
 
                 // Now parse the full response into proper blocks + widgets
                 let (cleaned, followUps) = CoachResponseParser.extractFollowUps(fullResponse)
-                let blocks = CoachResponseParser.parse(cleaned, snapshot: healthSnapshot)
+                let blocks = CoachResponseParser.parse(cleaned, snapshot: healthSnapshot ?? HealthSnapshot())
                 let plainText = CoachResponseParser.extractPlainText(from: blocks)
 
                 messages[streamingIndex].content = plainText
                 messages[streamingIndex].blocks = blocks
                 messages[streamingIndex].followUpSuggestions = followUps
+                messages[streamingIndex].originalPrompt = trimmed
 
                 isStreaming = false
+
+                // Success haptic
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+                // Auto-save conversation
+                saveConversationIfNeeded()
             } catch {
                 // Remove the placeholder message if streaming failed
                 if isStreaming, !messages.isEmpty, messages.last?.role == .model, messages.last?.content.isEmpty == true {
@@ -154,6 +204,9 @@ class ChatViewModel: ObservableObject {
                 errorMessage = (error as? ChatServiceError)?.errorDescription ?? error.localizedDescription
                 isLoading = false
                 isStreaming = false
+
+                // Error haptic
+                UINotificationFeedbackGenerator().notificationOccurred(.error)
             }
         }
     }
@@ -190,6 +243,91 @@ class ChatViewModel: ObservableObject {
             selectedTherapyTypes: selectedTherapyTypes,
             viewContext: viewContext
         )
+    }
+
+    // MARK: - Regenerate
+
+    func regenerateLastResponse() {
+        guard let lastAI = messages.last, lastAI.role == .model,
+              let prompt = lastAI.originalPrompt else { return }
+        messages.removeLast()
+        sendMessage(prompt)
+    }
+
+    // MARK: - Feedback
+
+    func setFeedback(_ feedback: ChatMessage.Feedback, for messageId: UUID) {
+        guard let index = messages.firstIndex(where: { $0.id == messageId }) else { return }
+        messages[index].feedback = feedback
+        // Save updated conversation
+        ConversationStore.shared.saveConversation(messages)
+    }
+
+    // MARK: - Persistence
+
+    func saveConversationIfNeeded() {
+        guard !messages.isEmpty else { return }
+        ConversationStore.shared.saveConversation(messages)
+    }
+
+    func loadConversation(_ conversation: SavedConversation) {
+        messages = conversation.messages.map { saved in
+            ChatMessage(
+                role: saved.role == "user" ? .user : .model,
+                content: saved.content,
+                timestamp: saved.timestamp,
+                feedback: saved.feedback.flatMap { ChatMessage.Feedback(rawValue: $0) }
+            )
+        }
+    }
+
+    // MARK: - Export
+
+    func exportConversation() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy h:mm a"
+
+        var markdown = "# Coach Conversation\n\n"
+        for message in messages {
+            let role = message.role == .user ? "**You**" : "**Coach**"
+            let time = dateFormatter.string(from: message.timestamp)
+            markdown += "\(role) — *\(time)*\n\n\(message.content)\n\n---\n\n"
+        }
+        return markdown
+    }
+
+    // MARK: - Proactive Nudges
+
+    func detectNudge() -> String? {
+        guard let snap = healthSnapshot else { return nil }
+
+        // Recovery drop
+        if let score = snap.recoveryScore, score < 50 {
+            return "I noticed your recovery is at \(score)% — want to talk about what might be causing this?"
+        }
+
+        // Sleep deficit
+        if let duration = snap.sleepDuration,
+           let hours = Double(duration.replacingOccurrences(of: "h", with: ".").replacingOccurrences(of: "m", with: "")),
+           hours < 5.5 {
+            return "Looks like you only got \(duration) of sleep last night. Want to explore how that's affecting you?"
+        }
+
+        // Pain spike
+        if let pain = snap.pain, pain >= 4 {
+            let location = snap.painLocation ?? "your body"
+            return "Your pain level is at \(pain)/5 in \(location). Want to discuss what might be going on?"
+        }
+
+        // HRV drop
+        if let hrv = snap.hrv, let baseline = snap.hrvBaseline, baseline > 0 {
+            let drop = baseline - hrv
+            if drop > 10 {
+                return "Your HRV dropped \(drop)ms below your baseline (\(hrv) vs \(baseline)ms). Want to explore why?"
+            }
+        }
+
+        return nil
     }
 
     // MARK: - Build HealthSnapshot from models

@@ -48,7 +48,33 @@ struct HealthContextBuilder {
         Example: If asked "how is running affecting my HRV", use [SHOW:sessions:running] and [SHOW:hrv]. \
         If asked about mood trends, use [SHOW:mood]. Do NOT show a recovery chart if the question is about sleep.
 
+        FOLLOW-UP SUGGESTIONS:
+        At the end of every response, suggest 2-3 follow-up questions the user might want to ask, \
+        specific to the data you just discussed. Format each as [FOLLOWUP:question text] on its own line. \
+        Make them specific and actionable based on the conversation, not generic.
+
         Respond in natural, conversational language. Use specific numbers from the data. When comparing metrics, mention both current and baseline values. End with actionable advice when relevant.
+        """)
+
+        // Time context
+        let now = Date()
+        let hour = Calendar.current.component(.hour, from: now)
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "EEEE"
+        let dayOfWeek = dayFormatter.string(from: now)
+        let timeLabel: String
+        switch hour {
+        case 5..<12: timeLabel = "morning"
+        case 12..<17: timeLabel = "afternoon"
+        case 17..<21: timeLabel = "evening"
+        default: timeLabel = "night"
+        }
+        sections.append("""
+        TIME CONTEXT:
+        Current time: \(hour):00, \(dayOfWeek), \(timeLabel).
+        Adjust your tone and recommendations to the time of day. For example, \
+        evening advice might focus on wind-down and sleep prep, while morning advice \
+        might focus on readiness and the day ahead.
         """)
 
         // Today's health metrics

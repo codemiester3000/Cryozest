@@ -7,19 +7,27 @@ struct ChatMessage: Identifiable {
     let timestamp: Date
     var blocks: [CoachResponseBlock]?
     var followUpSuggestions: [String]
+    var originalPrompt: String?
+    var feedback: Feedback?
 
     enum ChatRole: String {
         case user
         case model
     }
 
-    init(role: ChatRole, content: String, blocks: [CoachResponseBlock]? = nil, followUpSuggestions: [String] = []) {
+    enum Feedback: String, Codable {
+        case thumbsUp
+        case thumbsDown
+    }
+
+    init(role: ChatRole, content: String, blocks: [CoachResponseBlock]? = nil, followUpSuggestions: [String] = [], timestamp: Date = Date(), feedback: Feedback? = nil) {
         self.id = UUID()
         self.role = role
         self.content = content
-        self.timestamp = Date()
+        self.timestamp = timestamp
         self.blocks = blocks
         self.followUpSuggestions = followUpSuggestions
+        self.feedback = feedback
     }
 }
 

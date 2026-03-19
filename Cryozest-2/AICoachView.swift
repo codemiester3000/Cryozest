@@ -39,6 +39,8 @@ struct CoachSheetView: View {
 
     @FocusState private var isInputFocused: Bool
     @State private var hasConfigured = false
+    @StateObject private var speechRecognizer = SpeechRecognizer()
+    @StateObject private var conversationStore = ConversationStore.shared
 
     // MARK: - Computed Data
 
@@ -100,8 +102,46 @@ struct CoachSheetView: View {
             }
         }
 
+        // Exertion extremes
+        if let exertion = chatViewModel.healthSnapshot?.exertionScore {
+            if exertion > 80 && questions.count < 6 {
+                questions.append(SuggestedQuestion(
+                    text: "Exertion hit \(exertion) today — am I overdoing it?",
+                    icon: "flame.fill", color: .orange
+                ))
+            } else if exertion < 20 && exertion > 0 && questions.count < 6 {
+                questions.append(SuggestedQuestion(
+                    text: "Exertion is only \(exertion) — should I push harder?",
+                    icon: "flame", color: .yellow
+                ))
+            }
+        }
+
+        // Mood trend
+        if let moodHistory = chatViewModel.healthSnapshot?.moodHistory, moodHistory.count >= 3 {
+            let recent = Array(moodHistory.suffix(3))
+            let avg = Double(recent.reduce(0, +)) / Double(recent.count)
+            if avg <= 2.0 && questions.count < 6 {
+                questions.append(SuggestedQuestion(
+                    text: "My mood has been low lately — what patterns do you see?",
+                    icon: "face.smiling", color: .purple
+                ))
+            }
+        }
+
+        // Pain trend
+        if let painHistory = chatViewModel.healthSnapshot?.painHistory, painHistory.count >= 3 {
+            let recent = Array(painHistory.suffix(3))
+            if recent.allSatisfy({ $0 >= 3 }) && questions.count < 6 {
+                questions.append(SuggestedQuestion(
+                    text: "Pain has been elevated for days — what could help?",
+                    icon: "bandage.fill", color: .red
+                ))
+            }
+        }
+
         // Correlation-based
-        if let vm = insightsViewModel, let top = vm.topHabitImpacts.first {
+        if let vm = insightsViewModel, let top = vm.topHabitImpacts.first, questions.count < 6 {
             questions.append(SuggestedQuestion(
                 text: "How does \(top.habitType.displayName(viewContext)) impact my \(top.metricName)?",
                 icon: "chart.line.uptrend.xyaxis", color: .cyan
@@ -122,7 +162,7 @@ struct CoachSheetView: View {
             ))
         }
 
-        return Array(questions.prefix(4))
+        return Array(questions.prefix(5))
     }
 
     // MARK: - Body
@@ -195,6 +235,13 @@ struct CoachSheetView: View {
             Spacer()
 
             if !chatViewModel.messages.isEmpty {
+                Button(action: exportConversation) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.4))
+                        .frame(width: 32, height: 32)
+                }
+
                 Button(action: clearConversation) {
                     HStack(spacing: 5) {
                         Image(systemName: "plus.message")
@@ -246,10 +293,139 @@ struct CoachSheetView: View {
                 }
                 .padding(.bottom, 24)
 
+                // Proactive nudge card
+                if let nudge = chatViewModel.detectNudge() {
+                    nudgeCard(nudge)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 16)
+                }
+
                 questionsSection
                     .padding(.bottom, 16)
+
+                // Recent conversations
+                if !conversationStore.recentConversations.isEmpty {
+                    recentConversationsSection
+                        .padding(.bottom, 16)
+                }
             }
         }
+    }
+
+    // MARK: - Nudge Card
+
+    private func nudgeCard(_ text: String) -> some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            chatViewModel.sendMessage(text)
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.orange.opacity(0.15))
+                        .frame(width: 34, height: 34)
+
+                    Image(systemName: "exclamationmark.bubble.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.orange)
+                }
+
+                Text(text)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.9))
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(3)
+
+                Spacer()
+
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(.orange.opacity(0.6))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.orange.opacity(0.1), Color.orange.opacity(0.04)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    // MARK: - Recent Conversations
+
+    private var recentConversationsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.4))
+
+                Text("Recent")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white.opacity(0.4))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+            }
+            .padding(.horizontal, 20)
+
+            VStack(spacing: 6) {
+                ForEach(conversationStore.recentConversations.prefix(5)) { conversation in
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        if let full = ConversationStore.shared.loadConversation(id: conversation.id) {
+                            chatViewModel.loadConversation(full)
+                        }
+                    }) {
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(conversation.preview)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .lineLimit(1)
+
+                                Text(relativeDate(conversation.createdAt))
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.2))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 11)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.04))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                                )
+                        )
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    private func relativeDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 
     // MARK: - Questions Section
@@ -333,18 +509,79 @@ struct CoachSheetView: View {
                     .padding(.top, 4)
 
                     ForEach(chatViewModel.messages) { message in
+                        let isLastAI = message.role == .model && message.id == chatViewModel.messages.last?.id
+
                         VStack(alignment: .leading, spacing: 8) {
                             CoachChatBubble(message: message)
+                                .if(message.role == .model) { view in
+                                    view.contextMenu {
+                                        Button {
+                                            UIPasteboard.general.string = message.content
+                                        } label: {
+                                            Label("Copy Text", systemImage: "doc.on.doc")
+                                        }
+
+                                        Button {
+                                            shareText(message.content)
+                                        } label: {
+                                            Label("Share", systemImage: "square.and.arrow.up")
+                                        }
+                                    }
+                                }
+
+                            // Feedback + Regenerate row on last AI message
+                            if isLastAI && !chatViewModel.isStreaming {
+                                HStack(spacing: 12) {
+                                    // Thumbs up/down
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        chatViewModel.setFeedback(.thumbsUp, for: message.id)
+                                    } label: {
+                                        Image(systemName: message.feedback == .thumbsUp ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(message.feedback == .thumbsUp ? .green : .white.opacity(0.3))
+                                    }
+
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        chatViewModel.setFeedback(.thumbsDown, for: message.id)
+                                    } label: {
+                                        Image(systemName: message.feedback == .thumbsDown ? "hand.thumbsdown.fill" : "hand.thumbsdown")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(message.feedback == .thumbsDown ? .orange : .white.opacity(0.3))
+                                    }
+
+                                    Spacer()
+
+                                    // Regenerate
+                                    if message.originalPrompt != nil {
+                                        Button {
+                                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                            chatViewModel.regenerateLastResponse()
+                                        } label: {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "arrow.counterclockwise")
+                                                    .font(.system(size: 11, weight: .semibold))
+                                                Text("Regenerate")
+                                                    .font(.system(size: 11, weight: .medium))
+                                            }
+                                            .foregroundColor(.white.opacity(0.35))
+                                        }
+                                    }
+                                }
+                                .padding(.leading, 38)
+                                .padding(.trailing, 16)
+                            }
 
                             // Follow-up chips on the last AI message
                             if message.role == .model,
                                !message.followUpSuggestions.isEmpty,
-                               message.id == chatViewModel.messages.last?.id {
+                               isLastAI {
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
                                         ForEach(Array(message.followUpSuggestions.enumerated()), id: \.element) { index, suggestion in
                                             Button {
-                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                                                 chatViewModel.sendMessage(suggestion)
                                             } label: {
                                                 Text(suggestion)
@@ -358,7 +595,7 @@ struct CoachSheetView: View {
                                                             .overlay(
                                                                 Capsule()
                                                                     .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
-                                                            )
+                                                                )
                                                     )
                                             }
                                             .buttonStyle(ScaleButtonStyle())
@@ -438,14 +675,27 @@ struct CoachSheetView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Color.orange.opacity(0.1))
+        .onAppear {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        }
     }
 
     // MARK: - Input Bar
 
     private var inputBar: some View {
         HStack(spacing: 10) {
+            // Mic button
+            Button(action: toggleRecording) {
+                Image(systemName: speechRecognizer.isRecording ? "mic.fill" : "mic")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(speechRecognizer.isRecording ? .red : .white.opacity(0.4))
+                    .frame(width: 30, height: 30)
+                    .scaleEffect(speechRecognizer.isRecording ? 1.2 : 1.0)
+                    .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: speechRecognizer.isRecording)
+            }
+
             TextField("", text: $chatViewModel.inputText,
-                      prompt: Text("Message your coach...")
+                      prompt: Text(speechRecognizer.isRecording ? "Listening..." : "Message your coach...")
                           .foregroundColor(.white.opacity(0.4)))
                 .font(.system(size: 15))
                 .foregroundColor(.white)
@@ -460,11 +710,16 @@ struct CoachSheetView: View {
                         .fill(Color.white.opacity(0.07))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(isInputFocused ? Color.cyan.opacity(0.3) : Color.white.opacity(0.1), lineWidth: isInputFocused ? 1 : 0.5)
+                                .stroke(speechRecognizer.isRecording ? Color.red.opacity(0.3) : (isInputFocused ? Color.cyan.opacity(0.3) : Color.white.opacity(0.1)), lineWidth: isInputFocused || speechRecognizer.isRecording ? 1 : 0.5)
                         )
                 )
                 .shadow(color: isInputFocused ? Color.cyan.opacity(0.1) : .clear, radius: 8)
                 .animation(.easeInOut(duration: 0.2), value: isInputFocused)
+                .onChange(of: speechRecognizer.transcript) { newValue in
+                    if !newValue.isEmpty {
+                        chatViewModel.inputText = newValue
+                    }
+                }
 
             Button(action: sendCurrentMessage) {
                 Image(systemName: "arrow.up.circle.fill")
@@ -493,6 +748,9 @@ struct CoachSheetView: View {
 
     private func clearConversation() {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        chatViewModel.saveConversationIfNeeded()
+        conversationStore.startNewConversation()
+
         let sleepModel = DailySleepViewModel(selectedDate: Calendar.current.startOfDay(for: Date()))
         let exertionModel = ExertionModel(selectedDate: Calendar.current.startOfDay(for: Date()))
 
@@ -505,6 +763,50 @@ struct CoachSheetView: View {
             selectedTherapyTypes: selectedTherapyTypes,
             viewContext: viewContext
         )
+    }
+
+    private func toggleRecording() {
+        if speechRecognizer.isRecording {
+            speechRecognizer.stopRecording()
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        } else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            Task {
+                await speechRecognizer.startRecording()
+            }
+        }
+    }
+
+    private func shareText(_ text: String) {
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
+            }
+            activityVC.popoverPresentationController?.sourceView = topVC.view
+            topVC.present(activityVC, animated: true)
+        }
+    }
+
+    private func exportConversation() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        let markdown = chatViewModel.exportConversation()
+        shareText(markdown)
+    }
+}
+
+// MARK: - Conditional View Modifier
+
+extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
     }
 }
 
@@ -594,26 +896,40 @@ struct CoachChatBubble: View {
 struct CoachBlockView: View {
     let block: CoachResponseBlock
 
-    var body: some View {
+    private var isWidget: Bool {
         switch block.content {
-        case .text(let text):
-            TextBlockView(text: text)
-        case .metric(let data):
-            MetricBlockView(metric: data)
-        case .metricsRow(let metrics):
-            MetricsRowBlockView(metrics: metrics)
-        case .chart(let data):
-            ChartBlockView(data: data)
-        case .comparison(let data):
-            ComparisonBlockView(data: data)
-        case .tip(let data):
-            TipBlockView(data: data)
-        case .workoutSummary(let data):
-            WorkoutSummaryBlockView(data: data)
-        case .sessionList(let data):
-            SessionListBlockView(data: data)
-        case .heartZones(let data):
-            HeartZonesBlockView(data: data)
+        case .text: return false
+        default: return true
+        }
+    }
+
+    var body: some View {
+        Group {
+            switch block.content {
+            case .text(let text):
+                TextBlockView(text: text)
+            case .metric(let data):
+                MetricBlockView(metric: data)
+            case .metricsRow(let metrics):
+                MetricsRowBlockView(metrics: metrics)
+            case .chart(let data):
+                ChartBlockView(data: data)
+            case .comparison(let data):
+                ComparisonBlockView(data: data)
+            case .tip(let data):
+                TipBlockView(data: data)
+            case .workoutSummary(let data):
+                WorkoutSummaryBlockView(data: data)
+            case .sessionList(let data):
+                SessionListBlockView(data: data)
+            case .heartZones(let data):
+                HeartZonesBlockView(data: data)
+            }
+        }
+        .onAppear {
+            if isWidget {
+                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+            }
         }
     }
 }
