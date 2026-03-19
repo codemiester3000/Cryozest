@@ -431,57 +431,82 @@ struct CoachSheetView: View {
     // MARK: - Questions Section
 
     private var questionsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(.cyan)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.cyan, .cyan.opacity(0.6)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
 
-                Text("Ask Me")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(.white.opacity(0.4))
+                Text("Suggested")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.white.opacity(0.5))
                     .textCase(.uppercase)
-                    .tracking(0.5)
+                    .tracking(0.8)
             }
             .padding(.horizontal, 20)
 
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 ForEach(suggestedQuestions) { question in
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         chatViewModel.sendMessage(question.text)
                     }) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: 14) {
                             ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(question.color.opacity(0.12))
-                                    .frame(width: 32, height: 32)
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [question.color.opacity(0.2), question.color.opacity(0.08)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 36, height: 36)
 
                                 Image(systemName: question.icon)
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.system(size: 15, weight: .semibold))
                                     .foregroundColor(question.color)
                             }
 
                             Text(question.text)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white.opacity(0.85))
+                                .font(.system(size: 14.5, weight: .medium))
+                                .foregroundColor(.white.opacity(0.9))
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(2)
 
                             Spacer()
 
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.25))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(question.color.opacity(0.4))
                         }
                         .padding(.horizontal, 14)
-                        .padding(.vertical, 11)
+                        .padding(.vertical, 12)
                         .background(
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(Color.white.opacity(0.06))
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.white.opacity(0.07), Color.white.opacity(0.03)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [question.color.opacity(0.15), Color.white.opacity(0.06)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 1
+                                        )
                                 )
                         )
                     }
@@ -686,12 +711,25 @@ struct CoachSheetView: View {
         HStack(spacing: 10) {
             // Mic button
             Button(action: toggleRecording) {
-                Image(systemName: speechRecognizer.isRecording ? "mic.fill" : "mic")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(speechRecognizer.isRecording ? .red : .white.opacity(0.4))
-                    .frame(width: 30, height: 30)
-                    .scaleEffect(speechRecognizer.isRecording ? 1.2 : 1.0)
-                    .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: speechRecognizer.isRecording)
+                ZStack {
+                    if speechRecognizer.isRecording {
+                        // Pulsing ring behind the mic icon
+                        Circle()
+                            .stroke(Color.red.opacity(0.3), lineWidth: 2)
+                            .frame(width: 34, height: 34)
+                            .modifier(PulsingRing())
+                    }
+
+                    Circle()
+                        .fill(speechRecognizer.isRecording ? Color.red.opacity(0.15) : Color.clear)
+                        .frame(width: 30, height: 30)
+
+                    Image(systemName: speechRecognizer.isRecording ? "mic.fill" : "mic")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(speechRecognizer.isRecording ? .red : .white.opacity(0.4))
+                }
+                .frame(width: 36, height: 36)
+                .animation(.easeInOut(duration: 0.2), value: speechRecognizer.isRecording)
             }
 
             TextField("", text: $chatViewModel.inputText,
@@ -1512,6 +1550,25 @@ struct HeartZonesBlockView: View {
 
 // MARK: - Subtle Pulse Modifier
 
+// MARK: - Pulsing Ring (Mic Recording)
+
+struct PulsingRing: ViewModifier {
+    @State private var scale: CGFloat = 1.0
+    @State private var ringOpacity: Double = 0.6
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scale)
+            .opacity(ringOpacity)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                    scale = 1.35
+                    ringOpacity = 0.0
+                }
+            }
+    }
+}
+
 struct SubtlePulse: ViewModifier {
     @State private var pulseCount = 0
     @State private var offsetX: CGFloat = 0
@@ -1543,8 +1600,24 @@ struct ScaleButtonStyle: ButtonStyle {
 // MARK: - Typing Indicator
 
 struct CoachTypingIndicator: View {
-    @State private var animating = false
+    private static let statusPhrases = [
+        "Thinking",
+        "Analyzing your data",
+        "Reviewing metrics",
+        "Looking at patterns",
+        "Crunching numbers",
+        "Connecting the dots",
+        "Checking trends",
+        "Preparing insights"
+    ]
+
+    @State private var currentPhraseIndex = 0
+    @State private var dotCount = 0
     @State private var shimmerOffset: CGFloat = -200
+    @State private var opacity: Double = 1.0
+
+    private let phraseTimer = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
+    private let dotTimer = Timer.publish(every: 0.4, on: .main, in: .common).autoconnect()
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -1555,25 +1628,25 @@ struct CoachTypingIndicator: View {
                 Image(systemName: "sparkles")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.cyan)
+                    .rotationEffect(.degrees(shimmerOffset > 0 ? 15 : -15))
+                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: shimmerOffset)
             }
             .padding(.top, 2)
 
-            HStack(spacing: 5) {
-                ForEach(0..<3, id: \.self) { index in
-                    Circle()
-                        .fill(Color.white.opacity(0.4))
-                        .frame(width: 7, height: 7)
-                        .offset(y: animating ? -5 : 0)
-                        .animation(
-                            .easeInOut(duration: 0.45)
-                                .repeatForever(autoreverses: true)
-                                .delay(Double(index) * 0.15),
-                            value: animating
-                        )
-                }
+            HStack(spacing: 0) {
+                Text(Self.statusPhrases[currentPhraseIndex])
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.5))
+                    .opacity(opacity)
+                    .animation(.easeInOut(duration: 0.3), value: opacity)
+
+                Text(String(repeating: ".", count: dotCount))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.3))
+                    .frame(width: 20, alignment: .leading)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.white.opacity(0.05))
@@ -1596,10 +1669,22 @@ struct CoachTypingIndicator: View {
             Spacer(minLength: 50)
         }
         .onAppear {
-            animating = true
+            currentPhraseIndex = Int.random(in: 0..<Self.statusPhrases.count)
             withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
                 shimmerOffset = 200
             }
+        }
+        .onReceive(phraseTimer) { _ in
+            // Fade out, switch phrase, fade in
+            withAnimation(.easeOut(duration: 0.15)) { opacity = 0 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                currentPhraseIndex = (currentPhraseIndex + 1) % Self.statusPhrases.count
+                dotCount = 0
+                withAnimation(.easeIn(duration: 0.15)) { opacity = 1 }
+            }
+        }
+        .onReceive(dotTimer) { _ in
+            dotCount = (dotCount + 1) % 4
         }
     }
 }
